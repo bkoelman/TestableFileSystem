@@ -219,7 +219,12 @@ namespace TestableFileSystem.Fakes
                 {
                     DirectoryEntry directory = Directories[path.Name];
 
-                    // TODO: Block deletion when directory contains file that is in use.
+                    // Block deletion when directory contains file that is in use.
+                    FileEntry openFile = directory.TryGetFirstOpenFile();
+                    if (openFile != null)
+                    {
+                        throw ErrorFactory.FileIsInUse(openFile.GetAbsolutePath());
+                    }
 
                     if (!isRecursive && !directory.IsEmpty)
                     {
@@ -234,6 +239,25 @@ namespace TestableFileSystem.Fakes
                 AssertContainsDirectory(path);
                 Directories[path.Name].DeleteDirectory(path.MoveDown(), isRecursive);
             }
+        }
+
+        [CanBeNull]
+        private FileEntry TryGetFirstOpenFile()
+        {
+            FileEntry file = Files.Values.FirstOrDefault(x => x.IsOpen());
+            if (file == null)
+            {
+                foreach (DirectoryEntry directory in Directories.Values)
+                {
+                    file = directory.TryGetFirstOpenFile();
+                    if (file != null)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return file;
         }
 
         [NotNull]

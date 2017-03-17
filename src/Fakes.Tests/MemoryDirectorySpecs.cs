@@ -86,7 +86,7 @@ namespace TestableFileSystem.Fakes.Tests
             fileSystem.Directory.Exists(@"C:\some\folder").Should().BeFalse();
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_deleting_nonempty_directory_recursively_that_contains_open_file_it_must_fail()
         {
             // Arrange
@@ -100,7 +100,7 @@ namespace TestableFileSystem.Fakes.Tests
                 Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
 
                 // Assert
-                action.ShouldThrow<Exception>().WithMessage("...");
+                action.ShouldThrow<IOException>().WithMessage(@"The process cannot access the file 'C:\some\folder\deeper\file.txt' because it is being used by another process.");
             }
         }
 

@@ -114,6 +114,14 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        public bool IsOpen()
+        {
+            lock (readerWriterLock)
+            {
+                return activeWriter != null || activeReaders.Any();
+            }
+        }
+
         public event EventHandler ContentChanged;
 
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)

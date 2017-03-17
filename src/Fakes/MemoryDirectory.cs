@@ -42,7 +42,8 @@ namespace TestableFileSystem.Fakes
         public IEnumerable<string> EnumerateFiles(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            throw new NotImplementedException();
+            // Not using deferred execution because we are running inside a lock.
+            return GetFiles(path, searchPattern, searchOption);
         }
 
         public string[] GetDirectories(string path, string searchPattern = "*",
@@ -54,7 +55,8 @@ namespace TestableFileSystem.Fakes
         public IEnumerable<string> EnumerateDirectories(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            throw new NotImplementedException();
+            // Not using deferred execution because we are running inside a lock.
+            return GetDirectories(path, searchPattern, searchOption);
         }
 
         public string[] GetFileSystemEntries(string path, string searchPattern = "*",
@@ -66,7 +68,8 @@ namespace TestableFileSystem.Fakes
         public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            throw new NotImplementedException();
+            // Not using deferred execution because we are running inside a lock.
+            return GetFileSystemEntries(path, searchPattern, searchOption);
         }
 
         public bool Exists(string path)

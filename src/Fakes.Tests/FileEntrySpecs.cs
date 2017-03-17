@@ -65,6 +65,7 @@ namespace TestableFileSystem.Fakes.Tests
             entry.LastWriteTimeUtc.Should().Be(time);
             entry.LastAccessTimeUtc.Should().Be(time);
             entry.Length.Should().Be(0);
+            entry.IsOpen().Should().Be(false);
         }
 
         [Fact]
@@ -146,6 +147,7 @@ namespace TestableFileSystem.Fakes.Tests
 
                     // Assert
                     entry.LastAccessTimeUtc.Should().Be(accessTime);
+                    entry.IsOpen().Should().Be(true);
                     content.Should().Be("ABC");
                 }
             }
@@ -226,6 +228,7 @@ namespace TestableFileSystem.Fakes.Tests
 
                 // Assert
                 entry.Length.Should().Be(0);
+                entry.IsOpen().Should().Be(true);
                 monitor.HasContentChanged.Should().BeTrue();
             }
         }
