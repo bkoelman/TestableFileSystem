@@ -11,17 +11,20 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly DirectoryEntry root;
 
-        public IDirectory Directory => new MemoryDirectory(root, this);
+        public IDirectory Directory { get; }
 
-        public IFile File => new MemoryFile(root, this);
-
-        [NotNull]
-        internal string CurrentDirectory { get; set; }
+        public IFile File { get; }
 
         public MemoryFileSystem()
             : this(DirectoryEntry.CreateRoot())
         {
         }
+
+        [NotNull]
+        internal readonly object TreeLock = new object();
+
+        [NotNull]
+        internal DirectoryEntry CurrentDirectory { get; set; }
 
         public MemoryFileSystem([NotNull] DirectoryEntry rootEntry)
         {
@@ -30,13 +33,15 @@ namespace TestableFileSystem.Fakes
             AssertHasDrives(rootEntry);
 
             root = rootEntry;
-            CurrentDirectory = GetPathToFirstDriveLetter(rootEntry);
+            Directory = new DirectoryOperationLocker(this, new MemoryDirectory(rootEntry, this));
+            File = new FileOperationLocker(this, new MemoryFile(rootEntry, this));
+            CurrentDirectory = GetEntryToFirstDriveLetter(rootEntry);
         }
 
         [NotNull]
-        private static string GetPathToFirstDriveLetter([NotNull] DirectoryEntry rootEntry)
+        private static DirectoryEntry GetEntryToFirstDriveLetter([NotNull] DirectoryEntry rootEntry)
         {
-            return rootEntry.Directories.First(x => x.Key.IndexOf(Path.VolumeSeparatorChar) != -1).Key + Path.DirectorySeparatorChar;
+            return rootEntry.Directories.First(x => x.Key.IndexOf(Path.VolumeSeparatorChar) != -1).Value;
         }
 
         [AssertionMethod]
@@ -55,6 +60,16 @@ namespace TestableFileSystem.Fakes
             {
                 throw new InvalidOperationException("System contains no drives.");
             }
+        }
+
+        [NotNull]
+        internal AbsolutePath ToAbsolutePath([NotNull] string path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            var basePath = CurrentDirectory.GetAbsolutePath();
+            string rooted = Path.Combine(basePath, path);
+            return new AbsolutePath(rooted);
         }
     }
 }

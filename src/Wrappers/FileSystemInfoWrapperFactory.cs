@@ -27,7 +27,7 @@ namespace TestableFileSystem.Wrappers
                 return new FileInfoWrapper(fileInfo);
             }
 
-            throw new NotSupportedException($"Type ${source.GetType()} is not supported.");
+            throw new NotSupportedException($"Type {source.GetType()} is not supported.");
         }
     }
 }

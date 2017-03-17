@@ -50,8 +50,7 @@ namespace TestableFileSystem.Fakes.Tests
             Action action = () => root.CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>()
-                .WithMessage("Drive letter or network share must be created at this level.");
+            action.ShouldThrow<InvalidOperationException>().WithMessage("Drive letter or network share must be created at this level.");
         }
 
         [Fact]
@@ -134,7 +133,7 @@ namespace TestableFileSystem.Fakes.Tests
             Action action = () => root.GetOrCreateFile(path, false);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>();
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -198,7 +197,7 @@ namespace TestableFileSystem.Fakes.Tests
             Action action = () => root.TryGetExistingFile(path);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>();
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
         [Fact]

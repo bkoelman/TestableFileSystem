@@ -83,8 +83,7 @@ namespace TestableFileSystem.Fakes.Tests
             Action action = () => new AbsolutePath(@"docs\work");
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .WithMessage("Path must start with drive letter or network share.*");
+            action.ShouldThrow<ArgumentException>().WithMessage("Path must start with drive letter or network share.*");
         }
 
         [Fact]
@@ -120,8 +119,7 @@ namespace TestableFileSystem.Fakes.Tests
             Action action = () => new AbsolutePath(@"C:\..\games");
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .WithMessage(@"The path 'C:\..\games' is invalid.*");
+            action.ShouldThrow<ArgumentException>().WithMessage(@"The path 'C:\..\games' is invalid.*");
         }
     }
 }

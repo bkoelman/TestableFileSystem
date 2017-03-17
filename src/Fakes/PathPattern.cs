@@ -152,6 +152,7 @@ namespace TestableFileSystem.Fakes
 
             if (text.IndexOfAny(DirectorySeparatorChars) != -1)
             {
+                // TODO: Better message.
                 throw new InvalidOperationException("Only one file or directory level can be matched.");
             }
 

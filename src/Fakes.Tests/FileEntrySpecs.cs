@@ -53,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string fileName = "some.txt";
 
-            DateTime time = 12.January(2017).At(22, 14);
+            DateTime time = 1.January(2017).At(22, 14);
             SystemClock.UtcNow = () => time;
 
             // Act
@@ -63,6 +63,7 @@ namespace TestableFileSystem.Fakes.Tests
             entry.Name.Should().Be(fileName);
             entry.CreationTimeUtc.Should().Be(time);
             entry.LastWriteTimeUtc.Should().Be(time);
+            entry.LastAccessTimeUtc.Should().Be(time);
             entry.Length.Should().Be(0);
         }
 
@@ -70,12 +71,12 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_writing_small_buffer_to_file_it_must_succeed()
         {
             // Arrange
-            DateTime createTime = 12.January(2017).At(22, 14);
+            DateTime createTime = 2.January(2017).At(22, 14);
             SystemClock.UtcNow = () => createTime;
 
             var entry = new FileEntry("some.txt", DriveC);
 
-            DateTime writeTime = 13.January(2017).At(23, 11);
+            DateTime writeTime = 3.January(2017).At(23, 11);
             SystemClock.UtcNow = () => writeTime;
 
             using (var monitor = new FileEntryMonitor(entry))
@@ -92,6 +93,7 @@ namespace TestableFileSystem.Fakes.Tests
                 // Assert
                 entry.CreationTimeUtc.Should().Be(createTime);
                 entry.LastWriteTimeUtc.Should().Be(writeTime);
+                entry.LastAccessTimeUtc.Should().Be(writeTime);
                 entry.Length.Should().Be(3);
                 monitor.HasContentChanged.Should().BeTrue();
 
@@ -126,9 +128,14 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_reading_small_buffer_from_file_it_must_succeed()
         {
             // Arrange
+            SystemClock.UtcNow = () => 4.January(2015).At(12, 44);
+
             var entry = new FileEntry("some.txt", DriveC);
 
             entry.WriteToFile("ABC");
+
+            DateTime accessTime = 5.January(2017).At(23, 11);
+            SystemClock.UtcNow = () => accessTime;
 
             using (var stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
@@ -138,6 +145,7 @@ namespace TestableFileSystem.Fakes.Tests
                     string content = reader.ReadToEnd();
 
                     // Assert
+                    entry.LastAccessTimeUtc.Should().Be(accessTime);
                     content.Should().Be("ABC");
                 }
             }
@@ -234,9 +242,8 @@ namespace TestableFileSystem.Fakes.Tests
             Action action = () => entry.Open(FileMode.Open, FileAccess.Read);
 
             // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(
-                    @"The process cannot access the file 'C:\some.txt' because it is being used by another process.");
+            action.ShouldThrow<IOException>().WithMessage(
+                @"The process cannot access the file 'C:\some.txt' because it is being used by another process.");
         }
 
         [Fact]
@@ -252,9 +259,8 @@ namespace TestableFileSystem.Fakes.Tests
             Action action = () => entry.Open(FileMode.Open, FileAccess.Write);
 
             // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(
-                    @"The process cannot access the file 'C:\some.txt' because it is being used by another process.");
+            action.ShouldThrow<IOException>().WithMessage(
+                @"The process cannot access the file 'C:\some.txt' because it is being used by another process.");
         }
 
         [Fact]
@@ -326,6 +332,9 @@ namespace TestableFileSystem.Fakes.Tests
             {
                 entry.WriteToFile("ABC");
 
+                DateTime accessTime = 6.January(2017).At(23, 11);
+                SystemClock.UtcNow = () => accessTime;
+
                 using (var stream = entry.Open(FileMode.Open, FileAccess.Write))
                 {
                     // Act
@@ -335,6 +344,7 @@ namespace TestableFileSystem.Fakes.Tests
                 // Assert
                 entry.Length.Should().Be("ABC".Length + 10);
                 monitor.HasContentChanged.Should().BeTrue();
+                entry.LastAccessTimeUtc.Should().Be(accessTime);
 
                 string contents = entry.GetFileContentsAsString();
                 contents.Substring("ABC".Length).Should().Be(new string('\0', 10));

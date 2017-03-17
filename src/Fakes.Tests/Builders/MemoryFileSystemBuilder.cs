@@ -6,7 +6,7 @@ namespace TestableFileSystem.Fakes.Tests.Builders
     internal sealed class MemoryFileSystemBuilder : ITestDataBuilder<IFileSystem>
     {
         [NotNull]
-        private readonly DirectoryTreeBuilder builder = new DirectoryTreeBuilder();
+        private readonly DirectoryTreeBuilder builder = new DirectoryTreeBuilder().IncludingDirectory("C:");
 
         public IFileSystem Build()
         {
@@ -15,9 +15,9 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         }
 
         [NotNull]
-        public MemoryFileSystemBuilder IncludingFile([NotNull] string path)
+        public MemoryFileSystemBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null)
         {
-            builder.IncludingFile(path);
+            builder.IncludingFile(path, contents);
             return this;
         }
 

@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Tests.Utilities;
 
 namespace TestableFileSystem.Fakes.Tests.Builders
 {
@@ -13,10 +14,16 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         }
 
         [NotNull]
-        public DirectoryTreeBuilder IncludingFile([NotNull] string path)
+        public DirectoryTreeBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null)
         {
             AbsolutePath absolutePath = new AbsolutePath(path);
-            root.GetOrCreateFile(absolutePath, true);
+            var file = root.GetOrCreateFile(absolutePath, true);
+
+            if (contents != null)
+            {
+                file.WriteToFile(contents);
+            }
+
             return this;
         }
 

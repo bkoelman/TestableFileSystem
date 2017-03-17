@@ -30,14 +30,89 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly object readerWriterLock = new object();
 
+        private long creationTimeStampUtc;
+        private long lastWriteTimeStampUtc;
+        private long lastAccessTimeStampUtc;
+
         [NotNull]
         public string Name { get; }
+
+        public FileAttributes Attributes { get; set; }
 
         [NotNull]
         public DirectoryEntry Parent { get; }
 
-        public DateTime CreationTimeUtc { get; private set; }
-        public DateTime LastWriteTimeUtc { get; private set; }
+        public DateTime CreationTime
+        {
+            get
+            {
+                return DateTime.FromFileTime(creationTimeStampUtc);
+            }
+            set
+            {
+                creationTimeStampUtc = value.ToFileTime();
+            }
+        }
+
+        public DateTime CreationTimeUtc
+        {
+            get
+            {
+                return DateTime.FromFileTimeUtc(creationTimeStampUtc);
+            }
+            set
+            {
+                creationTimeStampUtc = value.ToFileTimeUtc();
+            }
+        }
+
+        public DateTime LastWriteTime
+        {
+            get
+            {
+                return DateTime.FromFileTime(lastWriteTimeStampUtc);
+            }
+            set
+            {
+                lastWriteTimeStampUtc = value.ToFileTime();
+            }
+        }
+
+        public DateTime LastWriteTimeUtc
+        {
+            get
+            {
+                return DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
+            }
+            set
+            {
+                lastWriteTimeStampUtc = value.ToFileTimeUtc();
+            }
+        }
+
+        public DateTime LastAccessTime
+        {
+            get
+            {
+                return DateTime.FromFileTime(lastAccessTimeStampUtc);
+            }
+            set
+            {
+                lastAccessTimeStampUtc = value.ToFileTime();
+            }
+        }
+
+        public DateTime LastAccessTimeUtc
+        {
+            get
+            {
+                return DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
+            }
+            set
+            {
+                lastAccessTimeStampUtc = value.ToFileTimeUtc();
+            }
+        }
 
         public event EventHandler ContentChanged;
 
@@ -63,7 +138,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (FileNameCharsInvalid.Contains(ch))
                 {
-                    throw new ArgumentException("The path is not of a legal form.", nameof(name));
+                    throw ErrorFactory.PathIsNotLegal(nameof(name));
                 }
             }
         }
@@ -79,9 +154,15 @@ namespace TestableFileSystem.Fakes
 
         private void HandleFileChanged()
         {
-            LastWriteTimeUtc = SystemClock.UtcNow();
+            HandleFileAccessed();
+            LastWriteTimeUtc = LastAccessTimeUtc;
 
             ContentChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void HandleFileAccessed()
+        {
+            LastAccessTimeUtc = SystemClock.UtcNow();
         }
 
         [NotNull]
@@ -156,11 +237,10 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        private IOException GetErrorForFileInUse()
+        private Exception GetErrorForFileInUse()
         {
             string path = GetAbsolutePath();
-            string message = $"The process cannot access the file '{path}' because it is being used by another process.";
-            return new IOException(message);
+            return ErrorFactory.FileIsInUse(path);
         }
 
         private void CloseStream([NotNull] MemoryFileStream stream)
@@ -324,6 +404,8 @@ namespace TestableFileSystem.Fakes
                     blockIndex++;
                     offsetInCurrentBlock = 0;
                 }
+
+                owner.HandleFileAccessed();
 
                 return sumBytesRead;
             }

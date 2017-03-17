@@ -26,6 +26,8 @@ namespace TestableFileSystem.Fakes
         public IDictionary<string, DirectoryEntry> Directories { get; } =
             new Dictionary<string, DirectoryEntry>(StringComparer.OrdinalIgnoreCase);
 
+        public bool IsEmpty => !Files.Any() && !Directories.Any();
+
         private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent)
         {
             Guard.NotNullNorWhiteSpace(name, nameof(name));
@@ -50,7 +52,7 @@ namespace TestableFileSystem.Fakes
                 return Name + Path.DirectorySeparatorChar;
             }
 
-            return Path.Combine(Parent.GetAbsolutePath(), Name) + Path.DirectorySeparatorChar;
+            return Path.Combine(Parent.GetAbsolutePath(), Name);
         }
 
         [NotNull]
@@ -179,6 +181,19 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        [NotNull]
+        public DirectoryEntry GetExistingDirectory([NotNull] AbsolutePath path)
+        {
+            var directory = TryGetExistingDirectory(path);
+
+            if (directory == null)
+            {
+                throw ErrorFactory.DirectoryNotFound(path.GetText());
+            }
+
+            return directory;
+        }
+
         [CanBeNull]
         public DirectoryEntry TryGetExistingDirectory([NotNull] AbsolutePath path)
         {
@@ -192,6 +207,33 @@ namespace TestableFileSystem.Fakes
             DirectoryEntry directory = Directories[path.Name];
 
             return path.IsAtEnd ? directory : directory.TryGetExistingDirectory(path.MoveDown());
+        }
+
+        public void DeleteDirectory([NotNull] AbsolutePath path, bool isRecursive)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            if (path.IsAtEnd)
+            {
+                if (Directories.ContainsKey(path.Name))
+                {
+                    var directory = Directories[path.Name];
+
+                    // TODO: Block deletion when directory contains file that is in use.
+
+                    if (!isRecursive && !directory.IsEmpty)
+                    {
+                        throw ErrorFactory.DirectoryIsNotEmpty();
+                    }
+
+                    Directories.Remove(path.Name);
+                }
+            }
+            else
+            {
+                AssertContainsDirectory(path);
+                Directories[path.Name].DeleteDirectory(path.MoveDown(), isRecursive);
+            }
         }
 
         [NotNull]
@@ -313,7 +355,7 @@ namespace TestableFileSystem.Fakes
         {
             if (!Directories.ContainsKey(path.Name))
             {
-                throw new DirectoryNotFoundException($"Could not find a part of the path '{path.GetText()}'.");
+                throw ErrorFactory.DirectoryNotFound(path.GetText());
             }
         }
     }

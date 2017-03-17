@@ -88,7 +88,46 @@ namespace TestableFileSystem.Fakes
 
         public void Delete(string path, bool recursive = false)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            var absolutePath = ToAbsolutePath(path);
+
+            DirectoryEntry directoryToDelete = root.GetExistingDirectory(absolutePath);
+            AssertNotDeletingDrive(directoryToDelete, recursive);
+            AssertNoConflictWithCurrentDirectory(directoryToDelete);
+
+            root.DeleteDirectory(absolutePath, recursive);
+        }
+
+        [AssertionMethod]
+        private static void AssertNotDeletingDrive([NotNull] DirectoryEntry directoryToDelete, bool isRecursive)
+        {
+            if (directoryToDelete.Parent?.Parent == null)
+            {
+                if (isRecursive)
+                {
+                    string path = directoryToDelete.GetAbsolutePath();
+                    throw ErrorFactory.FileNotFound(path);
+                }
+
+                throw ErrorFactory.DirectoryIsNotEmpty();
+            }
+        }
+
+        [AssertionMethod]
+        private void AssertNoConflictWithCurrentDirectory([NotNull] DirectoryEntry directory)
+        {
+            DirectoryEntry entry = owner.CurrentDirectory;
+            while (entry != null)
+            {
+                if (entry == directory)
+                {
+                    string path = directory.GetAbsolutePath();
+                    throw ErrorFactory.FileIsInUse(path);
+                }
+
+                entry = entry.Parent;
+            }
         }
 
         public void Move(string sourceDirName, string destDirName)
@@ -98,12 +137,21 @@ namespace TestableFileSystem.Fakes
 
         public string GetCurrentDirectory()
         {
-            throw new NotImplementedException();
+            return owner.CurrentDirectory.GetAbsolutePath();
         }
 
         public void SetCurrentDirectory(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = ToAbsolutePath(path);
+            if (!absolutePath.IsLocalDrive)
+            {
+                throw ErrorFactory.PathIsInvalid();
+            }
+
+            DirectoryEntry directory = root.GetExistingDirectory(absolutePath);
+            owner.CurrentDirectory = directory;
         }
 
         public DateTime GetCreationTime(string path)
@@ -169,7 +217,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private AbsolutePath ToAbsolutePath([NotNull] string path)
         {
-            string rooted = Path.Combine(owner.CurrentDirectory, path);
+            var basePath = owner.CurrentDirectory.GetAbsolutePath();
+            string rooted = Path.Combine(basePath, path);
             return new AbsolutePath(rooted);
         }
     }

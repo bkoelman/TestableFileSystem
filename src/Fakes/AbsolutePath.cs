@@ -29,6 +29,8 @@ namespace TestableFileSystem.Fakes
 
         public bool IsAtEnd => Offset == Components.Count - 1;
 
+        public bool IsLocalDrive => StartsWithDriveLetter(Components);
+
         public AbsolutePath([NotNull] string path)
             : this(ToComponents(path), 0)
         {
@@ -43,7 +45,7 @@ namespace TestableFileSystem.Fakes
 
             var components = path.Split(Path.DirectorySeparatorChar).ToList();
 
-            if (!IsDrive(components) && !IsNetworkShare(components, path))
+            if (!StartsWithDriveLetter(components) && !IsNetworkShare(components, path))
             {
                 throw new ArgumentException("Path must start with drive letter or network share.", nameof(path));
             }
@@ -86,7 +88,7 @@ namespace TestableFileSystem.Fakes
                 : path;
         }
 
-        private static bool IsDrive([NotNull] [ItemNotNull] List<string> components)
+        private static bool StartsWithDriveLetter([NotNull] [ItemNotNull] IReadOnlyList<string> components)
         {
             if (components[0].Length == 2 && components[0][1] == Path.VolumeSeparatorChar)
             {
@@ -167,7 +169,9 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string GetText()
         {
-            return string.Join(Path.DirectorySeparatorChar.ToString(), Components);
+            return Components.Count == 1
+                ? Components[0] + Path.DirectorySeparatorChar
+                : string.Join(Path.DirectorySeparatorChar.ToString(), Components);
         }
 
         public override string ToString()

@@ -11,5 +11,9 @@ namespace TestableFileSystem.Wrappers
         public IFile File => new FileWrapper();
 
         public IDirectory Directory => new DirectoryWrapper();
+
+        private FileSystemWrapper()
+        {
+        }
     }
 }

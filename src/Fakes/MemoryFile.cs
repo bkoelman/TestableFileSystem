@@ -29,7 +29,7 @@ namespace TestableFileSystem.Fakes
                 return false;
             }
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             FileEntry file = root.TryGetExistingFile(absolutePath);
 
             return file != null;
@@ -38,10 +38,23 @@ namespace TestableFileSystem.Fakes
         public IFileStream Create(string path, int bufferSize = 4096, FileOptions options = FileOptions.None)
         {
             Guard.NotNull(path, nameof(path));
+            AssertValidOptions(options);
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             FileEntry newFile = root.GetOrCreateFile(absolutePath, false);
             return newFile.Open(FileMode.Create, FileAccess.ReadWrite, bufferSize);
+        }
+
+        [AssertionMethod]
+        private static void AssertValidOptions(FileOptions options)
+        {
+            bool hasEncrypted = (options & FileOptions.Encrypted) != 0;
+            bool hasDeleteOnClose = (options & FileOptions.DeleteOnClose) != 0;
+
+            if (hasEncrypted || hasDeleteOnClose)
+            {
+                throw new NotSupportedException($"Set of options '{options}' is not supported.");
+            }
         }
 
         public IFileStream Open(string path, FileMode mode, FileAccess? access = null, FileShare share = FileShare.None)
@@ -50,14 +63,14 @@ namespace TestableFileSystem.Fakes
 
             FileAccess fileAccess = access ?? (mode == FileMode.Append ? FileAccess.Write : FileAccess.ReadWrite);
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             FileEntry existingFile = root.TryGetExistingFile(absolutePath);
 
             if (existingFile != null)
             {
                 if (mode == FileMode.CreateNew)
                 {
-                    throw new IOException($"The file '{path}' already exists.");
+                    throw ErrorFactory.FileAlreadyExists(path);
                 }
 
                 return existingFile.Open(mode, fileAccess);
@@ -65,7 +78,7 @@ namespace TestableFileSystem.Fakes
 
             if (mode == FileMode.Open || mode == FileMode.Truncate)
             {
-                throw new FileNotFoundException($"Could not find file '{path}'.");
+                throw ErrorFactory.FileNotFound(path);
             }
 
             FileEntry newFile = root.GetOrCreateFile(absolutePath, false);
@@ -86,85 +99,133 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             root.DeleteFile(absolutePath);
         }
 
         public FileAttributes GetAttributes(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            return entry.Attributes;
         }
 
         public void SetAttributes(string path, FileAttributes fileAttributes)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            entry.Attributes = fileAttributes;
         }
 
         public DateTime GetCreationTime(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            return entry.CreationTime;
         }
 
         public DateTime GetCreationTimeUtc(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            return entry.CreationTimeUtc;
         }
 
         public void SetCreationTime(string path, DateTime creationTime)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            entry.CreationTime = creationTime;
         }
 
         public void SetCreationTimeUtc(string path, DateTime creationTimeUtc)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            entry.CreationTimeUtc = creationTimeUtc;
         }
 
         public DateTime GetLastAccessTime(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            return entry.LastAccessTime;
         }
 
         public DateTime GetLastAccessTimeUtc(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            return entry.LastAccessTimeUtc;
         }
 
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            entry.LastAccessTime = lastAccessTime;
         }
 
         public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            entry.LastAccessTimeUtc = lastAccessTimeUtc;
         }
 
         public DateTime GetLastWriteTime(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            return entry.LastWriteTime;
         }
 
         public DateTime GetLastWriteTimeUtc(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            return entry.LastWriteTimeUtc;
         }
 
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            entry.LastWriteTime = lastWriteTime;
         }
 
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            FileEntry entry = GetExistingFile(path);
+            entry.LastWriteTimeUtc = lastWriteTimeUtc;
         }
 
         [NotNull]
-        private AbsolutePath ToAbsolutePath([NotNull] string path)
+        private FileEntry GetExistingFile([NotNull] string path)
         {
-            string rooted = Path.Combine(owner.CurrentDirectory, path);
-            return new AbsolutePath(rooted);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            FileEntry existingFile = root.TryGetExistingFile(absolutePath);
+
+            if (existingFile == null)
+            {
+                throw ErrorFactory.FileNotFound(path);
+            }
+            return existingFile;
         }
     }
 }
