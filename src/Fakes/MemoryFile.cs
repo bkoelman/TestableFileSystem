@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -7,6 +10,9 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class MemoryFile : IFile
     {
+        [NotNull]
+        private static readonly IEnumerable<FileOptions> KnownFileOptions = (FileOptions[])Enum.GetValues(typeof(FileOptions));
+
         [NotNull]
         private readonly DirectoryEntry root;
 
@@ -48,12 +54,23 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private static void AssertValidOptions(FileOptions options)
         {
-            bool hasEncrypted = (options & FileOptions.Encrypted) != 0;
-            bool hasDeleteOnClose = (options & FileOptions.DeleteOnClose) != 0;
+            AssertOptionsNotSelected(options, FileOptions.Encrypted | FileOptions.DeleteOnClose);
+        }
 
-            if (hasEncrypted || hasDeleteOnClose)
+        [AssertionMethod]
+        private static void AssertOptionsNotSelected(FileOptions selectedOptions, FileOptions optionsNotAllowed)
+        {
+            foreach (FileOptions option in KnownFileOptions)
             {
-                throw new NotSupportedException($"Set of options '{options}' is not supported.");
+                if (option == FileOptions.None)
+                {
+                    continue;
+                }
+
+                if ((option & selectedOptions) != 0 && (option & optionsNotAllowed) != 0)
+                {
+                    throw new NotSupportedException($"Option '{option}' is not supported.");
+                }
             }
         }
 
