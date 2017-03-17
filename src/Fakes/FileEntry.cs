@@ -128,7 +128,7 @@ namespace TestableFileSystem.Fakes
             Parent = parent;
 
             CreationTimeUtc = SystemClock.UtcNow();
-            HandleFileChanged();
+            HandleFileChanged(false);
         }
 
         [AssertionMethod]
@@ -152,12 +152,15 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private void HandleFileChanged()
+        private void HandleFileChanged(bool raiseChangeEvent)
         {
             HandleFileAccessed();
             LastWriteTimeUtc = LastAccessTimeUtc;
 
-            ContentChanged?.Invoke(this, EventArgs.Empty);
+            if (raiseChangeEvent)
+            {
+                ContentChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private void HandleFileAccessed()
@@ -370,7 +373,7 @@ namespace TestableFileSystem.Fakes
                     Position = Length;
                 }
 
-                owner.HandleFileChanged();
+                owner.HandleFileChanged(true);
             }
 
             public override int Read(byte[] buffer, int offset, int count)
@@ -445,7 +448,7 @@ namespace TestableFileSystem.Fakes
                 }
 
                 Position = newPosition;
-                owner.HandleFileChanged();
+                owner.HandleFileChanged(true);
             }
 
             private void EnsureCapacity(long bytesNeeded)
