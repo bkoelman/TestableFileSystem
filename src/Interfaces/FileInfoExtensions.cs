@@ -26,7 +26,7 @@ namespace TestableFileSystem.Interfaces
         {
             Guard.NotNull(fileInfo, nameof(fileInfo));
 
-            var stream = fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+            IFileStream stream = fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
             return new StreamReader(stream.InnerStream);
         }
 
@@ -35,7 +35,7 @@ namespace TestableFileSystem.Interfaces
         {
             Guard.NotNull(fileInfo, nameof(fileInfo));
 
-            var stream = fileInfo.Open(FileMode.Create, FileAccess.Write);
+            IFileStream stream = fileInfo.Open(FileMode.Create, FileAccess.Write);
             return new StreamWriter(stream.InnerStream);
         }
 
@@ -44,7 +44,7 @@ namespace TestableFileSystem.Interfaces
         {
             Guard.NotNull(fileInfo, nameof(fileInfo));
 
-            var stream = fileInfo.Open(FileMode.Append, FileAccess.Write);
+            IFileStream stream = fileInfo.Open(FileMode.Append, FileAccess.Write);
             return new StreamWriter(stream.InnerStream);
         }
     }

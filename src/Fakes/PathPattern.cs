@@ -10,11 +10,7 @@ namespace TestableFileSystem.Fakes
     public sealed class PathPattern
     {
         [NotNull]
-        private static readonly char[] DirectorySeparatorChars =
-        {
-            Path.DirectorySeparatorChar,
-            Path.AltDirectorySeparatorChar
-        };
+        private static readonly char[] DirectorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         [NotNull]
         private readonly Sequence root;

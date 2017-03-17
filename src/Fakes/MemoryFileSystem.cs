@@ -67,7 +67,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            var basePath = CurrentDirectory.GetAbsolutePath();
+            string basePath = CurrentDirectory.GetAbsolutePath();
             string rooted = Path.Combine(basePath, path);
             return new AbsolutePath(rooted);
         }

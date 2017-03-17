@@ -33,7 +33,8 @@ namespace TestableFileSystem.Fakes
             throw new NotImplementedException();
         }
 
-        public string[] GetFiles(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public string[] GetFiles(string path, string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             throw new NotImplementedException();
         }
@@ -75,7 +76,7 @@ namespace TestableFileSystem.Fakes
                 return false;
             }
 
-            var absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = ToAbsolutePath(path);
             DirectoryEntry directory = root.TryGetExistingDirectory(absolutePath);
 
             return directory != null;
@@ -90,7 +91,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            var absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = ToAbsolutePath(path);
 
             DirectoryEntry directoryToDelete = root.GetExistingDirectory(absolutePath);
             AssertNotDeletingDrive(directoryToDelete, recursive);
@@ -217,7 +218,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private AbsolutePath ToAbsolutePath([NotNull] string path)
         {
-            var basePath = owner.CurrentDirectory.GetAbsolutePath();
+            string basePath = owner.CurrentDirectory.GetAbsolutePath();
             string rooted = Path.Combine(basePath, path);
             return new AbsolutePath(rooted);
         }

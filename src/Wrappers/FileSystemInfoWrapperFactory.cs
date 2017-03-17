@@ -1,6 +1,6 @@
 using System;
-using JetBrains.Annotations;
 using System.IO;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers

@@ -184,7 +184,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public DirectoryEntry GetExistingDirectory([NotNull] AbsolutePath path)
         {
-            var directory = TryGetExistingDirectory(path);
+            DirectoryEntry directory = TryGetExistingDirectory(path);
 
             if (directory == null)
             {
@@ -217,7 +217,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (Directories.ContainsKey(path.Name))
                 {
-                    var directory = Directories[path.Name];
+                    DirectoryEntry directory = Directories[path.Name];
 
                     // TODO: Block deletion when directory contains file that is in use.
 
@@ -305,8 +305,8 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        private IEnumerable<string> EnumerateFilesInDirectory([NotNull] DirectoryEntry directory,
-            [NotNull] PathPattern pattern, [CanBeNull] SearchOption? searchOption)
+        private IEnumerable<string> EnumerateFilesInDirectory([NotNull] DirectoryEntry directory, [NotNull] PathPattern pattern,
+            [CanBeNull] SearchOption? searchOption)
         {
             PathPattern subPattern = pattern.SubPattern;
 

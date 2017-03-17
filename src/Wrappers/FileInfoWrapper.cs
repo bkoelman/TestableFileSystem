@@ -1,5 +1,5 @@
-using JetBrains.Annotations;
 using System.IO;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
@@ -9,7 +9,8 @@ namespace TestableFileSystem.Wrappers
         [NotNull]
         private readonly FileInfo source;
 
-        public FileInfoWrapper([NotNull] FileInfo source) : base(source)
+        public FileInfoWrapper([NotNull] FileInfo source)
+            : base(source)
         {
             Guard.NotNull(source, nameof(source));
             this.source = source;
@@ -19,8 +20,14 @@ namespace TestableFileSystem.Wrappers
 
         public bool IsReadOnly
         {
-            get { return source.IsReadOnly; }
-            set { source.IsReadOnly = value; }
+            get
+            {
+                return source.IsReadOnly;
+            }
+            set
+            {
+                source.IsReadOnly = value;
+            }
         }
 
         public string DirectoryName => source.DirectoryName;

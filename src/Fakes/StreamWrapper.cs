@@ -24,8 +24,14 @@ namespace TestableFileSystem.Fakes
 
         public long Position
         {
-            get { return InnerStream.Position; }
-            set { InnerStream.Position = value; }
+            get
+            {
+                return InnerStream.Position;
+            }
+            set
+            {
+                InnerStream.Position = value;
+            }
         }
 
         public bool IsAsync => false;

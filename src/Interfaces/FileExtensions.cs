@@ -32,7 +32,7 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
 
-            var stream = file.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            IFileStream stream = file.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             return CreateReader(stream);
         }
 
@@ -42,7 +42,7 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
 
-            var stream = file.Open(path, FileMode.Create, FileAccess.Write);
+            IFileStream stream = file.Open(path, FileMode.Create, FileAccess.Write);
             return CreateWriter(stream);
         }
 
@@ -52,7 +52,7 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
 
-            var stream = file.Open(path, FileMode.Append, FileAccess.Write);
+            IFileStream stream = file.Open(path, FileMode.Append, FileAccess.Write);
             return CreateWriter(stream);
         }
 
@@ -62,7 +62,7 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
 
-            using (var stream = OpenRead(file, path))
+            using (IFileStream stream = OpenRead(file, path))
             {
                 var buffer = new byte[stream.Length];
                 stream.Read(buffer, 0, buffer.Length);
@@ -72,7 +72,8 @@ namespace TestableFileSystem.Interfaces
 
         [NotNull]
         [ItemNotNull]
-        public static string[] ReadAllLines([NotNull] this IFile file, [NotNull] string path, [CanBeNull] Encoding encoding = null)
+        public static string[] ReadAllLines([NotNull] this IFile file, [NotNull] string path,
+            [CanBeNull] Encoding encoding = null)
         {
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
@@ -82,14 +83,15 @@ namespace TestableFileSystem.Interfaces
 
         [NotNull]
         [ItemNotNull]
-        public static IEnumerable<string> ReadLines([NotNull] this IFile file, [NotNull] string path, [CanBeNull] Encoding encoding = null)
+        public static IEnumerable<string> ReadLines([NotNull] this IFile file, [NotNull] string path,
+            [CanBeNull] Encoding encoding = null)
         {
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
 
-            using (var stream = file.OpenRead(path))
+            using (IFileStream stream = file.OpenRead(path))
             {
-                using (var reader = CreateReader(stream, encoding))
+                using (StreamReader reader = CreateReader(stream, encoding))
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
@@ -106,9 +108,9 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
 
-            using (var stream = file.OpenRead(path))
+            using (IFileStream stream = file.OpenRead(path))
             {
-                using (var reader = CreateReader(stream, encoding))
+                using (StreamReader reader = CreateReader(stream, encoding))
                 {
                     return reader.ReadToEnd();
                 }
@@ -121,7 +123,7 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(bytes, nameof(bytes));
 
-            using (var stream = file.OpenWrite(path))
+            using (IFileStream stream = file.OpenWrite(path))
             {
                 stream.Write(bytes, 0, bytes.Length);
             }
@@ -134,9 +136,9 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(contents, nameof(contents));
 
-            using (var stream = file.OpenWrite(path))
+            using (IFileStream stream = file.OpenWrite(path))
             {
-                using (var writer = CreateWriter(stream, encoding))
+                using (StreamWriter writer = CreateWriter(stream, encoding))
                 {
                     foreach (string line in contents)
                     {
@@ -153,9 +155,9 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(contents, nameof(contents));
 
-            using (var stream = file.OpenWrite(path))
+            using (IFileStream stream = file.OpenWrite(path))
             {
-                using (var writer = CreateWriter(stream, encoding))
+                using (StreamWriter writer = CreateWriter(stream, encoding))
                 {
                     writer.Write(contents);
                 }
@@ -168,9 +170,9 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
 
-            using (var stream = file.Open(path, FileMode.Append, FileAccess.Write))
+            using (IFileStream stream = file.Open(path, FileMode.Append, FileAccess.Write))
             {
-                using (var writer = CreateWriter(stream, encoding))
+                using (StreamWriter writer = CreateWriter(stream, encoding))
                 {
                     foreach (string line in contents)
                     {
@@ -186,9 +188,9 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(file, nameof(file));
             Guard.NotNull(path, nameof(path));
 
-            using (var stream = file.Open(path, FileMode.Append, FileAccess.Write))
+            using (IFileStream stream = file.Open(path, FileMode.Append, FileAccess.Write))
             {
-                using (var writer = CreateWriter(stream, encoding))
+                using (StreamWriter writer = CreateWriter(stream, encoding))
                 {
                     writer.Write(contents);
                 }

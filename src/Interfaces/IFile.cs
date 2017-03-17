@@ -12,10 +12,13 @@ namespace TestableFileSystem.Interfaces
         IFileStream Create([NotNull] string path, int bufferSize = 4096, FileOptions options = FileOptions.None);
 
         [NotNull]
-        IFileStream Open([NotNull] string path, FileMode mode, [CanBeNull] FileAccess? access = null, FileShare share = FileShare.None);
+        IFileStream Open([NotNull] string path, FileMode mode, [CanBeNull] FileAccess? access = null,
+            FileShare share = FileShare.None);
 
         void Copy([NotNull] string sourceFileName, [NotNull] string destFileName, bool overwrite = false);
+
         void Move([NotNull] string sourceFileName, [NotNull] string destFileName);
+
         void Delete([NotNull] string path);
 
         FileAttributes GetAttributes([NotNull] string path);

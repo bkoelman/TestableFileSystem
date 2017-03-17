@@ -1,7 +1,7 @@
-﻿using JetBrains.Annotations;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Win32.SafeHandles;
 using TestableFileSystem.Interfaces;
 
@@ -26,8 +26,14 @@ namespace TestableFileSystem.Wrappers
 
         public long Position
         {
-            get { return source.Position; }
-            set { source.Position = value; }
+            get
+            {
+                return source.Position;
+            }
+            set
+            {
+                source.Position = value;
+            }
         }
 
         public bool IsAsync => source.IsAsync;

@@ -1,7 +1,7 @@
-using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
@@ -11,7 +11,8 @@ namespace TestableFileSystem.Wrappers
         [NotNull]
         private readonly DirectoryInfo source;
 
-        public DirectoryInfoWrapper([NotNull] DirectoryInfo source) : base(source)
+        public DirectoryInfoWrapper([NotNull] DirectoryInfo source)
+            : base(source)
         {
             Guard.NotNull(source, nameof(source));
             this.source = source;
@@ -23,37 +24,42 @@ namespace TestableFileSystem.Wrappers
 
         public IFileInfo[] GetFiles(string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var files = source.GetFiles(searchPattern, searchOption);
-            return files.Select(x => (IFileInfo) new FileInfoWrapper(x)).ToArray();
+            FileInfo[] files = source.GetFiles(searchPattern, searchOption);
+            return files.Select(x => (IFileInfo)new FileInfoWrapper(x)).ToArray();
         }
 
-        public IEnumerable<IFileInfo> EnumerateFiles(string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public IEnumerable<IFileInfo> EnumerateFiles(string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var files = source.GetFiles(searchPattern, searchOption);
-            return files.Select(x => (IFileInfo) new FileInfoWrapper(x));
+            FileInfo[] files = source.GetFiles(searchPattern, searchOption);
+            return files.Select(x => (IFileInfo)new FileInfoWrapper(x));
         }
 
-        public IDirectoryInfo[] GetDirectories(string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public IDirectoryInfo[] GetDirectories(string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var directories = source.GetDirectories(searchPattern, searchOption);
+            DirectoryInfo[] directories = source.GetDirectories(searchPattern, searchOption);
             return directories.Select(x => (IDirectoryInfo)new DirectoryInfoWrapper(x)).ToArray();
         }
 
-        public IEnumerable<IDirectoryInfo> EnumerateDirectories(string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public IEnumerable<IDirectoryInfo> EnumerateDirectories(string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var directories = source.EnumerateDirectories(searchPattern, searchOption);
+            IEnumerable<DirectoryInfo> directories = source.EnumerateDirectories(searchPattern, searchOption);
             return directories.Select(x => (IDirectoryInfo)new DirectoryInfoWrapper(x));
         }
 
-        public IFileSystemInfo[] GetFileSystemInfos(string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public IFileSystemInfo[] GetFileSystemInfos(string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var entries = source.GetFileSystemInfos(searchPattern, searchOption);
+            FileSystemInfo[] entries = source.GetFileSystemInfos(searchPattern, searchOption);
             return entries.Select(FileSystemInfoWrapperFactory.CreateWrapper).ToArray();
         }
 
-        public IEnumerable<IFileSystemInfo> EnumerateFileSystemInfos(string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public IEnumerable<IFileSystemInfo> EnumerateFileSystemInfos(string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var entries = source.GetFileSystemInfos(searchPattern, searchOption);
+            FileSystemInfo[] entries = source.GetFileSystemInfos(searchPattern, searchOption);
             return entries.Select(FileSystemInfoWrapperFactory.CreateWrapper);
         }
 

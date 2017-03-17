@@ -9,8 +9,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public static Exception FileIsInUse([NotNull] string path)
         {
-            string message =
-                $"The process cannot access the file '{path}' because it is being used by another process.";
+            string message = $"The process cannot access the file '{path}' because it is being used by another process.";
             return new IOException(message);
         }
 

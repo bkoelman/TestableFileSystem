@@ -16,8 +16,8 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         [NotNull]
         public DirectoryTreeBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null)
         {
-            AbsolutePath absolutePath = new AbsolutePath(path);
-            var file = root.GetOrCreateFile(absolutePath, true);
+            var absolutePath = new AbsolutePath(path);
+            FileEntry file = root.GetOrCreateFile(absolutePath, true);
 
             if (contents != null)
             {
@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         [NotNull]
         public DirectoryTreeBuilder IncludingDirectory([NotNull] string path)
         {
-            AbsolutePath absolutePath = new AbsolutePath(path);
+            var absolutePath = new AbsolutePath(path);
             root.CreateDirectory(absolutePath);
             return this;
         }

@@ -17,32 +17,38 @@ namespace TestableFileSystem.Wrappers
             return Directory.GetDirectoryRoot(path);
         }
 
-        public string[] GetFiles(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public string[] GetFiles(string path, string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             return Directory.GetFiles(path, searchPattern, searchOption);
         }
 
-        public IEnumerable<string> EnumerateFiles(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public IEnumerable<string> EnumerateFiles(string path, string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             return Directory.EnumerateFiles(path, searchPattern, searchOption);
         }
 
-        public string[] GetDirectories(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public string[] GetDirectories(string path, string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             return Directory.GetDirectories(path, searchPattern, searchOption);
         }
 
-        public IEnumerable<string> EnumerateDirectories(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public IEnumerable<string> EnumerateDirectories(string path, string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             return Directory.EnumerateDirectories(path, searchPattern, searchOption);
         }
 
-        public string[] GetFileSystemEntries(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public string[] GetFileSystemEntries(string path, string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             return Directory.GetFileSystemEntries(path, searchPattern, searchOption);
         }
 
-        public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern = "*",
+            SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             return Directory.EnumerateFileSystemEntries(path, searchPattern, searchOption);
         }
@@ -59,7 +65,7 @@ namespace TestableFileSystem.Wrappers
 
         public void Delete(string path, bool recursive = false)
         {
-           Directory.Delete(path, recursive);
+            Directory.Delete(path, recursive);
         }
 
         public void Move(string sourceDirName, string destDirName)

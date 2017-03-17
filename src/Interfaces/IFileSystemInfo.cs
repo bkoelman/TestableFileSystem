@@ -1,6 +1,6 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace TestableFileSystem.Interfaces
 {
@@ -8,8 +8,10 @@ namespace TestableFileSystem.Interfaces
     {
         [NotNull]
         string Name { get; }
+
         [NotNull]
         string Extension { get; }
+
         [NotNull]
         string FullName { get; }
 
@@ -25,6 +27,7 @@ namespace TestableFileSystem.Interfaces
         bool Exists { get; }
 
         void Refresh();
+
         void Delete();
     }
 }

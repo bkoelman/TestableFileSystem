@@ -43,7 +43,7 @@ namespace TestableFileSystem.Fakes
             path = WithoutTrailingSeparator(path);
             Guard.NotNullNorWhiteSpace(path, nameof(path));
 
-            var components = path.Split(Path.DirectorySeparatorChar).ToList();
+            List<string> components = path.Split(Path.DirectorySeparatorChar).ToList();
 
             if (!StartsWithDriveLetter(components) && !IsNetworkShare(components, path))
             {
@@ -99,7 +99,7 @@ namespace TestableFileSystem.Fakes
             return false;
         }
 
-        private static bool IsNetworkShare([NotNull][ItemNotNull] List<string> components, [NotNull] string path)
+        private static bool IsNetworkShare([NotNull] [ItemNotNull] List<string> components, [NotNull] string path)
         {
             if (components.Count > 2 && components[0] == string.Empty && components[1] == string.Empty)
             {
