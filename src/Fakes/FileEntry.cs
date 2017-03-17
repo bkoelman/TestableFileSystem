@@ -35,12 +35,12 @@ namespace TestableFileSystem.Fakes
         private long lastAccessTimeStampUtc;
 
         [NotNull]
-        public string Name { get; }
+        public string Name { get; private set; }
 
         public FileAttributes Attributes { get; set; }
 
         [NotNull]
-        public DirectoryEntry Parent { get; }
+        public DirectoryEntry Parent { get; private set; }
 
         public DateTime CreationTime
         {
@@ -245,6 +245,18 @@ namespace TestableFileSystem.Fakes
             }
 
             return new StreamWrapper(stream, Name);
+        }
+
+        public void MoveTo([NotNull] string newName, [NotNull] DirectoryEntry newParent)
+        {
+            Guard.NotNullNorWhiteSpace(newName, nameof(newName));
+            Guard.NotNull(newParent, nameof(newParent));
+
+            AssertNameIsValid(newName);
+            AssertParentIsValid(newParent);
+
+            Parent = newParent;
+            Name = newName;
         }
 
         [NotNull]

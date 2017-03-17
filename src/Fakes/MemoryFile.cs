@@ -85,7 +85,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (mode == FileMode.CreateNew)
                 {
-                    throw ErrorFactory.FileAlreadyExists(path);
+                    throw ErrorFactory.CannotCreateBecauseFileAlreadyExists(path);
                 }
 
                 return existingFile.Open(mode, fileAccess);
@@ -107,7 +107,65 @@ namespace TestableFileSystem.Fakes
 
         public void Move(string sourceFileName, string destFileName)
         {
-            throw new NotImplementedException();
+            Guard.NotNullNorWhiteSpace(sourceFileName, nameof(sourceFileName));
+            Guard.NotNullNorWhiteSpace(destFileName, nameof(destFileName));
+
+            FileEntry sourceFile;
+            try
+            {
+                sourceFile = GetExistingFile(sourceFileName);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                var sourcePath = owner.ToAbsolutePath(sourceFileName).GetText();
+                throw ErrorFactory.FileNotFound(sourcePath);
+            }
+
+            if (sourceFile.IsOpen())
+            {
+                // TODO: Copy
+
+                throw ErrorFactory.FileIsInUse();
+            }
+
+            DirectoryEntry destinationDirectory = GetMoveDestination(destFileName, sourceFile);
+
+            string destinationFileName = Path.GetFileName(destFileName);
+            sourceFile.Parent.MoveFile(sourceFile, destinationDirectory, destinationFileName);
+        }
+
+        [NotNull]
+        private DirectoryEntry GetMoveDestination([NotNull] string destinationFileName, [NotNull] FileEntry sourceFile)
+        {
+            AbsolutePath absoluteDestinationFilePath = owner.ToAbsolutePath(destinationFileName);
+
+            string destinationDirectoryName = Path.GetDirectoryName(absoluteDestinationFilePath.GetText());
+            if (string.IsNullOrEmpty(destinationDirectoryName))
+            {
+                throw ErrorFactory.CannotMoveBecauseTargetIsInvalid();
+            }
+
+            AbsolutePath absoluteDestinationDirectoryPath = owner.ToAbsolutePath(destinationDirectoryName);
+
+            DirectoryEntry destinationDirectory = root.TryGetExistingDirectory(absoluteDestinationDirectoryPath);
+            if (destinationDirectory == null)
+            {
+                throw ErrorFactory.DirectoryNotFound();
+            }
+
+            DirectoryEntry destinationAsDirectory = root.TryGetExistingDirectory(absoluteDestinationFilePath);
+            if (destinationAsDirectory != null)
+            {
+                throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
+            }
+
+            FileEntry destinationFile = root.TryGetExistingFile(absoluteDestinationFilePath);
+            if (destinationFile != null && destinationFile != sourceFile)
+            {
+                throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
+            }
+
+            return root.GetExistingDirectory(absoluteDestinationDirectoryPath);
         }
 
         public void Delete(string path)

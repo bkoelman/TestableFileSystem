@@ -3,7 +3,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Tests.Builders
 {
-    internal sealed class MemoryFileSystemBuilder : ITestDataBuilder<IFileSystem>
+    public sealed class MemoryFileSystemBuilder : ITestDataBuilder<IFileSystem>
     {
         [NotNull]
         private readonly DirectoryTreeBuilder builder = new DirectoryTreeBuilder().IncludingDirectory("C:");

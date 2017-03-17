@@ -98,6 +98,25 @@ namespace TestableFileSystem.Fakes
             return Directories[path.Name].TryGetExistingFile(path.MoveDown());
         }
 
+        internal void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory, [NotNull] string destinationFileName)
+        {
+            Guard.NotNull(sourceFile, nameof(sourceFile));
+            Guard.NotNull(destinationDirectory, nameof(destinationDirectory));
+            Guard.NotNullNorEmpty(destinationFileName, nameof(destinationFileName));
+
+            if (!Files.ContainsKey(sourceFile.Name))
+            {
+                throw new InvalidOperationException($"File '{sourceFile.Name}' cannot be moved from this directory because it does not exist.");
+            }
+
+            string fileNameBeforeMove = sourceFile.Name;
+
+            sourceFile.MoveTo(destinationFileName, destinationDirectory);
+
+            Files.Remove(fileNameBeforeMove);
+            destinationDirectory.Files[destinationFileName] = sourceFile;
+        }
+
         public void DeleteFile([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
