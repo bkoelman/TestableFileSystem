@@ -408,7 +408,7 @@ namespace TestableFileSystem.Fakes.Tests
             action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists.");
         }
 
-        [Fact]
+        [Fact(Skip = "TODO")]
         private void When_moving_an_open_file_it_must_copy_and_fail()
         {
             // Arrange
@@ -417,7 +417,6 @@ namespace TestableFileSystem.Fakes.Tests
 
             IFileSystem fileSystem = new MemoryFileSystemBuilder()
                 .IncludingFile(sourcePath)
-                .IncludingFile(destinationPath)
                 .Build();
 
             using (fileSystem.File.Open(sourcePath, FileMode.Open, FileAccess.Read))
@@ -428,6 +427,7 @@ namespace TestableFileSystem.Fakes.Tests
                 // Assert
                 action.ShouldThrow<IOException>().WithMessage("The process cannot access the file because it is being used by another process.");
                 fileSystem.File.Exists(sourcePath).Should().BeTrue();
+                fileSystem.File.Exists(destinationPath).Should().BeTrue();
             }
         }
 
