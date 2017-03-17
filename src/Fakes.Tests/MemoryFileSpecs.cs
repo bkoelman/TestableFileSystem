@@ -341,7 +341,6 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_moving_file_from_directory_that_does_not_exist_it_must_fail()
         {
             // Arrange
-
             IFileSystem fileSystem = new MemoryFileSystemBuilder()
                 .Build();
 
@@ -350,6 +349,20 @@ namespace TestableFileSystem.Fakes.Tests
 
             // Assert
             action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
+        }
+
+        [Fact]
+        private void When_moving_from_drive_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\", @"C:\some\newname.doc");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\'.");
         }
 
         [Fact]

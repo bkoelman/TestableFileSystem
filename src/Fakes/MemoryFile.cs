@@ -110,17 +110,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNullNorWhiteSpace(sourceFileName, nameof(sourceFileName));
             Guard.NotNullNorWhiteSpace(destFileName, nameof(destFileName));
 
-            FileEntry sourceFile;
-            try
-            {
-                sourceFile = GetExistingFile(sourceFileName);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                var sourcePath = owner.ToAbsolutePath(sourceFileName).GetText();
-                throw ErrorFactory.FileNotFound(sourcePath);
-            }
-
+            FileEntry sourceFile = GetMoveSource(sourceFileName);
             if (sourceFile.IsOpen())
             {
                 // TODO: Copy
@@ -132,6 +122,34 @@ namespace TestableFileSystem.Fakes
 
             string destinationFileName = Path.GetFileName(destFileName);
             sourceFile.Parent.MoveFile(sourceFile, destinationDirectory, destinationFileName);
+        }
+
+        [NotNull]
+        private FileEntry GetMoveSource([NotNull] string sourceFileName)
+        {
+            AbsolutePath absoluteSourceFilePath = owner.ToAbsolutePath(sourceFileName);
+
+            string sourceDirectoryName = Path.GetDirectoryName(absoluteSourceFilePath.GetText());
+            if (string.IsNullOrEmpty(sourceDirectoryName))
+            {
+                throw ErrorFactory.FileNotFound(absoluteSourceFilePath.GetText());
+            }
+
+            AbsolutePath absoluteSourceDirectoryPath = owner.ToAbsolutePath(sourceDirectoryName);
+
+            DirectoryEntry sourceDirectory = root.TryGetExistingDirectory(absoluteSourceDirectoryPath);
+            if (sourceDirectory == null)
+            {
+                throw ErrorFactory.FileNotFound(absoluteSourceFilePath.GetText());
+            }
+
+            FileEntry sourceFile = root.TryGetExistingFile(absoluteSourceFilePath);
+            if (sourceFile == null)
+            {
+                throw ErrorFactory.FileNotFound(absoluteSourceFilePath.GetText());
+            }
+
+            return sourceFile;
         }
 
         [NotNull]
