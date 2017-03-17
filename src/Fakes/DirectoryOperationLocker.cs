@@ -233,7 +233,7 @@ namespace TestableFileSystem.Fakes
         {
             lock (owner.TreeLock)
             {
-                target.SetLastWriteTime(path, lastWriteTimeUtc);
+                target.SetLastWriteTimeUtc(path, lastWriteTimeUtc);
             }
         }
     }
