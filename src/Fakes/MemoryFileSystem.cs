@@ -62,6 +62,16 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        public IFileInfo ConstructFileInfo(string fileName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDirectoryInfo ConstructDirectoryInfo(string path)
+        {
+            throw new NotImplementedException();
+        }
+
         [NotNull]
         internal AbsolutePath ToAbsolutePath([NotNull] string path)
         {

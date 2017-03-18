@@ -8,6 +8,8 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class MemoryDirectory : IDirectory
     {
+        // TODO: Guard that a name cannot occur both as a file -and- a directory.
+
         [NotNull]
         private readonly DirectoryEntry root;
 
