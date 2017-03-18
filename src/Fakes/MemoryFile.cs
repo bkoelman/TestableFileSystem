@@ -11,6 +11,9 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private static readonly IEnumerable<FileOptions> KnownFileOptions = (FileOptions[])Enum.GetValues(typeof(FileOptions));
 
+        private static readonly DateTime ZeroFileTime = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
+        private static readonly DateTime ZeroFileTimeUtc = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         [NotNull]
         private readonly DirectoryEntry root;
 
@@ -127,21 +130,7 @@ namespace TestableFileSystem.Fakes
         {
             AbsolutePath absoluteSourceFilePath = owner.ToAbsolutePath(sourceFileName);
 
-            string sourceDirectoryName = Path.GetDirectoryName(absoluteSourceFilePath.GetText());
-            if (string.IsNullOrEmpty(sourceDirectoryName))
-            {
-                throw ErrorFactory.FileNotFound(absoluteSourceFilePath.GetText());
-            }
-
-            AbsolutePath absoluteSourceDirectoryPath = owner.ToAbsolutePath(sourceDirectoryName);
-
-            DirectoryEntry sourceDirectory = root.TryGetExistingDirectory(absoluteSourceDirectoryPath);
-            if (sourceDirectory == null)
-            {
-                throw ErrorFactory.FileNotFound(absoluteSourceFilePath.GetText());
-            }
-
-            FileEntry sourceFile = root.TryGetExistingFile(absoluteSourceFilePath);
+            FileEntry sourceFile = root.TryGetExistingFile(absoluteSourceFilePath, false);
             if (sourceFile == null)
             {
                 throw ErrorFactory.FileNotFound(absoluteSourceFilePath.GetText());
@@ -178,16 +167,16 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
-            return entry.CreationTime;
+            FileEntry entry = TryGetExistingFile(path);
+            return entry?.CreationTime ?? ZeroFileTime;
         }
 
         public DateTime GetCreationTimeUtc(string path)
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
-            return entry.CreationTimeUtc;
+            FileEntry entry = TryGetExistingFile(path);
+            return entry?.CreationTimeUtc ?? ZeroFileTimeUtc;
         }
 
         public void SetCreationTime(string path, DateTime creationTime)
@@ -210,16 +199,16 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
-            return entry.LastAccessTime;
+            FileEntry entry = TryGetExistingFile(path);
+            return entry?.LastAccessTime ?? ZeroFileTime;
         }
 
         public DateTime GetLastAccessTimeUtc(string path)
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
-            return entry.LastAccessTimeUtc;
+            FileEntry entry = TryGetExistingFile(path);
+            return entry?.LastAccessTimeUtc ?? ZeroFileTimeUtc;
         }
 
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
@@ -242,16 +231,16 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
-            return entry.LastWriteTime;
+            FileEntry entry = TryGetExistingFile(path);
+            return entry?.LastWriteTime ?? ZeroFileTime;
         }
 
         public DateTime GetLastWriteTimeUtc(string path)
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
-            return entry.LastWriteTimeUtc;
+            FileEntry entry = TryGetExistingFile(path);
+            return entry?.LastWriteTimeUtc ?? ZeroFileTimeUtc;
         }
 
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
@@ -281,6 +270,13 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.FileNotFound(path);
             }
             return existingFile;
+        }
+
+        [CanBeNull]
+        private FileEntry TryGetExistingFile([NotNull] string path)
+        {
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            return root.TryGetExistingFile(absolutePath, false);
         }
     }
 }

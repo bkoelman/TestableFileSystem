@@ -80,7 +80,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [CanBeNull]
-        public FileEntry TryGetExistingFile([NotNull] AbsolutePath path)
+        public FileEntry TryGetExistingFile([NotNull] AbsolutePath path, bool throwOnMissingDirectory = true)
         {
             Guard.NotNull(path, nameof(path));
 
@@ -94,8 +94,12 @@ namespace TestableFileSystem.Fakes
                 return Files[path.Name];
             }
 
-            AssertContainsDirectory(path);
-            return Directories[path.Name].TryGetExistingFile(path.MoveDown());
+            if (!AssertContainsDirectory(path, throwOnMissingDirectory))
+            {
+                return null;
+            }
+
+            return Directories[path.Name].TryGetExistingFile(path.MoveDown(), throwOnMissingDirectory);
         }
 
         public void MoveFile([NotNull] FileEntry sourceFile, [NotNull] AbsolutePath destinationPath)
@@ -412,12 +416,17 @@ namespace TestableFileSystem.Fakes
         }
 
         [AssertionMethod]
-        private void AssertContainsDirectory([NotNull] AbsolutePath path)
+        private bool AssertContainsDirectory([NotNull] AbsolutePath path, bool throwOnMissingDirectory = true)
         {
             if (!Directories.ContainsKey(path.Name))
             {
-                throw ErrorFactory.DirectoryNotFound(path.GetText());
+                if (throwOnMissingDirectory)
+                {
+                    throw ErrorFactory.DirectoryNotFound(path.GetText());
+                }
+                return false;
             }
+            return true;
         }
     }
 }
