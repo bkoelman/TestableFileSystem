@@ -98,23 +98,41 @@ namespace TestableFileSystem.Fakes
             return Directories[path.Name].TryGetExistingFile(path.MoveDown());
         }
 
-        internal void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory, [NotNull] string destinationFileName)
+        public void MoveFile([NotNull] FileEntry sourceFile, [NotNull] AbsolutePath destinationPath)
         {
             Guard.NotNull(sourceFile, nameof(sourceFile));
-            Guard.NotNull(destinationDirectory, nameof(destinationDirectory));
-            Guard.NotNullNorEmpty(destinationFileName, nameof(destinationFileName));
+            Guard.NotNull(destinationPath, nameof(destinationPath));
 
-            if (!Files.ContainsKey(sourceFile.Name))
+            if (destinationPath.IsAtEnd)
             {
-                throw new InvalidOperationException($"File '{sourceFile.Name}' cannot be moved from this directory because it does not exist.");
+                if (Parent == null)
+                {
+                    throw ErrorFactory.CannotMoveBecauseTargetIsInvalid();
+                }
+
+                if (Directories.ContainsKey(destinationPath.Name))
+                {
+                    throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
+                }
+
+                if (Files.ContainsKey(destinationPath.Name) && Files[destinationPath.Name] != sourceFile)
+                {
+                    throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
+                }
+
+                sourceFile.Parent.Files.Remove(sourceFile.Name);
+                Files[destinationPath.Name] = sourceFile;
+
+                sourceFile.MoveTo(destinationPath.Name, this);
+                return;
             }
 
-            string fileNameBeforeMove = sourceFile.Name;
+            if (!Directories.ContainsKey(destinationPath.Name))
+            {
+                throw ErrorFactory.DirectoryNotFound();
+            }
 
-            sourceFile.MoveTo(destinationFileName, destinationDirectory);
-
-            Files.Remove(fileNameBeforeMove);
-            destinationDirectory.Files[destinationFileName] = sourceFile;
+            Directories[destinationPath.Name].MoveFile(sourceFile, destinationPath.MoveDown());
         }
 
         public void DeleteFile([NotNull] AbsolutePath path)

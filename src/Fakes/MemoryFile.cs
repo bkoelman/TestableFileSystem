@@ -118,10 +118,8 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.FileIsInUse();
             }
 
-            DirectoryEntry destinationDirectory = GetMoveDestination(destFileName, sourceFile);
-
-            string destinationFileName = Path.GetFileName(destFileName);
-            sourceFile.Parent.MoveFile(sourceFile, destinationDirectory, destinationFileName);
+            AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
+            root.MoveFile(sourceFile, destinationPath);
         }
 
         [NotNull]
@@ -150,40 +148,6 @@ namespace TestableFileSystem.Fakes
             }
 
             return sourceFile;
-        }
-
-        [NotNull]
-        private DirectoryEntry GetMoveDestination([NotNull] string destinationFileName, [NotNull] FileEntry sourceFile)
-        {
-            AbsolutePath absoluteDestinationFilePath = owner.ToAbsolutePath(destinationFileName);
-
-            string destinationDirectoryName = Path.GetDirectoryName(absoluteDestinationFilePath.GetText());
-            if (string.IsNullOrEmpty(destinationDirectoryName))
-            {
-                throw ErrorFactory.CannotMoveBecauseTargetIsInvalid();
-            }
-
-            AbsolutePath absoluteDestinationDirectoryPath = owner.ToAbsolutePath(destinationDirectoryName);
-
-            DirectoryEntry destinationDirectory = root.TryGetExistingDirectory(absoluteDestinationDirectoryPath);
-            if (destinationDirectory == null)
-            {
-                throw ErrorFactory.DirectoryNotFound();
-            }
-
-            DirectoryEntry destinationAsDirectory = root.TryGetExistingDirectory(absoluteDestinationFilePath);
-            if (destinationAsDirectory != null)
-            {
-                throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
-            }
-
-            FileEntry destinationFile = root.TryGetExistingFile(absoluteDestinationFilePath);
-            if (destinationFile != null && destinationFile != sourceFile)
-            {
-                throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
-            }
-
-            return root.GetExistingDirectory(absoluteDestinationDirectoryPath);
         }
 
         public void Delete(string path)
