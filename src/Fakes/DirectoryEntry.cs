@@ -8,12 +8,13 @@ using TestableFileSystem.Interfaces;
 namespace TestableFileSystem.Fakes
 {
     public sealed class DirectoryEntry
+        : BaseEntry
     {
         [NotNull]
         private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
 
-        [NotNull]
-        public string Name { get; }
+        private const FileAttributes DirectoryAttributesToDiscard = FileAttributes.Device | FileAttributes.Normal |
+            FileAttributes.SparseFile | FileAttributes.Compressed | FileAttributes.Encrypted | FileAttributes.IntegrityStream;
 
         [CanBeNull]
         public DirectoryEntry Parent { get; }
@@ -28,12 +29,42 @@ namespace TestableFileSystem.Fakes
 
         public bool IsEmpty => !Files.Any() && !Directories.Any();
 
-        private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent)
+        public override DateTime CreationTime
         {
-            Guard.NotNullNorWhiteSpace(name, nameof(name));
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+        public override DateTime CreationTimeUtc
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+        public override DateTime LastWriteTime
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+        public override DateTime LastWriteTimeUtc
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+        public override DateTime LastAccessTime
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+        public override DateTime LastAccessTimeUtc
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
 
-            Name = name;
+        private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent)
+            :base(name)
+        {
             Parent = parent;
+            Attributes = FileAttributes.Directory;
         }
 
         [NotNull]
@@ -427,6 +458,22 @@ namespace TestableFileSystem.Fakes
                 return false;
             }
             return true;
+        }
+
+        protected override void AssertNameIsValid(string name)
+        {
+            // Only reachable through an AbsolutePath instance, which already performs validation.
+            // TODO: Add validation when implementing Rename, Copy etc.
+        }
+
+        protected override FileAttributes FilterAttributes(FileAttributes attributes)
+        {
+            if ((attributes & FileAttributes.Temporary) != 0)
+            {
+                throw new ArgumentException("Invalid File or Directory attributes value.", nameof(attributes));
+            }
+
+            return (attributes & ~DirectoryAttributesToDiscard) | FileAttributes.Directory;
         }
     }
 }

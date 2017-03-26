@@ -212,6 +212,7 @@ namespace TestableFileSystem.Fakes.Tests
 
             // Assert
             directory.Should().NotBeNull();
+            directory.Attributes.Should().Be(FileAttributes.Directory);
             root.Directories["C:"].Directories["some"].Directories["path"].Directories["to"].Directories["here"].Should()
                 .Be(directory);
         }
@@ -475,6 +476,80 @@ namespace TestableFileSystem.Fakes.Tests
 
             files.Should().Contain(@"C:\base\second\other.doc");
             files.Should().Contain(@"C:\base\second\deeper\skip.doc");
+        }
+
+        [Fact]
+        private void When_setting_directory_attributes_to_temporary_it_must_fail()
+        {
+            // Arrange
+            DirectoryEntry root = new DirectoryTreeBuilder()
+                .IncludingDirectory(@"C:\some")
+                .Build();
+
+            DirectoryEntry directory = root.Directories["C:"].Directories["some"];
+
+            // Act
+            Action action = () => directory.Attributes = FileAttributes.Temporary;
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Invalid File or Directory attributes value.*");
+        }
+
+        [Fact]
+        private void When_setting_directory_attributes_to_all_except_temporary_it_must_filter_and_succeed()
+        {
+            // Arrange
+            DirectoryEntry root = new DirectoryTreeBuilder()
+                .IncludingDirectory(@"C:\some")
+                .Build();
+
+            DirectoryEntry directory = root.Directories["C:"].Directories["some"];
+
+            // Act
+            directory.Attributes = FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System |
+                FileAttributes.Directory | FileAttributes.Archive | FileAttributes.Device | FileAttributes.Normal |
+                FileAttributes.SparseFile | FileAttributes.ReparsePoint | FileAttributes.Compressed | FileAttributes.Offline |
+                FileAttributes.NotContentIndexed | FileAttributes.Encrypted | FileAttributes.IntegrityStream |
+                FileAttributes.NoScrubData;
+
+            // Assert
+            directory.Attributes.Should().Be(FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System |
+                FileAttributes.Directory | FileAttributes.Archive | FileAttributes.Offline | FileAttributes.NotContentIndexed |
+                    FileAttributes.NoScrubData | FileAttributes.ReparsePoint);
+        }
+
+        [Fact]
+        private void When_setting_directory_attributes_to_a_discarded_value_it_must_preserve_directory_attribute()
+        {
+            // Arrange
+            DirectoryEntry root = new DirectoryTreeBuilder()
+                .IncludingDirectory(@"C:\some")
+                .Build();
+
+            DirectoryEntry directory = root.Directories["C:"].Directories["some"];
+
+            // Act
+            directory.Attributes = FileAttributes.SparseFile;
+
+            // Assert
+            directory.Attributes.Should().Be(FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void When_setting_directory_attributes_to_another_value_it_must_preserve_directory_attribute()
+        {
+            // Arrange
+            DirectoryEntry root = new DirectoryTreeBuilder()
+                .IncludingDirectory(@"C:\some")
+                .Build();
+
+            DirectoryEntry directory = root.Directories["C:"].Directories["some"];
+
+            // Act
+            directory.Attributes = FileAttributes.Hidden;
+
+            // Assert
+            directory.Attributes.Should().Be(FileAttributes.Directory | FileAttributes.Hidden);
         }
     }
 }

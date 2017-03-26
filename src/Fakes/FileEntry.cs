@@ -7,9 +7,12 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FileEntry
+    public sealed class FileEntry : BaseEntry
     {
         private const int DefaultBufferSize = 4096;
+
+        private const FileAttributes FileAttributesToDiscard = FileAttributes.Directory | FileAttributes.Device |
+            FileAttributes.Normal | FileAttributes.IntegrityStream | FileAttributes.NoScrubData;
 
         [NotNull]
         private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();
@@ -35,14 +38,9 @@ namespace TestableFileSystem.Fakes
         private long lastAccessTimeStampUtc;
 
         [NotNull]
-        public string Name { get; private set; }
-
-        public FileAttributes Attributes { get; set; }
-
-        [NotNull]
         public DirectoryEntry Parent { get; private set; }
 
-        public DateTime CreationTime
+        public override DateTime CreationTime
         {
             get
             {
@@ -54,7 +52,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public DateTime CreationTimeUtc
+        public override DateTime CreationTimeUtc
         {
             get
             {
@@ -66,7 +64,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public DateTime LastWriteTime
+        public override DateTime LastWriteTime
         {
             get
             {
@@ -78,7 +76,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public DateTime LastWriteTimeUtc
+        public override DateTime LastWriteTimeUtc
         {
             get
             {
@@ -90,7 +88,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public DateTime LastAccessTime
+        public override DateTime LastAccessTime
         {
             get
             {
@@ -102,7 +100,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public DateTime LastAccessTimeUtc
+        public override DateTime LastAccessTimeUtc
         {
             get
             {
@@ -125,30 +123,16 @@ namespace TestableFileSystem.Fakes
         public event EventHandler ContentChanged;
 
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)
+            : base(name)
         {
-            Guard.NotNullNorWhiteSpace(name, nameof(name));
             Guard.NotNull(parent, nameof(parent));
-
-            AssertNameIsValid(name);
             AssertParentIsValid(parent);
 
-            Name = name;
             Parent = parent;
+            Attributes = FileAttributes.Normal;
 
             CreationTimeUtc = SystemClock.UtcNow();
             HandleFileChanged(false);
-        }
-
-        [AssertionMethod]
-        private static void AssertNameIsValid([NotNull] string name)
-        {
-            foreach (char ch in name)
-            {
-                if (FileNameCharsInvalid.Contains(ch))
-                {
-                    throw ErrorFactory.PathIsNotLegal(nameof(name));
-                }
-            }
         }
 
         [AssertionMethod]
@@ -252,11 +236,10 @@ namespace TestableFileSystem.Fakes
             Guard.NotNullNorWhiteSpace(newName, nameof(newName));
             Guard.NotNull(newParent, nameof(newParent));
 
-            AssertNameIsValid(newName);
             AssertParentIsValid(newParent);
 
-            Parent = newParent;
             Name = newName;
+            Parent = newParent;
         }
 
         [NotNull]
@@ -282,6 +265,23 @@ namespace TestableFileSystem.Fakes
         public override string ToString()
         {
             return $"File: {Name} ({Length} bytes)";
+        }
+
+        [AssertionMethod]
+        protected override void AssertNameIsValid(string name)
+        {
+            foreach (char ch in name)
+            {
+                if (FileNameCharsInvalid.Contains(ch))
+                {
+                    throw ErrorFactory.PathIsNotLegal(nameof(name));
+                }
+            }
+        }
+
+        protected override FileAttributes FilterAttributes(FileAttributes attributes)
+        {
+            return attributes != FileAttributes.Normal ? attributes & ~FileAttributesToDiscard : attributes;
         }
 
         private sealed class MemoryFileStream : Stream

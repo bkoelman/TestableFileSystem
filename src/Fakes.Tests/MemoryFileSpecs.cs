@@ -66,25 +66,26 @@ namespace TestableFileSystem.Fakes.Tests
                 .Build();
 
             // Act
-            using (IFileStream stream = fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.RandomAccess))
+            using (fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.RandomAccess))
             {
                 // Assert
-                stream.Length.Should().Be(0);
+                fileSystem.File.GetAttributes(@"c:\doc.txt").Should().Be(FileAttributes.Normal);
             }
         }
 
         [Fact]
-        private void When_creating_file_with_encryption_it_must_fail()
+        private void When_creating_file_with_encryption_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new MemoryFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.Encrypted);
-
-            // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Option 'Encrypted' is not supported.");
+            using (fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.Encrypted))
+            {
+                // Assert
+                fileSystem.File.GetAttributes(@"c:\doc.txt").Should().Be(FileAttributes.Encrypted);
+            }
         }
 
         [Fact]
@@ -546,25 +547,6 @@ namespace TestableFileSystem.Fakes.Tests
 
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
-        }
-
-        [Fact]
-        private void When_setting_file_attributes_it_must_succeed()
-        {
-            // Arrange
-            const string path = @"C:\some\file.txt";
-
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
-                .IncludingFile(path)
-                .Build();
-
-            const FileAttributes attributes = FileAttributes.Archive | FileAttributes.Hidden;
-
-            // Act
-            fileSystem.File.SetAttributes(path, attributes);
-
-            // Assert
-            fileSystem.File.GetAttributes(path).Should().Be(attributes);
         }
 
         [Fact]

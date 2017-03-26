@@ -49,13 +49,20 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             FileEntry newFile = root.GetOrCreateFile(absolutePath, false);
+
+            if ((options & FileOptions.Encrypted) != 0)
+            {
+                newFile.Attributes = FileAttributes.Encrypted;
+            }
+
             return newFile.Open(FileMode.Create, FileAccess.ReadWrite, bufferSize);
         }
 
         [AssertionMethod]
         private static void AssertValidOptions(FileOptions options)
         {
-            AssertOptionsNotSelected(options, FileOptions.Encrypted | FileOptions.DeleteOnClose);
+            // TODO: Consider adding support for DeleteOnClose.
+            AssertOptionsNotSelected(options, FileOptions.DeleteOnClose);
         }
 
         [AssertionMethod]
