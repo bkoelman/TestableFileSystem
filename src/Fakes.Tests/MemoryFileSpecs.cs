@@ -74,18 +74,17 @@ namespace TestableFileSystem.Fakes.Tests
         }
 
         [Fact]
-        private void When_creating_file_with_encryption_it_must_succeed()
+        private void When_creating_file_with_encryption_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new MemoryFileSystemBuilder()
                 .Build();
 
             // Act
-            using (fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.Encrypted))
-            {
-                // Assert
-                fileSystem.File.GetAttributes(@"c:\doc.txt").Should().Be(FileAttributes.Encrypted);
-            }
+            Action action = () => fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.Encrypted);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\doc.txt' is denied.");
         }
 
         [Fact]
@@ -99,7 +98,7 @@ namespace TestableFileSystem.Fakes.Tests
             Action action = () => fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.DeleteOnClose);
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Option 'DeleteOnClose' is not supported.");
+            action.ShouldThrow<NotImplementedException>().WithMessage("Option 'DeleteOnClose' is not supported.");
         }
 
         [Fact]

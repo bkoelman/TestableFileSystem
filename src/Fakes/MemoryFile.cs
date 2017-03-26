@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
@@ -8,9 +7,6 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class MemoryFile : IFile
     {
-        [NotNull]
-        private static readonly IEnumerable<FileOptions> KnownFileOptions = (FileOptions[])Enum.GetValues(typeof(FileOptions));
-
         private static readonly DateTime ZeroFileTime = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
         private static readonly DateTime ZeroFileTimeUtc = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -45,40 +41,25 @@ namespace TestableFileSystem.Fakes
         public IFileStream Create(string path, int bufferSize = 4096, FileOptions options = FileOptions.None)
         {
             Guard.NotNull(path, nameof(path));
-            AssertValidOptions(options);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            AssertValidOptions(options, absolutePath);
+
             FileEntry newFile = root.GetOrCreateFile(absolutePath, false);
-
-            if ((options & FileOptions.Encrypted) != 0)
-            {
-                newFile.Attributes = FileAttributes.Encrypted;
-            }
-
             return newFile.Open(FileMode.Create, FileAccess.ReadWrite, bufferSize);
         }
 
         [AssertionMethod]
-        private static void AssertValidOptions(FileOptions options)
+        private static void AssertValidOptions(FileOptions options, [NotNull] AbsolutePath absolutePath)
         {
-            // TODO: Consider adding support for DeleteOnClose.
-            AssertOptionsNotSelected(options, FileOptions.DeleteOnClose);
-        }
-
-        [AssertionMethod]
-        private static void AssertOptionsNotSelected(FileOptions selectedOptions, FileOptions optionsNotAllowed)
-        {
-            foreach (FileOptions option in KnownFileOptions)
+            if ((options & FileOptions.Encrypted) != 0)
             {
-                if (option == FileOptions.None)
-                {
-                    continue;
-                }
+                throw new UnauthorizedAccessException($"Access to the path '{absolutePath.GetText()}' is denied.");
+            }
 
-                if ((option & selectedOptions) != 0 && (option & optionsNotAllowed) != 0)
-                {
-                    throw new NotSupportedException($"Option '{option}' is not supported.");
-                }
+            if ((options & FileOptions.DeleteOnClose) != 0)
+            {
+                throw new NotImplementedException("Option 'DeleteOnClose' is not supported.");
             }
         }
 

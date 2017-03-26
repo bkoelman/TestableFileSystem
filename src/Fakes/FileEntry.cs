@@ -12,7 +12,8 @@ namespace TestableFileSystem.Fakes
         private const int DefaultBufferSize = 4096;
 
         private const FileAttributes FileAttributesToDiscard = FileAttributes.Directory | FileAttributes.Device |
-            FileAttributes.Normal | FileAttributes.IntegrityStream | FileAttributes.NoScrubData;
+            FileAttributes.Normal | FileAttributes.SparseFile | FileAttributes.ReparsePoint | FileAttributes.Compressed |
+            FileAttributes.Encrypted | FileAttributes.IntegrityStream;
 
         [NotNull]
         private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();

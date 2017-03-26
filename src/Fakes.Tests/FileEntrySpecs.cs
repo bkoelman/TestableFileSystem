@@ -101,8 +101,8 @@ namespace TestableFileSystem.Fakes.Tests
 
             // Assert
             entry.Attributes.Should().Be(FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System |
-                FileAttributes.Archive | FileAttributes.Temporary | FileAttributes.SparseFile |FileAttributes.ReparsePoint |
-                FileAttributes.Compressed | FileAttributes.Offline | FileAttributes.NotContentIndexed | FileAttributes.Encrypted);
+                FileAttributes.Archive | FileAttributes.Temporary | FileAttributes.Offline | FileAttributes.NotContentIndexed |
+                FileAttributes.NoScrubData);
         }
 
         [Fact]
