@@ -514,9 +514,27 @@ namespace TestableFileSystem.Fakes.Tests
                 // Act
                 Action action = () => fileSystem.File.Delete(path);
 
+                // Assert
                 action.ShouldThrow<IOException>()
                     .WithMessage(@"The process cannot access the file 'C:\some\file.txt' because it is being used by another process.");
             }
+        }
+
+        [Fact]
+        private void When_deleting_readonly_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+                .IncludingFile(path, null, FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(path);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]

@@ -70,6 +70,23 @@ namespace TestableFileSystem.Fakes.Tests
         }
 
         [Fact]
+        private void When_deleting_readonly_directory_it_must_fail()
+        {
+            // Arrange
+            const string path = @"c:\some\folder";
+
+            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+                .IncludingDirectory(path, FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(path);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Access to the path 'c:\some\folder' is denied.");
+        }
+
+        [Fact]
         private void When_deleting_nonempty_directory_recursively_it_must_succeed()
         {
             // Arrange
@@ -102,6 +119,36 @@ namespace TestableFileSystem.Fakes.Tests
                 // Assert
                 action.ShouldThrow<IOException>().WithMessage(@"The process cannot access the file 'C:\some\folder\deeper\file.txt' because it is being used by another process.");
             }
+        }
+
+        [Fact]
+        private void When_deleting_nonempty_directory_recursively_that_contains_readonly_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+                .IncludingFile(@"C:\some\folder\deeper\file.txt", null, FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'file.txt' is denied.");
+        }
+
+        [Fact]
+        private void When_deleting_nonempty_directory_recursively_that_contains_readonly_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+                .IncludingDirectory(@"C:\some\folder\deeper\subfolder", FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Access to the path 'C:\some\folder\deeper\subfolder' is denied.");
         }
 
         [Fact]

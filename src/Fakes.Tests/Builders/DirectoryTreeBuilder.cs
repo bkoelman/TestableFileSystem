@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.IO;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Tests.Utilities;
 
 namespace TestableFileSystem.Fakes.Tests.Builders
@@ -14,7 +15,8 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         }
 
         [NotNull]
-        public DirectoryTreeBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null)
+        public DirectoryTreeBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null,
+            [CanBeNull] FileAttributes? attributes = null)
         {
             var absolutePath = new AbsolutePath(path);
             FileEntry file = root.GetOrCreateFile(absolutePath, true);
@@ -24,14 +26,25 @@ namespace TestableFileSystem.Fakes.Tests.Builders
                 file.WriteToFile(contents);
             }
 
+            if (attributes != null)
+            {
+                file.Attributes = attributes.Value;
+            }
+
             return this;
         }
 
         [NotNull]
-        public DirectoryTreeBuilder IncludingDirectory([NotNull] string path)
+        public DirectoryTreeBuilder IncludingDirectory([NotNull] string path, [CanBeNull] FileAttributes? attributes = null)
         {
             var absolutePath = new AbsolutePath(path);
-            root.CreateDirectory(absolutePath);
+            DirectoryEntry directory = root.CreateDirectory(absolutePath);
+
+            if (attributes != null)
+            {
+                directory.Attributes = attributes.Value;
+            }
+
             return this;
         }
     }

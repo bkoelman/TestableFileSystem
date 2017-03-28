@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.IO;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Tests.Builders
@@ -15,16 +16,17 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         }
 
         [NotNull]
-        public MemoryFileSystemBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null)
+        public MemoryFileSystemBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null,
+            [CanBeNull] FileAttributes? attributes = null)
         {
-            builder.IncludingFile(path, contents);
+            builder.IncludingFile(path, contents, attributes);
             return this;
         }
 
         [NotNull]
-        public MemoryFileSystemBuilder IncludingDirectory([NotNull] string path)
+        public MemoryFileSystemBuilder IncludingDirectory([NotNull] string path, [CanBeNull] FileAttributes? attributes = null)
         {
-            builder.IncludingDirectory(path);
+            builder.IncludingDirectory(path, attributes);
             return this;
         }
     }

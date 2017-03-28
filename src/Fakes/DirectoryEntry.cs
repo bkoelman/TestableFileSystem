@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes
         }
 
         private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent)
-            :base(name)
+            : base(name)
         {
             Parent = parent;
             Attributes = FileAttributes.Directory;
@@ -180,6 +180,8 @@ namespace TestableFileSystem.Fakes
                 {
                     FileEntry file = Files[path.Name];
 
+                    AssertIsNotReadOnly(file, true);
+
                     // Block deletion when file is in use.
                     using (file.Open(FileMode.Open, FileAccess.ReadWrite))
                     {
@@ -291,6 +293,8 @@ namespace TestableFileSystem.Fakes
                 {
                     DirectoryEntry directory = Directories[path.Name];
 
+                    AssertIsNotReadOnly(directory);
+
                     // Block deletion when directory contains file that is in use.
                     FileEntry openFile = directory.TryGetFirstOpenFile();
                     if (openFile != null)
@@ -310,6 +314,33 @@ namespace TestableFileSystem.Fakes
             {
                 AssertContainsDirectory(path);
                 Directories[path.Name].DeleteDirectory(path.MoveDown(), isRecursive);
+            }
+        }
+
+        private static void AssertIsNotReadOnly([NotNull] DirectoryEntry directory)
+        {
+            if ((directory.Attributes & FileAttributes.ReadOnly) != 0)
+            {
+                throw ErrorFactory.AccessDenied(directory.GetAbsolutePath());
+            }
+
+            foreach (var subdirectory in directory.Directories.Values)
+            {
+                AssertIsNotReadOnly(subdirectory);
+            }
+
+            foreach (var file in directory.Files.Values)
+            {
+                AssertIsNotReadOnly(file, false);
+            }
+        }
+
+        private static void AssertIsNotReadOnly([NotNull] FileEntry file, bool reportAbsolutePath)
+        {
+            if ((file.Attributes & FileAttributes.ReadOnly) != 0)
+            {
+                var path = reportAbsolutePath ? file.GetAbsolutePath() : file.Name;
+                throw ErrorFactory.UnauthorizedAccess(path);
             }
         }
 

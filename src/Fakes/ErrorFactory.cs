@@ -63,6 +63,18 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
+        public static Exception AccessDenied([NotNull] string path)
+        {
+            return new IOException($"Access to the path '{path}' is denied.");
+        }
+
+        [NotNull]
+        public static Exception UnauthorizedAccess([NotNull] string path)
+        {
+            return new UnauthorizedAccessException($"Access to the path '{path}' is denied.");
+        }
+
+        [NotNull]
         public static Exception PathIsNotLegal([NotNull] [InvokerParameterName] string paramName)
         {
             return new ArgumentException("The path is not of a legal form.", paramName);
