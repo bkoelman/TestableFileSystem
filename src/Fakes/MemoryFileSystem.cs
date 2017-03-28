@@ -15,16 +15,16 @@ namespace TestableFileSystem.Fakes
 
         public IFile File { get; }
 
-        public MemoryFileSystem()
-            : this(DirectoryEntry.CreateRoot())
-        {
-        }
-
         [NotNull]
         internal readonly object TreeLock = new object();
 
         [NotNull]
         internal DirectoryEntry CurrentDirectory { get; set; }
+
+        public MemoryFileSystem()
+            : this(DirectoryEntry.CreateRoot())
+        {
+        }
 
         public MemoryFileSystem([NotNull] DirectoryEntry rootEntry)
         {

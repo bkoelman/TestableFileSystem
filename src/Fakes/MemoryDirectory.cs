@@ -99,25 +99,9 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = ToAbsolutePath(path);
 
             DirectoryEntry directoryToDelete = root.GetExistingDirectory(absolutePath);
-            AssertNotDeletingDrive(directoryToDelete, recursive);
             AssertNoConflictWithCurrentDirectory(directoryToDelete);
 
             root.DeleteDirectory(absolutePath, recursive);
-        }
-
-        [AssertionMethod]
-        private static void AssertNotDeletingDrive([NotNull] DirectoryEntry directoryToDelete, bool isRecursive)
-        {
-            if (directoryToDelete.Parent?.Parent == null)
-            {
-                if (isRecursive)
-                {
-                    string path = directoryToDelete.GetAbsolutePath();
-                    throw ErrorFactory.FileNotFound(path);
-                }
-
-                throw ErrorFactory.DirectoryIsNotEmpty();
-            }
         }
 
         [AssertionMethod]

@@ -5,7 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FileOperationLocker : IFile
+    internal sealed class FileOperationLocker : IFile
     {
         [NotNull]
         private readonly MemoryFileSystem owner;

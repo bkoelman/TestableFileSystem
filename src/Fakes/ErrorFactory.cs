@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Fakes
 {
-    public static class ErrorFactory
+    internal static class ErrorFactory
     {
         [NotNull]
         public static Exception FileIsInUse()

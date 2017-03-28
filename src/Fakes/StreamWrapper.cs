@@ -8,7 +8,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class StreamWrapper : IFileStream
+    internal sealed class StreamWrapper : IFileStream
     {
         public Stream InnerStream { get; }
 

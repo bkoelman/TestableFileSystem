@@ -7,8 +7,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class DirectoryEntry
-        : BaseEntry
+    public sealed class DirectoryEntry : BaseEntry
     {
         [NotNull]
         private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
@@ -31,33 +30,74 @@ namespace TestableFileSystem.Fakes
 
         public override DateTime CreationTime
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
+
         public override DateTime CreationTimeUtc
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
+
         public override DateTime LastWriteTime
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
+
         public override DateTime LastWriteTimeUtc
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
+
         public override DateTime LastAccessTime
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
+
         public override DateTime LastAccessTimeUtc
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent)
@@ -293,6 +333,7 @@ namespace TestableFileSystem.Fakes
                 {
                     DirectoryEntry directory = Directories[path.Name];
 
+                    AssertNotDeletingDrive(directory, isRecursive);
                     AssertIsNotReadOnly(directory);
 
                     // Block deletion when directory contains file that is in use.
@@ -317,6 +358,21 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        [AssertionMethod]
+        private static void AssertNotDeletingDrive([NotNull] DirectoryEntry directoryToDelete, bool isRecursive)
+        {
+            if (directoryToDelete.Parent?.Parent == null)
+            {
+                if (isRecursive)
+                {
+                    string path = directoryToDelete.GetAbsolutePath();
+                    throw ErrorFactory.FileNotFound(path);
+                }
+
+                throw ErrorFactory.DirectoryIsNotEmpty();
+            }
+        }
+
         private static void AssertIsNotReadOnly([NotNull] DirectoryEntry directory)
         {
             if ((directory.Attributes & FileAttributes.ReadOnly) != 0)
@@ -324,12 +380,12 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.AccessDenied(directory.GetAbsolutePath());
             }
 
-            foreach (var subdirectory in directory.Directories.Values)
+            foreach (DirectoryEntry subdirectory in directory.Directories.Values)
             {
                 AssertIsNotReadOnly(subdirectory);
             }
 
-            foreach (var file in directory.Files.Values)
+            foreach (FileEntry file in directory.Files.Values)
             {
                 AssertIsNotReadOnly(file, false);
             }
@@ -339,7 +395,7 @@ namespace TestableFileSystem.Fakes
         {
             if ((file.Attributes & FileAttributes.ReadOnly) != 0)
             {
-                var path = reportAbsolutePath ? file.GetAbsolutePath() : file.Name;
+                string path = reportAbsolutePath ? file.GetAbsolutePath() : file.Name;
                 throw ErrorFactory.UnauthorizedAccess(path);
             }
         }
