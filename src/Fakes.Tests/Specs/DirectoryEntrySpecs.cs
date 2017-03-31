@@ -5,7 +5,7 @@ using FluentAssertions;
 using TestableFileSystem.Fakes.Tests.Builders;
 using Xunit;
 
-namespace TestableFileSystem.Fakes.Tests
+namespace TestableFileSystem.Fakes.Tests.Specs
 {
     public sealed class DirectoryEntrySpecs
     {

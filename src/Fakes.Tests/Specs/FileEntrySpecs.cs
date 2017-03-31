@@ -7,7 +7,7 @@ using TestableFileSystem.Fakes.Tests.EventMonitors;
 using TestableFileSystem.Fakes.Tests.Utilities;
 using Xunit;
 
-namespace TestableFileSystem.Fakes.Tests
+namespace TestableFileSystem.Fakes.Tests.Specs
 {
     public sealed class FileEntrySpecs
     {

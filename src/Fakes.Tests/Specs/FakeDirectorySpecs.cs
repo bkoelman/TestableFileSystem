@@ -5,7 +5,7 @@ using TestableFileSystem.Fakes.Tests.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
-namespace TestableFileSystem.Fakes.Tests
+namespace TestableFileSystem.Fakes.Tests.Specs
 {
     public sealed class FakeDirectorySpecs
     {
