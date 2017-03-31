@@ -282,7 +282,8 @@ namespace TestableFileSystem.Fakes
 
         protected override FileAttributes FilterAttributes(FileAttributes attributes)
         {
-            return attributes != FileAttributes.Normal ? attributes & ~FileAttributesToDiscard : attributes;
+            var filtered = attributes & ~(FileAttributes.Normal | FileAttributesToDiscard);
+            return filtered == 0 ? FileAttributes.Normal : filtered;
         }
 
         private sealed class MemoryFileStream : Stream

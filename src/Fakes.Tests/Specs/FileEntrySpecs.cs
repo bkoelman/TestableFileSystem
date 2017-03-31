@@ -86,6 +86,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
+        private void When_setting_file_attributes_to_a_discarded_value_it_must_reset_to_normal()
+        {
+            // Arrange
+            var entry = new FileEntry("some.txt", DriveC);
+
+            // Act
+            entry.Attributes = FileAttributes.Encrypted;
+
+            // Assert
+            entry.Attributes.Should().Be(FileAttributes.Normal);
+        }
+
+        [Fact]
         private void When_setting_file_attributes_to_all_it_must_filter_and_succeed()
         {
             // Arrange

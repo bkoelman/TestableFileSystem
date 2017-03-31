@@ -21,11 +21,6 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal DirectoryEntry CurrentDirectory { get; set; }
 
-        public FakeFileSystem()
-            : this(DirectoryEntry.CreateRoot())
-        {
-        }
-
         public FakeFileSystem([NotNull] DirectoryEntry rootEntry)
         {
             Guard.NotNull(rootEntry, nameof(rootEntry));
