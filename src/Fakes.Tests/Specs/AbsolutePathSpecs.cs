@@ -194,5 +194,27 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
+
+        [Fact]
+        private void When_using_reserved_name_in_directory_it_must_fail()
+        {
+            // Act
+            // ReSharper disable once ObjectCreationAsStatement
+            Action action = () => new AbsolutePath(@"c:\nul\documents");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_using_reserved_name_in_file_it_must_fail()
+        {
+            // Act
+            // ReSharper disable once ObjectCreationAsStatement
+            Action action = () => new AbsolutePath(@"com1");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
     }
 }

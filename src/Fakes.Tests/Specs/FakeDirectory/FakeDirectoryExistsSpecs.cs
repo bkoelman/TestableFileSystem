@@ -207,5 +207,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             found.Should().BeTrue();
         }
+
+        [Fact]
+        private void When_getting_directory_existence_for_reserved_name_it_must_succeed()
+        {
+            // Arrange
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            bool found = fileSystem.Directory.Exists("NUL");
+
+            // Assert
+            found.Should().BeFalse();
+        }
     }
 }

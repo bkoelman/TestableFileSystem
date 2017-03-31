@@ -16,6 +16,35 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
 
+        [NotNull]
+        [ItemNotNull]
+        private static readonly ISet<string> ReservedComponentNames = new HashSet<string>(
+            new[]
+            {
+                "CON",
+                "PRN",
+                "AUX",
+                "NUL",
+                "COM1",
+                "COM2",
+                "COM3",
+                "COM4",
+                "COM5",
+                "COM6",
+                "COM7",
+                "COM8",
+                "COM9",
+                "LPT1",
+                "LPT2",
+                "LPT3",
+                "LPT4",
+                "LPT5",
+                "LPT6",
+                "LPT7",
+                "LPT8",
+                "LPT9"
+            }, StringComparer.OrdinalIgnoreCase);
+
         private readonly int offset;
 
         [NotNull]
@@ -44,6 +73,8 @@ namespace TestableFileSystem.Fakes
             Guard.NotNullNorWhiteSpace(path, nameof(path));
 
             List<string> components = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToList();
+
+            AssertIsNotReservedComponentName(components[0]);
 
             if (!StartsWithDriveLetter(components) && !IsNetworkShare(components))
             {
@@ -112,6 +143,15 @@ namespace TestableFileSystem.Fakes
         }
 
         [AssertionMethod]
+        private static void AssertIsNotReservedComponentName([NotNull] string name)
+        {
+            if (ReservedComponentNames.Contains(name))
+            {
+                throw new NotSupportedException("Reserved names are not supported.");
+            }
+        }
+
+        [AssertionMethod]
         private static void AssertIsFileSystemNamespaceValid([NotNull] string path)
         {
             if (path.StartsWith(@"\\?\GLOBALROOT", StringComparison.OrdinalIgnoreCase) ||
@@ -163,6 +203,8 @@ namespace TestableFileSystem.Fakes
                     throw ErrorFactory.IllegalCharactersInPath();
                 }
             }
+
+            AssertIsNotReservedComponentName(component);
         }
 
         private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, int offset)
