@@ -9,12 +9,12 @@ namespace TestableFileSystem.Fakes
     internal sealed class DirectoryOperationLocker : IDirectory
     {
         [NotNull]
-        private readonly MemoryFileSystem owner;
+        private readonly FakeFileSystem owner;
 
         [NotNull]
         private readonly IDirectory target;
 
-        public DirectoryOperationLocker([NotNull] MemoryFileSystem owner, [NotNull] IDirectory target)
+        public DirectoryOperationLocker([NotNull] FakeFileSystem owner, [NotNull] IDirectory target)
         {
             Guard.NotNull(owner, nameof(owner));
             Guard.NotNull(target, nameof(target));

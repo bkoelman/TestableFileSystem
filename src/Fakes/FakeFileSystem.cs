@@ -6,7 +6,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class MemoryFileSystem : IFileSystem
+    public sealed class FakeFileSystem : IFileSystem
     {
         [NotNull]
         private readonly DirectoryEntry root;
@@ -21,20 +21,20 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal DirectoryEntry CurrentDirectory { get; set; }
 
-        public MemoryFileSystem()
+        public FakeFileSystem()
             : this(DirectoryEntry.CreateRoot())
         {
         }
 
-        public MemoryFileSystem([NotNull] DirectoryEntry rootEntry)
+        public FakeFileSystem([NotNull] DirectoryEntry rootEntry)
         {
             Guard.NotNull(rootEntry, nameof(rootEntry));
             AssertIsTopLevel(rootEntry);
             AssertHasDrives(rootEntry);
 
             root = rootEntry;
-            Directory = new DirectoryOperationLocker(this, new MemoryDirectory(rootEntry, this));
-            File = new FileOperationLocker(this, new MemoryFile(rootEntry, this));
+            Directory = new DirectoryOperationLocker(this, new FakeDirectory(rootEntry, this));
+            File = new FileOperationLocker(this, new FakeFile(rootEntry, this));
             CurrentDirectory = GetEntryToFirstDriveLetter(rootEntry);
         }
 

@@ -7,13 +7,13 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests
 {
-    public sealed class MemoryDirectorySpecs
+    public sealed class FakeDirectorySpecs
     {
         [Fact]
         private void When_getting_directory_that_exists_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder")
                 .Build();
 
@@ -28,7 +28,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_getting_directory_that_does_not_exist_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder")
                 .Build();
 
@@ -43,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_empty_directory_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder")
                 .Build();
 
@@ -58,7 +58,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_nonempty_directory_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(@"C:\some\folder\file.txt")
                 .Build();
 
@@ -75,7 +75,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"c:\some\folder";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path, FileAttributes.ReadOnly)
                 .Build();
 
@@ -90,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_nonempty_directory_recursively_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder\with\children")
                 .IncludingFile(@"C:\some\folder\file.txt")
                 .IncludingFile(@"C:\some\folder\child\other.txt")
@@ -107,7 +107,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_nonempty_directory_recursively_that_contains_open_file_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(@"C:\some\folder\deeper\file.txt")
                 .Build();
 
@@ -125,7 +125,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_nonempty_directory_recursively_that_contains_readonly_file_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(@"C:\some\folder\deeper\file.txt", null, FileAttributes.ReadOnly)
                 .Build();
 
@@ -140,7 +140,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_nonempty_directory_recursively_that_contains_readonly_directory_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder\deeper\subfolder", FileAttributes.ReadOnly)
                 .Build();
 
@@ -155,7 +155,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_drive_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\")
                 .IncludingDirectory(@"D:\")
                 .Build();
@@ -173,7 +173,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_drive_recursively_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\")
                 .IncludingDirectory(@"D:\")
                 .Build();
@@ -191,7 +191,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_current_directory_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\store")
                 .Build();
 
@@ -208,7 +208,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_below_current_directory_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\store\current\folder")
                 .Build();
 
@@ -225,7 +225,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_deleting_above_current_directory_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\store\current\folder")
                 .Build();
 
@@ -242,7 +242,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_setting_current_directory_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder")
                 .Build();
 
@@ -257,7 +257,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_setting_relative_current_directory_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder")
                 .Build();
 
@@ -274,7 +274,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_setting_current_directory_to_missing_drive_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder")
                 .Build();
 
@@ -289,7 +289,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_setting_current_directory_to_missing_directory_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder")
                 .Build();
 
@@ -304,7 +304,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_setting_current_directory_to_network_share_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"\\docserver\teams")
                 .Build();
 

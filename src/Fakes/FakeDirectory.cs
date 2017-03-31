@@ -6,7 +6,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class MemoryDirectory : IDirectory
+    public sealed class FakeDirectory : IDirectory
     {
         // TODO: Guard that a name cannot occur both as a file -and- a directory.
 
@@ -14,9 +14,9 @@ namespace TestableFileSystem.Fakes
         private readonly DirectoryEntry root;
 
         [NotNull]
-        private readonly MemoryFileSystem owner;
+        private readonly FakeFileSystem owner;
 
-        internal MemoryDirectory([NotNull] DirectoryEntry root, [NotNull] MemoryFileSystem owner)
+        internal FakeDirectory([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner)
         {
             Guard.NotNull(root, nameof(root));
             Guard.NotNull(owner, nameof(owner));

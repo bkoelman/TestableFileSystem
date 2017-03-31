@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests
 {
-    public sealed class MemoryFileSpecs
+    public sealed class FakeFileSpecs
     {
         private static readonly DateTime ZeroFileTime = 1.January(1601).AsUtc().ToLocalTime();
         private static readonly DateTime ZeroFileTimeUtc = 1.January(1601).AsUtc();
@@ -18,7 +18,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -33,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_getting_file_that_does_not_exist_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(@"C:\some\file.txt")
                 .Build();
 
@@ -48,7 +48,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_testing_if_null_file_exists_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -62,7 +62,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_creating_file_for_random_access_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_creating_file_with_encryption_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -91,7 +91,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_creating_file_with_delete_on_close_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_creating_file_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some")
                 .Build();
 
@@ -126,7 +126,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path, "existing data")
                 .Build();
 
@@ -144,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\sheet.xls";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -159,7 +159,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_trying_to_open_existing_file_that_does_not_exist_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\")
                 .Build();
 
@@ -176,7 +176,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\sheet.xls";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -199,7 +199,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -217,7 +217,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string sourcePath = @"C:\some\file.txt";
             const string destinationPath = @"C:\some\FILE1.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .Build();
 
@@ -235,7 +235,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string sourcePath = @"C:\some\file.txt";
             const string destinationPath = @"C:\some\newname.doc";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .Build();
 
@@ -253,7 +253,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string sourcePath = @"C:\some\level\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .Build();
 
@@ -274,7 +274,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string sourcePath = @"C:\some\file.txt";
             const string destinationPath = @"D:\other\folder\newname.doc";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .IncludingDirectory(@"D:\other\folder")
                 .Build();
@@ -293,7 +293,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string sourcePath = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .Build();
 
@@ -311,7 +311,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string sourcePath = @"C:\docs\mine.txt";
             const string destinationPath = @"\\teamserver\documents\for-all.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .IncludingDirectory(@"\\teamserver\documents")
                 .Build();
@@ -329,7 +329,7 @@ namespace TestableFileSystem.Fakes.Tests
         {
             // Arrange
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some")
                 .Build();
 
@@ -344,7 +344,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_moving_file_from_directory_that_does_not_exist_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -358,7 +358,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_moving_from_drive_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -375,7 +375,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string sourcePath = @"C:\some\file.txt";
             const string destinationPath = @"C:\other\newname.doc";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .Build();
 
@@ -393,7 +393,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string sourcePath = @"C:\some\file.txt";
             const string destinationPath = @"C:\some\newname.doc";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .IncludingFile(destinationPath)
                 .Build();
@@ -412,7 +412,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string sourcePath = @"C:\some\file.txt";
             const string destinationDirectory = @"C:\some\newname.doc";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .IncludingDirectory(destinationDirectory)
                 .Build();
@@ -431,7 +431,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string sourcePath = @"C:\some\file.txt";
             const string destinationPath = @"C:\some\newname.doc";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(sourcePath)
                 .Build();
 
@@ -453,7 +453,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -471,7 +471,7 @@ namespace TestableFileSystem.Fakes.Tests
             const string existingPath = @"C:\some\file.txt";
             const string missingPath = @"C:\some\other.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(existingPath)
                 .Build();
 
@@ -488,7 +488,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\other\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(@"C:\some\file.txt")
                 .Build();
 
@@ -505,7 +505,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -526,7 +526,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path, null, FileAttributes.ReadOnly)
                 .Build();
 
@@ -541,7 +541,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_getting_file_attributes_for_mising_file_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some")
                 .Build();
 
@@ -556,7 +556,7 @@ namespace TestableFileSystem.Fakes.Tests
         private void When_getting_file_attributes_for_mising_directory_it_must_fail()
         {
             // Arrange
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -572,7 +572,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -592,7 +592,7 @@ namespace TestableFileSystem.Fakes.Tests
 
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -612,7 +612,7 @@ namespace TestableFileSystem.Fakes.Tests
 
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -630,7 +630,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -650,7 +650,7 @@ namespace TestableFileSystem.Fakes.Tests
 
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -670,7 +670,7 @@ namespace TestableFileSystem.Fakes.Tests
 
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -688,7 +688,7 @@ namespace TestableFileSystem.Fakes.Tests
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -708,7 +708,7 @@ namespace TestableFileSystem.Fakes.Tests
 
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 
@@ -728,7 +728,7 @@ namespace TestableFileSystem.Fakes.Tests
 
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new MemoryFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingFile(path)
                 .Build();
 

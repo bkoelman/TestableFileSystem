@@ -8,12 +8,12 @@ namespace TestableFileSystem.Fakes
     internal sealed class FileOperationLocker : IFile
     {
         [NotNull]
-        private readonly MemoryFileSystem owner;
+        private readonly FakeFileSystem owner;
 
         [NotNull]
         private readonly IFile target;
 
-        public FileOperationLocker([NotNull] MemoryFileSystem owner, [NotNull] IFile target)
+        public FileOperationLocker([NotNull] FakeFileSystem owner, [NotNull] IFile target)
         {
             Guard.NotNull(owner, nameof(owner));
             Guard.NotNull(target, nameof(target));

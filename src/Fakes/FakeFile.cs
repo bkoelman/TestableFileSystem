@@ -5,7 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class MemoryFile : IFile
+    public sealed class FakeFile : IFile
     {
         private static readonly DateTime ZeroFileTime = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
         private static readonly DateTime ZeroFileTimeUtc = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -14,9 +14,9 @@ namespace TestableFileSystem.Fakes
         private readonly DirectoryEntry root;
 
         [NotNull]
-        private readonly MemoryFileSystem owner;
+        private readonly FakeFileSystem owner;
 
-        internal MemoryFile([NotNull] DirectoryEntry root, [NotNull] MemoryFileSystem owner)
+        internal FakeFile([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner)
         {
             Guard.NotNull(root, nameof(root));
             Guard.NotNull(owner, nameof(owner));
