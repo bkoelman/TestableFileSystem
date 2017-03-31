@@ -20,3 +20,5 @@ Requires Visual Studio 2017. This project is a work in progress, please be patie
 * A file cannot be opened by multiple writers at the same time
 * Hard links, junctions and symbolic links (reparse points) are not implemented
 * 8.3 aliases for file names are not implemented
+
+For a better understanding of the Windows filesystem, see https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx.
