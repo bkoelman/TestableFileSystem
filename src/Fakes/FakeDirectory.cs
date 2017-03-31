@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -76,12 +77,25 @@ namespace TestableFileSystem.Fakes
 
         public bool Exists(string path)
         {
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrWhiteSpace(path))
             {
                 return false;
             }
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath;
+            try
+            {
+                absolutePath = ToAbsolutePath(path.TrimEnd());
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+            catch (NotSupportedException)
+            {
+                return false;
+            }
+
             DirectoryEntry directory = root.TryGetExistingDirectory(absolutePath);
 
             return directory != null;
@@ -96,7 +110,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = ToAbsolutePath(path.TrimEnd());
 
             DirectoryEntry directoryToDelete = root.GetExistingDirectory(absolutePath);
             AssertNoConflictWithCurrentDirectory(directoryToDelete);
@@ -112,8 +126,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (entry == directory)
                 {
-                    string path = directory.GetAbsolutePath();
-                    throw ErrorFactory.FileIsInUse(path);
+                    throw ErrorFactory.FileIsInUse(directory.GetAbsolutePath());
                 }
 
                 entry = entry.Parent;
@@ -207,6 +220,11 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private AbsolutePath ToAbsolutePath([NotNull] string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw ErrorFactory.PathIsNotLegal(nameof(path));
+            }
+
             string basePath = owner.CurrentDirectory.GetAbsolutePath();
             string rooted = Path.Combine(basePath, path);
             return new AbsolutePath(rooted);

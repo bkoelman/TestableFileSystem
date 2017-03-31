@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => new AbsolutePath(@"\\team*server");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"The path '\\team*server' is invalid.*");
+            action.ShouldThrow<ArgumentException>().WithMessage(@"Illegal characters in path.*");
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => new AbsolutePath(@"c:\games\try?me");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"The path 'c:\games\try?me' is invalid.*");
+            action.ShouldThrow<ArgumentException>().WithMessage(@"Illegal characters in path.*");
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => new AbsolutePath(@"docs\work");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path must start with drive letter or network share.*");
+            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.*");
         }
 
         [Fact]
@@ -112,14 +112,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_using_parent_references_on_root_it_must_fail()
+        private void When_using_parent_references_on_root_it_must_ignore_them()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"C:\..\games");
+            var path = new AbsolutePath(@"C:\..\games");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"The path 'C:\..\games' is invalid.*");
+            path.Components.Should().HaveCount(2);
+            path.Components[0].Should().Be("C:");
+            path.Components[1].Should().Be("games");
         }
     }
 }

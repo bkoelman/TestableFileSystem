@@ -16,18 +16,16 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
 
+        private readonly int offset;
+
         [NotNull]
         [ItemNotNull]
         public IReadOnlyList<string> Components { get; }
 
-        public int Offset { get; }
-
         [NotNull]
-        public string Name => Components[Offset];
+        public string Name => Components[offset];
 
-        public bool IsAtStart => Offset == 0;
-
-        public bool IsAtEnd => Offset == Components.Count - 1;
+        public bool IsAtEnd => offset == Components.Count - 1;
 
         public bool IsLocalDrive => StartsWithDriveLetter(Components);
 
@@ -45,9 +43,9 @@ namespace TestableFileSystem.Fakes
 
             List<string> components = path.Split(Path.DirectorySeparatorChar).ToList();
 
-            if (!StartsWithDriveLetter(components) && !IsNetworkShare(components, path))
+            if (!StartsWithDriveLetter(components) && !IsNetworkShare(components))
             {
-                throw new ArgumentException("Path must start with drive letter or network share.", nameof(path));
+                throw ErrorFactory.PathFormatIsNotSupported();
             }
 
             for (int index = 1; index < components.Count; index++)
@@ -68,12 +66,14 @@ namespace TestableFileSystem.Fakes
                     }
                     else
                     {
-                        throw CreateExceptionForInvalid(path);
+                        // Silently ignore moving to above root.
+                        components.RemoveAt(index);
+                        index--;
                     }
                 }
                 else
                 {
-                    AssertNetworkShareOrDirectoryOrFileNameIsValid(component, path);
+                    AssertNetworkShareOrDirectoryOrFileNameIsValid(component);
                 }
             }
 
@@ -99,13 +99,13 @@ namespace TestableFileSystem.Fakes
             return false;
         }
 
-        private static bool IsNetworkShare([NotNull] [ItemNotNull] List<string> components, [NotNull] string path)
+        private static bool IsNetworkShare([NotNull] [ItemNotNull] List<string> components)
         {
             if (components.Count > 2 && components[0] == string.Empty && components[1] == string.Empty)
             {
                 string networkShare = components[2];
 
-                AssertNetworkShareOrDirectoryOrFileNameIsValid(networkShare, path);
+                AssertNetworkShareOrDirectoryOrFileNameIsValid(networkShare);
 
                 components.RemoveRange(0, 2);
                 components[0] = TwoDirectorySeparators + networkShare;
@@ -116,32 +116,26 @@ namespace TestableFileSystem.Fakes
         }
 
         [AssertionMethod]
-        private static void AssertNetworkShareOrDirectoryOrFileNameIsValid([CanBeNull] string component, [NotNull] string path)
+        private static void AssertNetworkShareOrDirectoryOrFileNameIsValid([CanBeNull] string component)
         {
             if (string.IsNullOrWhiteSpace(component))
             {
-                throw CreateExceptionForInvalid(path);
+                throw ErrorFactory.IllegalCharactersInPath();
             }
 
             foreach (char ch in component)
             {
                 if (FileNameCharsInvalid.Contains(ch))
                 {
-                    throw CreateExceptionForInvalid(path);
+                    throw ErrorFactory.IllegalCharactersInPath();
                 }
             }
-        }
-
-        [NotNull]
-        private static ArgumentException CreateExceptionForInvalid([NotNull] string path)
-        {
-            return new ArgumentException($"The path '{path}' is invalid.", nameof(path));
         }
 
         private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, int offset)
         {
             Components = components;
-            Offset = offset;
+            this.offset = offset;
         }
 
         [NotNull]
@@ -152,18 +146,7 @@ namespace TestableFileSystem.Fakes
                 throw new InvalidOperationException();
             }
 
-            return new AbsolutePath(Components, Offset + 1);
-        }
-
-        [NotNull]
-        public AbsolutePath MoveUp()
-        {
-            if (IsAtStart)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return new AbsolutePath(Components, Offset - 1);
+            return new AbsolutePath(Components, offset + 1);
         }
 
         [NotNull]
@@ -185,14 +168,14 @@ namespace TestableFileSystem.Fakes
                     textBuilder.Append(Path.DirectorySeparatorChar);
                 }
 
-                if (index == Offset)
+                if (index == offset)
                 {
                     textBuilder.Append('[');
                 }
 
                 textBuilder.Append(Components[index]);
 
-                if (index == Offset)
+                if (index == offset)
                 {
                     textBuilder.Append(']');
                 }

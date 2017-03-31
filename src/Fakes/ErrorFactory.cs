@@ -85,5 +85,17 @@ namespace TestableFileSystem.Fakes
         {
             return new IOException("The specified path is invalid.");
         }
+
+        [NotNull]
+        public static Exception PathFormatIsNotSupported()
+        {
+            return new NotSupportedException("The given path's format is not supported.");
+        }
+
+        [NotNull]
+        public static Exception IllegalCharactersInPath()
+        {
+            throw new ArgumentException("Illegal characters in path.");
+        }
     }
 }

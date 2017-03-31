@@ -89,7 +89,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_setting_file_attributes_to_all_it_must_filter_and_succeed()
         {
             // Arrange
-            // Arrange
             var entry = new FileEntry("some.txt", DriveC);
 
             // Act
