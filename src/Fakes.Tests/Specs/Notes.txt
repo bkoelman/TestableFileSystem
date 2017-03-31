@@ -1,0 +1,11 @@
+﻿General concerns for writing tests:
+- Have tests for null/empty/whilespace and auto-trimming on public API surface
+- Have tests for directory/file missing
+- Have tests for file in use (or directory is the current directory)
+- Verify type of exception and message text
+- Have tests for absolute/relative paths
+- Have tests for UNC paths
+- Have tests for extended paths (\\?\C:\folder)
+- Have tests for ignoring case
+- Have tests for filesystem entry type mismatches (directory that exists as file etc)
+- Have tests for readonly files/directories

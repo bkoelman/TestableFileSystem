@@ -18,6 +18,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal readonly object TreeLock = new object();
 
+        // TODO: Keep track of current directory per drive, to allow paths like "C:work\doc.txt" to resolve properly.
         [NotNull]
         internal DirectoryEntry CurrentDirectory { get; set; }
 
