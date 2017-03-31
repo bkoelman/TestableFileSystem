@@ -39,9 +39,11 @@ namespace TestableFileSystem.Fakes
         private static IReadOnlyList<string> ToComponents([NotNull] string path)
         {
             path = WithoutTrailingSeparator(path);
+            path = WithoutExtendedLengthPrefix(path);
+
             Guard.NotNullNorWhiteSpace(path, nameof(path));
 
-            List<string> components = path.Split(Path.DirectorySeparatorChar).ToList();
+            List<string> components = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToList();
 
             if (!StartsWithDriveLetter(components) && !IsNetworkShare(components))
             {
@@ -83,9 +85,40 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         private static string WithoutTrailingSeparator([CanBeNull] string path)
         {
-            return path != null && path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+            return path?.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) == true
                 ? path.Substring(0, path.Length - 1)
                 : path;
+        }
+
+        [CanBeNull]
+        private static string WithoutExtendedLengthPrefix([CanBeNull] string path)
+        {
+            if (path != null)
+            {
+                AssertIsFileSystemNamespaceValid(path);
+
+                if (path.StartsWith(@"\\?\UNC\", StringComparison.Ordinal))
+                {
+                    return '\\' + path.Substring(7);
+                }
+
+                if (path.StartsWith(@"\\?\", StringComparison.Ordinal))
+                {
+                    return path.Substring(4);
+                }
+            }
+
+            return path;
+        }
+
+        [AssertionMethod]
+        private static void AssertIsFileSystemNamespaceValid([NotNull] string path)
+        {
+            if (path.StartsWith(@"\\?\GLOBALROOT", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith(@"\\.\", StringComparison.Ordinal))
+            {
+                throw new NotSupportedException("Only Win32 File Namespaces are supported.");
+            }
         }
 
         private static bool StartsWithDriveLetter([NotNull] [ItemNotNull] IReadOnlyList<string> components)
@@ -152,7 +185,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string GetText()
         {
-            return Components.Count == 1
+            return Components.Count == 1 && IsLocalDrive
                 ? Components[0] + Path.DirectorySeparatorChar
                 : string.Join(Path.DirectorySeparatorChar.ToString(), Components);
         }

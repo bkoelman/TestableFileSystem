@@ -13,6 +13,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"C:\");
 
             // Assert
+            path.GetText().Should().Be(@"C:\");
             path.Components.Should().HaveCount(1);
             path.Name.Should().Be("C:");
         }
@@ -24,6 +25,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"C:\docs");
 
             // Assert
+            path.GetText().Should().Be(@"C:\docs");
+            path.Components.Should().HaveCount(2);
+            path.Components[0].Should().Be("C:");
+            path.Components[1].Should().Be("docs");
+        }
+
+        [Fact]
+        private void When_creating_extended_path_starting_with_drive_letter_it_must_succeed()
+        {
+            // Act
+            var path = new AbsolutePath(@"\\?\C:\docs");
+
+            // Assert
+            path.GetText().Should().Be(@"C:\docs");
             path.Components.Should().HaveCount(2);
             path.Components[0].Should().Be("C:");
             path.Components[1].Should().Be("docs");
@@ -33,9 +48,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_network_share_it_must_succeed()
         {
             // Act
-            var path = new AbsolutePath(@"\\teamserver");
+            var path = new AbsolutePath(@"\\teamserver\");
 
             // Assert
+            path.GetText().Should().Be(@"\\teamserver");
             path.Components.Should().HaveCount(1);
             path.Name.Should().Be(@"\\teamserver");
         }
@@ -47,6 +63,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"\\teamserver\management\reports");
 
             // Assert
+            path.Components.Should().HaveCount(3);
+            path.GetText().Should().Be(@"\\teamserver\management\reports");
+            path.Components[0].Should().Be(@"\\teamserver");
+            path.Components[1].Should().Be("management");
+            path.Components[2].Should().Be("reports");
+        }
+
+        [Fact]
+        private void When_creating_extended_path_starting_with_network_share_it_must_succeed()
+        {
+            // Act
+            var path = new AbsolutePath(@"\\?\UNC\teamserver\management\reports");
+
+            // Assert
+            path.GetText().Should().Be(@"\\teamserver\management\reports");
             path.Components.Should().HaveCount(3);
             path.Components[0].Should().Be(@"\\teamserver");
             path.Components[1].Should().Be("management");
@@ -93,6 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"C:\docs\.\games");
 
             // Assert
+            path.GetText().Should().Be(@"C:\docs\games");
             path.Components.Should().HaveCount(3);
             path.Components[0].Should().Be("C:");
             path.Components[1].Should().Be("docs");
@@ -106,6 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"C:\docs\..\games");
 
             // Assert
+            path.GetText().Should().Be(@"C:\games");
             path.Components.Should().HaveCount(2);
             path.Components[0].Should().Be("C:");
             path.Components[1].Should().Be("games");
@@ -118,9 +151,48 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"C:\..\games");
 
             // Assert
+            path.GetText().Should().Be(@"C:\games");
             path.Components.Should().HaveCount(2);
             path.Components[0].Should().Be("C:");
             path.Components[1].Should().Be("games");
+        }
+
+        [Fact]
+        private void When_using_reverse_slashes_it_must_normalize_them()
+        {
+            // Act
+            var path = new AbsolutePath(@"C:\docs/in/sub\folder");
+
+            // Assert
+            path.GetText().Should().Be(@"C:\docs\in\sub\folder");
+            path.Components.Should().HaveCount(5);
+            path.Components[0].Should().Be("C:");
+            path.Components[1].Should().Be("docs");
+            path.Components[2].Should().Be("in");
+            path.Components[3].Should().Be("sub");
+            path.Components[4].Should().Be("folder");
+        }
+
+        [Fact]
+        private void When_using_win32_device_namespace_it_must_fail()
+        {
+            // Act
+            // ReSharper disable once ObjectCreationAsStatement
+            Action action = () => new AbsolutePath(@"\\.\COM56");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
+        }
+
+        [Fact]
+        private void When_using_NT_namespace_it_must_fail()
+        {
+            // Act
+            // ReSharper disable once ObjectCreationAsStatement
+            Action action = () => new AbsolutePath(@"\\?\GLOBALROOT");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
     }
 }
