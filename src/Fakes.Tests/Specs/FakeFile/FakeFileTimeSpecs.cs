@@ -29,6 +29,46 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             creationTimeUtc.Should().Be(ZeroFileTimeUtc);
         }
 
+        [Fact(Skip = "TODO")]
+        private void When_getting_file_creation_time_in_local_timezone_for_directory_it_must_succeed()
+        {
+            // Arrange
+            DateTime creationTimeLocal = 3.February(2017).At(12, 34, 56, 777).AsLocal();
+            SystemClock.Now = () => creationTimeLocal;
+
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            DateTime timeLocal = fileSystem.File.GetCreationTime(path);
+
+            // Assert
+            timeLocal.Should().Be(creationTimeLocal);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_getting_file_creation_time_in_utc_for_directory_it_must_succeed()
+        {
+            // Arrange
+            DateTime creationTimeUtc = 4.February(2017).At(12, 34, 56, 777).AsUtc();
+            SystemClock.UtcNow = () => creationTimeUtc;
+
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            DateTime timeUtc = fileSystem.File.GetCreationTimeUtc(path);
+
+            // Assert
+            timeUtc.Should().Be(creationTimeUtc);
+        }
+
         [Fact]
         private void When_setting_file_creation_time_in_local_timezone_it_must_succeed()
         {
@@ -70,6 +110,44 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_setting_file_creation_time_in_local_timezone_for_directory_it_must_fail()
+        {
+            // Arrange
+            DateTime creationTimeLocal = 5.February(2017).At(12, 34, 56, 777).AsLocal();
+
+            const string path = @"c:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetCreationTime(path, creationTimeLocal.AddHours(3));
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\some\subfolder' is denied.");
+        }
+
+        [Fact]
+        private void When_setting_file_creation_time_in_utc_for_directory_it_must_fail()
+        {
+            // Arrange
+            DateTime creationTimeUtc = 6.February(2017).At(12, 34, 56, 777).AsUtc();
+
+            const string path = @"c:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetCreationTimeUtc(path, creationTimeUtc.AddHours(3));
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\some\subfolder' is denied.");
+        }
+
+        [Fact]
         private void When_getting_file_last_write_time_for_missing_file_it_must_succeed()
         {
             // Arrange
@@ -85,6 +163,46 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             lastWriteTime.Should().Be(ZeroFileTime);
             lastWriteTimeUtc.Should().Be(ZeroFileTimeUtc);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_getting_file_last_write_time_in_local_timezone_for_directory_it_must_succeed()
+        {
+            // Arrange
+            DateTime lastWriteTimeLocal = 7.February(2017).At(12, 34, 56, 777).AsLocal();
+            SystemClock.Now = () => lastWriteTimeLocal;
+
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            DateTime timeLocal = fileSystem.File.GetLastWriteTime(path);
+
+            // Assert
+            timeLocal.Should().Be(lastWriteTimeLocal);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_getting_file_last_write_time_in_utc_for_directory_it_must_succeed()
+        {
+            // Arrange
+            DateTime lastWriteTimeUtc = 8.February(2017).At(12, 34, 56, 777).AsUtc();
+            SystemClock.UtcNow = () => lastWriteTimeUtc;
+
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            DateTime timeUtc = fileSystem.File.GetLastWriteTimeUtc(path);
+
+            // Assert
+            timeUtc.Should().Be(lastWriteTimeUtc);
         }
 
         [Fact]
@@ -128,6 +246,46 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_setting_file_last_write_time_in_local_timezone_for_directory_it_must_fail()
+        {
+            // Arrange
+            DateTime lastWriteTimeLocal = 9.February(2017).At(12, 34, 56, 777).AsLocal();
+
+            const string path = @"c:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetLastWriteTime(path, lastWriteTimeLocal.AddHours(3));
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\some\subfolder' is denied.");
+        }
+
+        [Fact]
+        private void When_setting_file_last_write_time_in_utc_for_directory_it_must_fail()
+        {
+            // Arrange
+            DateTime lastWriteTimeUtc = 10.February(2017).At(12, 34, 56, 777).AsUtc();
+
+            const string path = @"c:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetLastWriteTimeUtc(path, lastWriteTimeUtc.AddHours(3));
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\some\subfolder' is denied.");
+        }
+
+        // ***
+
+        [Fact]
         private void When_getting_file_last_access_time_for_missing_file_it_must_succeed()
         {
             // Arrange
@@ -143,6 +301,46 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             lastAccessTime.Should().Be(ZeroFileTime);
             lastAccessTimeUtc.Should().Be(ZeroFileTimeUtc);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_getting_file_last_access_time_in_local_timezone_for_directory_it_must_succeed()
+        {
+            // Arrange
+            DateTime lastAccessTimeLocal = 11.February(2017).At(12, 34, 56, 777).AsLocal();
+            SystemClock.Now = () => lastAccessTimeLocal;
+
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            DateTime timeLocal = fileSystem.File.GetLastAccessTime(path);
+
+            // Assert
+            timeLocal.Should().Be(lastAccessTimeLocal);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_getting_file_last_access_time_in_utc_for_directory_it_must_succeed()
+        {
+            // Arrange
+            DateTime lastAccessTimeUtc = 12.February(2017).At(12, 34, 56, 777).AsUtc();
+            SystemClock.UtcNow = () => lastAccessTimeUtc;
+
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            DateTime timeUtc = fileSystem.File.GetLastAccessTimeUtc(path);
+
+            // Assert
+            timeUtc.Should().Be(lastAccessTimeUtc);
         }
 
         [Fact]
@@ -183,6 +381,44 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(lastAccessTimeUtc);
             fileSystem.File.GetLastAccessTime(path).Should().NotBe(lastAccessTimeUtc);
+        }
+
+        [Fact]
+        private void When_setting_file_last_access_time_in_local_timezone_for_directory_it_must_fail()
+        {
+            // Arrange
+            DateTime lastAccessTimeLocal = 13.February(2017).At(12, 34, 56, 777).AsLocal();
+
+            const string path = @"c:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetLastAccessTime(path, lastAccessTimeLocal.AddHours(3));
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\some\subfolder' is denied.");
+        }
+
+        [Fact]
+        private void When_setting_file_last_access_time_in_utc_for_directory_it_must_fail()
+        {
+            // Arrange
+            DateTime lastAccessTimeUtc = 14.February(2017).At(12, 34, 56, 777).AsUtc();
+
+            const string path = @"c:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, lastAccessTimeUtc.AddHours(3));
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\some\subfolder' is denied.");
         }
     }
 }

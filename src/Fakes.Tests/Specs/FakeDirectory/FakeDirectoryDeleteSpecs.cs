@@ -379,6 +379,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeFalse();
         }
 
-        // TODO: When_deleting_directory_that_exists_as_file_it_must_fail()
+        [Fact]
+        private void When_deleting_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(path);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"The directory name is invalid.");
+        }
     }
 }

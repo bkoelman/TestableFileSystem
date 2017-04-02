@@ -88,5 +88,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(0);
             }
         }
+
+        [Fact]
+        private void When_creating_file_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Create(path);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+        }
     }
 }

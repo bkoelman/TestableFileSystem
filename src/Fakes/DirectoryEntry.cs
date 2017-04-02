@@ -321,6 +321,12 @@ namespace TestableFileSystem.Fakes
 
             if (directory == null)
             {
+                var file = TryGetExistingFile(path);
+                if (file != null)
+                {
+                    throw ErrorFactory.DirectoryNameIsInvalid();
+                }
+
                 throw ErrorFactory.DirectoryNotFound(path.GetText());
             }
 

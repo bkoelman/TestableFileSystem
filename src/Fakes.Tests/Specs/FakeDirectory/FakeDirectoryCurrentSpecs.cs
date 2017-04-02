@@ -86,5 +86,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.ShouldThrow<IOException>()
                 .WithMessage(@"The specified path is invalid.");
         }
+
+        [Fact]
+        private void When_setting_current_directory_to_existing_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.SetCurrentDirectory(path);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("The directory name is invalid.");
+        }
     }
 }

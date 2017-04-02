@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
@@ -50,7 +51,8 @@ namespace TestableFileSystem.Fakes
 
                 if (throwIfExistsAsDirectory)
                 {
-                    throw new Exception("TODO: Directory instead of file.");
+                    string path = Path.Combine(owner.GetAbsolutePath(), name);
+                    throw ErrorFactory.UnauthorizedAccess(path);
                 }
             }
 

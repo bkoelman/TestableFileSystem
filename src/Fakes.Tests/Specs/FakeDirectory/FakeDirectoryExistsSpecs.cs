@@ -222,5 +222,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             found.Should().BeFalse();
         }
+
+        [Fact]
+        private void When_getting_directory_existence_for_directory_that_exists_as_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path)
+                .Build();
+
+            // Act
+            bool found = fileSystem.Directory.Exists(path);
+
+            // Assert
+            found.Should().BeFalse();
+        }
     }
 }

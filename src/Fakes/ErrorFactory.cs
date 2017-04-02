@@ -97,5 +97,11 @@ namespace TestableFileSystem.Fakes
         {
             throw new ArgumentException("Illegal characters in path.");
         }
+
+        [NotNull]
+        public static Exception DirectoryNameIsInvalid()
+        {
+            return new IOException("The directory name is invalid.");
+        }
     }
 }

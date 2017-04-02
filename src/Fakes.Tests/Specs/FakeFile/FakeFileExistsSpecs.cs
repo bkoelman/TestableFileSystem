@@ -8,6 +8,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     public sealed class FakeFileExistsSpecs
     {
         [Fact]
+        private void When_testing_if_null_file_exists_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            bool found = fileSystem.File.Exists(null);
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
         private void When_getting_file_that_exists_it_must_succeed()
         {
             // Arrange
@@ -40,14 +54,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_testing_if_null_file_exists_it_must_succeed()
+        private void When_getting_file_that_exists_as_directory_it_must_succeed()
         {
             // Arrange
+            const string path = @"C:\some\subfolder";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
                 .Build();
 
             // Act
-            bool found = fileSystem.File.Exists(null);
+            bool found = fileSystem.File.Exists(path);
 
             // Assert
             found.Should().BeFalse();

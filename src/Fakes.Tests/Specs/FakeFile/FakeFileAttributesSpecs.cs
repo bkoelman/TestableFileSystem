@@ -38,5 +38,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.ShouldThrow<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
         }
+
+        [Fact]
+        private void When_getting_file_attributes_that_exists_as_directory_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            FileAttributes attributes = fileSystem.File.GetAttributes(path);
+
+            // Assert
+            attributes.Should().Be(FileAttributes.Directory);
+        }
     }
 }

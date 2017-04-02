@@ -263,5 +263,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 fileSystem.File.Exists(destinationPath).Should().BeTrue();
             }
         }
+
+        [Fact]
+        private void When_moving_file_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some\subfolder")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\some\subfolder", "newname.doc");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\subfolder'.");
+        }
     }
 }
