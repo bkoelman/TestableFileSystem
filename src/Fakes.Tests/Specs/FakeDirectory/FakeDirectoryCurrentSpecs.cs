@@ -5,9 +5,9 @@ using TestableFileSystem.Fakes.Tests.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
-namespace TestableFileSystem.Fakes.Tests.Specs
+namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
-    public sealed class FakeDirectorySpecs
+    public sealed class FakeDirectoryCurrentSpecs
     {
         [Fact]
         private void When_setting_current_directory_it_must_succeed()
