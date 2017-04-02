@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -9,8 +8,6 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeDirectory : IDirectory
     {
-        // TODO: Guard that a name cannot occur both as a file -and- a directory.
-
         [NotNull]
         private readonly DirectoryEntry root;
 

@@ -150,7 +150,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             // Assert
             file.Should().NotBeNull();
-            root.Directories["C:"].Files["file.txt"].Should().Be(file);
+            root.Directories["c:"].Files["FILE.txt"].Should().Be(file);
         }
 
         [Fact]

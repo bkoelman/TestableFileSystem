@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Tests.Builders;
 using TestableFileSystem.Fakes.Tests.EventMonitors;
 using TestableFileSystem.Fakes.Tests.Utilities;
+using TestableFileSystem.Interfaces;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs
@@ -132,7 +133,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             using (var monitor = new FileEntryMonitor(entry))
             {
                 // Act
-                using (var stream = entry.Open(FileMode.Open, FileAccess.Write))
+                using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
                 {
                     using (var writer = new StreamWriter(stream.InnerStream))
                     {
@@ -162,7 +163,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             byte[] writeBuffer = CreateBuffer(size);
 
             // Act
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Write))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
             {
                 stream.Write(writeBuffer, 0, writeBuffer.Length);
             }
@@ -187,7 +188,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DateTime accessTime = 5.January(2017).At(23, 11);
             SystemClock.UtcNow = () => accessTime;
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Read))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
                 using (var reader = new StreamReader(stream.InnerStream))
                 {
@@ -218,7 +219,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             {
                 // Act
                 int count;
-                using (var stream = entry.Open(FileMode.Open, FileAccess.Read))
+                using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
                 {
                     count = stream.Read(readBuffer, 0, readBuffer.Length);
                 }
@@ -247,7 +248,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             const string textToAppend = "ZYXWVUTSRQPONMLKJIHGFEDCBA";
 
             // Act
-            using (var stream = entry.Open(FileMode.Append, FileAccess.Write))
+            using (IFileStream stream = entry.Open(FileMode.Append, FileAccess.Write))
             {
                 using (var writer = new StreamWriter(stream.InnerStream))
                 {
@@ -323,7 +324,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             entry.WriteToFile("ABC");
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Write))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
             {
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
@@ -342,7 +343,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             entry.WriteToFile("ABC");
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Read))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
                 stream.Seek(2, SeekOrigin.Begin);
 
@@ -363,7 +364,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             entry.WriteToFile("ABC");
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Read))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
@@ -387,7 +388,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 DateTime accessTime = 6.January(2017).At(23, 11);
                 SystemClock.UtcNow = () => accessTime;
 
-                using (var stream = entry.Open(FileMode.Open, FileAccess.Write))
+                using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
                 {
                     // Act
                     stream.Seek("ABC".Length + 10, SeekOrigin.Begin);
@@ -411,7 +412,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             entry.WriteToFile("ABC");
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Write))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
             {
                 stream.Seek(1, SeekOrigin.Begin);
 
@@ -434,7 +435,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             entry.WriteToFile("ABC");
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Write))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
             {
                 // Act
                 stream.Seek(10, SeekOrigin.End);
@@ -457,7 +458,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             {
                 entry.WriteToFile("ABCDEF");
 
-                using (var stream = entry.Open(FileMode.Open, FileAccess.Write))
+                using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
                 {
                     // Act
                     stream.SetLength(3);
@@ -478,7 +479,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Arrange
             var entry = new FileEntry("some.txt", DriveC);
 
-            using (var stream = entry.Open(FileMode.Create, FileAccess.Write))
+            using (IFileStream stream = entry.Open(FileMode.Create, FileAccess.Write))
             {
                 stream.Dispose();
 
@@ -497,7 +498,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Arrange
             var entry = new FileEntry("some.txt", DriveC);
 
-            using (var stream = entry.Open(FileMode.Create, FileAccess.Write))
+            using (IFileStream stream = entry.Open(FileMode.Create, FileAccess.Write))
             {
                 stream.Dispose();
 
@@ -518,7 +519,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             entry.WriteToFile("ABC");
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Read))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
                 stream.Dispose();
 
@@ -539,7 +540,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Arrange
             var entry = new FileEntry("some.txt", DriveC);
 
-            using (var stream = entry.Open(FileMode.Create, FileAccess.Write))
+            using (IFileStream stream = entry.Open(FileMode.Create, FileAccess.Write))
             {
                 stream.Dispose();
 
@@ -558,7 +559,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Arrange
             var entry = new FileEntry("some.txt", DriveC);
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Read))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
@@ -575,7 +576,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Arrange
             var entry = new FileEntry("some.txt", DriveC);
 
-            using (var stream = entry.Open(FileMode.Open, FileAccess.Read))
+            using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
@@ -593,7 +594,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             for (int index = 0; index < size; index++)
             {
-                buffer[index] = (byte) ((index + 1) % 0xFF);
+                buffer[index] = (byte)((index + 1) % 0xFF);
             }
 
             return buffer;

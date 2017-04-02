@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
@@ -26,18 +27,17 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(rootEntry, nameof(rootEntry));
             AssertIsTopLevel(rootEntry);
-            AssertHasDrives(rootEntry);
+
+            ICollection<DirectoryEntry> drives = rootEntry.GetDrives();
+            if (!drives.Any())
+            {
+                throw new InvalidOperationException("System contains no drives.");
+            }
 
             root = rootEntry;
             Directory = new DirectoryOperationLocker(this, new FakeDirectory(rootEntry, this));
             File = new FileOperationLocker(this, new FakeFile(rootEntry, this));
-            CurrentDirectory = GetEntryToFirstDriveLetter(rootEntry);
-        }
-
-        [NotNull]
-        private static DirectoryEntry GetEntryToFirstDriveLetter([NotNull] DirectoryEntry rootEntry)
-        {
-            return rootEntry.Directories.First(x => x.Key.IndexOf(Path.VolumeSeparatorChar) != -1).Value;
+            CurrentDirectory = drives.First();
         }
 
         [AssertionMethod]
@@ -46,15 +46,6 @@ namespace TestableFileSystem.Fakes
             if (rootEntry.Parent != null)
             {
                 throw new ArgumentException(nameof(rootEntry));
-            }
-        }
-
-        [AssertionMethod]
-        private void AssertHasDrives([NotNull] DirectoryEntry rootEntry)
-        {
-            if (rootEntry.Directories.All(x => x.Key.IndexOf(Path.VolumeSeparatorChar) == -1))
-            {
-                throw new InvalidOperationException("System contains no drives.");
             }
         }
 

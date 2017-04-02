@@ -15,18 +15,19 @@ namespace TestableFileSystem.Fakes
         private const FileAttributes DirectoryAttributesToDiscard = FileAttributes.Device | FileAttributes.Normal |
             FileAttributes.SparseFile | FileAttributes.Compressed | FileAttributes.Encrypted | FileAttributes.IntegrityStream;
 
+        [NotNull]
+        private readonly DirectoryContents contents;
+
+        [NotNull]
+        public IReadOnlyDictionary<string, FileEntry> Files => contents.GetFileEntries()
+            .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+
+        [NotNull]
+        public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.GetDirectoryEntries()
+            .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+
         [CanBeNull]
         public DirectoryEntry Parent { get; }
-
-        [NotNull]
-        public IDictionary<string, FileEntry> Files { get; } =
-            new Dictionary<string, FileEntry>(StringComparer.OrdinalIgnoreCase);
-
-        [NotNull]
-        public IDictionary<string, DirectoryEntry> Directories { get; } =
-            new Dictionary<string, DirectoryEntry>(StringComparer.OrdinalIgnoreCase);
-
-        public bool IsEmpty => !Files.Any() && !Directories.Any();
 
         public override DateTime CreationTime
         {
@@ -105,10 +106,18 @@ namespace TestableFileSystem.Fakes
         {
             Parent = parent;
             Attributes = FileAttributes.Directory;
+            contents = new DirectoryContents(this);
         }
 
         [NotNull]
         public static DirectoryEntry CreateRoot() => new DirectoryEntry("My Computer", null);
+
+        [NotNull]
+        [ItemNotNull]
+        public ICollection<DirectoryEntry> GetDrives()
+        {
+            return contents.GetDirectoryEntries().Where(x => x.Name.IndexOf(Path.VolumeSeparatorChar) != -1).ToArray();
+        }
 
         [NotNull]
         public string GetAbsolutePath()
@@ -133,21 +142,23 @@ namespace TestableFileSystem.Fakes
 
             if (path.IsAtEnd)
             {
-                if (!Files.ContainsKey(path.Name))
+                FileEntry file = contents.TryGetEntryAsFile(path.Name);
+                if (file == null)
                 {
-                    Files[path.Name] = new FileEntry(path.Name, this);
+                    contents.Add(new FileEntry(path.Name, this));
                 }
 
-                return Files[path.Name];
+                return contents.GetEntryAsFile(path.Name);
             }
 
-            if (!createSubdirectories)
+            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
+            if (subdirectory == null && !createSubdirectories)
             {
-                AssertContainsDirectory(path);
+                throw ErrorFactory.DirectoryNotFound(path.GetText());
             }
 
-            DirectoryEntry directory = GetOrCreateDirectory(path.Name);
-            return directory.GetOrCreateFile(path.MoveDown(), createSubdirectories);
+            subdirectory = GetOrCreateDirectory(path.Name);
+            return subdirectory.GetOrCreateFile(path.MoveDown(), createSubdirectories);
         }
 
         [CanBeNull]
@@ -157,20 +168,21 @@ namespace TestableFileSystem.Fakes
 
             if (path.IsAtEnd)
             {
-                if (!Files.ContainsKey(path.Name))
-                {
-                    return null;
-                }
-
-                return Files[path.Name];
+                return contents.TryGetEntryAsFile(path.Name, false);
             }
 
-            if (!AssertContainsDirectory(path, throwOnMissingDirectory))
+            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
+            if (subdirectory == null)
             {
+                if (throwOnMissingDirectory)
+                {
+                    throw ErrorFactory.DirectoryNotFound(path.GetText());
+                }
                 return null;
             }
 
-            return Directories[path.Name].TryGetExistingFile(path.MoveDown(), throwOnMissingDirectory);
+            subdirectory = contents.GetEntryAsDirectory(path.Name);
+            return subdirectory.TryGetExistingFile(path.MoveDown(), throwOnMissingDirectory);
         }
 
         public void MoveFile([NotNull] FileEntry sourceFile, [NotNull] AbsolutePath destinationPath)
@@ -185,29 +197,31 @@ namespace TestableFileSystem.Fakes
                     throw ErrorFactory.CannotMoveBecauseTargetIsInvalid();
                 }
 
-                if (Directories.ContainsKey(destinationPath.Name))
+                DirectoryEntry directory = contents.TryGetEntryAsDirectory(destinationPath.Name, false);
+                if (directory != null)
                 {
                     throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
                 }
 
-                if (Files.ContainsKey(destinationPath.Name) && Files[destinationPath.Name] != sourceFile)
+                FileEntry file = contents.TryGetEntryAsFile(destinationPath.Name, false);
+                if (file != null && file != sourceFile)
                 {
                     throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
                 }
 
-                sourceFile.Parent.Files.Remove(sourceFile.Name);
-                Files[destinationPath.Name] = sourceFile;
-
+                sourceFile.Parent.contents.Remove(sourceFile.Name);
                 sourceFile.MoveTo(destinationPath.Name, this);
+                contents.Add(sourceFile);
                 return;
             }
 
-            if (!Directories.ContainsKey(destinationPath.Name))
+            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(destinationPath.Name);
+            if (subdirectory == null)
             {
                 throw ErrorFactory.DirectoryNotFound();
             }
 
-            Directories[destinationPath.Name].MoveFile(sourceFile, destinationPath.MoveDown());
+            subdirectory.MoveFile(sourceFile, destinationPath.MoveDown());
         }
 
         public void DeleteFile([NotNull] AbsolutePath path)
@@ -216,23 +230,27 @@ namespace TestableFileSystem.Fakes
 
             if (path.IsAtEnd)
             {
-                if (Files.ContainsKey(path.Name))
+                FileEntry file = contents.TryGetEntryAsFile(path.Name);
+                if (file != null)
                 {
-                    FileEntry file = Files[path.Name];
-
                     AssertIsNotReadOnly(file, true);
 
                     // Block deletion when file is in use.
                     using (file.Open(FileMode.Open, FileAccess.ReadWrite))
                     {
-                        Files.Remove(path.Name);
+                        contents.Remove(path.Name);
                     }
                 }
             }
             else
             {
-                AssertContainsDirectory(path);
-                Directories[path.Name].DeleteFile(path.MoveDown());
+                DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
+                if (subdirectory == null)
+                {
+                    throw ErrorFactory.DirectoryNotFound(path.GetText());
+                }
+
+                subdirectory.DeleteFile(path.MoveDown());
             }
         }
 
@@ -258,12 +276,13 @@ namespace TestableFileSystem.Fakes
                 AssertIsDirectoryName(name);
             }
 
-            if (!Directories.ContainsKey(name))
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(name);
+            if (directory == null)
             {
-                Directories[name] = new DirectoryEntry(name, this);
+                contents.Add(new DirectoryEntry(name, this));
             }
 
-            return Directories[name];
+            return contents.GetEntryAsDirectory(name);
         }
 
         [AssertionMethod]
@@ -313,12 +332,11 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            if (!Directories.ContainsKey(path.Name))
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name, false);
+            if (directory == null)
             {
                 return null;
             }
-
-            DirectoryEntry directory = Directories[path.Name];
 
             return path.IsAtEnd ? directory : directory.TryGetExistingDirectory(path.MoveDown());
         }
@@ -329,10 +347,9 @@ namespace TestableFileSystem.Fakes
 
             if (path.IsAtEnd)
             {
-                if (Directories.ContainsKey(path.Name))
+                DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name);
+                if (directory != null)
                 {
-                    DirectoryEntry directory = Directories[path.Name];
-
                     AssertNotDeletingDrive(directory, isRecursive);
                     AssertIsNotReadOnly(directory);
 
@@ -343,18 +360,23 @@ namespace TestableFileSystem.Fakes
                         throw ErrorFactory.FileIsInUse(openFile.GetAbsolutePath());
                     }
 
-                    if (!isRecursive && !directory.IsEmpty)
+                    if (!isRecursive && !directory.contents.IsEmpty)
                     {
                         throw ErrorFactory.DirectoryIsNotEmpty();
                     }
 
-                    Directories.Remove(path.Name);
+                    contents.Remove(path.Name);
                 }
             }
             else
             {
-                AssertContainsDirectory(path);
-                Directories[path.Name].DeleteDirectory(path.MoveDown(), isRecursive);
+                DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
+                if (subdirectory == null)
+                {
+                    throw ErrorFactory.DirectoryNotFound(path.GetText());
+                }
+
+                subdirectory.DeleteDirectory(path.MoveDown(), isRecursive);
             }
         }
 
@@ -380,12 +402,12 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.AccessDenied(directory.GetAbsolutePath());
             }
 
-            foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+            foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries())
             {
                 AssertIsNotReadOnly(subdirectory);
             }
 
-            foreach (FileEntry file in directory.Files.Values)
+            foreach (FileEntry file in directory.contents.GetFileEntries())
             {
                 AssertIsNotReadOnly(file, false);
             }
@@ -403,10 +425,10 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         private FileEntry TryGetFirstOpenFile()
         {
-            FileEntry file = Files.Values.FirstOrDefault(x => x.IsOpen());
+            FileEntry file = contents.GetFileEntries().FirstOrDefault(x => x.IsOpen());
             if (file == null)
             {
-                foreach (DirectoryEntry directory in Directories.Values)
+                foreach (DirectoryEntry directory in contents.GetDirectoryEntries())
                 {
                     file = directory.TryGetFirstOpenFile();
                     if (file != null)
@@ -425,8 +447,11 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            AssertContainsDirectory(path);
-            DirectoryEntry directory = Directories[path.Name];
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name);
+            if (directory == null)
+            {
+                throw ErrorFactory.DirectoryNotFound(path.GetText());
+            }
 
             if (path.IsAtEnd)
             {
@@ -447,14 +472,15 @@ namespace TestableFileSystem.Fakes
             if (subPattern == null)
             {
                 string directoryPath = directory.GetAbsolutePath();
-                foreach (string directoryName in directory.Directories.Keys.Where(pattern.IsMatch))
+                foreach (DirectoryEntry directoryEntry in directory.contents.GetDirectoryEntries()
+                    .Where(x => pattern.IsMatch(x.Name)))
                 {
-                    yield return Path.Combine(directoryPath, directoryName);
+                    yield return Path.Combine(directoryPath, directoryEntry.Name);
                 }
             }
             else
             {
-                foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+                foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries())
                 {
                     if (pattern.IsMatch(subdirectory.Name))
                     {
@@ -474,8 +500,11 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            AssertContainsDirectory(path);
-            DirectoryEntry directory = Directories[path.Name];
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name);
+            if (directory == null)
+            {
+                throw ErrorFactory.DirectoryNotFound(path.GetText());
+            }
 
             if (path.IsAtEnd)
             {
@@ -483,7 +512,7 @@ namespace TestableFileSystem.Fakes
                 return EnumerateFilesInDirectory(directory, pattern, searchOption);
             }
 
-            return Directories[path.Name].EnumerateFiles(path.MoveDown(), searchPattern, searchOption);
+            return directory.EnumerateFiles(path.MoveDown(), searchPattern, searchOption);
         }
 
         [NotNull]
@@ -497,14 +526,14 @@ namespace TestableFileSystem.Fakes
             {
                 string path = directory.GetAbsolutePath();
 
-                foreach (string fileName in directory.Files.Keys.Where(pattern.IsMatch))
+                foreach (FileEntry fileEntry in directory.contents.GetFileEntries().Where(x => pattern.IsMatch(x.Name)))
                 {
-                    yield return Path.Combine(path, fileName);
+                    yield return Path.Combine(path, fileEntry.Name);
                 }
 
                 if (searchOption == SearchOption.AllDirectories)
                 {
-                    foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+                    foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries())
                     {
                         foreach (string filePath in EnumerateFilesInDirectory(subdirectory, pattern, searchOption))
                         {
@@ -515,7 +544,7 @@ namespace TestableFileSystem.Fakes
             }
             else
             {
-                foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+                foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries())
                 {
                     if (pattern.IsMatch(subdirectory.Name))
                     {
@@ -530,21 +559,7 @@ namespace TestableFileSystem.Fakes
 
         public override string ToString()
         {
-            return $"Directory: {Name} ({Files.Count} files, {Directories.Count} directories)";
-        }
-
-        [AssertionMethod]
-        private bool AssertContainsDirectory([NotNull] AbsolutePath path, bool throwOnMissingDirectory = true)
-        {
-            if (!Directories.ContainsKey(path.Name))
-            {
-                if (throwOnMissingDirectory)
-                {
-                    throw ErrorFactory.DirectoryNotFound(path.GetText());
-                }
-                return false;
-            }
-            return true;
+            return $"Directory: {Name} ({contents})";
         }
 
         protected override void AssertNameIsValid(string name)
