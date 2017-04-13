@@ -50,7 +50,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => root.CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>().WithMessage("Drive letter or network share must be created at this level.");
+            action.ShouldThrow<InvalidOperationException>()
+                .WithMessage("Drive letter or network share must be created at this level.");
         }
 
         [Fact]
@@ -66,7 +67,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => root.Directories[@"\\teamserver"].CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>().WithMessage("Drive letter or network share cannot be created at this level.");
+            action.ShouldThrow<InvalidOperationException>()
+                .WithMessage("Drive letter or network share cannot be created at this level.");
         }
 
         [Fact]
@@ -82,7 +84,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => root.Directories["C:"].CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>().WithMessage("Drive letter or network share cannot be created at this level.");
+            action.ShouldThrow<InvalidOperationException>()
+                .WithMessage("Drive letter or network share cannot be created at this level.");
         }
 
         [Fact]
@@ -133,7 +136,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => root.GetOrCreateFile(path, false);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -197,7 +201,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => root.TryGetExistingFile(path);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -515,7 +520,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Assert
             directory.Attributes.Should().Be(FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System |
                 FileAttributes.Directory | FileAttributes.Archive | FileAttributes.Offline | FileAttributes.NotContentIndexed |
-                    FileAttributes.NoScrubData | FileAttributes.ReparsePoint);
+                FileAttributes.NoScrubData | FileAttributes.ReparsePoint);
         }
 
         [Fact]

@@ -282,7 +282,7 @@ namespace TestableFileSystem.Fakes
 
         protected override FileAttributes FilterAttributes(FileAttributes attributes)
         {
-            var filtered = attributes & ~(FileAttributes.Normal | FileAttributesToDiscard);
+            FileAttributes filtered = attributes & ~(FileAttributes.Normal | FileAttributesToDiscard);
             return filtered == 0 ? FileAttributes.Normal : filtered;
         }
 
