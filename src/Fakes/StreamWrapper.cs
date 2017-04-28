@@ -24,25 +24,13 @@ namespace TestableFileSystem.Fakes
 
         public long Position
         {
-            get
-            {
-                return InnerStream.Position;
-            }
-            set
-            {
-                InnerStream.Position = value;
-            }
+            get => InnerStream.Position;
+            set => InnerStream.Position = value;
         }
 
         public bool IsAsync => false;
 
-        public SafeFileHandle SafeFileHandle
-        {
-            get
-            {
-                throw new NotSupportedException();
-            }
-        }
+        public SafeFileHandle SafeFileHandle => throw new NotSupportedException();
 
         public StreamWrapper([NotNull] Stream innerStream, [NotNull] string name)
         {

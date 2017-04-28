@@ -24,86 +24,44 @@ namespace TestableFileSystem.Wrappers
 
         public FileAttributes Attributes
         {
-            get
-            {
-                return source.Attributes;
-            }
-            set
-            {
-                source.Attributes = value;
-            }
+            get => source.Attributes;
+            set => source.Attributes = value;
         }
 
         public DateTime CreationTime
         {
-            get
-            {
-                return source.CreationTime;
-            }
-            set
-            {
-                source.CreationTime = value;
-            }
+            get => source.CreationTime;
+            set => source.CreationTime = value;
         }
 
         public DateTime CreationTimeUtc
         {
-            get
-            {
-                return source.CreationTimeUtc;
-            }
-            set
-            {
-                source.CreationTimeUtc = value;
-            }
+            get => source.CreationTimeUtc;
+            set => source.CreationTimeUtc = value;
         }
 
         public DateTime LastAccessTime
         {
-            get
-            {
-                return source.LastAccessTime;
-            }
-            set
-            {
-                source.LastAccessTime = value;
-            }
+            get => source.LastAccessTime;
+            set => source.LastAccessTime = value;
         }
 
         public DateTime LastAccessTimeUtc
         {
-            get
-            {
-                return source.LastAccessTimeUtc;
-            }
-            set
-            {
-                source.LastAccessTimeUtc = value;
-            }
+            get => source.LastAccessTimeUtc;
+            set => source.LastAccessTimeUtc = value;
         }
 
         public DateTime LastWriteTime
         {
-            get
-            {
-                return source.LastWriteTime;
-            }
-            set
-            {
-                source.LastWriteTime = value;
-            }
+            get => source.LastWriteTime;
+            set => source.LastWriteTime = value;
         }
 
         public DateTime LastWriteTimeUtc
         {
-            get
-            {
-                return source.LastWriteTimeUtc;
-            }
-            set
-            {
-                source.LastWriteTimeUtc = value;
-            }
+            get => source.LastWriteTimeUtc;
+            set => source.LastWriteTimeUtc = value;
         }
 
         public bool Exists => source.Exists;

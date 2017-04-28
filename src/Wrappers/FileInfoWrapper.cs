@@ -20,14 +20,8 @@ namespace TestableFileSystem.Wrappers
 
         public bool IsReadOnly
         {
-            get
-            {
-                return source.IsReadOnly;
-            }
-            set
-            {
-                source.IsReadOnly = value;
-            }
+            get => source.IsReadOnly;
+            set => source.IsReadOnly = value;
         }
 
         public string DirectoryName => source.DirectoryName;

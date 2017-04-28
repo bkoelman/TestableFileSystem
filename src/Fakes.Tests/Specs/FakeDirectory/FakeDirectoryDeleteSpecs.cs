@@ -17,6 +17,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
             Action action = () => fileSystem.Directory.Delete(null);
 
             // Assert

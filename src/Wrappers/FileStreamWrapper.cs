@@ -26,14 +26,8 @@ namespace TestableFileSystem.Wrappers
 
         public long Position
         {
-            get
-            {
-                return source.Position;
-            }
-            set
-            {
-                source.Position = value;
-            }
+            get => source.Position;
+            set => source.Position = value;
         }
 
         public bool IsAsync => source.IsAsync;

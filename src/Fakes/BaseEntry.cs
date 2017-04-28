@@ -15,10 +15,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string Name
         {
-            get
-            {
-                return name;
-            }
+            get => name;
             protected set
             {
                 AssertNameIsValid(value);
@@ -28,14 +25,8 @@ namespace TestableFileSystem.Fakes
 
         public FileAttributes Attributes
         {
-            get
-            {
-                return attributes;
-            }
-            set
-            {
-                attributes = FilterAttributes(value);
-            }
+            get => attributes;
+            set => attributes = FilterAttributes(value);
         }
 
         public abstract DateTime CreationTime { get; set; }

@@ -43,74 +43,38 @@ namespace TestableFileSystem.Fakes
 
         public override DateTime CreationTime
         {
-            get
-            {
-                return DateTime.FromFileTime(creationTimeStampUtc);
-            }
-            set
-            {
-                creationTimeStampUtc = value.ToFileTime();
-            }
+            get => DateTime.FromFileTime(creationTimeStampUtc);
+            set => creationTimeStampUtc = value.ToFileTime();
         }
 
         public override DateTime CreationTimeUtc
         {
-            get
-            {
-                return DateTime.FromFileTimeUtc(creationTimeStampUtc);
-            }
-            set
-            {
-                creationTimeStampUtc = value.ToFileTimeUtc();
-            }
+            get => DateTime.FromFileTimeUtc(creationTimeStampUtc);
+            set => creationTimeStampUtc = value.ToFileTimeUtc();
         }
 
         public override DateTime LastWriteTime
         {
-            get
-            {
-                return DateTime.FromFileTime(lastWriteTimeStampUtc);
-            }
-            set
-            {
-                lastWriteTimeStampUtc = value.ToFileTime();
-            }
+            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTime();
         }
 
         public override DateTime LastWriteTimeUtc
         {
-            get
-            {
-                return DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
-            }
-            set
-            {
-                lastWriteTimeStampUtc = value.ToFileTimeUtc();
-            }
+            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
         }
 
         public override DateTime LastAccessTime
         {
-            get
-            {
-                return DateTime.FromFileTime(lastAccessTimeStampUtc);
-            }
-            set
-            {
-                lastAccessTimeStampUtc = value.ToFileTime();
-            }
+            get => DateTime.FromFileTime(lastAccessTimeStampUtc);
+            set => lastAccessTimeStampUtc = value.ToFileTime();
         }
 
         public override DateTime LastAccessTimeUtc
         {
-            get
-            {
-                return DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
-            }
-            set
-            {
-                lastAccessTimeStampUtc = value.ToFileTimeUtc();
-            }
+            get => DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
+            set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
         }
 
         public bool IsOpen()
@@ -305,10 +269,7 @@ namespace TestableFileSystem.Fakes
 
             public override long Position
             {
-                get
-                {
-                    return position;
-                }
+                get => position;
                 set
                 {
                     AssertNotClosed();
