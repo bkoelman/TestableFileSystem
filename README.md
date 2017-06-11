@@ -9,17 +9,16 @@ Building from source requires Visual Studio 2017. Although the interfaces and wr
 
 ## Features of the fake filesystem
 * Concurrent access to the in-memory filesystem is thread-safe
-* You'll get appropriate exceptions for files that are in use
+* Throws appropriate exceptions for files that are in use
 * Fails on changing readonly files and directories
 * Supports absolute and relative paths, based on settable current directory
 * Supports local and UNC (Universal Naming Convention) network paths
 * Paths are case-insensitive
 
 ## Limitations of the fake filesystem
-* Limitations around MAXPATH do not apply (paths starting with `\\?\` are allowed)
+* Limitations around `MAXPATH` do not apply (paths starting with `\\?\` are allowed)
 * Device namespaces (for example: `\\.\COM56`) are not supported
-* Exceptions may have slightly different messages (but matching type)
-* Exception messages are always in US-English (not localized)
+* Exception messages are always in US-English (not localized, but matching type)
 * Some file attributes, such as Compressed/Encrypted you will never get (because they are set by nonstandard APIs)
 * NTFS permissions are not implemented
 * A file cannot be opened by multiple writers at the same time
