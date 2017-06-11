@@ -94,7 +94,6 @@ namespace TestableFileSystem.Fakes
             }
 
             DirectoryEntry directory = root.TryGetExistingDirectory(absolutePath);
-
             return directory != null;
         }
 

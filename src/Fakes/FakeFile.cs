@@ -27,14 +27,26 @@ namespace TestableFileSystem.Fakes
 
         public bool Exists(string path)
         {
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrWhiteSpace(path))
             {
                 return false;
             }
 
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            FileEntry file = root.TryGetExistingFile(absolutePath);
+            AbsolutePath absolutePath;
+            try
+            {
+                absolutePath = owner.ToAbsolutePath(path.TrimEnd());
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+            catch (NotSupportedException)
+            {
+                return false;
+            }
 
+            FileEntry file = root.TryGetExistingFile(absolutePath);
             return file != null;
         }
 
@@ -118,7 +130,7 @@ namespace TestableFileSystem.Fakes
         {
             AbsolutePath absoluteSourceFilePath = owner.ToAbsolutePath(sourceFileName);
 
-            FileEntry sourceFile = root.TryGetExistingFile(absoluteSourceFilePath, false);
+            FileEntry sourceFile = root.TryGetExistingFile(absoluteSourceFilePath);
             if (sourceFile == null)
             {
                 throw ErrorFactory.FileNotFound(absoluteSourceFilePath.GetText());
@@ -154,6 +166,13 @@ namespace TestableFileSystem.Fakes
                 entry = root.TryGetExistingDirectory(absolutePath);
                 if (entry == null)
                 {
+                    string parentName = Path.GetDirectoryName(path);
+                    DirectoryEntry parentDirectory = root.TryGetExistingDirectory(new AbsolutePath(parentName));
+                    if (parentDirectory == null)
+                    {
+                        throw ErrorFactory.DirectoryNotFound(path);
+                    }
+
                     throw ErrorFactory.FileNotFound(path);
                 }
             }
@@ -287,7 +306,7 @@ namespace TestableFileSystem.Fakes
         private BaseEntry TryGetExistingEntry([NotNull] string path)
         {
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            return root.TryGetExistingFile(absolutePath, false) ?? (BaseEntry)root.TryGetExistingDirectory(absolutePath);
+            return root.TryGetExistingFile(absolutePath) ?? (BaseEntry)root.TryGetExistingDirectory(absolutePath);
         }
     }
 }

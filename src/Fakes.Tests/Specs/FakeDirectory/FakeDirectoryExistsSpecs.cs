@@ -67,12 +67,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_directory_existence_for_invalid_characters_it_must_succeed()
         {
             // Arrange
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists(@"ab>c");
+            bool found = fileSystem.Directory.Exists("ab>c");
 
             // Assert
             found.Should().BeFalse();
@@ -82,13 +81,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_directory_existence_for_missing_local_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"C:\some\folder";
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some")
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists(path);
+            bool found = fileSystem.Directory.Exists(@"C:\some\folder");
 
             // Assert
             found.Should().BeFalse();
@@ -120,7 +118,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists(@"C:\SOME\folder");
+            bool found = fileSystem.Directory.Exists(@"c:\SOME\folder");
 
             // Assert
             found.Should().BeTrue();
@@ -159,7 +157,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_directory_existence_for_existing_relative_local_directory_on_different_drive_it_must_fail()
+        private void When_getting_directory_existence_for_existing_relative_local_directory_on_different_drive_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -171,7 +169,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
 
             // Act
-            bool found = fileSystem.Directory.Exists(@"D:child");
+            bool found = fileSystem.Directory.Exists("D:child");
 
             // Assert
             found.Should().BeFalse();
@@ -198,10 +196,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_directory_existence_for_local_directory_whose_parent_does_not_exist_it_must_succeed()
         {
             // Arrange
-            const string path = @"C:\some\folder";
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
                 .Build();
 
             // Act
@@ -212,16 +207,31 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_directory_existence_for_existing_remote_directory_it_must_succeed()
+        private void When_getting_directory_existence_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\teamshare\documents")
                 .Build();
 
             // Act
             bool found = fileSystem.Directory.Exists(@"\\teamshare\documents");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_getting_directory_existence_for_existing_remote_directory_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\teamshare\documents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            bool found = fileSystem.Directory.Exists(path);
 
             // Assert
             found.Should().BeTrue();
@@ -231,7 +241,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_directory_existence_for_reserved_name_it_must_succeed()
         {
             // Arrange
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
@@ -243,20 +252,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_directory_existence_for_directory_that_exists_as_file_it_must_succeed()
+        private void When_getting_directory_existence_for_missing_extended_local_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"C:\some\file.txt";
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists(path);
+            bool found = fileSystem.Directory.Exists(@"\\?\C:\some\folder");
 
             // Assert
             found.Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_getting_directory_existence_for_existing_extended_local_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some\folder")
+                .Build();
+
+            // Act
+            bool found = fileSystem.Directory.Exists(@"\\?\C:\some\folder");
+
+            // Assert
+            found.Should().BeTrue();
         }
     }
 }

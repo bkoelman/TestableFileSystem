@@ -127,7 +127,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [CanBeNull]
-        public FileEntry TryGetExistingFile([NotNull] AbsolutePath path, bool throwOnMissingDirectory = true)
+        public FileEntry TryGetExistingFile([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
 
@@ -137,17 +137,7 @@ namespace TestableFileSystem.Fakes
             }
 
             DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
-            if (subdirectory == null)
-            {
-                if (throwOnMissingDirectory)
-                {
-                    throw ErrorFactory.DirectoryNotFound(path.GetText());
-                }
-                return null;
-            }
-
-            subdirectory = contents.GetEntryAsDirectory(path.Name);
-            return subdirectory.TryGetExistingFile(path.MoveDown(), throwOnMissingDirectory);
+            return subdirectory?.TryGetExistingFile(path.MoveDown());
         }
 
         public void MoveFile([NotNull] FileEntry sourceFile, [NotNull] AbsolutePath destinationPath)
@@ -304,6 +294,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name, false);
+
             if (directory == null)
             {
                 return null;
