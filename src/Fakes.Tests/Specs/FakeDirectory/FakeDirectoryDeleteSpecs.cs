@@ -81,6 +81,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_deleting_missing_local_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(@"C:\some\folder");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
+        }
+
+        [Fact]
         private void When_deleting_local_empty_directory_it_must_succeed()
         {
             // Arrange
@@ -124,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"C:\some\folder");
 
             // Assert
-            action.ShouldThrow<Exception>().WithMessage("The directory is not empty.");
+            action.ShouldThrow<IOException>().WithMessage("The directory is not empty.");
         }
 
         [Fact]
@@ -142,20 +156,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.ShouldThrow<IOException>().WithMessage(@"Access to the path 'c:\some\folder' is denied.");
-        }
-
-        [Fact]
-        private void When_deleting_local_directory_that_does_not_exist_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.Directory.Delete(@"C:\some\folder");
-
-            // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
         }
 
         [Fact]
@@ -381,7 +381,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_deleting_directory_that_exists_as_file_it_must_fail()
+        private void When_deleting_local_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\file.txt";
@@ -395,6 +395,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.ShouldThrow<IOException>().WithMessage(@"The directory name is invalid.");
+        }
+
+        [Fact]
+        private void When_deleting_extended_local_empty_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some\folder")
+                .Build();
+
+            // Act
+            fileSystem.Directory.Delete(@"\\?\C:\some\folder");
+
+            // Assert
+            fileSystem.Directory.Exists(@"C:\some\folder").Should().BeFalse();
         }
     }
 }
