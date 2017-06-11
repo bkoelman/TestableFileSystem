@@ -24,6 +24,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="jetbrains.annotations" Version="10.4.0" PrivateAssets="all" />
-    <PackageReference Include="resharpercodecontractnullability" Version="1.0.7" PrivateAssets="all" />
+    <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
   </ItemGroup>
 </Project>

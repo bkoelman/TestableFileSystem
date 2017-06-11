@@ -13,7 +13,7 @@
     <PackageReference Include="fluentassertions" Version="4.19.2" />
     <PackageReference Include="jetbrains.annotations" Version="10.4.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="resharpercodecontractnullability" Version="1.0.7" PrivateAssets="all" />
+    <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
