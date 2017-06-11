@@ -12,8 +12,9 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
 
-        private const FileAttributes DirectoryAttributesToDiscard = FileAttributes.Device | FileAttributes.Normal |
-            FileAttributes.SparseFile | FileAttributes.Compressed | FileAttributes.Encrypted | FileAttributes.IntegrityStream;
+        private const FileAttributes DirectoryAttributesToDiscard =
+            FileAttributes.Device | FileAttributes.Normal | FileAttributes.SparseFile | FileAttributes.Compressed |
+            FileAttributes.Encrypted | FileAttributes.IntegrityStream;
 
         [NotNull]
         private readonly DirectoryContents contents;
