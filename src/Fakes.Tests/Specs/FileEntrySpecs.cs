@@ -71,54 +71,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_setting_file_attributes_to_normal_it_must_succeed()
-        {
-            // Arrange
-            var entry = new FileEntry("some.txt", DriveC)
-            {
-                Attributes = FileAttributes.ReadOnly
-            };
-
-            // Act
-            entry.Attributes = FileAttributes.Normal;
-
-            // Assert
-            entry.Attributes.Should().Be(FileAttributes.Normal);
-        }
-
-        [Fact]
-        private void When_setting_file_attributes_to_a_discarded_value_it_must_reset_to_normal()
-        {
-            // Arrange
-            var entry = new FileEntry("some.txt", DriveC);
-
-            // Act
-            entry.Attributes = FileAttributes.Encrypted;
-
-            // Assert
-            entry.Attributes.Should().Be(FileAttributes.Normal);
-        }
-
-        [Fact]
-        private void When_setting_file_attributes_to_all_it_must_filter_and_succeed()
-        {
-            // Arrange
-            var entry = new FileEntry("some.txt", DriveC);
-
-            // Act
-            entry.Attributes = FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System |
-                FileAttributes.Directory | FileAttributes.Archive | FileAttributes.Device | FileAttributes.Normal |
-                FileAttributes.Temporary | FileAttributes.SparseFile | FileAttributes.ReparsePoint | FileAttributes.Compressed |
-                FileAttributes.Offline | FileAttributes.NotContentIndexed | FileAttributes.Encrypted |
-                FileAttributes.IntegrityStream | FileAttributes.NoScrubData;
-
-            // Assert
-            entry.Attributes.Should().Be(FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System |
-                FileAttributes.Archive | FileAttributes.Temporary | FileAttributes.Offline | FileAttributes.NotContentIndexed |
-                FileAttributes.NoScrubData);
-        }
-
-        [Fact]
         private void When_writing_small_buffer_to_file_it_must_succeed()
         {
             // Arrange

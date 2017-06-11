@@ -183,7 +183,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
+            BaseEntry entry = GetExistingEntry(path);
             entry.Attributes = fileAttributes;
         }
 
