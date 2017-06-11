@@ -5,8 +5,7 @@
 Provides abstractions for `System.IO.*` including in-memory fakes, intended for unit-testing.
 Requires [NetStandard](https://github.com/dotnet/standard/blob/master/docs/versions.md) 1.3 or higher.
 
-Building from source requires Visual Studio 2017.
-This project is a work in progress, please be patient for stable bits...
+Building from source requires Visual Studio 2017. Although the interfaces and wrappers are considered stable, the in-memory fake filesystem is still a work in progress.
 
 # Features of the fake filesystem
 * Concurrent access to the in-memory filesystem is thread-safe
