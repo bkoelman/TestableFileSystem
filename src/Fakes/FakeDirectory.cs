@@ -82,7 +82,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath;
             try
             {
-                absolutePath = ToAbsolutePath(path.TrimEnd());
+                absolutePath = owner.ToAbsolutePath(path.TrimEnd());
             }
             catch (ArgumentException)
             {
@@ -107,7 +107,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = ToAbsolutePath(path.TrimEnd());
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path.TrimEnd());
 
             DirectoryEntry directoryToDelete = root.GetExistingDirectory(absolutePath);
             AssertNoConflictWithCurrentDirectory(directoryToDelete);
@@ -118,15 +118,9 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private void AssertNoConflictWithCurrentDirectory([NotNull] DirectoryEntry directory)
         {
-            DirectoryEntry entry = owner.CurrentDirectory;
-            while (entry != null)
+            if (owner.CurrentDirectory.IsAtOrAboveCurrentDirectory(directory))
             {
-                if (entry == directory)
-                {
-                    throw ErrorFactory.FileIsInUse(directory.GetAbsolutePath());
-                }
-
-                entry = entry.Parent;
+                throw ErrorFactory.FileIsInUse(directory.GetAbsolutePath());
             }
         }
 
@@ -137,21 +131,21 @@ namespace TestableFileSystem.Fakes
 
         public string GetCurrentDirectory()
         {
-            return owner.CurrentDirectory.GetAbsolutePath();
+            return owner.CurrentDirectory.GetValue().GetAbsolutePath();
         }
 
         public void SetCurrentDirectory(string path)
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             if (!absolutePath.IsLocalDrive)
             {
                 throw ErrorFactory.PathIsInvalid();
             }
 
             DirectoryEntry directory = root.GetExistingDirectory(absolutePath);
-            owner.CurrentDirectory = directory;
+            owner.CurrentDirectory.SetValue(directory);
         }
 
         public DateTime GetCreationTime(string path)
@@ -212,19 +206,6 @@ namespace TestableFileSystem.Fakes
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
         {
             throw new NotImplementedException();
-        }
-
-        [NotNull]
-        private AbsolutePath ToAbsolutePath([NotNull] string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                throw ErrorFactory.PathIsNotLegal(nameof(path));
-            }
-
-            string basePath = owner.CurrentDirectory.GetAbsolutePath();
-            string rooted = Path.Combine(basePath, path);
-            return new AbsolutePath(rooted);
         }
     }
 }

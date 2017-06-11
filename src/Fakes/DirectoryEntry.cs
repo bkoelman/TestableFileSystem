@@ -78,7 +78,7 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        public ICollection<DirectoryEntry> GetDrives()
+        public ICollection<DirectoryEntry> FilterDrives()
         {
             return contents.GetDirectoryEntries().Where(x => x.Name.IndexOf(Path.VolumeSeparatorChar) != -1).ToArray();
         }

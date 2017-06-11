@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -9,44 +7,22 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileSystem : IFileSystem
     {
-        [NotNull]
-        private readonly DirectoryEntry root;
-
         public IDirectory Directory { get; }
-
         public IFile File { get; }
 
         [NotNull]
         internal readonly object TreeLock = new object();
 
-        // TODO: Keep track of current directory per drive, to allow paths like "C:work\doc.txt" to resolve properly.
         [NotNull]
-        internal DirectoryEntry CurrentDirectory { get; set; }
+        internal CurrentDirectoryManager CurrentDirectory { get; }
 
         public FakeFileSystem([NotNull] DirectoryEntry rootEntry)
         {
             Guard.NotNull(rootEntry, nameof(rootEntry));
-            AssertIsTopLevel(rootEntry);
 
-            ICollection<DirectoryEntry> drives = rootEntry.GetDrives();
-            if (!drives.Any())
-            {
-                throw new InvalidOperationException("System contains no drives.");
-            }
-
-            root = rootEntry;
+            CurrentDirectory = new CurrentDirectoryManager(rootEntry);
             Directory = new DirectoryOperationLocker(this, new FakeDirectory(rootEntry, this));
             File = new FileOperationLocker(this, new FakeFile(rootEntry, this));
-            CurrentDirectory = drives.First();
-        }
-
-        [AssertionMethod]
-        private void AssertIsTopLevel([NotNull] DirectoryEntry rootEntry)
-        {
-            if (rootEntry.Parent != null)
-            {
-                throw new ArgumentException(nameof(rootEntry));
-            }
         }
 
         public IFileInfo ConstructFileInfo(string fileName)
@@ -62,9 +38,16 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal AbsolutePath ToAbsolutePath([NotNull] string path)
         {
-            Guard.NotNull(path, nameof(path));
+            // TODO: How to handle when caller passes a path like "e:file.txt"?
 
-            string basePath = CurrentDirectory.GetAbsolutePath();
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw ErrorFactory.PathIsNotLegal(nameof(path));
+            }
+
+            DirectoryEntry baseDirectory = CurrentDirectory.GetValue();
+            string basePath = baseDirectory.GetAbsolutePath();
+
             string rooted = Path.Combine(basePath, path);
             return new AbsolutePath(rooted);
         }

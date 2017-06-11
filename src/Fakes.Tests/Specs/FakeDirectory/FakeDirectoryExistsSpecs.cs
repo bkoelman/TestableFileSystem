@@ -159,6 +159,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_getting_directory_existence_for_existing_relative_local_directory_on_different_drive_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some\folder")
+                .IncludingDirectory(@"D:\other\child")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            bool found = fileSystem.Directory.Exists(@"D:child");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
         private void When_getting_directory_existence_for_local_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange

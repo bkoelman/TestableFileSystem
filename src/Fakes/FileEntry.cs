@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes
         {
             if (parent.Parent == null)
             {
-                throw new ArgumentException(nameof(parent));
+                throw new ArgumentException("File cannot exist at the root of the filesystem.", nameof(parent));
             }
         }
 
