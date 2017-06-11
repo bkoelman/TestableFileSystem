@@ -7,7 +7,7 @@ Requires [NetStandard](https://github.com/dotnet/standard/blob/master/docs/versi
 
 Building from source requires Visual Studio 2017. Although the interfaces and wrappers are considered stable, the in-memory fake filesystem is still a work in progress.
 
-# Features of the fake filesystem
+## Features of the fake filesystem
 * Concurrent access to the in-memory filesystem is thread-safe
 * You'll get appropriate exceptions for files that are in use
 * Fails on changing readonly files and directories
@@ -15,7 +15,7 @@ Building from source requires Visual Studio 2017. Although the interfaces and wr
 * Supports local and UNC (Universal Naming Convention) network paths
 * Paths are case-insensitive
 
-# Limitations of the fake filesystem
+## Limitations of the fake filesystem
 * Limitations around MAXPATH do not apply (paths starting with `\\?\` are allowed)
 * Device namespaces (for example: `\\.\COM56`) are not supported
 * Exceptions may have slightly different messages (but matching type)
