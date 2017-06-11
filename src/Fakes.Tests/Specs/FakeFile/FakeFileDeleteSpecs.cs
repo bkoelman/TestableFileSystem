@@ -10,24 +10,78 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     public sealed class FakeFileDeleteSpecs
     {
         [Fact]
-        private void When_deleting_file_that_exists_it_must_succeed()
+        private void When_deleting_file_for_null_it_must_fail()
         {
             // Arrange
-            const string path = @"C:\some\file.txt";
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
                 .Build();
 
             // Act
-            fileSystem.File.Delete(path);
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Action action = () => fileSystem.File.Delete(null);
 
             // Assert
-            fileSystem.File.Exists(path).Should().BeFalse();
+            action.ShouldThrow<ArgumentNullException>();
         }
 
         [Fact]
-        private void When_deleting_file_that_does_not_exist_it_must_succeed()
+        private void When_deleting_file_for_empty_string_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(string.Empty);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_deleting_file_for_whitespace_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(" ");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_deleting_file_for_invalid_root_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete("::");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+        }
+
+        [Fact]
+        private void When_deleting_file_for_invalid_characters_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(@"c:\dir?i");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+        }
+
+        [Fact]
+        private void When_deleting_missing_local_file_it_must_succeed()
         {
             // Arrange
             const string existingPath = @"C:\some\file.txt";
@@ -45,7 +99,58 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_deleting_file_from_missing_directory_it_must_fail()
+        private void When_deleting_existing_local_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.Delete(path);
+
+            // Assert
+            fileSystem.File.Exists(path).Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_deleting_existing_local_file_with_trailing_whitespace_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.Delete(path + "  ");
+
+            // Assert
+            fileSystem.File.Exists(path).Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_deleting_local_readonly_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path, null, FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(path);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+        }
+
+        [Fact]
+        private void When_deleting_local_file_from_missing_directory_it_must_fail()
         {
             // Arrange
             const string path = @"C:\other\file.txt";
@@ -63,7 +168,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_deleting_file_that_is_in_use_it_must_fail()
+        private void When_deleting_local_file_that_is_in_use_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\file.txt";
@@ -85,24 +190,56 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_deleting_readonly_file_it_must_fail()
+        private void When_deleting_local_relative_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"C:\some\file.txt";
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path, null, FileAttributes.ReadOnly)
+                .IncludingFile(@"c:\store\data.txt")
                 .Build();
 
+            fileSystem.Directory.SetCurrentDirectory(@"c:\store");
+
             // Act
-            Action action = () => fileSystem.File.Delete(path);
+            fileSystem.File.Delete(@"data.txt");
 
             // Assert
-            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            fileSystem.File.Exists(@"c:\store\data.txt").Should().BeFalse();
         }
 
         [Fact]
-        private void When_deleting_file_that_exists_as_directory_it_must_fail()
+        private void When_deleting_local_file_with_different_casing_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(@"c:\store\DATA.txt")
+                .Build();
+
+            // Act
+            fileSystem.File.Delete(@"c:\STORE\data.TXT");
+
+            // Assert
+            fileSystem.File.Exists(@"c:\store\DATA.txt").Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_deleting_remote_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\teamshare\folder\doc.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.Delete(path);
+
+            // Assert
+            fileSystem.File.Exists(path).Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_deleting_local_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -116,6 +253,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+        }
+
+        [Fact]
+        private void When_deleting_extended_existing_local_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            fileSystem.File.Delete(@"\\?\C:\some\file.txt");
+
+            // Assert
+            fileSystem.File.Exists(@"C:\some\file.txt").Should().BeFalse();
         }
     }
 }

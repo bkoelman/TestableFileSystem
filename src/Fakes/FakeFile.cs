@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath;
             try
             {
-                absolutePath = owner.ToAbsolutePath(path.TrimEnd());
+                absolutePath = owner.ToAbsolutePath(path);
             }
             catch (ArgumentException)
             {

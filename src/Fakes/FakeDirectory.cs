@@ -82,7 +82,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath;
             try
             {
-                absolutePath = owner.ToAbsolutePath(path.TrimEnd());
+                absolutePath = owner.ToAbsolutePath(path);
             }
             catch (ArgumentException)
             {
@@ -106,7 +106,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path.TrimEnd());
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             DirectoryEntry directoryToDelete = root.GetExistingDirectory(absolutePath);
             AssertNoConflictWithCurrentDirectory(directoryToDelete);
