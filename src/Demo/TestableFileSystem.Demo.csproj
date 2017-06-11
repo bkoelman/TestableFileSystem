@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fakes.Tests\TestableFileSystem.Fakes.Tests.csproj" />
     <ProjectReference Include="..\Fakes\TestableFileSystem.Fakes.csproj" />
     <ProjectReference Include="..\Interfaces\TestableFileSystem.Interfaces.csproj" />
     <ProjectReference Include="..\Wrappers\TestableFileSystem.Wrappers.csproj" />
