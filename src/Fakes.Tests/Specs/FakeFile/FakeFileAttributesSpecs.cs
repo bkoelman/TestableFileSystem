@@ -159,7 +159,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Archive);
         }
 
-        // TODO: Can we change file inside readonly dir?
+        [Fact]
+        private void When_setting_attributes_for_existing_file_in_readonly_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\folder", FileAttributes.ReadOnly)
+                .IncludingFile(@"C:\folder\some.txt")
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(@"C:\folder\some.txt", FileAttributes.Hidden);
+
+            // Assert
+            fileSystem.File.GetAttributes(@"C:\folder\some.txt").Should().Be(FileAttributes.Hidden);
+        }
 
         [Fact]
         private void When_setting_attributes_for_existing_file_to_zero_it_must_reset_to_normal()
@@ -219,7 +233,41 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 FileAttributes.NotContentIndexed | FileAttributes.NoScrubData);
         }
 
-        // TODO: Attributes on drive
+        [Fact]
+        private void When_getting_attributes_for_drive_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            FileAttributes attributes = fileSystem.File.GetAttributes(path);
+
+            // Assert
+            attributes.Should().Be(FileAttributes.Directory | FileAttributes.System | FileAttributes.Hidden);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_drive_it_must_preserve_minimum_set()
+        {
+            // Arrange
+            const string path = @"C:\";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.ReadOnly);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory | FileAttributes.System |
+                FileAttributes.Hidden | FileAttributes.ReadOnly);
+        }
+
         // TODO: Change attributes on current directory
         // TODO: Relative path
         // TODO: Different casing

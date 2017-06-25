@@ -3,7 +3,7 @@ using TestableFileSystem.Wrappers;
 
 namespace TestableFileSystem.Demo
 {
-    internal class Program
+    internal static class Program
     {
         private static void Main()
         {

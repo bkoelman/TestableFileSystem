@@ -16,6 +16,9 @@ namespace TestableFileSystem.Fakes
             FileAttributes.Device | FileAttributes.Normal | FileAttributes.SparseFile | FileAttributes.Compressed |
             FileAttributes.Encrypted | FileAttributes.IntegrityStream;
 
+        private const FileAttributes MinimumDriveAttributes =
+            FileAttributes.Directory | FileAttributes.System | FileAttributes.Hidden;
+
         [NotNull]
         private readonly DirectoryContents contents;
 
@@ -70,7 +73,7 @@ namespace TestableFileSystem.Fakes
             : base(name)
         {
             Parent = parent;
-            Attributes = FileAttributes.Directory;
+            Attributes = IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
             contents = new DirectoryContents(this);
         }
 
@@ -243,13 +246,9 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private static void AssertIsDriveLetterOrNetworkShare([NotNull] string name)
         {
-            if (name.Length == 2 && name[1] == Path.VolumeSeparatorChar)
+            if (IsDriveLetter(name))
             {
-                char driveLetter = char.ToUpperInvariant(name[0]);
-                if (driveLetter >= 'A' && driveLetter <= 'Z')
-                {
-                    return;
-                }
+                return;
             }
 
             if (name.StartsWith(TwoDirectorySeparators, StringComparison.Ordinal))
@@ -258,6 +257,20 @@ namespace TestableFileSystem.Fakes
             }
 
             throw new InvalidOperationException("Drive letter or network share must be created at this level.");
+        }
+
+        private static bool IsDriveLetter([NotNull] string name)
+        {
+            if (name.Length == 2 && name[1] == Path.VolumeSeparatorChar)
+            {
+                char driveLetter = char.ToUpperInvariant(name[0]);
+                if (driveLetter >= 'A' && driveLetter <= 'Z')
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         [AssertionMethod]
@@ -527,6 +540,7 @@ namespace TestableFileSystem.Fakes
         protected override void AssertNameIsValid(string name)
         {
             // Only reachable through an AbsolutePath instance, which already performs validation.
+
             // TODO: Add validation when implementing Rename, Copy etc.
         }
 
@@ -537,7 +551,8 @@ namespace TestableFileSystem.Fakes
                 throw new ArgumentException("Invalid File or Directory attributes value.", nameof(attributes));
             }
 
-            return (attributes & ~DirectoryAttributesToDiscard) | FileAttributes.Directory;
+            FileAttributes minimumAttributes = Parent?.Parent == null ? MinimumDriveAttributes : FileAttributes.Directory;
+            return (attributes & ~DirectoryAttributesToDiscard) | minimumAttributes;
         }
     }
 }
