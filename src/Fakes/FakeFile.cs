@@ -54,6 +54,11 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
+            if (path.Length == 0)
+            {
+                throw ErrorFactory.EmptyPathIsNotLegal(nameof(path));
+            }
+
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             AssertValidCreationOptions(options, absolutePath);
 

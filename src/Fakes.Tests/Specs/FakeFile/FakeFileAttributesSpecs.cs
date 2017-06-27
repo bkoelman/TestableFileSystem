@@ -9,6 +9,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FakeFileAttributesSpecs
     {
+        // TODO: Add specs for null/whitespace etc.
+
         [Fact]
         private void When_getting_attributes_for_invalid_root_it_must_fail()
         {
