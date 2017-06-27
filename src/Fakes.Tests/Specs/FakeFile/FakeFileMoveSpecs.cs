@@ -278,5 +278,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\subfolder'.");
         }
+
+        // TODO: Add missing specs.
     }
 }

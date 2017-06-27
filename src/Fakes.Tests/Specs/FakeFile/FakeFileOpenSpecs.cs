@@ -61,5 +61,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 action.ShouldThrow<NotSupportedException>();
             }
         }
+
+        // TODO: Add missing specs.
     }
 }

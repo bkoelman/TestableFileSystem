@@ -420,5 +420,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\some\subfolder' is denied.");
         }
+
+        // TODO: Add missing specs.
     }
 }
