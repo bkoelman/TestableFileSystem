@@ -268,10 +268,154 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 FileAttributes.Hidden | FileAttributes.ReadOnly);
         }
 
-        // TODO: Change attributes on current directory
-        // TODO: Relative path
-        // TODO: Different casing
-        // TODO: UNC path
+        [Fact]
+        private void When_setting_attributes_for_current_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\folder")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"c:\folder");
+
+            // Act
+            fileSystem.File.SetAttributes(@"c:\folder", FileAttributes.Hidden);
+
+            // Assert
+            fileSystem.File.GetAttributes(@"C:\folder").Should().Be(FileAttributes.Hidden | FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void When_getting_attributes_for_exising_relative_local_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(@"C:\folder\some.txt", attributes: FileAttributes.Hidden)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"c:\folder");
+
+            // Act
+            FileAttributes attributes = fileSystem.File.GetAttributes(@"some.txt");
+
+            // Assert
+            attributes.Should().Be(FileAttributes.Hidden);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_exising_relative_local_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(@"C:\folder\some.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"c:\folder");
+
+            // Act
+            fileSystem.File.SetAttributes(@"some.txt", FileAttributes.ReadOnly);
+
+            // Assert
+            fileSystem.File.GetAttributes(@"C:\folder\some.txt").Should().Be(FileAttributes.ReadOnly);
+        }
+
+        [Fact]
+        private void When_getting_file_attributes_for_existing_local_file_with_different_casing_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(@"C:\FOLDER\some.TXT", attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            FileAttributes attributes = fileSystem.File.GetAttributes(@"C:\folder\SOME.txt");
+
+            // Assert
+            attributes.Should().Be(FileAttributes.ReadOnly);
+        }
+
+        [Fact]
+        private void When_setting_file_attributes_for_existing_local_file_with_different_casing_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(@"C:\FOLDER\some.TXT", attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(@"C:\folder\SOME.txt", FileAttributes.Hidden);
+
+            // Assert
+            fileSystem.File.GetAttributes(@"C:\FOLDER\some.TXT").Should().Be(FileAttributes.Hidden);
+        }
+
+        [Fact]
+        private void When_getting_file_attributes_for_existing_remote_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\server\share\personal.docx";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path, attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            FileAttributes attributes = fileSystem.File.GetAttributes(path);
+
+            // Assert
+            attributes.Should().Be(FileAttributes.ReadOnly);
+        }
+
+        [Fact]
+        private void When_setting_file_attributes_for_existing_remote_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\server\share\personal.docx";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path, attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Hidden);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Hidden);
+        }
+
+        [Fact]
+        private void When_getting_file_attributes_for_missing_remote_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\server\share\missing.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"\\server\share")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(path);
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing.txt'.");
+        }
+
+        [Fact]
+        private void When_setting_file_attributes_for_missing_remote_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\server\share\missing.docx";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"\\server\share")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(path, FileAttributes.Hidden);
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing.docx'.");
+        }
 
         [Fact]
         private void When_getting_file_attributes_for_directory_it_must_succeed()
@@ -307,6 +451,64 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory);
         }
 
-        // TODO: Extended path
+        [Fact]
+        private void When_getting_file_attributes_for_missing_extended_local_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(@"\\?\C:\some\missing.txt");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing.txt'.");
+        }
+
+        [Fact]
+        private void When_setting_file_attributes_for_missing_extended_local_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(@"\\?\C:\some\missing.txt", FileAttributes.ReadOnly);
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing.txt'.");
+        }
+
+        [Fact]
+        private void When_getting_file_attributes_for_existing_extended_local_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(@"C:\some\other.txt", attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            FileAttributes attributes = fileSystem.File.GetAttributes(@"\\?\C:\some\other.txt");
+
+            // Assert
+            attributes.Should().Be(FileAttributes.ReadOnly);
+        }
+
+        [Fact]
+        private void When_setting_file_attributes_for_existing_extended_local_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(@"C:\some\other.txt")
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(@"\\?\C:\some\other.txt", FileAttributes.Hidden);
+
+            // Assert
+            fileSystem.File.GetAttributes(@"\\?\C:\some\other.txt").Should().Be(FileAttributes.Hidden);
+        }
     }
 }
