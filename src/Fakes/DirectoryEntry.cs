@@ -182,6 +182,13 @@ namespace TestableFileSystem.Fakes
             subdirectory.MoveFile(sourceFile, destinationPath.MoveDown());
         }
 
+        internal void DeleteFile([NotNull] FileEntry fileEntry)
+        {
+            Guard.NotNull(fileEntry, nameof(fileEntry));
+
+            contents.Remove(fileEntry.Name);
+        }
+
         public void DeleteFile([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));

@@ -55,23 +55,24 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertValidOptions(options, absolutePath);
+            AssertValidCreationOptions(options, absolutePath);
 
             FileEntry newFile = root.GetOrCreateFile(absolutePath, false);
+
+            if ((options & FileOptions.DeleteOnClose) != 0)
+            {
+                newFile.DeleteOnClose = true;
+            }
+
             return newFile.Open(FileMode.Create, FileAccess.ReadWrite, bufferSize);
         }
 
         [AssertionMethod]
-        private static void AssertValidOptions(FileOptions options, [NotNull] AbsolutePath absolutePath)
+        private static void AssertValidCreationOptions(FileOptions options, [NotNull] AbsolutePath absolutePath)
         {
             if ((options & FileOptions.Encrypted) != 0)
             {
                 throw new UnauthorizedAccessException($"Access to the path '{absolutePath.GetText()}' is denied.");
-            }
-
-            if ((options & FileOptions.DeleteOnClose) != 0)
-            {
-                throw new NotImplementedException("Option 'DeleteOnClose' is not supported.");
             }
         }
 

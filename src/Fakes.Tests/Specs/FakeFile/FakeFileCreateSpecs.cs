@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.RandomAccess))
             {
                 // Assert
-                fileSystem.File.GetAttributes(@"c:\doc.txt").Should().Be(FileAttributes.Normal);
+                fileSystem.File.Exists(@"c:\doc.txt").Should().BeTrue();
             }
         }
 
@@ -39,17 +39,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_creating_file_with_delete_on_close_it_must_fail()
+        private void When_creating_file_with_delete_on_close_it_must_succeed()
         {
             // Arrange
+            const string path = @"c:\doc.txt";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingFile(path)
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.DeleteOnClose);
+            using (fileSystem.File.Create(path, 1, FileOptions.DeleteOnClose))
+            {
+                // Assert
+                fileSystem.File.Exists(path).Should().BeTrue();
+            }
 
-            // Assert
-            action.ShouldThrow<NotImplementedException>().WithMessage("Option 'DeleteOnClose' is not supported.");
+            fileSystem.File.Exists(path).Should().BeFalse();
         }
 
         [Fact]

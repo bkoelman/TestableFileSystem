@@ -27,6 +27,8 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         private MemoryFileStream activeWriter;
 
+        public bool DeleteOnClose { get; set; }
+
         [NotNull]
         [ItemNotNull]
         private readonly IList<MemoryFileStream> activeReaders = new List<MemoryFileStream>();
@@ -224,6 +226,11 @@ namespace TestableFileSystem.Fakes
                 }
 
                 activeReaders.Remove(stream);
+
+                if (DeleteOnClose && !IsOpen())
+                {
+                    Parent.DeleteFile(this);
+                }
             }
         }
 
