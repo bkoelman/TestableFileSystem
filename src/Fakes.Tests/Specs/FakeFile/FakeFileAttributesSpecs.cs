@@ -9,7 +9,89 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FakeFileAttributesSpecs
     {
-        // TODO: Add specs for null/whitespace etc.
+        [Fact]
+        private void When_getting_attributes_for_null_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(null);
+
+            // Assert
+            action.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_null_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(null, FileAttributes.Normal);
+
+            // Assert
+            action.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        private void When_getting_attributes_for_empty_string_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(string.Empty);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_empty_string_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(string.Empty, FileAttributes.Normal);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_getting_attributes_for_whitespace_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(" ");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_whitespace_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(" ", FileAttributes.Normal);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
 
         [Fact]
         private void When_getting_attributes_for_invalid_root_it_must_fail()
