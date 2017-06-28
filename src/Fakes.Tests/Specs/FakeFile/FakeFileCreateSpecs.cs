@@ -90,8 +90,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some\file.txt";
 
             // Act
-            using (fileSystem.File.Create(path))
+            using (var stream = fileSystem.File.Create(path))
             {
+                stream.WriteByte(0xFF);
             }
 
             // Assert
@@ -321,6 +322,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\folder\file.txt").Should().BeTrue();
         }
 
-        // TODO: Add I/O-related specs.
+        [Fact]
+        private void When_creating_local_file_it_must_produce_stream()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some")
+                .Build();
+
+            // Act
+            using (var stream = fileSystem.File.Create(path, 2048))
+            {
+                stream.WriteByte(0xFF);
+                stream.Flush(true);
+                stream.Seek(0, SeekOrigin.Begin);
+
+                // Assert
+                stream.CanRead.Should().BeTrue();
+                stream.CanSeek.Should().BeTrue();
+                stream.CanWrite.Should().BeTrue();
+                stream.Name.Should().Be(path);
+                stream.Length.Should().Be(1);
+                stream.Position.Should().Be(0);
+                stream.IsAsync.Should().BeFalse();
+            }
+        }
     }
 }

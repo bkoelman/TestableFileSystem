@@ -195,7 +195,8 @@ namespace TestableFileSystem.Fakes
                 stream.SetLength(0);
             }
 
-            return new StreamWrapper(stream, Name);
+            string path = GetAbsolutePath();
+            return new StreamWrapper(stream, path);
         }
 
         public void MoveTo([NotNull] string newName, [NotNull] DirectoryEntry newParent)
