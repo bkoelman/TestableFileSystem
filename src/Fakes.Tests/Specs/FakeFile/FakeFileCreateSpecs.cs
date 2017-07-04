@@ -323,6 +323,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\folder\file.txt").Should().BeTrue();
         }
 
+        // TODO: Consider moving this spec to FakeFileStreamSpecs.
         [Fact]
         private void When_creating_local_file_it_must_produce_stream()
         {

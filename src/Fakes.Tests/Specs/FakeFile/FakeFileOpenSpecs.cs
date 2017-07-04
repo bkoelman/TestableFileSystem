@@ -10,6 +10,79 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     public sealed class FakeFileOpenSpecs
     {
         [Fact]
+        private void When_opening_file_for_null_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Action action = () => fileSystem.File.Open(null, FileMode.Create);
+
+            // Assert
+            action.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        private void When_opening_file_for_empty_string_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(string.Empty, FileMode.Create);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Empty path name is not legal.*");
+        }
+
+        [Fact]
+        private void When_opening_file_for_whitespace_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(" ", FileMode.Create);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_opening_file_for_invalid_root_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open("::", FileMode.Create);
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+        }
+
+        [Fact]
+        private void When_opening_file_for_invalid_characters_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open("some?.txt", FileMode.Create);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+        }
+
+        // TODO: Add missing specs.
+
+        [Fact]
         private void When_opening_existing_file_in_createNew_mode_it_must_fail()
         {
             // Arrange
@@ -61,7 +134,5 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 action.ShouldThrow<NotSupportedException>();
             }
         }
-
-        // TODO: Add missing specs.
     }
 }

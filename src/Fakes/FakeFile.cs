@@ -53,11 +53,7 @@ namespace TestableFileSystem.Fakes
         public IFileStream Create(string path, int bufferSize = 4096, FileOptions options = FileOptions.None)
         {
             Guard.NotNull(path, nameof(path));
-
-            if (path.Length == 0)
-            {
-                throw ErrorFactory.EmptyPathIsNotLegal(nameof(path));
-            }
+            AssertPathIsNotEmpty(path);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             AssertValidCreationOptions(options, absolutePath);
@@ -72,6 +68,14 @@ namespace TestableFileSystem.Fakes
             return newFile.Open(FileMode.Create, FileAccess.ReadWrite, bufferSize);
         }
 
+        private static void AssertPathIsNotEmpty([NotNull] string path)
+        {
+            if (path.Length == 0)
+            {
+                throw ErrorFactory.EmptyPathIsNotLegal(nameof(path));
+            }
+        }
+
         [AssertionMethod]
         private static void AssertValidCreationOptions(FileOptions options, [NotNull] AbsolutePath absolutePath)
         {
@@ -84,6 +88,7 @@ namespace TestableFileSystem.Fakes
         public IFileStream Open(string path, FileMode mode, FileAccess? access = null, FileShare share = FileShare.None)
         {
             Guard.NotNull(path, nameof(path));
+            AssertPathIsNotEmpty(path);
 
             FileAccess fileAccess = access ?? (mode == FileMode.Append ? FileAccess.Write : FileAccess.ReadWrite);
 
