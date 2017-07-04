@@ -30,7 +30,10 @@ namespace TestableFileSystem.Fakes
 
         public string GetDirectoryRoot(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            return absolutePath.GetRootName();
         }
 
         public string[] GetFiles(string path, string searchPattern = "*",

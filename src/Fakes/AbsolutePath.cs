@@ -52,6 +52,8 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         public IReadOnlyList<string> Components { get; }
 
+        private readonly bool isExtended;
+
         [NotNull]
         public string Name => Components[offset];
 
@@ -60,7 +62,7 @@ namespace TestableFileSystem.Fakes
         public bool IsLocalDrive => StartsWithDriveLetter(Components);
 
         public AbsolutePath([NotNull] string path)
-            : this(ToComponents(path), 0)
+            : this(ToComponents(path), 0, IsPathExtended(path))
         {
         }
 
@@ -120,6 +122,11 @@ namespace TestableFileSystem.Fakes
             return path?.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) == true
                 ? path.Substring(0, path.Length - 1)
                 : path;
+        }
+
+        private static bool IsPathExtended([CanBeNull] string path)
+        {
+            return path != null && path.StartsWith(@"\\?\", StringComparison.Ordinal);
         }
 
         [CanBeNull]
@@ -208,10 +215,54 @@ namespace TestableFileSystem.Fakes
             AssertIsNotReservedComponentName(component);
         }
 
-        private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, int offset)
+        private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, int offset, bool isExtended)
         {
             Components = components;
             this.offset = offset;
+            this.isExtended = isExtended;
+        }
+
+        [NotNull]
+        public string GetRootName()
+        {
+            return IsLocalDrive ? GetRootNameForLocalDrive() : GetRootNameForUncPath();
+        }
+
+        [NotNull]
+        private string GetRootNameForLocalDrive()
+        {
+            var nameBuilder = new StringBuilder();
+
+            if (isExtended)
+            {
+                nameBuilder.Append(@"\\?\");
+            }
+
+            nameBuilder.Append(Components[0]);
+            nameBuilder.Append(Path.DirectorySeparatorChar);
+
+            return nameBuilder.ToString();
+        }
+
+        [NotNull]
+        private string GetRootNameForUncPath()
+        {
+            var nameBuilder = new StringBuilder();
+
+            if (isExtended)
+            {
+                nameBuilder.Append(@"\\?\UNC\");
+                nameBuilder.Append(Components[0].Substring(2));
+            }
+            else
+            {
+                nameBuilder.Append(Components[0]);
+            }
+
+            nameBuilder.Append(Path.DirectorySeparatorChar);
+            nameBuilder.Append(Components[1]);
+
+            return nameBuilder.ToString();
         }
 
         [NotNull]
@@ -222,7 +273,7 @@ namespace TestableFileSystem.Fakes
                 throw new InvalidOperationException();
             }
 
-            return new AbsolutePath(Components, offset + 1);
+            return new AbsolutePath(Components, offset + 1, isExtended);
         }
 
         [NotNull]
