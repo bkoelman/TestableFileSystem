@@ -17,6 +17,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
             Action action = () => fileSystem.File.Create(null);
 
             // Assert

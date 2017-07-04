@@ -17,6 +17,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
             Action action = () => fileSystem.File.GetAttributes(null);
 
             // Assert
@@ -31,6 +32,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
             Action action = () => fileSystem.File.SetAttributes(null, FileAttributes.Normal);
 
             // Assert
