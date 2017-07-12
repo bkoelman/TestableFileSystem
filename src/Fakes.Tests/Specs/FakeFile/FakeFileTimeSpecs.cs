@@ -439,13 +439,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             using (fileSystem.File.Create(path))
             {
-                // TODO: Verify if these assertions are correct.
-
-                // Assert
-                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
             }
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
         }
 
         [Fact]
@@ -461,21 +460,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .IncludingEmptyFile(path)
                 .Build();
 
+            DateTime writeTimeUtc = 3.January(2017).At(23, 11);
+
+            // Act
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
             {
-                DateTime writeTimeUtc = 3.January(2017).At(23, 11);
                 SystemClock.UtcNow = () => writeTimeUtc;
 
-                // Act
                 stream.WriteByte(0x20);
-
-                // TODO: Verify if these assertions are correct.
-
-                // Assert
-                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(writeTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(writeTimeUtc);
             }
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(writeTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(writeTimeUtc);
         }
 
         [Fact]
@@ -494,22 +492,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             DateTime accessTimeUtc = 5.January(2017).At(23, 11);
             SystemClock.UtcNow = () => accessTimeUtc;
 
-            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
             {
-                // Act
                 stream.ReadByte();
-
-                // TODO: Verify if these assertions are correct.
-
-                // Assert
-                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
             }
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
         }
 
-        [Fact(Skip = "TODO")]
-        private void When_opening_existing_file_it_must_update_timings()
+        [Fact]
+        private void When_opening_existing_file_it_must_not_update_timings()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -527,13 +523,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
             {
-                // TODO: Verify if these assertions are correct.
-
-                // Assert
-                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
             }
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
         }
     }
 }
