@@ -30,6 +30,20 @@ namespace TestableFileSystem.Wrappers
 
         public bool CanWrite => InnerStream.CanWrite;
 
+        public bool CanTimeout => InnerStream.CanTimeout;
+
+        public int ReadTimeout
+        {
+            get => InnerStream.ReadTimeout;
+            set => InnerStream.ReadTimeout = value;
+        }
+
+        public int WriteTimeout
+        {
+            get => InnerStream.WriteTimeout;
+            set => InnerStream.WriteTimeout = value;
+        }
+
         public string Name => getName();
 
         public long Length => InnerStream.Length;
@@ -80,7 +94,7 @@ namespace TestableFileSystem.Wrappers
             doFlush(flushToDisk);
         }
 
-        public Task FlushAsync(CancellationToken cancellationToken)
+        public Task FlushAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return InnerStream.FlushAsync(cancellationToken);
         }
@@ -95,7 +109,8 @@ namespace TestableFileSystem.Wrappers
             return InnerStream.Read(array, offset, count);
         }
 
-        public Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public Task<int> ReadAsync(byte[] buffer, int offset, int count,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return InnerStream.ReadAsync(buffer, offset, count, cancellationToken);
         }
@@ -110,9 +125,21 @@ namespace TestableFileSystem.Wrappers
             InnerStream.Write(array, offset, count);
         }
 
-        public Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public Task WriteAsync(byte[] buffer, int offset, int count,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return InnerStream.WriteAsync(buffer, offset, count, cancellationToken);
+        }
+
+        public void CopyTo(Stream destination, int bufferSize = 81920)
+        {
+            InnerStream.CopyTo(destination, bufferSize);
+        }
+
+        public Task CopyToAsync(Stream destination, int bufferSize = 81920,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerStream.CopyToAsync(destination, bufferSize, cancellationToken);
         }
 
         public void Dispose()

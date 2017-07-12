@@ -15,8 +15,12 @@ namespace TestableFileSystem.Interfaces
         bool CanRead { get; }
         bool CanSeek { get; }
         bool CanWrite { get; }
+        bool CanTimeout { get; }
 
-        [CanBeNull]
+        int ReadTimeout { get; set; }
+        int WriteTimeout { get; set; }
+
+        [NotNull]
         string Name { get; }
 
         long Length { get; }
@@ -31,21 +35,29 @@ namespace TestableFileSystem.Interfaces
 
         void SetLength(long value);
 
-        void Flush(bool flushToDisk);
+        void Flush(bool flushToDisk = false);
 
         [NotNull]
-        Task FlushAsync(CancellationToken cancellationToken);
+        Task FlushAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         int ReadByte();
         int Read([NotNull] byte[] array, int offset, int count);
 
         [NotNull]
-        Task<int> ReadAsync([NotNull] byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+        Task<int> ReadAsync([NotNull] byte[] buffer, int offset, int count,
+            CancellationToken cancellationToken = default(CancellationToken));
 
         void WriteByte(byte value);
         void Write([NotNull] byte[] array, int offset, int count);
 
         [NotNull]
-        Task WriteAsync([NotNull] byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+        Task WriteAsync([NotNull] byte[] buffer, int offset, int count,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        void CopyTo([NotNull] Stream destination, int bufferSize = 81920);
+
+        [NotNull]
+        Task CopyToAsync([NotNull] Stream destination, int bufferSize = 81920,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }
