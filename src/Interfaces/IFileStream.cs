@@ -9,9 +9,6 @@ namespace TestableFileSystem.Interfaces
 {
     public interface IFileStream : IDisposable
     {
-        [NotNull]
-        Stream InnerStream { get; }
-
         bool CanRead { get; }
         bool CanSeek { get; }
         bool CanWrite { get; }
@@ -28,7 +25,7 @@ namespace TestableFileSystem.Interfaces
 
         bool IsAsync { get; }
 
-        [CanBeNull]
+        [NotNull]
         SafeFileHandle SafeFileHandle { get; }
 
         long Seek(long offset, SeekOrigin origin);
@@ -59,5 +56,8 @@ namespace TestableFileSystem.Interfaces
         [NotNull]
         Task CopyToAsync([NotNull] Stream destination, int bufferSize = 81920,
             CancellationToken cancellationToken = default(CancellationToken));
+
+        [NotNull]
+        Stream AsStream();
     }
 }

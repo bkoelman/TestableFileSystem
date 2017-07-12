@@ -200,13 +200,13 @@ namespace TestableFileSystem.Interfaces
         [NotNull]
         private static StreamReader CreateReader([NotNull] IFileStream stream, [CanBeNull] Encoding encoding = null)
         {
-            return encoding == null ? new StreamReader(stream.InnerStream) : new StreamReader(stream.InnerStream, encoding);
+            return encoding == null ? new StreamReader(stream.AsStream()) : new StreamReader(stream.AsStream(), encoding);
         }
 
         [NotNull]
         private static StreamWriter CreateWriter([NotNull] IFileStream stream, [CanBeNull] Encoding encoding = null)
         {
-            return encoding == null ? new StreamWriter(stream.InnerStream) : new StreamWriter(stream.InnerStream, encoding);
+            return encoding == null ? new StreamWriter(stream.AsStream()) : new StreamWriter(stream.AsStream(), encoding);
         }
     }
 }

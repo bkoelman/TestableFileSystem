@@ -87,7 +87,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 // Act
                 using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
                 {
-                    using (var writer = new StreamWriter(stream.InnerStream))
+                    using (var writer = new StreamWriter(stream.AsStream()))
                     {
                         writer.Write("ABC");
                     }
@@ -142,7 +142,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
-                using (var reader = new StreamReader(stream.InnerStream))
+                using (var reader = new StreamReader(stream.AsStream()))
                 {
                     // Act
                     string content = reader.ReadToEnd();
@@ -202,7 +202,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Act
             using (IFileStream stream = entry.Open(FileMode.Append, FileAccess.Write))
             {
-                using (var writer = new StreamWriter(stream.InnerStream))
+                using (var writer = new StreamWriter(stream.AsStream()))
                 {
                     writer.Write(textToAppend);
                 }

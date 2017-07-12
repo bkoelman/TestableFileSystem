@@ -22,36 +22,37 @@ namespace TestableFileSystem.Wrappers
         [NotNull]
         private readonly Action<bool> doFlush;
 
-        public Stream InnerStream { get; }
+        [NotNull]
+        private readonly Stream innerStream;
 
-        public bool CanRead => InnerStream.CanRead;
+        public bool CanRead => innerStream.CanRead;
 
-        public bool CanSeek => InnerStream.CanSeek;
+        public bool CanSeek => innerStream.CanSeek;
 
-        public bool CanWrite => InnerStream.CanWrite;
+        public bool CanWrite => innerStream.CanWrite;
 
-        public bool CanTimeout => InnerStream.CanTimeout;
+        public bool CanTimeout => innerStream.CanTimeout;
 
         public int ReadTimeout
         {
-            get => InnerStream.ReadTimeout;
-            set => InnerStream.ReadTimeout = value;
+            get => innerStream.ReadTimeout;
+            set => innerStream.ReadTimeout = value;
         }
 
         public int WriteTimeout
         {
-            get => InnerStream.WriteTimeout;
-            set => InnerStream.WriteTimeout = value;
+            get => innerStream.WriteTimeout;
+            set => innerStream.WriteTimeout = value;
         }
 
         public string Name => getName();
 
-        public long Length => InnerStream.Length;
+        public long Length => innerStream.Length;
 
         public long Position
         {
-            get => InnerStream.Position;
-            set => InnerStream.Position = value;
+            get => innerStream.Position;
+            set => innerStream.Position = value;
         }
 
         public bool IsAsync => getIsAsync();
@@ -72,7 +73,7 @@ namespace TestableFileSystem.Wrappers
             Guard.NotNull(getSafeFileHandle, nameof(getSafeFileHandle));
             Guard.NotNull(doFlush, nameof(doFlush));
 
-            InnerStream = source;
+            innerStream = source;
             this.getName = getName;
             this.getIsAsync = getIsAsync;
             this.getSafeFileHandle = getSafeFileHandle;
@@ -81,12 +82,12 @@ namespace TestableFileSystem.Wrappers
 
         public long Seek(long offset, SeekOrigin origin)
         {
-            return InnerStream.Seek(offset, origin);
+            return innerStream.Seek(offset, origin);
         }
 
         public void SetLength(long value)
         {
-            InnerStream.SetLength(value);
+            innerStream.SetLength(value);
         }
 
         public void Flush(bool flushToDisk = false)
@@ -96,55 +97,60 @@ namespace TestableFileSystem.Wrappers
 
         public Task FlushAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return InnerStream.FlushAsync(cancellationToken);
+            return innerStream.FlushAsync(cancellationToken);
         }
 
         public int ReadByte()
         {
-            return InnerStream.ReadByte();
+            return innerStream.ReadByte();
         }
 
         public int Read(byte[] array, int offset, int count)
         {
-            return InnerStream.Read(array, offset, count);
+            return innerStream.Read(array, offset, count);
         }
 
         public Task<int> ReadAsync(byte[] buffer, int offset, int count,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return InnerStream.ReadAsync(buffer, offset, count, cancellationToken);
+            return innerStream.ReadAsync(buffer, offset, count, cancellationToken);
         }
 
         public void WriteByte(byte value)
         {
-            InnerStream.WriteByte(value);
+            innerStream.WriteByte(value);
         }
 
         public void Write(byte[] array, int offset, int count)
         {
-            InnerStream.Write(array, offset, count);
+            innerStream.Write(array, offset, count);
         }
 
         public Task WriteAsync(byte[] buffer, int offset, int count,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return InnerStream.WriteAsync(buffer, offset, count, cancellationToken);
+            return innerStream.WriteAsync(buffer, offset, count, cancellationToken);
         }
 
         public void CopyTo(Stream destination, int bufferSize = 81920)
         {
-            InnerStream.CopyTo(destination, bufferSize);
+            innerStream.CopyTo(destination, bufferSize);
         }
 
         public Task CopyToAsync(Stream destination, int bufferSize = 81920,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerStream.CopyToAsync(destination, bufferSize, cancellationToken);
+            return innerStream.CopyToAsync(destination, bufferSize, cancellationToken);
+        }
+
+        public Stream AsStream()
+        {
+            return innerStream;
         }
 
         public void Dispose()
         {
-            InnerStream.Dispose();
+            innerStream.Dispose();
         }
     }
 }

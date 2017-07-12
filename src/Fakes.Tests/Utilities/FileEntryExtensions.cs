@@ -19,7 +19,7 @@ namespace TestableFileSystem.Fakes.Tests.Utilities
         {
             using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Write))
             {
-                using (var writer = new StreamWriter(stream.InnerStream))
+                using (var writer = new StreamWriter(stream.AsStream()))
                 {
                     writer.Write(text);
                 }
@@ -46,7 +46,7 @@ namespace TestableFileSystem.Fakes.Tests.Utilities
         {
             using (IFileStream stream = entry.Open(FileMode.Open, FileAccess.Read))
             {
-                using (var reader = new StreamReader(stream.InnerStream))
+                using (var reader = new StreamReader(stream.AsStream()))
                 {
                     return reader.ReadToEnd();
                 }
