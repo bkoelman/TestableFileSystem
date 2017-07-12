@@ -91,7 +91,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some\file.txt";
 
             // Act
-            using (var stream = fileSystem.File.Create(path))
+            using (IFileStream stream = fileSystem.File.Create(path))
             {
                 stream.WriteByte(0xFF);
             }
@@ -136,7 +136,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"c:\doc.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act
@@ -156,7 +156,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path, "existing data")
+                .IncludingTextFile(path, "existing data")
                 .Build();
 
             // Act
@@ -174,7 +174,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\FILE.txt", "existing data")
+                .IncludingTextFile(@"C:\some\FILE.txt", "existing data")
                 .Build();
 
             // Act
@@ -279,7 +279,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"\\server\share\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path, "existing data")
+                .IncludingTextFile(path, "existing data")
                 .Build();
 
             // Act
@@ -335,7 +335,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            using (var stream = fileSystem.File.Create(path, 2048))
+            using (IFileStream stream = fileSystem.File.Create(path, 2048))
             {
                 stream.WriteByte(0xFF);
                 stream.Flush(true);

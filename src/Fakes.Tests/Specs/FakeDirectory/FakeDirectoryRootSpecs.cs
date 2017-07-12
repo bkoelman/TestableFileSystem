@@ -126,7 +126,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"x:\folder\to\file.txt")
+                .IncludingEmptyFile(@"x:\folder\to\file.txt")
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"x:\folder\to");

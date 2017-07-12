@@ -16,7 +16,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act
@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string destinationPath = @"C:\some\FILE1.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .Build();
 
             // Act
@@ -52,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string destinationPath = @"C:\some\newname.doc";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .Build();
 
             // Act
@@ -70,7 +70,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string sourcePath = @"C:\some\level\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
@@ -91,7 +91,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string destinationPath = @"D:\other\folder\newname.doc";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .IncludingDirectory(@"D:\other\folder")
                 .Build();
 
@@ -110,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string sourcePath = @"C:\some\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .Build();
 
             // Act
@@ -128,7 +128,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string destinationPath = @"\\teamserver\documents\for-all.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .IncludingDirectory(@"\\teamserver\documents")
                 .Build();
 
@@ -192,7 +192,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string destinationPath = @"C:\other\newname.doc";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .Build();
 
             // Act
@@ -210,8 +210,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string destinationPath = @"C:\some\newname.doc";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
-                .IncludingFile(destinationPath)
+                .IncludingEmptyFile(sourcePath)
+                .IncludingEmptyFile(destinationPath)
                 .Build();
 
             // Act
@@ -229,7 +229,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string destinationDirectory = @"C:\some\newname.doc";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .IncludingDirectory(destinationDirectory)
                 .Build();
 
@@ -248,7 +248,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string destinationPath = @"C:\some\newname.doc";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(sourcePath)
+                .IncludingEmptyFile(sourcePath)
                 .Build();
 
             using (fileSystem.File.Open(sourcePath, FileMode.Open, FileAccess.Read))

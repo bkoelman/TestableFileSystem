@@ -99,7 +99,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act
@@ -114,7 +114,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\FILE.txt")
+                .IncludingEmptyFile(@"C:\some\FILE.txt")
                 .Build();
 
             // Act
@@ -129,7 +129,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\file.txt")
+                .IncludingEmptyFile(@"C:\some\file.txt")
                 .Build();
 
             // Act
@@ -144,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\file.txt")
+                .IncludingEmptyFile(@"C:\some\file.txt")
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
@@ -161,8 +161,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\file.txt")
-                .IncludingFile(@"D:\other\child.txt")
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .IncludingEmptyFile(@"D:\other\child.txt")
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"D:\other");
@@ -227,7 +227,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"\\teamshare\documents\work.doc";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act
@@ -270,7 +270,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\file.txt")
+                .IncludingEmptyFile(@"C:\some\file.txt")
                 .Build();
 
             // Act

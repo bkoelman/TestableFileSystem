@@ -131,7 +131,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\folder\file.txt")
+                .IncludingEmptyFile(@"C:\some\folder\file.txt")
                 .Build();
 
             // Act
@@ -164,8 +164,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some\folder\with\children")
-                .IncludingFile(@"C:\some\folder\file.txt")
-                .IncludingFile(@"C:\some\folder\child\other.txt")
+                .IncludingEmptyFile(@"C:\some\folder\file.txt")
+                .IncludingEmptyFile(@"C:\some\folder\child\other.txt")
                 .Build();
 
             // Act
@@ -180,7 +180,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\folder\deeper\file.txt")
+                .IncludingEmptyFile(@"C:\some\folder\deeper\file.txt")
                 .Build();
 
             using (fileSystem.File.OpenRead(@"C:\some\folder\deeper\file.txt"))
@@ -200,7 +200,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\folder\deeper\file.txt", null, FileAttributes.ReadOnly)
+                .IncludingEmptyFile(@"C:\some\folder\deeper\file.txt", FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -387,7 +387,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             const string path = @"C:\some\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act

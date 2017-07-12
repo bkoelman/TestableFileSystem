@@ -16,10 +16,25 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         }
 
         [NotNull]
-        public FakeFileSystemBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null,
+        public FakeFileSystemBuilder IncludingEmptyFile([NotNull] string path, [CanBeNull] FileAttributes? attributes = null)
+        {
+            builder.IncludingEmptyFile(path, attributes);
+            return this;
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder IncludingTextFile([NotNull] string path, [NotNull] string contents,
             [CanBeNull] FileAttributes? attributes = null)
         {
-            builder.IncludingFile(path, contents, attributes);
+            builder.IncludingTextFile(path, contents, attributes);
+            return this;
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder IncludingBinaryFile([NotNull] string path, [NotNull] byte[] contents,
+            [CanBeNull] FileAttributes? attributes = null)
+        {
+            builder.IncludingBinaryFile(path, contents, attributes);
             return this;
         }
 

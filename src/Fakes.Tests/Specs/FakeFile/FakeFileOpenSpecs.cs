@@ -89,7 +89,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some\sheet.xls";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act
@@ -121,7 +121,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some\sheet.xls";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))

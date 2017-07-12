@@ -210,7 +210,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             const string path = @"C:\some\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act

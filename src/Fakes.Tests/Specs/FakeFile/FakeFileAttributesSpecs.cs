@@ -218,7 +218,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path, attributes: FileAttributes.ReadOnly)
+                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -235,7 +235,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path, attributes: FileAttributes.ReadOnly)
+                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -251,7 +251,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"c:\folder", FileAttributes.ReadOnly)
-                .IncludingFile(@"C:\folder\some.txt")
+                .IncludingEmptyFile(@"C:\folder\some.txt")
                 .Build();
 
             // Act
@@ -268,7 +268,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act
@@ -285,7 +285,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act
@@ -302,7 +302,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\some.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path)
+                .IncludingEmptyFile(path)
                 .Build();
 
             // Act
@@ -376,7 +376,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\folder\some.txt", attributes: FileAttributes.Hidden)
+                .IncludingEmptyFile(@"C:\folder\some.txt", FileAttributes.Hidden)
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"c:\folder");
@@ -393,7 +393,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\folder\some.txt")
+                .IncludingEmptyFile(@"C:\folder\some.txt")
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"c:\folder");
@@ -410,7 +410,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\FOLDER\some.TXT", attributes: FileAttributes.ReadOnly)
+                .IncludingEmptyFile(@"C:\FOLDER\some.TXT", FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -425,7 +425,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\FOLDER\some.TXT", attributes: FileAttributes.ReadOnly)
+                .IncludingEmptyFile(@"C:\FOLDER\some.TXT", FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -442,7 +442,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"\\server\share\personal.docx";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path, attributes: FileAttributes.ReadOnly)
+                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -459,7 +459,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"\\server\share\personal.docx";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(path, attributes: FileAttributes.ReadOnly)
+                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -572,7 +572,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\other.txt", attributes: FileAttributes.ReadOnly)
+                .IncludingEmptyFile(@"C:\some\other.txt", FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -587,7 +587,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingFile(@"C:\some\other.txt")
+                .IncludingEmptyFile(@"C:\some\other.txt")
                 .Build();
 
             // Act

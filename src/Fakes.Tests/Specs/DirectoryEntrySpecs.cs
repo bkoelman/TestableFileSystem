@@ -145,7 +145,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingFile(@"C:\file.txt")
+                .IncludingEmptyFile(@"C:\file.txt")
                 .Build();
             var path = new AbsolutePath(@"C:\file.txt");
 
@@ -162,7 +162,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingFile(@"C:\file.txt")
+                .IncludingEmptyFile(@"C:\file.txt")
                 .Build();
             var path = new AbsolutePath(@"C:\file.txt");
 
@@ -345,8 +345,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingFile(@"C:\base\where.txt")
-                .IncludingFile(@"C:\base\other.txt")
+                .IncludingEmptyFile(@"C:\base\where.txt")
+                .IncludingEmptyFile(@"C:\base\other.txt")
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
@@ -367,8 +367,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingFile(@"C:\base\where.txt")
-                .IncludingFile(@"C:\base\other.doc")
+                .IncludingEmptyFile(@"C:\base\where.txt")
+                .IncludingEmptyFile(@"C:\base\other.doc")
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
@@ -388,11 +388,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingFile(@"C:\root.doc")
-                .IncludingFile(@"C:\base\more.doc")
-                .IncludingFile(@"C:\base\first\where.txt")
-                .IncludingFile(@"C:\base\second\other.doc")
-                .IncludingFile(@"C:\base\second\deeper\skip.doc")
+                .IncludingEmptyFile(@"C:\root.doc")
+                .IncludingEmptyFile(@"C:\base\more.doc")
+                .IncludingEmptyFile(@"C:\base\first\where.txt")
+                .IncludingEmptyFile(@"C:\base\second\other.doc")
+                .IncludingEmptyFile(@"C:\base\second\deeper\skip.doc")
                 .Build();
 
             var path = new AbsolutePath(@"C:\");
@@ -412,9 +412,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingFile(@"C:\base\where.txt")
-                .IncludingFile(@"C:\base\other.txt")
-                .IncludingFile(@"C:\base\more\nested\file.txt")
+                .IncludingEmptyFile(@"C:\base\where.txt")
+                .IncludingEmptyFile(@"C:\base\other.txt")
+                .IncludingEmptyFile(@"C:\base\more\nested\file.txt")
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
@@ -436,10 +436,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingFile(@"C:\base\one.txt")
-                .IncludingFile(@"C:\base\deep\two.txt")
-                .IncludingFile(@"C:\base\more\nested\three.txt")
-                .IncludingFile(@"C:\base\more\nested\four.txt")
+                .IncludingEmptyFile(@"C:\base\one.txt")
+                .IncludingEmptyFile(@"C:\base\deep\two.txt")
+                .IncludingEmptyFile(@"C:\base\more\nested\three.txt")
+                .IncludingEmptyFile(@"C:\base\more\nested\four.txt")
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
@@ -461,12 +461,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingFile(@"C:\root.doc")
-                .IncludingFile(@"C:\base\more.doc")
-                .IncludingFile(@"C:\base\first\where.txt")
-                .IncludingFile(@"C:\base\second\other.doc")
-                .IncludingFile(@"C:\base\second\deeper\skip.doc")
-                .IncludingFile(@"C:\base\second\deeper\not.txt")
+                .IncludingEmptyFile(@"C:\root.doc")
+                .IncludingEmptyFile(@"C:\base\more.doc")
+                .IncludingEmptyFile(@"C:\base\first\where.txt")
+                .IncludingEmptyFile(@"C:\base\second\other.doc")
+                .IncludingEmptyFile(@"C:\base\second\deeper\skip.doc")
+                .IncludingEmptyFile(@"C:\base\second\deeper\not.txt")
                 .Build();
 
             var path = new AbsolutePath(@"C:\");

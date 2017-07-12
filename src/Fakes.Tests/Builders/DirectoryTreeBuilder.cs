@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Tests.Utilities;
 
@@ -15,23 +16,40 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         }
 
         [NotNull]
-        public DirectoryTreeBuilder IncludingFile([NotNull] string path, [CanBeNull] string contents = null,
+        public DirectoryTreeBuilder IncludingEmptyFile([NotNull] string path, [CanBeNull] FileAttributes? attributes = null)
+        {
+            InnerIncludingFile(path, entry => { }, attributes);
+            return this;
+        }
+
+        [NotNull]
+        public DirectoryTreeBuilder IncludingTextFile([NotNull] string path, [NotNull] string contents,
             [CanBeNull] FileAttributes? attributes = null)
+        {
+            InnerIncludingFile(path, entry => entry.WriteToFile(contents), attributes);
+            return this;
+        }
+
+        [NotNull]
+        public DirectoryTreeBuilder IncludingBinaryFile([NotNull] string path, [NotNull] byte[] contents,
+            [CanBeNull] FileAttributes? attributes = null)
+        {
+            InnerIncludingFile(path, entry => entry.WriteToFile(contents), attributes);
+            return this;
+        }
+
+        private void InnerIncludingFile([NotNull] string path, [NotNull] Action<FileEntry> writeContentsToFile,
+            [CanBeNull] FileAttributes? attributes)
         {
             var absolutePath = new AbsolutePath(path);
             FileEntry file = root.GetOrCreateFile(absolutePath, true);
 
-            if (contents != null)
-            {
-                file.WriteToFile(contents);
-            }
+            writeContentsToFile(file);
 
             if (attributes != null)
             {
                 file.Attributes = attributes.Value;
             }
-
-            return this;
         }
 
         [NotNull]
