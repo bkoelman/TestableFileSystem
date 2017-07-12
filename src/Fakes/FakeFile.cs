@@ -65,7 +65,7 @@ namespace TestableFileSystem.Fakes
                 newFile.DeleteOnClose = true;
             }
 
-            return newFile.Open(FileMode.Create, FileAccess.ReadWrite, bufferSize);
+            return newFile.Open(FileMode.Create, FileAccess.ReadWrite);
         }
 
         private static void AssertPathIsNotEmpty([NotNull] string path)

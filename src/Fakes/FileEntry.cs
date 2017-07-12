@@ -10,8 +10,6 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FileEntry : BaseEntry
     {
-        private const int DefaultBufferSize = 4096;
-
         private const FileAttributes FileAttributesToDiscard = FileAttributes.Directory | FileAttributes.Device |
             FileAttributes.Normal | FileAttributes.SparseFile | FileAttributes.ReparsePoint | FileAttributes.Compressed |
             FileAttributes.Encrypted | FileAttributes.IntegrityStream;
@@ -135,13 +133,8 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public IFileStream Open(FileMode mode, FileAccess access, int bufferSize = DefaultBufferSize)
+        public IFileStream Open(FileMode mode, FileAccess access)
         {
-            if (bufferSize < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(bufferSize));
-            }
-
             bool isReader = access == FileAccess.Read;
             bool truncate = false;
             bool seekToEnd = false;
@@ -174,7 +167,7 @@ namespace TestableFileSystem.Fakes
                     throw GetErrorForFileInUse();
                 }
 
-                stream = new FakeFileStream(this, isReader, bufferSize);
+                stream = new FakeFileStream(this, isReader);
 
                 if (isReader)
                 {
@@ -265,7 +258,7 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             private readonly FileEntry owner;
 
-            private readonly int blockSize;
+            private const int BlockSize = 4096;
             private long position;
             private bool isClosed;
 
@@ -298,13 +291,12 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            public FakeFileStream([NotNull] FileEntry owner, bool isReader, int blockSize)
+            public FakeFileStream([NotNull] FileEntry owner, bool isReader)
             {
                 Guard.NotNull(owner, nameof(owner));
 
                 this.owner = owner;
                 CanWrite = !isReader;
-                this.blockSize = blockSize;
             }
 
             public override void Flush()
@@ -381,12 +373,12 @@ namespace TestableFileSystem.Fakes
 
                 int sumBytesRead = 0;
 
-                int blockIndex = (int)(Position / blockSize);
-                int offsetInCurrentBlock = (int)(Position % blockSize);
+                int blockIndex = (int)(Position / BlockSize);
+                int offsetInCurrentBlock = (int)(Position % BlockSize);
 
                 while (count > 0 && Position < Length)
                 {
-                    int bytesToRead = Math.Min(blockSize - offsetInCurrentBlock, count);
+                    int bytesToRead = Math.Min(BlockSize - offsetInCurrentBlock, count);
                     bytesToRead = Math.Min(bytesToRead, (int)(Length - Position));
 
                     Buffer.BlockCopy(owner.blocks[blockIndex], offsetInCurrentBlock, buffer, offset, bytesToRead);
@@ -419,8 +411,8 @@ namespace TestableFileSystem.Fakes
 
                 EnsureCapacity(Position + count);
 
-                int blockIndex = (int)(Position / blockSize);
-                int bytesFreeInCurrentBlock = blockSize - (int)(Position % blockSize);
+                int blockIndex = (int)(Position / BlockSize);
+                int bytesFreeInCurrentBlock = BlockSize - (int)(Position % BlockSize);
 
                 long newPosition = position;
 
@@ -428,7 +420,7 @@ namespace TestableFileSystem.Fakes
                 {
                     int bytesToWrite = Math.Min(bytesFreeInCurrentBlock, count);
 
-                    int offsetInBlock = blockSize - bytesFreeInCurrentBlock;
+                    int offsetInBlock = BlockSize - bytesFreeInCurrentBlock;
                     Buffer.BlockCopy(buffer, offset, owner.blocks[blockIndex], offsetInBlock, bytesToWrite);
 
                     offset += bytesToWrite;
@@ -437,7 +429,7 @@ namespace TestableFileSystem.Fakes
                     newPosition += bytesToWrite;
 
                     blockIndex++;
-                    bytesFreeInCurrentBlock = blockSize;
+                    bytesFreeInCurrentBlock = BlockSize;
                 }
 
                 Position = newPosition;
@@ -446,11 +438,11 @@ namespace TestableFileSystem.Fakes
 
             private void EnsureCapacity(long bytesNeeded)
             {
-                long bytesAvailable = owner.blocks.Count * blockSize;
+                long bytesAvailable = owner.blocks.Count * BlockSize;
                 while (bytesAvailable < bytesNeeded)
                 {
-                    owner.blocks.Add(new byte[blockSize]);
-                    bytesAvailable += blockSize;
+                    owner.blocks.Add(new byte[BlockSize]);
+                    bytesAvailable += BlockSize;
                 }
             }
 
