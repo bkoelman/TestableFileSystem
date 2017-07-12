@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -10,89 +11,113 @@ namespace TestableFileSystem.Wrappers
     public sealed class FileStreamWrapper : IFileStream
     {
         [NotNull]
-        private readonly FileStream source;
+        private readonly Func<string> getName;
 
-        public Stream InnerStream => source;
+        [NotNull]
+        private readonly Func<bool> getIsAsync;
 
-        public bool CanRead => source.CanRead;
+        [NotNull]
+        private readonly Func<SafeFileHandle> getSafeFileHandle;
 
-        public bool CanSeek => source.CanSeek;
+        [NotNull]
+        private readonly Action<bool> doFlush;
 
-        public bool CanWrite => source.CanWrite;
+        public Stream InnerStream { get; }
 
-        public string Name => source.Name;
+        public bool CanRead => InnerStream.CanRead;
 
-        public long Length => source.Length;
+        public bool CanSeek => InnerStream.CanSeek;
+
+        public bool CanWrite => InnerStream.CanWrite;
+
+        public string Name => getName();
+
+        public long Length => InnerStream.Length;
 
         public long Position
         {
-            get => source.Position;
-            set => source.Position = value;
+            get => InnerStream.Position;
+            set => InnerStream.Position = value;
         }
 
-        public bool IsAsync => source.IsAsync;
+        public bool IsAsync => getIsAsync();
 
-        public SafeFileHandle SafeFileHandle => source.SafeFileHandle;
+        public SafeFileHandle SafeFileHandle => getSafeFileHandle();
 
         public FileStreamWrapper([NotNull] FileStream source)
+            : this(source, () => source.Name, () => source.IsAsync, () => source.SafeFileHandle, source.Flush)
+        {
+        }
+
+        public FileStreamWrapper([NotNull] Stream source, [NotNull] Func<string> getName, [NotNull] Func<bool> getIsAsync,
+            [NotNull] Func<SafeFileHandle> getSafeFileHandle, [NotNull] Action<bool> doFlush)
         {
             Guard.NotNull(source, nameof(source));
-            this.source = source;
+            Guard.NotNull(getName, nameof(getName));
+            Guard.NotNull(getIsAsync, nameof(getIsAsync));
+            Guard.NotNull(getSafeFileHandle, nameof(getSafeFileHandle));
+            Guard.NotNull(doFlush, nameof(doFlush));
+
+            InnerStream = source;
+            this.getName = getName;
+            this.getIsAsync = getIsAsync;
+            this.getSafeFileHandle = getSafeFileHandle;
+            this.doFlush = doFlush;
         }
 
         public long Seek(long offset, SeekOrigin origin)
         {
-            return source.Seek(offset, origin);
+            return InnerStream.Seek(offset, origin);
         }
 
         public void SetLength(long value)
         {
-            source.SetLength(value);
+            InnerStream.SetLength(value);
         }
 
         public void Flush(bool flushToDisk = false)
         {
-            source.Flush(flushToDisk);
+            doFlush(flushToDisk);
         }
 
         public Task FlushAsync(CancellationToken cancellationToken)
         {
-            return source.FlushAsync(cancellationToken);
+            return InnerStream.FlushAsync(cancellationToken);
         }
 
         public int ReadByte()
         {
-            return source.ReadByte();
+            return InnerStream.ReadByte();
         }
 
         public int Read(byte[] array, int offset, int count)
         {
-            return source.Read(array, offset, count);
+            return InnerStream.Read(array, offset, count);
         }
 
         public Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            return source.ReadAsync(buffer, offset, count, cancellationToken);
+            return InnerStream.ReadAsync(buffer, offset, count, cancellationToken);
         }
 
         public void WriteByte(byte value)
         {
-            source.WriteByte(value);
+            InnerStream.WriteByte(value);
         }
 
         public void Write(byte[] array, int offset, int count)
         {
-            source.Write(array, offset, count);
+            InnerStream.Write(array, offset, count);
         }
 
         public Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            return source.WriteAsync(buffer, offset, count, cancellationToken);
+            return InnerStream.WriteAsync(buffer, offset, count, cancellationToken);
         }
 
         public void Dispose()
         {
-            source.Dispose();
+            InnerStream.Dispose();
         }
     }
 }

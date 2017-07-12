@@ -28,5 +28,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Interfaces\TestableFileSystem.Interfaces.csproj" />
+    <ProjectReference Include="..\Wrappers\TestableFileSystem.Wrappers.csproj" />
   </ItemGroup>
 </Project>

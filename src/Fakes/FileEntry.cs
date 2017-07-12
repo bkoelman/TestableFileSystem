@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Wrappers;
 
 namespace TestableFileSystem.Fakes
 {
@@ -25,13 +26,13 @@ namespace TestableFileSystem.Fakes
         public long Length { get; private set; }
 
         [CanBeNull]
-        private MemoryFileStream activeWriter;
+        private FakeFileStream activeWriter;
 
         public bool DeleteOnClose { get; set; }
 
         [NotNull]
         [ItemNotNull]
-        private readonly IList<MemoryFileStream> activeReaders = new List<MemoryFileStream>();
+        private readonly IList<FakeFileStream> activeReaders = new List<FakeFileStream>();
 
         [NotNull]
         private readonly object readerWriterLock = new object();
@@ -159,7 +160,7 @@ namespace TestableFileSystem.Fakes
                     break;
             }
 
-            MemoryFileStream stream;
+            FakeFileStream stream;
 
             lock (readerWriterLock)
             {
@@ -173,7 +174,7 @@ namespace TestableFileSystem.Fakes
                     throw GetErrorForFileInUse();
                 }
 
-                stream = new MemoryFileStream(this, isReader, bufferSize);
+                stream = new FakeFileStream(this, isReader, bufferSize);
 
                 if (isReader)
                 {
@@ -196,7 +197,8 @@ namespace TestableFileSystem.Fakes
             }
 
             string path = GetAbsolutePath();
-            return new StreamWrapper(stream, path);
+            return new FileStreamWrapper(stream, () => path, () => false, () => throw new NotSupportedException(),
+                _ => stream.Flush());
         }
 
         public void MoveTo([NotNull] string newName, [NotNull] DirectoryEntry newParent)
@@ -217,7 +219,7 @@ namespace TestableFileSystem.Fakes
             return ErrorFactory.FileIsInUse(path);
         }
 
-        private void CloseStream([NotNull] MemoryFileStream stream)
+        private void CloseStream([NotNull] FakeFileStream stream)
         {
             lock (readerWriterLock)
             {
@@ -258,7 +260,7 @@ namespace TestableFileSystem.Fakes
             return filtered == 0 ? FileAttributes.Normal : filtered;
         }
 
-        private sealed class MemoryFileStream : Stream
+        private sealed class FakeFileStream : Stream
         {
             [NotNull]
             private readonly FileEntry owner;
@@ -296,7 +298,7 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            public MemoryFileStream([NotNull] FileEntry owner, bool isReader, int blockSize)
+            public FakeFileStream([NotNull] FileEntry owner, bool isReader, int blockSize)
             {
                 Guard.NotNull(owner, nameof(owner));
 
@@ -467,7 +469,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (isClosed)
                 {
-                    throw new ObjectDisposedException(nameof(MemoryFileStream));
+                    throw new ObjectDisposedException(nameof(FakeFileStream));
                 }
             }
 
