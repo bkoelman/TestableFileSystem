@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Tests.Builders;
 using TestableFileSystem.Interfaces;
@@ -422,5 +423,117 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         // TODO: Add missing specs.
+
+        [Fact]
+        private void When_creating_file_it_must_update_timings()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            DateTime createTimeUtc = 1.January(2017).At(22, 14);
+            SystemClock.UtcNow = () => createTimeUtc;
+
+            // Act
+            using (fileSystem.File.Create(path))
+            {
+                // TODO: Verify if these assertions are correct.
+
+                // Assert
+                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+            }
+        }
+
+        [Fact]
+        private void When_writing_to_existing_file_it_must_update_timings()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            DateTime createTimeUtc = 2.January(2017).At(22, 14);
+            SystemClock.UtcNow = () => createTimeUtc;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                DateTime writeTimeUtc = 3.January(2017).At(23, 11);
+                SystemClock.UtcNow = () => writeTimeUtc;
+
+                // Act
+                stream.WriteByte(0x20);
+
+                // TODO: Verify if these assertions are correct.
+
+                // Assert
+                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(writeTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(writeTimeUtc);
+            }
+        }
+
+        [Fact]
+        private void When_reading_from_existing_file_it_must_update_timings()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            DateTime createTimeUtc = 4.January(2017).At(22, 14);
+            SystemClock.UtcNow = () => createTimeUtc;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "X")
+                .Build();
+
+            DateTime accessTimeUtc = 5.January(2017).At(23, 11);
+            SystemClock.UtcNow = () => accessTimeUtc;
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Act
+                stream.ReadByte();
+
+                // TODO: Verify if these assertions are correct.
+
+                // Assert
+                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
+            }
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_opening_existing_file_it_must_update_timings()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            DateTime createTimeUtc = 4.January(2017).At(22, 14);
+            SystemClock.UtcNow = () => createTimeUtc;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "X")
+                .Build();
+
+            DateTime accessTimeUtc = 5.January(2017).At(23, 11);
+            SystemClock.UtcNow = () => accessTimeUtc;
+
+            // Act
+            using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                // TODO: Verify if these assertions are correct.
+
+                // Assert
+                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
+            }
+        }
     }
 }

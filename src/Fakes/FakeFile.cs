@@ -116,11 +116,15 @@ namespace TestableFileSystem.Fakes
 
         public void Copy(string sourceFileName, string destFileName, bool overwrite = false)
         {
+            // TODO: Implement timings - https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
+
             throw new NotImplementedException();
         }
 
         public void Move(string sourceFileName, string destFileName)
         {
+            // TODO: Implement timings - https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
+
             Guard.NotNullNorWhiteSpace(sourceFileName, nameof(sourceFileName));
             Guard.NotNullNorWhiteSpace(destFileName, nameof(destFileName));
 
