@@ -8,6 +8,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
+    // TODO: Change accessbility to 'internal' after specs replacement.
     public sealed class AbsolutePath
     {
         [NotNull]

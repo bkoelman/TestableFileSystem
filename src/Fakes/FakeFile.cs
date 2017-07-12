@@ -62,7 +62,7 @@ namespace TestableFileSystem.Fakes
 
             if ((options & FileOptions.DeleteOnClose) != 0)
             {
-                newFile.DeleteOnClose = true;
+                newFile.EnableDeleteOnClose();
             }
 
             return newFile.Open(FileMode.Create, FileAccess.ReadWrite);

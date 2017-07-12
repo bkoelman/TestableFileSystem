@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using JetBrains.Annotations;
-using TestableFileSystem.Fakes.Tests.Utilities;
+using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Tests.Builders
 {
@@ -18,7 +18,7 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         [NotNull]
         public DirectoryTreeBuilder IncludingEmptyFile([NotNull] string path, [CanBeNull] FileAttributes? attributes = null)
         {
-            InnerIncludingFile(path, entry => { }, attributes);
+            IncludeFile(path, entry => { }, attributes);
             return this;
         }
 
@@ -26,25 +26,41 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         public DirectoryTreeBuilder IncludingTextFile([NotNull] string path, [NotNull] string contents,
             [CanBeNull] FileAttributes? attributes = null)
         {
-            InnerIncludingFile(path, entry => entry.WriteToFile(contents), attributes);
+            IncludeFile(path, entry => WriteStringToFile(entry, contents), attributes);
             return this;
+        }
+
+        private static void WriteStringToFile([NotNull] IFileStream stream, [NotNull] string text)
+        {
+            using (var writer = new StreamWriter(stream.AsStream()))
+            {
+                writer.Write(text);
+            }
         }
 
         [NotNull]
         public DirectoryTreeBuilder IncludingBinaryFile([NotNull] string path, [NotNull] byte[] contents,
             [CanBeNull] FileAttributes? attributes = null)
         {
-            InnerIncludingFile(path, entry => entry.WriteToFile(contents), attributes);
+            IncludeFile(path, entry => WriteBytesToFile(entry, contents), attributes);
             return this;
         }
 
-        private void InnerIncludingFile([NotNull] string path, [NotNull] Action<FileEntry> writeContentsToFile,
+        private static void WriteBytesToFile([NotNull] IFileStream stream, [NotNull] byte[] buffer)
+        {
+            stream.Write(buffer, 0, buffer.Length);
+        }
+
+        private void IncludeFile([NotNull] string path, [NotNull] Action<IFileStream> writeContentsToStream,
             [CanBeNull] FileAttributes? attributes)
         {
             var absolutePath = new AbsolutePath(path);
             FileEntry file = root.GetOrCreateFile(absolutePath, true);
 
-            writeContentsToFile(file);
+            using (IFileStream stream = file.Open(FileMode.Open, FileAccess.Write))
+            {
+                writeContentsToStream(stream);
+            }
 
             if (attributes != null)
             {

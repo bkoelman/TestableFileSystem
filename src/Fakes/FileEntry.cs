@@ -8,6 +8,7 @@ using TestableFileSystem.Wrappers;
 
 namespace TestableFileSystem.Fakes
 {
+    // TODO: Change accessbility to 'internal' after specs replacement.
     public sealed class FileEntry : BaseEntry
     {
         private const FileAttributes FileAttributesToDiscard = FileAttributes.Directory | FileAttributes.Device |
@@ -21,12 +22,12 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         private readonly List<byte[]> blocks = new List<byte[]>();
 
-        public long Length { get; private set; }
+        private long length;
 
         [CanBeNull]
         private FakeFileStream activeWriter;
 
-        public bool DeleteOnClose { get; set; }
+        private bool deleteOnClose;
 
         [NotNull]
         [ItemNotNull]
@@ -78,14 +79,6 @@ namespace TestableFileSystem.Fakes
             set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
         }
 
-        public bool IsOpen()
-        {
-            lock (readerWriterLock)
-            {
-                return activeWriter != null || activeReaders.Any();
-            }
-        }
-
         public event EventHandler ContentChanged;
 
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)
@@ -124,6 +117,19 @@ namespace TestableFileSystem.Fakes
         private void HandleFileAccessed()
         {
             LastAccessTimeUtc = SystemClock.UtcNow();
+        }
+
+        public bool IsOpen()
+        {
+            lock (readerWriterLock)
+            {
+                return activeWriter != null || activeReaders.Any();
+            }
+        }
+
+        public void EnableDeleteOnClose()
+        {
+            deleteOnClose = true;
         }
 
         [NotNull]
@@ -223,7 +229,7 @@ namespace TestableFileSystem.Fakes
 
                 activeReaders.Remove(stream);
 
-                if (DeleteOnClose && !IsOpen())
+                if (deleteOnClose && !IsOpen())
                 {
                     Parent.DeleteFile(this);
                 }
@@ -232,7 +238,7 @@ namespace TestableFileSystem.Fakes
 
         public override string ToString()
         {
-            return $"File: {Name} ({Length} bytes)";
+            return $"File: {Name} ({length} bytes)";
         }
 
         [AssertionMethod]
@@ -268,7 +274,7 @@ namespace TestableFileSystem.Fakes
 
             public override bool CanWrite { get; }
 
-            public override long Length => owner.Length;
+            public override long Length => owner.length;
 
             public override long Position
             {
@@ -351,7 +357,7 @@ namespace TestableFileSystem.Fakes
                 }
 
                 EnsureCapacity(value);
-                owner.Length = value;
+                owner.length = value;
 
                 if (Position > Length)
                 {

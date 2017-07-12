@@ -5,6 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
+    // TODO: Change accessbility to 'internal' after specs replacement.
     public abstract class BaseEntry
     {
         [NotNull]
