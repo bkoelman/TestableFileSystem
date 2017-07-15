@@ -449,7 +449,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_writing_to_existing_file_it_must_not_update_timings_before_closing()
+        private void When_writing_to_existing_file_it_must_update_properties_only_after_closing()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -475,39 +475,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
                 fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
             }
-        }
 
-        [Fact]
-        private void When_writing_to_existing_file_it_must_update_timings_after_closing()
-        {
-            // Arrange
-            const string path = @"C:\file.txt";
-
-            DateTime createTimeUtc = 2.January(2017).At(22, 14);
-            SystemClock.UtcNow = () => createTimeUtc;
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
-
-            DateTime writeTimeUtc = 3.January(2017).At(23, 11);
-
-            // Act
-            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
-            {
-                SystemClock.UtcNow = () => writeTimeUtc;
-
-                stream.WriteByte(0x20);
-            }
-
-            // Assert
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
             fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(writeTimeUtc);
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(writeTimeUtc);
         }
 
         [Fact]
-        private void When_reading_from_existing_file_it_must_not_update_timings_before_closing()
+        private void When_reading_from_existing_file_it_must_update_properties_only_after_closing()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -532,31 +507,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
                 fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
             }
-        }
 
-        [Fact]
-        private void When_reading_from_existing_file_it_must_update_timings_after_closing()
-        {
-            // Arrange
-            const string path = @"C:\file.txt";
-
-            DateTime createTimeUtc = 4.January(2017).At(22, 14);
-            SystemClock.UtcNow = () => createTimeUtc;
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(path, "X")
-                .Build();
-
-            DateTime accessTimeUtc = 5.January(2017).At(23, 11);
-            SystemClock.UtcNow = () => accessTimeUtc;
-
-            // Act
-            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
-            {
-                stream.ReadByte();
-            }
-
-            // Assert
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
             fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
