@@ -5,9 +5,8 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Builders
 {
-    // TODO: Change accessbility to 'internal' after specs replacement.
-    // TODO: Consider inlining this type.
-    public sealed class DirectoryTreeBuilder : ITestDataBuilder<DirectoryEntry>
+    // TODO: Consider inlining this type, after moving specs that depend on it.
+    internal sealed class DirectoryTreeBuilder : ITestDataBuilder<DirectoryEntry>
     {
         [NotNull]
         private readonly DirectoryEntry root = DirectoryEntry.CreateRoot();

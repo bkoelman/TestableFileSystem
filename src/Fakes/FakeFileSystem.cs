@@ -1,6 +1,9 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
+
+[assembly: InternalsVisibleTo("TestableFileSystem.Fakes.Tests")]
 
 namespace TestableFileSystem.Fakes
 {

@@ -7,8 +7,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    // TODO: Change accessbility to 'internal' after specs replacement.
-    public sealed class DirectoryEntry : BaseEntry
+    internal sealed class DirectoryEntry : BaseEntry
     {
         [NotNull]
         private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);

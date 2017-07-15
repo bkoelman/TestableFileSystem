@@ -8,8 +8,7 @@ using TestableFileSystem.Wrappers;
 
 namespace TestableFileSystem.Fakes
 {
-    // TODO: Change accessbility to 'internal' after specs replacement.
-    public sealed class FileEntry : BaseEntry
+    internal sealed class FileEntry : BaseEntry
     {
         private const FileAttributes FileAttributesToDiscard = FileAttributes.Directory | FileAttributes.Device |
             FileAttributes.Normal | FileAttributes.SparseFile | FileAttributes.ReparsePoint | FileAttributes.Compressed |
