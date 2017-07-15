@@ -51,8 +51,8 @@ namespace TestableFileSystem.Fakes
 
                 if (throwIfExistsAsDirectory)
                 {
-                    string path = Path.Combine(owner.GetAbsolutePath(), name);
-                    throw ErrorFactory.UnauthorizedAccess(path);
+                    string pathUpToHere = Path.Combine(owner.GetAbsolutePath(), name);
+                    throw ErrorFactory.UnauthorizedAccess(pathUpToHere);
                 }
             }
 
@@ -86,7 +86,8 @@ namespace TestableFileSystem.Fakes
 
                 if (throwIfExistsAsFile)
                 {
-                    throw new InvalidOperationException($"Internal Error: '{name}' exists as file instead of directory.");
+                    string pathUpToHere = Path.Combine(owner.GetAbsolutePath(), name);
+                    throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere);
                 }
             }
 

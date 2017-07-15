@@ -6,6 +6,7 @@ using TestableFileSystem.Interfaces;
 namespace TestableFileSystem.Fakes.Builders
 {
     // TODO: Change accessbility to 'internal' after specs replacement.
+    // TODO: Consider inlining this type.
     public sealed class DirectoryTreeBuilder : ITestDataBuilder<DirectoryEntry>
     {
         [NotNull]
@@ -78,8 +79,7 @@ namespace TestableFileSystem.Fakes.Builders
             DirectoryEntry directory = root.TryGetExistingDirectory(path);
             if (directory != null)
             {
-                throw new InvalidOperationException(
-                    $"Cannot include file '{path.GetText()}' because a directory already exists with that name.");
+                throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(path.GetText());
             }
         }
 
@@ -96,6 +96,7 @@ namespace TestableFileSystem.Fakes.Builders
         public DirectoryTreeBuilder IncludingDirectory([NotNull] string path, [CanBeNull] FileAttributes? attributes = null)
         {
             var absolutePath = new AbsolutePath(path);
+
             DirectoryEntry directory = root.CreateDirectories(absolutePath);
 
             if (attributes != null)

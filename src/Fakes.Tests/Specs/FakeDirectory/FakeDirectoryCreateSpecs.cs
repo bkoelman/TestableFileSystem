@@ -270,7 +270,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_creating_file_server_it_must_fail()
+        private void When_creating_only_server_part_of_network_share_it_must_fail()
         {
             // Arrange
             const string path = @"\\fileserver";
@@ -286,7 +286,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_creating_file_share_it_must_fail()
+        private void When_creating_network_share_it_must_fail()
         {
             // Arrange
             const string path = @"\\fileserver\documents";
