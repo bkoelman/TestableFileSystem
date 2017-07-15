@@ -265,7 +265,10 @@ namespace TestableFileSystem.Fakes
             private readonly FileEntry owner;
 
             private const int BlockSize = 4096;
+
             private long position;
+            private bool hasAccessed;
+            private bool hasUpdated;
             private bool isClosed;
 
             public override bool CanRead => true;
@@ -364,7 +367,7 @@ namespace TestableFileSystem.Fakes
                     Position = Length;
                 }
 
-                owner.HandleFileChanged(true);
+                hasUpdated = true;
             }
 
             public override int Read(byte[] buffer, int offset, int count)
@@ -399,8 +402,7 @@ namespace TestableFileSystem.Fakes
                     offsetInCurrentBlock = 0;
                 }
 
-                owner.HandleFileAccessed();
-
+                hasAccessed = true;
                 return sumBytesRead;
             }
 
@@ -439,7 +441,7 @@ namespace TestableFileSystem.Fakes
                 }
 
                 Position = newPosition;
-                owner.HandleFileChanged(true);
+                hasUpdated = true;
             }
 
             private void EnsureCapacity(long bytesNeeded)
@@ -456,8 +458,21 @@ namespace TestableFileSystem.Fakes
             {
                 if (disposing)
                 {
-                    isClosed = true;
-                    owner.CloseStream(this);
+                    if (!isClosed)
+                    {
+                        isClosed = true;
+
+                        if (hasUpdated)
+                        {
+                            owner.HandleFileChanged(true);
+                        }
+                        else if (hasAccessed)
+                        {
+                            owner.HandleFileAccessed();
+                        }
+
+                        owner.CloseStream(this);
+                    }
                 }
 
                 base.Dispose(disposing);
