@@ -87,6 +87,8 @@ namespace TestableFileSystem.Fakes
 
         public IFileStream Open(string path, FileMode mode, FileAccess? access = null, FileShare share = FileShare.None)
         {
+            // TODO: Consider support for write-only files.
+
             Guard.NotNull(path, nameof(path));
             AssertPathIsNotEmpty(path);
 

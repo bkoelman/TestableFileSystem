@@ -126,7 +126,7 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.DirectoryNotFound(path.GetText());
             }
 
-            subdirectory = GetOrCreateDirectory(path.Name);
+            subdirectory = GetOrCreateSingleDirectory(path.Name);
             return subdirectory.GetOrCreateFile(path.MoveDown(), createSubdirectories);
         }
 
@@ -225,13 +225,13 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            DirectoryEntry directory = GetOrCreateDirectory(path.Name);
+            DirectoryEntry directory = GetOrCreateSingleDirectory(path.Name);
 
             return path.IsAtEnd ? directory : directory.CreateDirectories(path.MoveDown());
         }
 
         [NotNull]
-        private DirectoryEntry GetOrCreateDirectory([NotNull] string name)
+        private DirectoryEntry GetOrCreateSingleDirectory([NotNull] string name)
         {
             if (Parent == null)
             {
