@@ -29,16 +29,14 @@ namespace TestableFileSystem.Fakes
 
         public IFileInfo ConstructFileInfo(string fileName)
         {
-            // TODO: Convert to absolute path, so that destination does not change when current directory changes.
-
-            return new FakeFileInfo(this, fileName);
+            var absolutePath = ToAbsolutePath(fileName);
+            return new FakeFileInfo(this, absolutePath.GetText());
         }
 
         public IDirectoryInfo ConstructDirectoryInfo(string path)
         {
-            // TODO: Convert to absolute path, so that destination does not change when current directory changes.
-
-            return new FakeDirectoryInfo(this, path);
+            var absolutePath = ToAbsolutePath(path);
+            return new FakeDirectoryInfo(this, absolutePath.GetText());
         }
 
         [NotNull]
