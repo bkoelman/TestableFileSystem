@@ -159,13 +159,13 @@ namespace TestableFileSystem.Fakes
                 DirectoryEntry directory = contents.TryGetEntryAsDirectory(destinationPath.Name, false);
                 if (directory != null)
                 {
-                    throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
+                    throw ErrorFactory.CannotCreateFileBecauseFileAlreadyExists();
                 }
 
                 FileEntry file = contents.TryGetEntryAsFile(destinationPath.Name, false);
                 if (file != null && file != sourceFile)
                 {
-                    throw ErrorFactory.CannotMoveBecauseFileAlreadyExists();
+                    throw ErrorFactory.CannotCreateFileBecauseFileAlreadyExists();
                 }
 
                 sourceFile.Parent.contents.Remove(sourceFile.Name);
@@ -240,6 +240,13 @@ namespace TestableFileSystem.Fakes
             else
             {
                 AssertIsDirectoryName(name);
+            }
+
+            FileEntry file = contents.TryGetEntryAsFile(name, false);
+            if (file != null)
+            {
+                string pathUpToHere = Path.Combine(GetAbsolutePath(), name);
+                throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere);
             }
 
             DirectoryEntry directory = contents.TryGetEntryAsDirectory(name);

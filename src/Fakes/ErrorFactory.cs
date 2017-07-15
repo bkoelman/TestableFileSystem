@@ -27,9 +27,15 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public static Exception CannotMoveBecauseFileAlreadyExists()
+        public static Exception CannotCreateFileBecauseFileAlreadyExists()
         {
             return new IOException("Cannot create a file when that file already exists.");
+        }
+
+        [NotNull]
+        public static Exception CannotCreateBecauseFileOrDirectoryAlreadyExists([NotNull] string path)
+        {
+            return new IOException($"Cannot create '{path}' because a file or directory with the same name already exists.");
         }
 
         [NotNull]

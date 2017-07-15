@@ -102,7 +102,26 @@ namespace TestableFileSystem.Fakes
 
         public IDirectoryInfo CreateDirectory(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+            AssertPathIsNotWhiteSpace(path);
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            if (absolutePath.IsRoot && root.TryGetExistingDirectory(absolutePath) == null)
+            {
+                throw ErrorFactory.DirectoryNotFound(path);
+            }
+
+            root.CreateDirectories(absolutePath);
+            return owner.ConstructDirectoryInfo(absolutePath.GetText());
+        }
+
+        private static void AssertPathIsNotWhiteSpace([NotNull] string path)
+        {
+            if (path.Length == 0)
+            {
+                throw ErrorFactory.PathCannotBeEmptyOrWhitespace(nameof(path));
+            }
         }
 
         public void Delete(string path, bool recursive = false)
@@ -139,11 +158,7 @@ namespace TestableFileSystem.Fakes
         public void SetCurrentDirectory(string path)
         {
             Guard.NotNull(path, nameof(path));
-
-            if (path.Length == 0)
-            {
-                throw ErrorFactory.PathCannotBeEmptyOrWhitespace(nameof(path));
-            }
+            AssertPathIsNotWhiteSpace(path);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             if (!absolutePath.IsOnLocalDrive)

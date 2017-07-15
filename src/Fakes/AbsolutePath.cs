@@ -62,6 +62,8 @@ namespace TestableFileSystem.Fakes
 
         public bool IsOnLocalDrive => StartsWithDriveLetter(Components);
 
+        public bool IsRoot => IsOnLocalDrive ? Components.Count == 1 : Components.Count == 2;
+
         public AbsolutePath([NotNull] string path)
             : this(ToComponents(path), 0, HasExtendedLengthPrefix(path))
         {
