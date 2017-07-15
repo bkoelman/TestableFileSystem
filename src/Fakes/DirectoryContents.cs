@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes
             FileEntry file = TryGetEntryAsFile(name);
             if (file == null)
             {
-                throw new Exception("TODO: File not found.");
+                throw new InvalidOperationException($"Internal Error: File '{name}' not found.");
             }
 
             return file;
@@ -65,7 +65,7 @@ namespace TestableFileSystem.Fakes
             DirectoryEntry directory = TryGetEntryAsDirectory(name);
             if (directory == null)
             {
-                throw new Exception("TODO: Directory not found.");
+                throw new InvalidOperationException($"Internal Error: Directory '{name}' not found.");
             }
 
             return directory;
@@ -86,7 +86,7 @@ namespace TestableFileSystem.Fakes
 
                 if (throwIfExistsAsFile)
                 {
-                    throw new Exception("TODO: File instead of Directory.");
+                    throw new InvalidOperationException($"Internal Error: '{name}' exists as file instead of directory.");
                 }
             }
 
