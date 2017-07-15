@@ -3,9 +3,10 @@ using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
-namespace TestableFileSystem.Fakes.Tests.Builders
+namespace TestableFileSystem.Fakes.Builders
 {
-    internal sealed class DirectoryTreeBuilder : ITestDataBuilder<DirectoryEntry>
+    // TODO: Change accessbility to 'internal' after specs replacement.
+    public sealed class DirectoryTreeBuilder : ITestDataBuilder<DirectoryEntry>
     {
         [NotNull]
         private readonly DirectoryEntry root = DirectoryEntry.CreateRoot();

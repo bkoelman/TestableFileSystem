@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public FakeDirectoryInfo([NotNull] FakeFileSystem owner, [NotNull] string path)
+        internal FakeDirectoryInfo([NotNull] FakeFileSystem owner, [NotNull] string path)
             : base(owner, path)
         {
         }

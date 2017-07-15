@@ -6,12 +6,13 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    internal sealed class DirectoryOperationLocker : OperationLocker, IDirectory
+    public sealed class DirectoryOperationLocker<TDirectory> : OperationLocker, IDirectory
+        where TDirectory : class, IDirectory
     {
         [NotNull]
-        private readonly IDirectory target;
+        private readonly TDirectory target;
 
-        public DirectoryOperationLocker([NotNull] FakeFileSystem owner, [NotNull] IDirectory target)
+        internal DirectoryOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TDirectory target)
             : base(owner)
         {
             Guard.NotNull(target, nameof(target));

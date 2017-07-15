@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using TestableFileSystem.Fakes.Tests.Builders;
+using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
 

@@ -1,15 +1,14 @@
 ﻿using System.IO;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
 
-namespace TestableFileSystem.Fakes.Tests.Builders
+namespace TestableFileSystem.Fakes.Builders
 {
-    public sealed class FakeFileSystemBuilder : ITestDataBuilder<IFileSystem>
+    public sealed class FakeFileSystemBuilder : ITestDataBuilder<FakeFileSystem>
     {
         [NotNull]
         private readonly DirectoryTreeBuilder builder = new DirectoryTreeBuilder().IncludingDirectory("C:");
 
-        public IFileSystem Build()
+        public FakeFileSystem Build()
         {
             DirectoryEntry root = builder.Build();
             return new FakeFileSystem(root);

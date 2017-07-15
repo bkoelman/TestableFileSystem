@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using JetBrains.Annotations;
-using TestableFileSystem.Fakes.Tests.Builders;
+using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
 

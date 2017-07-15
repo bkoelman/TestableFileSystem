@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace TestableFileSystem.Fakes.Tests.Builders
+namespace TestableFileSystem.Fakes.Builders
 {
     internal interface ITestDataBuilder<out T>
     {

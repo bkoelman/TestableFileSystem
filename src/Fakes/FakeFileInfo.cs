@@ -36,7 +36,7 @@ namespace TestableFileSystem.Fakes
 
         public IDirectoryInfo Directory => new FakeDirectoryInfo(Owner, DirectoryName);
 
-        public FakeFileInfo([NotNull] FakeFileSystem owner, [NotNull] string fileName)
+        internal FakeFileInfo([NotNull] FakeFileSystem owner, [NotNull] string fileName)
             : base(owner, fileName)
         {
         }

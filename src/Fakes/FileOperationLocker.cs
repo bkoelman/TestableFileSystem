@@ -5,25 +5,17 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    internal sealed class FileOperationLocker<TFile> : OperationLocker, IFile
+    public sealed class FileOperationLocker<TFile> : OperationLocker, IFile
         where TFile : class, IFile
     {
         [NotNull]
         private readonly TFile target;
 
-        public FileOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TFile target)
+        internal FileOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TFile target)
             : base(owner)
         {
             Guard.NotNull(target, nameof(target));
             this.target = target;
-        }
-
-        [NotNull]
-        public TResult ExecuteOnFile<TResult>([NotNull] Func<TFile, TResult> operation)
-        {
-            Guard.NotNull(operation, nameof(operation));
-
-            return ExecuteInLock(() => operation(target));
         }
 
         public bool Exists(string path)
@@ -124,6 +116,14 @@ namespace TestableFileSystem.Fakes
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
         {
             ExecuteInLock(() => target.SetLastWriteTimeUtc(path, lastWriteTimeUtc));
+        }
+
+        [NotNull]
+        internal TResult ExecuteOnFile<TResult>([NotNull] Func<TFile, TResult> operation)
+        {
+            Guard.NotNull(operation, nameof(operation));
+
+            return ExecuteInLock(() => operation(target));
         }
     }
 }

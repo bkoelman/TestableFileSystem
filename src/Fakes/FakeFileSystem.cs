@@ -7,10 +7,14 @@ namespace TestableFileSystem.Fakes
     public sealed class FakeFileSystem : IFileSystem
     {
         [NotNull]
-        private readonly FileOperationLocker<FakeFile> innerFile;
+        public FileOperationLocker<FakeFile> File { get; }
 
-        public IDirectory Directory { get; }
-        public IFile File => innerFile;
+        IFile IFileSystem.File => File;
+
+        [NotNull]
+        public DirectoryOperationLocker<FakeDirectory> Directory { get; }
+
+        IDirectory IFileSystem.Directory => Directory;
 
         [NotNull]
         internal readonly object TreeLock = new object();
@@ -18,26 +22,32 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal CurrentDirectoryManager CurrentDirectory { get; }
 
-        public FakeFileSystem([NotNull] DirectoryEntry rootEntry)
+        internal FakeFileSystem([NotNull] DirectoryEntry rootEntry)
         {
             Guard.NotNull(rootEntry, nameof(rootEntry));
 
             CurrentDirectory = new CurrentDirectoryManager(rootEntry);
-            Directory = new DirectoryOperationLocker(this, new FakeDirectory(rootEntry, this));
-            innerFile = new FileOperationLocker<FakeFile>(this, new FakeFile(rootEntry, this));
+            Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(rootEntry, this));
+            File = new FileOperationLocker<FakeFile>(this, new FakeFile(rootEntry, this));
         }
 
-        public IFileInfo ConstructFileInfo(string fileName)
+        [NotNull]
+        public FakeFileInfo ConstructFileInfo([NotNull] string fileName)
         {
-            var absolutePath = ToAbsolutePath(fileName);
+            AbsolutePath absolutePath = ToAbsolutePath(fileName);
             return new FakeFileInfo(this, absolutePath.GetText());
         }
 
-        public IDirectoryInfo ConstructDirectoryInfo(string path)
+        IFileInfo IFileSystem.ConstructFileInfo(string fileName) => ConstructFileInfo(fileName);
+
+        [NotNull]
+        public FakeDirectoryInfo ConstructDirectoryInfo([NotNull] string path)
         {
-            var absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = ToAbsolutePath(path);
             return new FakeDirectoryInfo(this, absolutePath.GetText());
         }
+
+        IDirectoryInfo IFileSystem.ConstructDirectoryInfo(string path) => ConstructDirectoryInfo(path);
 
         [NotNull]
         internal AbsolutePath ToAbsolutePath([NotNull] string path)
@@ -58,7 +68,7 @@ namespace TestableFileSystem.Fakes
 
         internal long GetFileSize([NotNull] string path)
         {
-            return innerFile.ExecuteOnFile(f => f.GetSize(path));
+            return File.ExecuteOnFile(f => f.GetSize(path));
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using FluentAssertions;
-using TestableFileSystem.Fakes.Tests.Builders;
+using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs
