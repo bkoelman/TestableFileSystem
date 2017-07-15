@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes
 
         public override string Name => Path.GetFileName(FullName);
 
-        public long Length { get; }
+        public long Length => Owner.GetFileSize(FullName);
 
         public bool IsReadOnly
         {
@@ -36,8 +36,8 @@ namespace TestableFileSystem.Fakes
 
         public IDirectoryInfo Directory => new FakeDirectoryInfo(Owner, DirectoryName);
 
-        public FakeFileInfo([NotNull] IFileSystem owner, [NotNull] string path)
-            : base(owner, path)
+        public FakeFileInfo([NotNull] FakeFileSystem owner, [NotNull] string fileName)
+            : base(owner, fileName)
         {
         }
 

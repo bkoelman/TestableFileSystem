@@ -22,7 +22,7 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         private readonly List<byte[]> blocks = new List<byte[]>();
 
-        private long length;
+        public long Size { get; private set; }
 
         [CanBeNull]
         private FakeFileStream activeWriter;
@@ -238,7 +238,7 @@ namespace TestableFileSystem.Fakes
 
         public override string ToString()
         {
-            return $"File: {Name} ({length} bytes)";
+            return $"File: {Name} ({Size} bytes)";
         }
 
         [AssertionMethod]
@@ -271,13 +271,16 @@ namespace TestableFileSystem.Fakes
             private bool hasUpdated;
             private bool isClosed;
 
+            [CanBeNull]
+            private long? newLength;
+
             public override bool CanRead => true;
 
             public override bool CanSeek => true;
 
             public override bool CanWrite { get; }
 
-            public override long Length => owner.length;
+            public override long Length => newLength ?? owner.Size;
 
             public override long Position
             {
@@ -360,7 +363,7 @@ namespace TestableFileSystem.Fakes
                 }
 
                 EnsureCapacity(value);
-                owner.length = value;
+                newLength = value;
 
                 if (Position > Length)
                 {
@@ -461,6 +464,11 @@ namespace TestableFileSystem.Fakes
                     if (!isClosed)
                     {
                         isClosed = true;
+
+                        if (newLength != null)
+                        {
+                            owner.Size = newLength.Value;
+                        }
 
                         if (hasUpdated)
                         {

@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes
         // TODO: Review this naive implementation against MSDN and the actual filesystem.
 
         [NotNull]
-        protected IFileSystem Owner { get; }
+        protected FakeFileSystem Owner { get; }
 
         public abstract string Name { get; }
         public string Extension { get; }
@@ -60,7 +60,7 @@ namespace TestableFileSystem.Fakes
 
         public bool Exists => Owner.File.Exists(FullName);
 
-        protected FakeFileSystemInfo([NotNull] IFileSystem owner, [NotNull] string path)
+        protected FakeFileSystemInfo([NotNull] FakeFileSystem owner, [NotNull] string path)
         {
             Owner = owner;
             Guard.NotNull(owner, nameof(owner));

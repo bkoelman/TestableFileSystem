@@ -7,8 +7,11 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileSystem : IFileSystem
     {
+        [NotNull]
+        private readonly FileOperationLocker<FakeFile> innerFile;
+
         public IDirectory Directory { get; }
-        public IFile File { get; }
+        public IFile File => innerFile;
 
         [NotNull]
         internal readonly object TreeLock = new object();
@@ -22,17 +25,17 @@ namespace TestableFileSystem.Fakes
 
             CurrentDirectory = new CurrentDirectoryManager(rootEntry);
             Directory = new DirectoryOperationLocker(this, new FakeDirectory(rootEntry, this));
-            File = new FileOperationLocker(this, new FakeFile(rootEntry, this));
+            innerFile = new FileOperationLocker<FakeFile>(this, new FakeFile(rootEntry, this));
         }
 
         public IFileInfo ConstructFileInfo(string fileName)
         {
-            throw new NotImplementedException();
+            return new FakeFileInfo(this, fileName);
         }
 
         public IDirectoryInfo ConstructDirectoryInfo(string path)
         {
-            throw new NotImplementedException();
+            return new FakeDirectoryInfo(this, path);
         }
 
         [NotNull]
@@ -50,6 +53,11 @@ namespace TestableFileSystem.Fakes
 
             string rooted = Path.Combine(basePath, path.TrimEnd());
             return new AbsolutePath(rooted);
+        }
+
+        internal long GetFileSize([NotNull] string path)
+        {
+            return innerFile.ExecuteOnFile(f => f.GetSize(path));
         }
     }
 }

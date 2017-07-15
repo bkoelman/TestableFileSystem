@@ -298,6 +298,22 @@ namespace TestableFileSystem.Fakes
             entry.LastWriteTimeUtc = lastWriteTimeUtc;
         }
 
+        internal long GetSize([NotNull] string path)
+        {
+            Guard.NotNull(path, nameof(path));
+            AssertPathIsNotEmpty(path);
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            FileEntry existingFile = root.TryGetExistingFile(absolutePath);
+
+            if (existingFile == null)
+            {
+                throw ErrorFactory.FileNotFound(path);
+            }
+
+            return existingFile.Size;
+        }
+
         [NotNull]
         private FileEntry GetExistingFile([NotNull] string path)
         {

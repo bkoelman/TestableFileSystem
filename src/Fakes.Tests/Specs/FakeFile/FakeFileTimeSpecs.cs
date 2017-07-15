@@ -461,6 +461,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .IncludingEmptyFile(path)
                 .Build();
 
+            var fileInfo = fileSystem.ConstructFileInfo(path);
+
             DateTime writeTimeUtc = 3.January(2017).At(23, 11);
 
             // Act
@@ -474,11 +476,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
                 fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
                 fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+                fileInfo.Length.Should().Be(0);
             }
 
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
             fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(writeTimeUtc);
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(writeTimeUtc);
+            fileInfo.Length.Should().Be(1);
         }
 
         [Fact]
@@ -541,7 +545,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_updating_existing_file_on_background_thread_its_timing_changes_must_be_observable_from_main_thread()
+        private void When_updating_existing_file_on_background_thread_its_property_changes_must_be_observable_from_main_thread()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -553,8 +557,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .IncludingEmptyFile(path)
                 .Build();
 
+            var fileInfo = fileSystem.ConstructFileInfo(path);
+
             DateTime accessTimeUtcBefore = fileSystem.File.GetLastAccessTimeUtc(path);
             DateTime writeTimeUtcBefore = fileSystem.File.GetLastWriteTimeUtc(path);
+            long sizeBefore = fileInfo.Length;
 
             // Act
             Task.Factory.StartNew(() =>
@@ -567,10 +574,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             DateTime accessTimeUtcAfter = fileSystem.File.GetLastAccessTimeUtc(path);
             DateTime writeTimeUtcAfter = fileSystem.File.GetLastWriteTimeUtc(path);
+            long sizeAfter = fileInfo.Length;
 
             // Assert
             accessTimeUtcAfter.Should().BeAfter(accessTimeUtcBefore);
             writeTimeUtcAfter.Should().BeAfter(writeTimeUtcBefore);
+            sizeAfter.Should().BeGreaterThan(sizeBefore);
         }
     }
 }
