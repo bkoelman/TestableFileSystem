@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -30,11 +29,15 @@ namespace TestableFileSystem.Fakes
 
         public IFileInfo ConstructFileInfo(string fileName)
         {
+            // TODO: Convert to absolute path, so that destination does not change when current directory changes.
+
             return new FakeFileInfo(this, fileName);
         }
 
         public IDirectoryInfo ConstructDirectoryInfo(string path)
         {
+            // TODO: Convert to absolute path, so that destination does not change when current directory changes.
+
             return new FakeDirectoryInfo(this, path);
         }
 

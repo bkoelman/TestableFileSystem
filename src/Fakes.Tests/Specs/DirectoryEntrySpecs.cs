@@ -17,7 +17,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"C:\");
 
             // Act
-            DirectoryEntry drive = root.CreateDirectory(path);
+            DirectoryEntry drive = root.CreateDirectories(path);
 
             // Assert
             drive.Name.Should().Be("C:");
@@ -29,14 +29,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = DirectoryEntry.CreateRoot();
-            var path = new AbsolutePath(@"\\teamserver");
+            var path = new AbsolutePath(@"\\teamserver\documents");
 
             // Act
-            DirectoryEntry drive = root.CreateDirectory(path);
+            DirectoryEntry share = root.CreateDirectories(path);
 
             // Assert
-            drive.Name.Should().Be(@"\\teamserver");
-            drive.Parent.Should().Be(root);
+            share.Name.Should().Be("documents");
+
+            var server = share.Parent;
+            server.Should().NotBeNull();
+
+            server.Name.Should().Be(@"\\teamserver");
+            server.Parent.Should().Be(root);
         }
 
         [Fact]
@@ -47,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             AbsolutePath path = new AbsolutePath(@"C:\some").MoveDown();
 
             // Act
-            Action action = () => root.CreateDirectory(path);
+            Action action = () => root.CreateDirectories(path);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>()
@@ -59,12 +64,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingDirectory(@"\\teamserver")
+                .IncludingDirectory(@"C:")
                 .Build();
-            var path = new AbsolutePath(@"\\filestorage");
+            var path = new AbsolutePath("C:");
 
             // Act
-            Action action = () => root.Directories[@"\\teamserver"].CreateDirectory(path);
+            Action action = () => root.Directories["C:"].CreateDirectories(path);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>()
@@ -76,12 +81,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
-                .IncludingDirectory(@"C:")
+                .IncludingDirectory(@"\\teamserver\work")
                 .Build();
-            var path = new AbsolutePath("C:");
+            var path = new AbsolutePath(@"\\filestorage\archive");
 
             // Act
-            Action action = () => root.Directories["C:"].CreateDirectory(path);
+            Action action = () => root.Directories[@"\\teamserver"].CreateDirectories(path);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>()
@@ -212,7 +217,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"C:\some\path\to\here");
 
             // Act
-            DirectoryEntry directory = root.CreateDirectory(path);
+            DirectoryEntry directory = root.CreateDirectories(path);
 
             // Assert
             directory.Should().NotBeNull();
@@ -232,7 +237,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"C:\some");
 
             // Act
-            DirectoryEntry directory = root.CreateDirectory(path);
+            DirectoryEntry directory = root.CreateDirectories(path);
 
             // Assert
             directory.Should().NotBeNull();

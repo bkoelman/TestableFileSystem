@@ -72,7 +72,7 @@ namespace TestableFileSystem.Fakes.Tests.Builders
         public DirectoryTreeBuilder IncludingDirectory([NotNull] string path, [CanBeNull] FileAttributes? attributes = null)
         {
             var absolutePath = new AbsolutePath(path);
-            DirectoryEntry directory = root.CreateDirectory(absolutePath);
+            DirectoryEntry directory = root.CreateDirectories(absolutePath);
 
             if (attributes != null)
             {

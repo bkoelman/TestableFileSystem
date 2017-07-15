@@ -38,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"\\?\C:\docs");
 
             // Assert
-            path.GetText().Should().Be(@"C:\docs");
+            path.GetText().Should().Be(@"\\?\C:\docs");
             path.Components.Should().HaveCount(2);
             path.Components[0].Should().Be("C:");
             path.Components[1].Should().Be("docs");
@@ -48,12 +48,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_network_share_it_must_succeed()
         {
             // Act
-            var path = new AbsolutePath(@"\\teamserver\");
+            var path = new AbsolutePath(@"\\teamserver\management");
 
             // Assert
-            path.GetText().Should().Be(@"\\teamserver");
-            path.Components.Should().HaveCount(1);
-            path.Name.Should().Be(@"\\teamserver");
+            path.Components.Should().HaveCount(2);
+            path.GetText().Should().Be(@"\\teamserver\management");
+            path.Components[0].Should().Be(@"\\teamserver");
+            path.Components[1].Should().Be("management");
+        }
+
+        [Fact]
+        private void When_creating_only_server_part_of_network_share_it_must_fail()
+        {
+            // Act
+            // ReSharper disable once ObjectCreationAsStatement
+            Action action = () => new AbsolutePath(@"\\teamserver\");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
         [Fact]
@@ -77,7 +89,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"\\?\UNC\teamserver\management\reports");
 
             // Assert
-            path.GetText().Should().Be(@"\\teamserver\management\reports");
+            path.GetText().Should().Be(@"\\?\UNC\teamserver\management\reports");
             path.Components.Should().HaveCount(3);
             path.Components[0].Should().Be(@"\\teamserver");
             path.Components[1].Should().Be("management");

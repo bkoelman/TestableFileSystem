@@ -142,11 +142,11 @@ namespace TestableFileSystem.Fakes
 
             if (path.Length == 0)
             {
-                throw new ArgumentException("Path cannot be the empty string or all whitespace.", nameof(path));
+                throw ErrorFactory.PathCannotBeEmptyOrWhitespace(nameof(path));
             }
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            if (!absolutePath.IsLocalDrive)
+            if (!absolutePath.IsOnLocalDrive)
             {
                 throw ErrorFactory.PathIsInvalid();
             }

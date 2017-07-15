@@ -87,6 +87,12 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
+        public static Exception PathCannotBeEmptyOrWhitespace([NotNull] [InvokerParameterName] string paramName)
+        {
+            return new ArgumentException("Path cannot be the empty string or all whitespace.", paramName);
+        }
+
+        [NotNull]
         public static Exception PathIsInvalid()
         {
             return new IOException("The specified path is invalid.");
@@ -108,6 +114,12 @@ namespace TestableFileSystem.Fakes
         public static Exception DirectoryNameIsInvalid()
         {
             return new IOException("The directory name is invalid.");
+        }
+
+        [NotNull]
+        public static Exception UncPathIsInvalid()
+        {
+            return new ArgumentException(@"The UNC path should be of the form \\server\share.");
         }
     }
 }

@@ -221,13 +221,13 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public DirectoryEntry CreateDirectory([NotNull] AbsolutePath path)
+        public DirectoryEntry CreateDirectories([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
 
             DirectoryEntry directory = GetOrCreateDirectory(path.Name);
 
-            return path.IsAtEnd ? directory : directory.CreateDirectory(path.MoveDown());
+            return path.IsAtEnd ? directory : directory.CreateDirectories(path.MoveDown());
         }
 
         [NotNull]

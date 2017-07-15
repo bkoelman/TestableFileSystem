@@ -60,10 +60,10 @@ namespace TestableFileSystem.Fakes
 
         public bool IsAtEnd => offset == Components.Count - 1;
 
-        public bool IsLocalDrive => StartsWithDriveLetter(Components);
+        public bool IsOnLocalDrive => StartsWithDriveLetter(Components);
 
         public AbsolutePath([NotNull] string path)
-            : this(ToComponents(path), 0, IsPathExtended(path))
+            : this(ToComponents(path), 0, HasExtendedLengthPrefix(path))
         {
         }
 
@@ -80,7 +80,21 @@ namespace TestableFileSystem.Fakes
 
             AssertIsNotReservedComponentName(components[0]);
 
-            if (!StartsWithDriveLetter(components) && !IsNetworkShare(components))
+            if (StartsWithNetworkShare(components))
+            {
+                AssertNetworkShareOrDirectoryOrFileNameIsValid(components[2]);
+
+                if (components.Count < 4)
+                {
+                    throw ErrorFactory.UncPathIsInvalid();
+                }
+
+                AssertNetworkShareOrDirectoryOrFileNameIsValid(components[3]);
+
+                components[2] = TwoDirectorySeparators + components[2];
+                components.RemoveRange(0, 2);
+            }
+            else if (!StartsWithDriveLetter(components))
             {
                 throw ErrorFactory.PathFormatIsNotSupported();
             }
@@ -125,7 +139,7 @@ namespace TestableFileSystem.Fakes
                 : path;
         }
 
-        private static bool IsPathExtended([CanBeNull] string path)
+        private static bool HasExtendedLengthPrefix([CanBeNull] string path)
         {
             return path != null && path.StartsWith(@"\\?\", StringComparison.Ordinal);
         }
@@ -181,20 +195,9 @@ namespace TestableFileSystem.Fakes
             return false;
         }
 
-        private static bool IsNetworkShare([NotNull] [ItemNotNull] List<string> components)
+        private static bool StartsWithNetworkShare([NotNull] [ItemNotNull] List<string> components)
         {
-            if (components.Count > 2 && components[0] == string.Empty && components[1] == string.Empty)
-            {
-                string networkShare = components[2];
-
-                AssertNetworkShareOrDirectoryOrFileNameIsValid(networkShare);
-
-                components.RemoveRange(0, 2);
-                components[0] = TwoDirectorySeparators + networkShare;
-                return true;
-            }
-
-            return false;
+            return components.Count > 2 && components[0] == string.Empty && components[1] == string.Empty;
         }
 
         [AssertionMethod]
@@ -226,7 +229,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string GetRootName()
         {
-            return IsLocalDrive ? GetRootNameForLocalDrive() : GetRootNameForUncPath();
+            return IsOnLocalDrive ? GetRootNameForLocalDrive() : GetRootNameForUncPath();
         }
 
         [NotNull]
@@ -280,9 +283,31 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string GetText()
         {
-            return Components.Count == 1 && IsLocalDrive
-                ? Components[0] + Path.DirectorySeparatorChar
-                : string.Join(Path.DirectorySeparatorChar.ToString(), Components);
+            var builder = new StringBuilder();
+            builder.Append(GetRootName());
+
+            int componentStartIndex;
+            if (IsOnLocalDrive)
+            {
+                componentStartIndex = 1;
+            }
+            else
+            {
+                if (Components.Count > 2)
+                {
+                    builder.Append(Path.DirectorySeparatorChar);
+                }
+
+                componentStartIndex = 2;
+            }
+
+            int componentCount = Components.Count - componentStartIndex;
+
+            string relativePath = string.Join(Path.DirectorySeparatorChar.ToString(), Components.ToArray(), componentStartIndex,
+                componentCount);
+
+            builder.Append(relativePath);
+            return builder.ToString();
         }
 
         public override string ToString()
