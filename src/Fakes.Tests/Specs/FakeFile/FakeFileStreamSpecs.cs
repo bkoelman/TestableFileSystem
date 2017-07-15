@@ -408,6 +408,29 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_seeking_to_before_end_in_stream_opened_in_Append_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Append))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Seek(-1, SeekOrigin.Current);
+
+                // Assert
+                action.ShouldThrow<IOException>()
+                    .WithMessage(
+                        "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
+            }
+        }
+
+        [Fact]
         private void When_reducing_length_it_must_succeed()
         {
             // Arrange
@@ -449,7 +472,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(0, SeekOrigin.Begin);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>();
+                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -472,7 +495,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.SetLength(2);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>();
+                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -497,7 +520,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Read(buffer, 0, buffer.Length);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>();
+                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -520,7 +543,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Write(new byte[] { 0xFF }, 0, 1);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>();
+                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 

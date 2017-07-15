@@ -187,6 +187,7 @@ namespace TestableFileSystem.Fakes
             if (seekToEnd)
             {
                 stream.Seek(0, SeekOrigin.End);
+                stream.SetAppendOffsetToCurrentPosition();
             }
 
             if (truncate)
@@ -271,6 +272,9 @@ namespace TestableFileSystem.Fakes
             private bool isClosed;
 
             [CanBeNull]
+            private long? appendOffset;
+
+            [CanBeNull]
             private long? newLength;
 
             public override bool CanRead { get; }
@@ -293,6 +297,11 @@ namespace TestableFileSystem.Fakes
                         throw new ArgumentOutOfRangeException(nameof(value));
                     }
 
+                    if (appendOffset != null && value < appendOffset)
+                    {
+                        throw ErrorFactory.CannotSeekToPositionBeforeAppend();
+                    }
+
                     if (value > Length)
                     {
                         SetLength(value);
@@ -309,6 +318,11 @@ namespace TestableFileSystem.Fakes
                 this.owner = owner;
                 CanRead = access.HasFlag(FileAccess.Read);
                 CanWrite = access.HasFlag(FileAccess.Write);
+            }
+
+            public void SetAppendOffsetToCurrentPosition()
+            {
+                appendOffset = Position;
             }
 
             public override void Flush()
@@ -491,7 +505,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (isClosed)
                 {
-                    throw new ObjectDisposedException(nameof(FakeFileStream));
+                    throw new ObjectDisposedException(string.Empty, "Cannot access a closed file.");
                 }
             }
 

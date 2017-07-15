@@ -127,5 +127,12 @@ namespace TestableFileSystem.Fakes
         {
             return new ArgumentException(@"The UNC path should be of the form \\server\share.");
         }
+
+        [NotNull]
+        public static Exception CannotSeekToPositionBeforeAppend()
+        {
+            return new IOException(
+                "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
+        }
     }
 }
