@@ -398,6 +398,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_deleting_local_directory_below_existing_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(@"c:\some\file.txt\subfolder");
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(
+                    @"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
+        }
+
+        [Fact]
         private void When_deleting_extended_local_empty_directory_it_must_succeed()
         {
             // Arrange

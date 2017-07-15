@@ -193,6 +193,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_getting_directory_existence_for_local_directory_below_existing_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            bool found = fileSystem.Directory.Exists(@"c:\some\file.txt\subfolder");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
         private void When_getting_directory_existence_for_local_directory_whose_parent_does_not_exist_it_must_succeed()
         {
             // Arrange
