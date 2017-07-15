@@ -73,6 +73,7 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         private static IReadOnlyList<string> ToComponents([NotNull] string path)
         {
+            path = path.TrimEnd();
             path = WithoutTrailingSeparator(path);
             path = WithoutExtendedLengthPrefix(path);
 

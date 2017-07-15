@@ -56,6 +56,10 @@ namespace TestableFileSystem.Fakes.Builders
             [CanBeNull] FileAttributes? attributes)
         {
             var absolutePath = new AbsolutePath(path);
+
+            AssertDoesNotExistAsDirectory(absolutePath);
+            RemoveExistingFile(absolutePath);
+
             FileEntry file = root.GetOrCreateFile(absolutePath, true);
 
             using (IFileStream stream = file.Open(FileMode.Open, FileAccess.Write))
@@ -66,6 +70,25 @@ namespace TestableFileSystem.Fakes.Builders
             if (attributes != null)
             {
                 file.Attributes = attributes.Value;
+            }
+        }
+
+        private void AssertDoesNotExistAsDirectory([NotNull] AbsolutePath path)
+        {
+            DirectoryEntry directory = root.TryGetExistingDirectory(path);
+            if (directory != null)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot include file '{path.GetText()}' because a directory already exists with that name.");
+            }
+        }
+
+        private void RemoveExistingFile([NotNull] AbsolutePath absolutePath)
+        {
+            FileEntry file = root.TryGetExistingFile(absolutePath);
+            if (file != null)
+            {
+                root.DeleteFile(absolutePath);
             }
         }
 

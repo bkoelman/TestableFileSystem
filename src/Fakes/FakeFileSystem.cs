@@ -62,7 +62,7 @@ namespace TestableFileSystem.Fakes
             DirectoryEntry baseDirectory = CurrentDirectory.GetValue();
             string basePath = baseDirectory.GetAbsolutePath();
 
-            string rooted = Path.Combine(basePath, path.TrimEnd());
+            string rooted = Path.Combine(basePath, path);
             return new AbsolutePath(rooted);
         }
 

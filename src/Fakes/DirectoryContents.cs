@@ -129,7 +129,8 @@ namespace TestableFileSystem.Fakes
 
         public override string ToString()
         {
-            return $"{entries.OfType<FileEntry>().Count()} files, {entries.OfType<DirectoryEntry>().Count()} directories";
+            return
+                $"{entries.Values.OfType<FileEntry>().Count()} files, {entries.Values.OfType<DirectoryEntry>().Count()} directories";
         }
     }
 }
