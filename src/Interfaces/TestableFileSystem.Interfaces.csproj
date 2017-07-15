@@ -25,13 +25,13 @@
   <ItemGroup>
     <PackageReference Include="jetbrains.annotations" Version="10.4.0" PrivateAssets="all" />
     <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
-    <PackageReference Include="jetbrains.externalannotations" Version="10.2.20" PrivateAssets="all" />
+    <PackageReference Include="jetbrains.externalannotations" Version="10.2.24" PrivateAssets="all" />
   </ItemGroup>
   <Target Name="CopyExternalAnnotations" BeforeTargets="BeforeBuild" Condition="'$(BuildingInsideVisualStudio)' != 'true'">
     <PropertyGroup>
-      <ExternalAnnotationsVersion>10.2.20</ExternalAnnotationsVersion>
-      <ExternalAnnotationsSourceDir>&quot;$(USERPROFILE)\.nuget\packages\JetBrains.ExternalAnnotations\$(ExternalAnnotationsVersion)\DotFiles\ExternalAnnotations\*.xml&quot;</ExternalAnnotationsSourceDir>
-      <ExternalAnnotationsTargetDir>&quot;$(LOCALAPPDATA)\JetBrains\Installations\ReSharperPlatformVs15\ExternalAnnotations&quot;</ExternalAnnotationsTargetDir>
+      <ExternalAnnotationsVersion>10.2.24</ExternalAnnotationsVersion>
+      <ExternalAnnotationsSourceDir>"$(USERPROFILE)\.nuget\packages\JetBrains.ExternalAnnotations\$(ExternalAnnotationsVersion)\DotFiles\ExternalAnnotations\*.xml"</ExternalAnnotationsSourceDir>
+      <ExternalAnnotationsTargetDir>"$(LOCALAPPDATA)\JetBrains\Installations\ReSharperPlatformVs15\ExternalAnnotations"</ExternalAnnotationsTargetDir>
     </PropertyGroup>
 
     <Message Importance="High" Text="Copying External Annotations from: $(ExternalAnnotationsSourceDir) to: $(ExternalAnnotationsTargetDir)" />
