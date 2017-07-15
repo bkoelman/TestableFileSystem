@@ -37,9 +37,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Assert
             share.Name.Should().Be("documents");
 
-            var server = share.Parent;
-            server.Should().NotBeNull();
-
+            DirectoryEntry server = share.Parent.ShouldNotBeNull();
             server.Name.Should().Be(@"\\teamserver");
             server.Parent.Should().Be(root);
         }
