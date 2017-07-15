@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Tests.Builders;
 using TestableFileSystem.Interfaces;
@@ -529,6 +530,39 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
             fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+        }
+
+        [Fact]
+        private void When_updating_existing_file_on_background_thread_its_timing_changes_must_be_observable_from_main_thread()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            DateTime createTimeUtc = 31.January(2017).At(22, 14);
+            SystemClock.UtcNow = () => createTimeUtc;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            DateTime accessTimeUtcBefore = fileSystem.File.GetLastAccessTimeUtc(path);
+            DateTime writeTimeUtcBefore = fileSystem.File.GetLastWriteTimeUtc(path);
+
+            // Act
+            Task.Factory.StartNew(() =>
+            {
+                SystemClock.UtcNow = () => createTimeUtc.AddSeconds(1);
+                fileSystem.File.WriteAllText(path, "Y");
+            }).Wait();
+
+            SystemClock.UtcNow = () => createTimeUtc.AddSeconds(2);
+
+            DateTime accessTimeUtcAfter = fileSystem.File.GetLastAccessTimeUtc(path);
+            DateTime writeTimeUtcAfter = fileSystem.File.GetLastWriteTimeUtc(path);
+
+            // Assert
+            accessTimeUtcAfter.Should().BeAfter(accessTimeUtcBefore);
+            writeTimeUtcAfter.Should().BeAfter(writeTimeUtcBefore);
         }
     }
 }
