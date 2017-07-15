@@ -83,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         // TODO: Add missing specs.
 
         [Fact]
-        private void When_opening_existing_file_in_createNew_mode_it_must_fail()
+        private void When_opening_existing_file_in_CreateNew_mode_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\sheet.xls";
@@ -100,7 +100,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_trying_to_open_existing_file_that_does_not_exist_it_must_fail()
+        private void When_opening_missing_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -112,72 +112,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\sheet.xls'.");
-        }
-
-        [Fact]
-        private void When_trying_to_open_existing_file_for_reading_it_must_fail_on_write()
-        {
-            // Arrange
-            const string path = @"C:\some\sheet.xls";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
-
-            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
-            {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => stream.Write(new byte[] { 0x22 }, 0, 1);
-
-                // Assert
-                action.ShouldThrow<NotSupportedException>();
-            }
-        }
-
-        [Fact]
-        private void When_writer_is_active_it_must_fail_to_open()
-        {
-            // Arrange
-            const string path = @"C:\some\sheet.xls";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
-
-            using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Write))
-            {
-                // Act
-                Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Read);
-
-                // Assert
-                action.ShouldThrow<IOException>().WithMessage(
-                    @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
-            }
-        }
-
-        [Fact]
-        private void When_readers_are_active_it_must_fail_to_open_for_writing()
-        {
-            // Arrange
-            const string path = @"C:\some\sheet.xls";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
-
-            using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
-            {
-                using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
-                {
-                    // Act
-                    Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Write);
-
-                    // Assert
-                    action.ShouldThrow<IOException>().WithMessage(
-                        @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
-                }
-            }
         }
     }
 }

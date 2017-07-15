@@ -566,6 +566,51 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
+        [Fact]
+        private void When_writer_is_active_it_must_fail_to_open()
+        {
+            // Arrange
+            const string path = @"C:\some\sheet.xls";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Write))
+            {
+                // Act
+                Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Read);
+
+                // Assert
+                action.ShouldThrow<IOException>().WithMessage(
+                    @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
+            }
+        }
+
+        [Fact]
+        private void When_readers_are_active_it_must_fail_to_open_for_writing()
+        {
+            // Arrange
+            const string path = @"C:\some\sheet.xls";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+                {
+                    // Act
+                    Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Write);
+
+                    // Assert
+                    action.ShouldThrow<IOException>().WithMessage(
+                        @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
+                }
+            }
+        }
+
         [NotNull]
         private static byte[] CreateBuffer(int size)
         {
