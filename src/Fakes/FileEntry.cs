@@ -140,7 +140,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public IFileStream Open(FileMode mode, FileAccess access)
         {
-            bool isReader = access == FileAccess.Read;
+            bool isReaderOnly = access == FileAccess.Read;
             bool truncate = false;
             bool seekToEnd = false;
 
@@ -150,11 +150,11 @@ namespace TestableFileSystem.Fakes
                 case FileMode.Create:
                 case FileMode.Truncate:
                     truncate = true;
-                    isReader = false;
+                    isReaderOnly = false;
                     break;
                 case FileMode.Append:
                     seekToEnd = true;
-                    isReader = false;
+                    isReaderOnly = false;
                     break;
             }
 
@@ -164,17 +164,17 @@ namespace TestableFileSystem.Fakes
             {
                 if (activeWriter != null)
                 {
-                    throw GetErrorForFileInUse();
+                    throw CreateErrorForFileInUse();
                 }
 
-                if (!isReader && activeReaders.Any())
+                if (!isReaderOnly && activeReaders.Any())
                 {
-                    throw GetErrorForFileInUse();
+                    throw CreateErrorForFileInUse();
                 }
 
-                stream = new FakeFileStream(this, isReader);
+                stream = new FakeFileStream(this, access);
 
-                if (isReader)
+                if (isReaderOnly)
                 {
                     activeReaders.Add(stream);
                 }
@@ -211,7 +211,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        private Exception GetErrorForFileInUse()
+        private Exception CreateErrorForFileInUse()
         {
             string path = GetAbsolutePath();
             return ErrorFactory.FileIsInUse(path);
@@ -273,7 +273,7 @@ namespace TestableFileSystem.Fakes
             [CanBeNull]
             private long? newLength;
 
-            public override bool CanRead => true;
+            public override bool CanRead { get; }
 
             public override bool CanSeek => true;
 
@@ -302,12 +302,13 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            public FakeFileStream([NotNull] FileEntry owner, bool isReader)
+            public FakeFileStream([NotNull] FileEntry owner, FileAccess access)
             {
                 Guard.NotNull(owner, nameof(owner));
 
                 this.owner = owner;
-                CanWrite = !isReader;
+                CanRead = access.HasFlag(FileAccess.Read);
+                CanWrite = access.HasFlag(FileAccess.Write);
             }
 
             public override void Flush()
@@ -375,6 +376,7 @@ namespace TestableFileSystem.Fakes
             public override int Read(byte[] buffer, int offset, int count)
             {
                 AssertNotClosed();
+                AssertIsReadable();
 
                 var segment = new ArraySegment<byte>(buffer, offset, count);
                 if (segment.Count == 0 || Position == Length)
@@ -493,11 +495,19 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
+            private void AssertIsReadable()
+            {
+                if (!CanRead)
+                {
+                    throw new NotSupportedException("Stream does not support reading.");
+                }
+            }
+
             private void AssertIsWriteable()
             {
                 if (!CanWrite)
                 {
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("Stream does not support writing.");
                 }
             }
         }

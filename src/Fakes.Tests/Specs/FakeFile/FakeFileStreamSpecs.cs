@@ -75,7 +75,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             {
                 // Assert
                 stream.AsStream().Should().NotBeNull();
-                stream.CanRead.Should().BeTrue();
+                stream.CanRead.Should().BeFalse();
                 stream.CanSeek.Should().BeTrue();
                 stream.CanWrite.Should().BeTrue();
                 stream.Name.Should().Be(path);
@@ -541,11 +541,30 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Write(new byte[] { 0xFF }, 0, 1);
 
                 // Assert
-                action.ShouldThrow<NotSupportedException>();
+                action.ShouldThrow<NotSupportedException>().WithMessage("Stream does not support writing.");
             }
         }
 
-        // TODO: Add missing specs.
+        [Fact]
+        private void When_reading_from_writeonly_stream_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Write))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.ReadByte();
+
+                // Assert
+                action.ShouldThrow<NotSupportedException>().WithMessage("Stream does not support reading.");
+            }
+        }
 
         [NotNull]
         private static byte[] CreateBuffer(int size)
