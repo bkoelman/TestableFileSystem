@@ -79,18 +79,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_including_drive_it_must_succeed()
         {
             // Arrange
-            const string path = @"F:";
+            const string drive = "F:";
 
             var builder = new FakeFileSystemBuilder();
 
             // Act
             IFileSystem fileSystem = builder
-                .IncludingDirectory(path)
+                .IncludingDirectory(drive)
                 .Build();
 
             // Assert
-            fileSystem.Directory.Exists(path).Should().BeTrue();
-            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory | FileAttributes.Hidden |
+            fileSystem.Directory.Exists(drive).Should().BeTrue();
+            fileSystem.Directory.Exists(@"F:\").Should().BeTrue();
+
+            fileSystem.File.GetAttributes(drive).Should().Be(FileAttributes.Directory | FileAttributes.Hidden |
                 FileAttributes.System);
         }
 
@@ -275,6 +277,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Assert
             fileSystem.Directory.Exists(path).Should().BeTrue();
+            fileSystem.Directory.Exists(@"\\server\share\").Should().BeTrue();
         }
 
         [Fact]
