@@ -2,6 +2,6 @@
 {
     public sealed class FakeDirectoryTimeSpecs
     {
-        // TODO: Add missing specs.
+        // TODO: Create specs.
     }
 }

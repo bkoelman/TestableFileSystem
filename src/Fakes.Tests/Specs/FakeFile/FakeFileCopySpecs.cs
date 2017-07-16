@@ -2,6 +2,6 @@
 {
     public sealed class FakeFileCopySpecs
     {
-        // TODO: Add missing specs.
+        // TODO: Create specs.
     }
 }

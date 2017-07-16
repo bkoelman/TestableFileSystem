@@ -2,6 +2,6 @@
 {
     public sealed class FakeDirectoryEnumerateFilesSpecs
     {
-        // TODO: Add missing specs.
+        // TODO: Create specs.
     }
 }

@@ -2,6 +2,6 @@
 {
     public sealed class FakeDirectoryMoveSpecs
     {
-        // TODO: Add missing specs.
+        // TODO: Create specs.
     }
 }
