@@ -182,36 +182,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_attributes_for_missing_parent_directory_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.GetAttributes(@"C:\some\file.txt");
-
-            // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
-        }
-
-        [Fact]
-        private void When_setting_attributes_for_missing_parent_directory_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.SetAttributes(@"C:\some\file.txt", FileAttributes.Archive);
-
-            // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
-        }
-
-        [Fact]
         private void When_setting_attributes_for_existing_file_to_normal_it_must_succeed()
         {
             // Arrange
@@ -406,7 +376,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_attributes_for_existing_local_file_with_different_casing_it_must_succeed()
+        private void When_getting_attributes_for_existing_local_file_with_different_casing_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -421,7 +391,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_file_attributes_for_existing_local_file_with_different_casing_it_must_succeed()
+        private void When_setting_attributes_for_existing_local_file_with_different_casing_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -436,7 +406,69 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_attributes_for_existing_remote_file_it_must_succeed()
+        private void When_getting_attributes_for_missing_parent_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(@"C:\some\file.txt");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_missing_parent_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(@"C:\some\file.txt", FileAttributes.Archive);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+        }
+
+        [Fact]
+        private void When_getting_attributes_for_local_file_below_existing_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(@"c:\some\file.txt\nested.txt");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_local_file_below_existing_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(@"c:\some\file.txt\nested.txt", FileAttributes.Archive);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+        }
+
+        [Fact]
+        private void When_getting_attributes_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
             const string path = @"\\server\share\personal.docx";
@@ -453,7 +485,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_file_attributes_for_existing_remote_file_it_must_succeed()
+        private void When_setting_attributes_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
             const string path = @"\\server\share\personal.docx";
@@ -470,7 +502,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_attributes_for_missing_remote_file_it_must_fail()
+        private void When_getting_attributes_for_missing_remote_file_it_must_fail()
         {
             // Arrange
             const string path = @"\\server\share\missing.txt";
@@ -487,7 +519,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_file_attributes_for_missing_remote_file_it_must_fail()
+        private void When_setting_attributes_for_missing_remote_file_it_must_fail()
         {
             // Arrange
             const string path = @"\\server\share\missing.docx";
@@ -504,7 +536,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_attributes_for_directory_it_must_succeed()
+        private void When_getting_attributes_for_directory_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -521,7 +553,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_file_attributes_for_directory_it_must_succeed()
+        private void When_setting_attributes_for_directory_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -538,7 +570,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_attributes_for_missing_extended_local_file_it_must_fail()
+        private void When_getting_attributes_for_reserved_name_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(@"COM1");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_reserved_name_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(@"COM1", FileAttributes.Archive);
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_getting_attributes_for_missing_extended_local_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -553,7 +613,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_file_attributes_for_missing_extended_local_file_it_must_fail()
+        private void When_setting_attributes_for_missing_extended_local_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -568,7 +628,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_attributes_for_existing_extended_local_file_it_must_succeed()
+        private void When_getting_attributes_for_existing_extended_local_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -583,7 +643,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_file_attributes_for_existing_extended_local_file_it_must_succeed()
+        private void When_setting_attributes_for_existing_extended_local_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

@@ -193,6 +193,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_getting_file_existence_below_existing_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            bool found = fileSystem.File.Exists(@"c:\some\file.txt\nested.txt");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
         private void When_getting_file_existence_for_missing_parent_directory_it_must_succeed()
         {
             // Arrange

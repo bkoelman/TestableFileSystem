@@ -256,6 +256,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_deleting_local_file_below_existing_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(@"c:\some\file.txt\nested.txt\other.txt");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\other.txt'.");
+        }
+
+        [Fact]
         private void When_deleting_extended_existing_local_file_it_must_succeed()
         {
             // Arrange

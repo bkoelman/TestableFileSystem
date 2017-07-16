@@ -72,6 +72,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_getting_file_creation_time_for_file_below_existing_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            DateTime creationTime = fileSystem.File.GetCreationTime(@"c:\some\file.txt\subfolder");
+            DateTime creationTimeUtc = fileSystem.File.GetCreationTimeUtc(@"c:\some\file.txt\subfolder");
+
+            // Assert
+            creationTime.Should().Be(ZeroFileTime);
+            creationTimeUtc.Should().Be(ZeroFileTimeUtc);
+        }
+
+        [Fact]
         private void When_setting_file_creation_time_in_local_timezone_it_must_succeed()
         {
             // Arrange
@@ -148,6 +165,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\some\subfolder' is denied.");
         }
+
+        [Fact]
+        private void When_setting_file_creation_time_for_file_below_existing_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetCreationTime(@"c:\some\file.txt\subfolder", SystemClock.UtcNow());
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
+        }
+
+        // ***
 
         [Fact]
         private void When_getting_file_last_write_time_for_missing_file_it_must_succeed()
@@ -461,7 +496,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .IncludingEmptyFile(path)
                 .Build();
 
-            var fileInfo = fileSystem.ConstructFileInfo(path);
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             DateTime writeTimeUtc = 3.January(2017).At(23, 11);
 
@@ -557,7 +592,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .IncludingEmptyFile(path)
                 .Build();
 
-            var fileInfo = fileSystem.ConstructFileInfo(path);
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             DateTime accessTimeUtcBefore = fileSystem.File.GetLastAccessTimeUtc(path);
             DateTime writeTimeUtcBefore = fileSystem.File.GetLastWriteTimeUtc(path);
