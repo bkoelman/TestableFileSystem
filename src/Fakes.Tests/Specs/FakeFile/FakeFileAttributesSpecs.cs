@@ -577,7 +577,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.GetAttributes(@"COM1");
+            Action action = () => fileSystem.File.GetAttributes("COM1");
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
@@ -591,7 +591,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.SetAttributes(@"COM1", FileAttributes.Archive);
+            Action action = () => fileSystem.File.SetAttributes("COM1", FileAttributes.Archive);
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");

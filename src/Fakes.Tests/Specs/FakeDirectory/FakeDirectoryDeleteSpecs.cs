@@ -367,7 +367,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_deleting_remote_empty_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\teamshare\folder";
+            const string path = @"\\teamshare\folder\documents";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -378,6 +378,44 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             fileSystem.Directory.Exists(path).Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_deleting_file_share_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\teamshare\folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(path);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(
+                    @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
+        }
+
+        [Fact]
+        private void When_deleting_file_share_recursively_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\teamshare\folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(path, true);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(
+                    @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
         }
 
         [Fact]

@@ -316,7 +316,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Create(@"COM1");
+            Action action = () => fileSystem.File.Create("COM1");
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");

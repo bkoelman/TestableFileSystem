@@ -328,7 +328,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Open(@"COM1", FileMode.Open);
+            Action action = () => fileSystem.File.Open("COM1", FileMode.Open);
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");

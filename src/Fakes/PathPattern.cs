@@ -86,6 +86,8 @@ namespace TestableFileSystem.Fakes
 
         private static bool StartsWithDriveLetter([NotNull] string pattern)
         {
+            // TODO: Get rid of duplication in Drive/UNC handling (see AbsolutePath).
+
             return pattern.Length > 1 && pattern[1] == Path.VolumeSeparatorChar;
         }
 

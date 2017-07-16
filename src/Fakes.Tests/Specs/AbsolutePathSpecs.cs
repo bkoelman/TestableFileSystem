@@ -51,10 +51,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"\\teamserver\management");
 
             // Assert
-            path.Components.Should().HaveCount(2);
+            path.Components.Should().HaveCount(1);
             path.GetText().Should().Be(@"\\teamserver\management");
-            path.Components[0].Should().Be(@"\\teamserver");
-            path.Components[1].Should().Be("management");
+            path.Components[0].Should().Be(@"\\teamserver\management");
         }
 
         [Fact]
@@ -75,11 +74,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"\\teamserver\management\reports");
 
             // Assert
-            path.Components.Should().HaveCount(3);
+            path.Components.Should().HaveCount(2);
             path.GetText().Should().Be(@"\\teamserver\management\reports");
-            path.Components[0].Should().Be(@"\\teamserver");
-            path.Components[1].Should().Be("management");
-            path.Components[2].Should().Be("reports");
+            path.Components[0].Should().Be(@"\\teamserver\management");
+            path.Components[1].Should().Be("reports");
         }
 
         [Fact]
@@ -90,10 +88,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             // Assert
             path.GetText().Should().Be(@"\\?\UNC\teamserver\management\reports");
-            path.Components.Should().HaveCount(3);
-            path.Components[0].Should().Be(@"\\teamserver");
-            path.Components[1].Should().Be("management");
-            path.Components[2].Should().Be("reports");
+            path.Components.Should().HaveCount(2);
+            path.Components[0].Should().Be(@"\\teamserver\management");
+            path.Components[1].Should().Be("reports");
         }
 
         [Fact]
@@ -104,7 +101,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => new AbsolutePath(@"\\team*server");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"Illegal characters in path.*");
+            action.ShouldThrow<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");
         }
 
         [Fact]
@@ -223,7 +220,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Act
             // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"com1");
+            Action action = () => new AbsolutePath("com1");
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");

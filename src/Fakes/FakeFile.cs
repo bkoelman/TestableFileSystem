@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes
             AssertValidCreationOptions(options, absolutePath);
 
             AssertDoesNotExistAsDirectory(absolutePath);
-            AssertExistingParentIsDirectory(absolutePath);
+            AssertParentIsDirectoryOrMissing(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
             FileEntry newFile = root.GetOrCreateFile(navigator, false);
@@ -103,7 +103,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private void AssertExistingParentIsDirectory([NotNull] AbsolutePath path)
+        private void AssertParentIsDirectoryOrMissing([NotNull] AbsolutePath path)
         {
             AbsolutePath parentPath = path.GetParentPath();
             if (parentPath == null)
@@ -131,7 +131,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             AssertDoesNotExistAsDirectory(absolutePath);
-            AssertExistingParentIsDirectory(absolutePath);
+            AssertParentIsDirectoryOrMissing(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
             FileEntry existingFile = root.TryGetExistingFile(navigator);
@@ -202,7 +202,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertExistingParentIsDirectory(absolutePath);
+            AssertParentIsDirectoryOrMissing(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
             root.DeleteFile(navigator);
@@ -221,7 +221,7 @@ namespace TestableFileSystem.Fakes
         {
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            AssertExistingParentIsDirectory(absolutePath);
+            AssertParentIsDirectoryOrMissing(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
             BaseEntry entry = root.TryGetExistingFile(navigator);
@@ -231,9 +231,12 @@ namespace TestableFileSystem.Fakes
                 entry = root.TryGetExistingDirectory(navigator);
                 if (entry == null)
                 {
-                    string parentName = Path.GetDirectoryName(path);
-                    DirectoryEntry parentDirectory =
-                        root.TryGetExistingDirectory(new PathNavigator(new AbsolutePath(parentName)));
+                    var parentPath = absolutePath.GetParentPath();
+
+                    DirectoryEntry parentDirectory = parentPath != null
+                        ? root.TryGetExistingDirectory(new PathNavigator(parentPath))
+                        : null;
+
                     if (parentDirectory == null)
                     {
                         throw ErrorFactory.DirectoryNotFound(path);
@@ -371,7 +374,7 @@ namespace TestableFileSystem.Fakes
         private FileEntry GetExistingFile([NotNull] string path)
         {
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertExistingParentIsDirectory(absolutePath);
+            AssertParentIsDirectoryOrMissing(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
             FileEntry existingFile = root.TryGetExistingFile(navigator);

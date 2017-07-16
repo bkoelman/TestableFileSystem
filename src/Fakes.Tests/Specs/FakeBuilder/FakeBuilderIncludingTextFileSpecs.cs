@@ -276,7 +276,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingTextFile(@"COM1", DefaultContents);
+            Action action = () => builder.IncludingTextFile("COM1", DefaultContents);
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");

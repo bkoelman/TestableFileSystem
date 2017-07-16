@@ -39,11 +39,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry share = root.CreateDirectories(navigator);
 
             // Assert
-            share.Name.Should().Be("documents");
-
-            DirectoryEntry server = share.Parent.ShouldNotBeNull();
-            server.Name.Should().Be(@"\\teamserver");
-            server.Parent.Should().Be(root);
+            share.Name.Should().Be(@"\\teamserver\documents");
+            share.Parent.Should().Be(root);
         }
 
         [Fact]
@@ -94,7 +91,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var navigator = new PathNavigator(path);
 
             // Act
-            Action action = () => root.Directories[@"\\teamserver"].CreateDirectories(navigator);
+            Action action = () => root.Directories[@"\\teamserver\work"].CreateDirectories(navigator);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>()

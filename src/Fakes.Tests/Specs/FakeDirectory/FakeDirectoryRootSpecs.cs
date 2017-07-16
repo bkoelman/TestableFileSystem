@@ -161,7 +161,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetDirectoryRoot(@"COM1");
+            Action action = () => fileSystem.Directory.GetDirectoryRoot("COM1");
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");

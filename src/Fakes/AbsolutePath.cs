@@ -10,139 +10,183 @@ namespace TestableFileSystem.Fakes
 {
     internal sealed class AbsolutePath
     {
-        [NotNull]
-        private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();
-
-        [NotNull]
-        private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
-
-        [NotNull]
-        [ItemNotNull]
-        private static readonly ISet<string> ReservedComponentNames =
-            new HashSet<string>(
-                new[]
-                {
-                    "CON",
-                    "PRN",
-                    "AUX",
-                    "NUL",
-                    "COM1",
-                    "COM2",
-                    "COM3",
-                    "COM4",
-                    "COM5",
-                    "COM6",
-                    "COM7",
-                    "COM8",
-                    "COM9",
-                    "LPT1",
-                    "LPT2",
-                    "LPT3",
-                    "LPT4",
-                    "LPT5",
-                    "LPT6",
-                    "LPT7",
-                    "LPT8",
-                    "LPT9"
-                }, StringComparer.OrdinalIgnoreCase);
+        private readonly bool isExtended;
 
         [NotNull]
         [ItemNotNull]
         public IReadOnlyList<string> Components { get; }
 
-        private readonly bool isExtended;
+        public bool IsOnLocalDrive => IsDriveLetter(Components.First());
 
-        public bool IsOnLocalDrive => StartsWithDriveLetter(Components);
-
-        public bool IsRoot => IsOnLocalDrive ? Components.Count == 1 : Components.Count == 2;
+        public bool IsVolumeRoot => Components.Count == 1;
 
         public AbsolutePath([NotNull] string path)
-            : this(ToComponents(path), HasExtendedLengthPrefix(path))
         {
+            Guard.NotNull(path, nameof(path));
+
+            var parser = new Parser(path);
+
+            Components = parser.GetComponents();
+            isExtended = parser.IsExtended;
+        }
+
+        private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, bool isExtended)
+        {
+            Components = components;
+            this.isExtended = isExtended;
+        }
+
+        [CanBeNull]
+        public AbsolutePath GetParentPath()
+        {
+            if (Components.Count == 1)
+            {
+                return null;
+            }
+
+            List<string> newComponents = Components.ToList();
+            newComponents.RemoveAt(newComponents.Count - 1);
+
+            return new AbsolutePath(newComponents, isExtended);
         }
 
         [NotNull]
-        [ItemNotNull]
-        private static IReadOnlyList<string> ToComponents([NotNull] string path)
+        public string GetRootName()
         {
-            path = path.TrimEnd();
-            path = WithoutTrailingSeparator(path);
-            path = WithoutExtendedLengthPrefix(path);
+            var textBuilder = new StringBuilder();
 
-            Guard.NotNullNorWhiteSpace(path, nameof(path));
-
-            List<string> components = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToList();
-
-            AssertIsNotReservedComponentName(components[0]);
-
-            if (StartsWithNetworkShare(components))
+            if (IsOnLocalDrive)
             {
-                AssertNetworkShareOrDirectoryOrFileNameIsValid(components[2]);
-
-                if (components.Count < 4)
-                {
-                    throw ErrorFactory.UncPathIsInvalid();
-                }
-
-                AssertNetworkShareOrDirectoryOrFileNameIsValid(components[3]);
-
-                components[2] = TwoDirectorySeparators + components[2];
-                components.RemoveRange(0, 2);
+                WriteDriveLetter(textBuilder);
             }
-            else if (!StartsWithDriveLetter(components))
+            else
             {
-                throw ErrorFactory.PathFormatIsNotSupported();
+                WriteFileShare(textBuilder);
             }
 
-            for (int index = 1; index < components.Count; index++)
-            {
-                string component = components[index];
+            return textBuilder.ToString();
+        }
 
-                if (component == ".")
-                {
-                    components.RemoveAt(index);
-                    index--;
-                }
-                else if (component == "..")
-                {
-                    if (index > 1)
+        private void WriteDriveLetter([NotNull] StringBuilder textBuilder)
+        {
+            if (isExtended)
+            {
+                textBuilder.Append(@"\\?\");
+            }
+
+            textBuilder.Append(Components[0]);
+            textBuilder.Append(Path.DirectorySeparatorChar);
+        }
+
+        private void WriteFileShare([NotNull] StringBuilder textBuilder)
+        {
+            if (isExtended)
+            {
+                textBuilder.Append(@"\\?\UNC\");
+                textBuilder.Append(Components[0].Substring(2));
+            }
+            else
+            {
+                textBuilder.Append(Components[0]);
+            }
+        }
+
+        [NotNull]
+        public string GetText()
+        {
+            var builder = new StringBuilder();
+            builder.Append(GetRootName());
+
+            if (!IsOnLocalDrive && Components.Count > 1)
+            {
+                builder.Append(Path.DirectorySeparatorChar);
+            }
+
+            string[] components = Components.Skip(1).ToArray();
+            builder.Append(string.Join(Path.DirectorySeparatorChar.ToString(), components));
+
+            return builder.ToString();
+        }
+
+        public override string ToString()
+        {
+            return GetText();
+        }
+
+        private sealed class Parser
+        {
+            [NotNull]
+            private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();
+
+            [NotNull]
+            private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
+
+            [NotNull]
+            [ItemNotNull]
+            private static readonly ISet<string> ReservedComponentNames =
+                new HashSet<string>(
+                    new[]
                     {
-                        components.RemoveRange(index - 1, 2);
-                        index -= 2;
-                    }
-                    else
-                    {
-                        // Silently ignore moving to above root.
-                        components.RemoveAt(index);
-                        index--;
-                    }
-                }
-                else
-                {
-                    AssertNetworkShareOrDirectoryOrFileNameIsValid(component);
-                }
+                        "CON",
+                        "PRN",
+                        "AUX",
+                        "NUL",
+                        "COM1",
+                        "COM2",
+                        "COM3",
+                        "COM4",
+                        "COM5",
+                        "COM6",
+                        "COM7",
+                        "COM8",
+                        "COM9",
+                        "LPT1",
+                        "LPT2",
+                        "LPT3",
+                        "LPT4",
+                        "LPT5",
+                        "LPT6",
+                        "LPT7",
+                        "LPT8",
+                        "LPT9"
+                    }, StringComparer.OrdinalIgnoreCase);
+
+            [NotNull]
+            private readonly string path;
+
+            public bool IsExtended { get; }
+
+            public Parser([NotNull] string path)
+            {
+                this.path = NormalizePath(path);
+                IsExtended = HasPrefixForExtendedLength(path);
             }
 
-            return components.AsReadOnly();
-        }
+            [NotNull]
+            private static string NormalizePath([NotNull] string path)
+            {
+                Guard.NotNullNorWhiteSpace(path, nameof(path));
 
-        [CanBeNull]
-        private static string WithoutTrailingSeparator([CanBeNull] string path)
-        {
-            return path?.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) == true
-                ? path.Substring(0, path.Length - 1)
-                : path;
-        }
+                string trimmed = path.TrimEnd();
+                string withoutSeparator = WithoutTrailingSeparator(trimmed);
+                string withoutPrefix = WithoutPrefixForExtendedLength(withoutSeparator);
 
-        private static bool HasExtendedLengthPrefix([CanBeNull] string path)
-        {
-            return path != null && path.StartsWith(@"\\?\", StringComparison.Ordinal);
-        }
+                Guard.NotNullNorWhiteSpace(withoutPrefix, nameof(path));
 
-        [CanBeNull]
-        private static string WithoutExtendedLengthPrefix([CanBeNull] string path)
-        {
-            if (path != null)
+                return withoutPrefix;
+            }
+
+            [NotNull]
+            private static string WithoutTrailingSeparator([NotNull] string path)
+            {
+                return path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
+                    path.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+                        ? path.Substring(0, path.Length - 1)
+                        : path;
+            }
+
+            [NotNull]
+            private static string WithoutPrefixForExtendedLength([NotNull] string path)
             {
                 AssertIsFileSystemNamespaceValid(path);
 
@@ -155,166 +199,139 @@ namespace TestableFileSystem.Fakes
                 {
                     return path.Substring(4);
                 }
+
+                return path;
             }
 
-            return path;
-        }
-
-        [AssertionMethod]
-        private static void AssertIsFileSystemNamespaceValid([NotNull] string path)
-        {
-            if (path.StartsWith(@"\\?\GLOBALROOT", StringComparison.OrdinalIgnoreCase) ||
-                path.StartsWith(@"\\.\", StringComparison.Ordinal))
+            [AssertionMethod]
+            private static void AssertIsFileSystemNamespaceValid([NotNull] string path)
             {
-                throw new NotSupportedException("Only Win32 File Namespaces are supported.");
+                if (path.StartsWith(@"\\?\GLOBALROOT", StringComparison.OrdinalIgnoreCase) ||
+                    path.StartsWith(@"\\.\", StringComparison.Ordinal))
+                {
+                    throw new NotSupportedException("Only Win32 File Namespaces are supported.");
+                }
+            }
+
+            private static bool HasPrefixForExtendedLength([CanBeNull] string path)
+            {
+                return path?.StartsWith(@"\\?\", StringComparison.Ordinal) == true ||
+                    path?.StartsWith(@"\\?\UNC\", StringComparison.Ordinal) == true;
+            }
+
+            [NotNull]
+            [ItemNotNull]
+            public IReadOnlyList<string> GetComponents()
+            {
+                AssertIsNotReservedComponentName(path);
+
+                List<string> components = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToList();
+
+                bool isOnNetworkShare = AdjustComponentsForNetworkShare(components, path);
+                bool isOnDisk = IsDriveLetter(components.First());
+
+                if (!isOnNetworkShare && !isOnDisk)
+                {
+                    throw ErrorFactory.PathFormatIsNotSupported();
+                }
+
+                AdjustComponentsForSelfOrParentIndicators(components);
+
+                return components.AsReadOnly();
+            }
+
+            private static bool AdjustComponentsForNetworkShare([NotNull] [ItemNotNull] List<string> components,
+                [NotNull] string path)
+            {
+                if (path.StartsWith(@"\\", StringComparison.Ordinal))
+                {
+                    if (components.Count < 4)
+                    {
+                        throw ErrorFactory.UncPathIsInvalid();
+                    }
+
+                    AssertDirectoryNameOrFileNameIsValid(components[2]);
+                    AssertDirectoryNameOrFileNameIsValid(components[3]);
+
+                    components[3] = TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar + components[3];
+                    components.RemoveRange(0, 3);
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            [AssertionMethod]
+            private static void AssertDirectoryNameOrFileNameIsValid([NotNull] string name)
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    throw ErrorFactory.IllegalCharactersInPath();
+                }
+
+                foreach (char ch in name)
+                {
+                    if (FileNameCharsInvalid.Contains(ch))
+                    {
+                        throw ErrorFactory.IllegalCharactersInPath();
+                    }
+                }
+
+                AssertIsNotReservedComponentName(name);
+            }
+
+            [AssertionMethod]
+            private static void AssertIsNotReservedComponentName([NotNull] string name)
+            {
+                if (ReservedComponentNames.Contains(name))
+                {
+                    throw new NotSupportedException("Reserved names are not supported.");
+                }
+            }
+
+            private void AdjustComponentsForSelfOrParentIndicators([NotNull] [ItemNotNull] List<string> components)
+            {
+                for (int index = 1; index < components.Count; index++)
+                {
+                    string component = components[index];
+
+                    if (component == ".")
+                    {
+                        components.RemoveAt(index);
+                        index--;
+                    }
+                    else if (component == "..")
+                    {
+                        if (index > 1)
+                        {
+                            components.RemoveRange(index - 1, 2);
+                            index -= 2;
+                        }
+                        else
+                        {
+                            // Silently ignore moving to above root.
+                            components.RemoveAt(index);
+                            index--;
+                        }
+                    }
+                    else
+                    {
+                        AssertDirectoryNameOrFileNameIsValid(component);
+                    }
+                }
             }
         }
 
-        [AssertionMethod]
-        private static void AssertIsNotReservedComponentName([NotNull] string name)
+        private static bool IsDriveLetter([NotNull] string name)
         {
-            if (ReservedComponentNames.Contains(name))
+            if (name.Length == 2 && name[1] == Path.VolumeSeparatorChar)
             {
-                throw new NotSupportedException("Reserved names are not supported.");
-            }
-        }
-
-        private static bool StartsWithDriveLetter([NotNull] [ItemNotNull] IReadOnlyList<string> components)
-        {
-            if (components[0].Length == 2 && components[0][1] == Path.VolumeSeparatorChar)
-            {
-                char driveLetter = char.ToUpperInvariant(components[0][0]);
+                char driveLetter = char.ToUpperInvariant(name[0]);
                 return driveLetter >= 'A' && driveLetter <= 'Z';
             }
 
             return false;
-        }
-
-        private static bool StartsWithNetworkShare([NotNull] [ItemNotNull] List<string> components)
-        {
-            return components.Count > 2 && components[0] == string.Empty && components[1] == string.Empty;
-        }
-
-        [AssertionMethod]
-        private static void AssertNetworkShareOrDirectoryOrFileNameIsValid([CanBeNull] string component)
-        {
-            if (string.IsNullOrWhiteSpace(component))
-            {
-                throw ErrorFactory.IllegalCharactersInPath();
-            }
-
-            foreach (char ch in component)
-            {
-                if (FileNameCharsInvalid.Contains(ch))
-                {
-                    throw ErrorFactory.IllegalCharactersInPath();
-                }
-            }
-
-            AssertIsNotReservedComponentName(component);
-        }
-
-        private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, bool isExtended)
-        {
-            Components = components;
-            this.isExtended = isExtended;
-        }
-
-        [NotNull]
-        public string GetRootName()
-        {
-            return IsOnLocalDrive ? GetRootNameForLocalDrive() : GetRootNameForUncPath();
-        }
-
-        [CanBeNull]
-        public AbsolutePath GetParentPath()
-        {
-            if (IsOnLocalDrive && Components.Count == 1)
-            {
-                return null;
-            }
-
-            if (!IsOnLocalDrive && Components.Count == 2)
-            {
-                return null;
-            }
-
-            List<string> newComponents = Components.ToList();
-            newComponents.RemoveAt(newComponents.Count - 1);
-
-            return new AbsolutePath(newComponents, isExtended);
-        }
-
-        [NotNull]
-        private string GetRootNameForLocalDrive()
-        {
-            var nameBuilder = new StringBuilder();
-
-            if (isExtended)
-            {
-                nameBuilder.Append(@"\\?\");
-            }
-
-            nameBuilder.Append(Components[0]);
-            nameBuilder.Append(Path.DirectorySeparatorChar);
-
-            return nameBuilder.ToString();
-        }
-
-        [NotNull]
-        private string GetRootNameForUncPath()
-        {
-            var nameBuilder = new StringBuilder();
-
-            if (isExtended)
-            {
-                nameBuilder.Append(@"\\?\UNC\");
-                nameBuilder.Append(Components[0].Substring(2));
-            }
-            else
-            {
-                nameBuilder.Append(Components[0]);
-            }
-
-            nameBuilder.Append(Path.DirectorySeparatorChar);
-            nameBuilder.Append(Components[1]);
-
-            return nameBuilder.ToString();
-        }
-
-        [NotNull]
-        public string GetText()
-        {
-            var builder = new StringBuilder();
-            builder.Append(GetRootName());
-
-            int componentStartIndex;
-            if (IsOnLocalDrive)
-            {
-                componentStartIndex = 1;
-            }
-            else
-            {
-                if (Components.Count > 2)
-                {
-                    builder.Append(Path.DirectorySeparatorChar);
-                }
-
-                componentStartIndex = 2;
-            }
-
-            int componentCount = Components.Count - componentStartIndex;
-
-            string relativePath = string.Join(Path.DirectorySeparatorChar.ToString(), Components.ToArray(), componentStartIndex,
-                componentCount);
-
-            builder.Append(relativePath);
-            return builder.ToString();
-        }
-
-        public override string ToString()
-        {
-            return string.Join(Path.DirectorySeparatorChar.ToString(), Components);
         }
     }
 }

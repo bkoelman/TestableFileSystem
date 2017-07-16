@@ -97,7 +97,7 @@ namespace TestableFileSystem.Fakes
 
             if (Parent.Parent == null)
             {
-                return Name + Path.DirectorySeparatorChar;
+                return IsDriveLetter(Name) ? Name + Path.DirectorySeparatorChar : Name;
             }
 
             return Path.Combine(Parent.GetAbsolutePath(), Name);
@@ -260,6 +260,8 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private static void AssertIsDriveLetterOrNetworkShare([NotNull] string name)
         {
+            // TODO: Get rid of duplication in Drive/UNC handling (see AbsolutePath).
+
             if (IsDriveLetter(name))
             {
                 return;
@@ -339,7 +341,7 @@ namespace TestableFileSystem.Fakes
                 DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
                 if (directory != null)
                 {
-                    AssertNotDeletingDrive(directory, isRecursive);
+                    AssertNotDeletingDriveOrNetworkShare(directory, pathNavigator.Path, isRecursive);
                     AssertIsNotReadOnly(directory);
 
                     // Block deletion when directory contains file that is in use.
@@ -370,14 +372,18 @@ namespace TestableFileSystem.Fakes
         }
 
         [AssertionMethod]
-        private static void AssertNotDeletingDrive([NotNull] DirectoryEntry directoryToDelete, bool isRecursive)
+        private static void AssertNotDeletingDriveOrNetworkShare([NotNull] DirectoryEntry directoryToDelete, [NotNull] AbsolutePath path, bool isRecursive)
         {
             if (directoryToDelete.Parent?.Parent == null)
             {
+                if (!path.IsOnLocalDrive)
+                {
+                    throw ErrorFactory.FileIsInUse(path.GetText());
+                }
+
                 if (isRecursive)
                 {
-                    string path = directoryToDelete.GetAbsolutePath();
-                    throw ErrorFactory.FileNotFound(path);
+                    throw ErrorFactory.FileNotFound(path.GetText());
                 }
 
                 throw ErrorFactory.DirectoryIsNotEmpty();

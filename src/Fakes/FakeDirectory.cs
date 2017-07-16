@@ -112,7 +112,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             var navigator = new PathNavigator(absolutePath);
 
-            if (absolutePath.IsRoot && root.TryGetExistingDirectory(navigator) == null)
+            if (absolutePath.IsVolumeRoot && root.TryGetExistingDirectory(navigator) == null)
             {
                 throw ErrorFactory.DirectoryNotFound(path);
             }
