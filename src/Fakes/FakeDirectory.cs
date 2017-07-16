@@ -82,10 +82,17 @@ namespace TestableFileSystem.Fakes
                 return false;
             }
 
-            AbsolutePath absolutePath;
             try
             {
-                absolutePath = owner.ToAbsolutePath(path);
+                AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+                var navigator = new PathNavigator(absolutePath);
+
+                DirectoryEntry directory = root.TryGetExistingDirectory(navigator);
+                return directory != null;
+            }
+            catch (IOException)
+            {
+                return false;
             }
             catch (ArgumentException)
             {
@@ -95,9 +102,6 @@ namespace TestableFileSystem.Fakes
             {
                 return false;
             }
-
-            DirectoryEntry directory = root.TryGetExistingDirectory(absolutePath);
-            return directory != null;
         }
 
         public IDirectoryInfo CreateDirectory(string path)
@@ -106,13 +110,14 @@ namespace TestableFileSystem.Fakes
             AssertPathIsNotWhiteSpace(path);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            var navigator = new PathNavigator(absolutePath);
 
-            if (absolutePath.IsRoot && root.TryGetExistingDirectory(absolutePath) == null)
+            if (absolutePath.IsRoot && root.TryGetExistingDirectory(navigator) == null)
             {
                 throw ErrorFactory.DirectoryNotFound(path);
             }
 
-            root.CreateDirectories(absolutePath);
+            root.CreateDirectories(navigator);
             return owner.ConstructDirectoryInfo(absolutePath.GetText());
         }
 
@@ -129,11 +134,12 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            var navigator = new PathNavigator(absolutePath);
 
-            DirectoryEntry directoryToDelete = root.GetExistingDirectory(absolutePath);
+            DirectoryEntry directoryToDelete = root.GetExistingDirectory(navigator);
             AssertNoConflictWithCurrentDirectory(directoryToDelete);
 
-            root.DeleteDirectory(absolutePath, recursive);
+            root.DeleteDirectory(navigator, recursive);
         }
 
         [AssertionMethod]
@@ -166,7 +172,8 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.PathIsInvalid();
             }
 
-            DirectoryEntry directory = root.GetExistingDirectory(absolutePath);
+            var navigator = new PathNavigator(absolutePath);
+            DirectoryEntry directory = root.GetExistingDirectory(navigator);
             owner.CurrentDirectory.SetValue(directory);
         }
 

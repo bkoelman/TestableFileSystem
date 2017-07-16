@@ -14,10 +14,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = DirectoryEntry.CreateRoot();
+
             var path = new AbsolutePath(@"C:\");
+            var navigator = new PathNavigator(path);
 
             // Act
-            DirectoryEntry drive = root.CreateDirectories(path);
+            DirectoryEntry drive = root.CreateDirectories(navigator);
 
             // Assert
             drive.Name.Should().Be("C:");
@@ -29,10 +31,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = DirectoryEntry.CreateRoot();
+
             var path = new AbsolutePath(@"\\teamserver\documents");
+            var navigator = new PathNavigator(path);
 
             // Act
-            DirectoryEntry share = root.CreateDirectories(path);
+            DirectoryEntry share = root.CreateDirectories(navigator);
 
             // Assert
             share.Name.Should().Be("documents");
@@ -47,10 +51,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = DirectoryEntry.CreateRoot();
-            AbsolutePath path = new AbsolutePath(@"C:\some").MoveDown();
+
+            var path = new AbsolutePath(@"C:\some");
+            PathNavigator navigator = new PathNavigator(path).MoveDown();
 
             // Act
-            Action action = () => root.CreateDirectories(path);
+            Action action = () => root.CreateDirectories(navigator);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>()
@@ -64,10 +70,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry root = new DirectoryTreeBuilder()
                 .IncludingDirectory(@"C:")
                 .Build();
+
             var path = new AbsolutePath("C:");
+            var navigator = new PathNavigator(path);
 
             // Act
-            Action action = () => root.Directories["C:"].CreateDirectories(path);
+            Action action = () => root.Directories["C:"].CreateDirectories(navigator);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>()
@@ -81,10 +89,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry root = new DirectoryTreeBuilder()
                 .IncludingDirectory(@"\\teamserver\work")
                 .Build();
+
             var path = new AbsolutePath(@"\\filestorage\archive");
+            var navigator = new PathNavigator(path);
 
             // Act
-            Action action = () => root.Directories[@"\\teamserver"].CreateDirectories(path);
+            Action action = () => root.Directories[@"\\teamserver"].CreateDirectories(navigator);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>()
@@ -98,10 +108,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry root = new DirectoryTreeBuilder()
                 .IncludingDirectory(@"C:")
                 .Build();
+
             var path = new AbsolutePath(@"C:\file.txt");
+            var navigator = new PathNavigator(path);
 
             // Act
-            FileEntry file = root.GetOrCreateFile(path, false);
+            FileEntry file = root.GetOrCreateFile(navigator, false);
 
             // Assert
             file.Should().NotBeNull();
@@ -115,10 +127,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry root = new DirectoryTreeBuilder()
                 .IncludingDirectory(@"C:")
                 .Build();
+
             var path = new AbsolutePath(@"C:\some\path\to\file.txt");
+            var navigator = new PathNavigator(path);
 
             // Act
-            FileEntry file = root.GetOrCreateFile(path, true);
+            FileEntry file = root.GetOrCreateFile(navigator, true);
 
             // Assert
             file.Should().NotBeNull();
@@ -133,10 +147,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry root = new DirectoryTreeBuilder()
                 .IncludingDirectory(@"C:")
                 .Build();
+
             var path = new AbsolutePath(@"C:\some\file.txt");
+            var navigator = new PathNavigator(path);
 
             // Act
-            Action action = () => root.GetOrCreateFile(path, false);
+            Action action = () => root.GetOrCreateFile(navigator, false);
 
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
@@ -150,10 +166,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry root = new DirectoryTreeBuilder()
                 .IncludingEmptyFile(@"C:\file.txt")
                 .Build();
+
             var path = new AbsolutePath(@"C:\file.txt");
+            var navigator = new PathNavigator(path);
 
             // Act
-            FileEntry file = root.GetOrCreateFile(path, false);
+            FileEntry file = root.GetOrCreateFile(navigator, false);
 
             // Assert
             file.Should().NotBeNull();
@@ -167,10 +185,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry root = new DirectoryTreeBuilder()
                 .IncludingEmptyFile(@"C:\file.txt")
                 .Build();
+
             var path = new AbsolutePath(@"C:\file.txt");
+            var navigator = new PathNavigator(path);
 
             // Act
-            FileEntry file = root.TryGetExistingFile(path);
+            FileEntry file = root.TryGetExistingFile(navigator);
 
             // Assert
             file.Should().NotBeNull();
@@ -184,10 +204,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             DirectoryEntry root = new DirectoryTreeBuilder()
                 .IncludingDirectory("C:")
                 .Build();
+
             var path = new AbsolutePath(@"C:\file.txt");
+            var navigator = new PathNavigator(path);
 
             // Act
-            FileEntry file = root.TryGetExistingFile(path);
+            FileEntry file = root.TryGetExistingFile(navigator);
 
             // Assert
             file.Should().BeNull();
@@ -198,10 +220,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder().Build();
+
             var path = new AbsolutePath(@"C:\some\file.txt");
+            var navigator = new PathNavigator(path);
 
             // Act
-            FileEntry file = root.TryGetExistingFile(path);
+            FileEntry file = root.TryGetExistingFile(navigator);
 
             // Assert
             file.Should().BeNull();
@@ -212,10 +236,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder().Build();
+
             var path = new AbsolutePath(@"C:\some\path\to\here");
+            var navigator = new PathNavigator(path);
 
             // Act
-            DirectoryEntry directory = root.CreateDirectories(path);
+            DirectoryEntry directory = root.CreateDirectories(navigator);
 
             // Assert
             directory.Should().NotBeNull();
@@ -233,9 +259,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\some");
+            var navigator = new PathNavigator(path);
 
             // Act
-            DirectoryEntry directory = root.CreateDirectories(path);
+            DirectoryEntry directory = root.CreateDirectories(navigator);
 
             // Assert
             directory.Should().NotBeNull();
@@ -251,9 +278,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\some\where");
+            var navigator = new PathNavigator(path);
 
             // Act
-            DirectoryEntry directory = root.TryGetExistingDirectory(path);
+            DirectoryEntry directory = root.TryGetExistingDirectory(navigator);
 
             // Assert
             directory.Should().NotBeNull();
@@ -265,10 +293,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder().Build();
+
             var path = new AbsolutePath(@"C:\some\where");
+            var navigator = new PathNavigator(path);
 
             // Act
-            DirectoryEntry directory = root.TryGetExistingDirectory(path);
+            DirectoryEntry directory = root.TryGetExistingDirectory(navigator);
 
             // Assert
             directory.Should().BeNull();
@@ -284,9 +314,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] directories = root.EnumerateDirectories(path, null).ToArray();
+            string[] directories = root.EnumerateDirectories(navigator, null).ToArray();
 
             // Assert
             directories.Should().NotBeNull();
@@ -307,9 +338,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] directories = root.EnumerateDirectories(path, "*o*").ToArray();
+            string[] directories = root.EnumerateDirectories(navigator, "*o*").ToArray();
 
             // Assert
             directories.Should().NotBeNull();
@@ -331,9 +363,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] directories = root.EnumerateDirectories(path, @"base\*o*").ToArray();
+            string[] directories = root.EnumerateDirectories(navigator, @"base\*o*").ToArray();
 
             // Assert
             directories.Should().NotBeNull();
@@ -353,9 +386,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] files = root.EnumerateFiles(path, null, null).ToArray();
+            string[] files = root.EnumerateFiles(navigator, null, null).ToArray();
 
             // Assert
             files.Should().NotBeNull();
@@ -375,9 +409,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] files = root.EnumerateFiles(path, "*.doc", null).ToArray();
+            string[] files = root.EnumerateFiles(navigator, "*.doc", null).ToArray();
 
             // Assert
             files.Should().NotBeNull();
@@ -399,9 +434,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] files = root.EnumerateFiles(path, @"base\second\*.doc", null).ToArray();
+            string[] files = root.EnumerateFiles(navigator, @"base\second\*.doc", null).ToArray();
 
             // Assert
             files.Should().NotBeNull();
@@ -421,9 +457,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] files = root.EnumerateFiles(path, null, SearchOption.AllDirectories).ToArray();
+            string[] files = root.EnumerateFiles(navigator, null, SearchOption.AllDirectories).ToArray();
 
             // Assert
             files.Should().NotBeNull();
@@ -446,9 +483,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\base");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] files = root.EnumerateFiles(path, "*o*.txt", SearchOption.AllDirectories).ToArray();
+            string[] files = root.EnumerateFiles(navigator, "*o*.txt", SearchOption.AllDirectories).ToArray();
 
             // Assert
             files.Should().NotBeNull();
@@ -473,9 +511,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             var path = new AbsolutePath(@"C:\");
+            var navigator = new PathNavigator(path);
 
             // Act
-            string[] files = root.EnumerateFiles(path, @"base\second\*.doc", SearchOption.AllDirectories).ToArray();
+            string[] files = root.EnumerateFiles(navigator, @"base\second\*.doc", SearchOption.AllDirectories).ToArray();
 
             // Assert
             files.Should().NotBeNull();

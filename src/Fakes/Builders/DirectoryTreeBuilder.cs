@@ -56,11 +56,12 @@ namespace TestableFileSystem.Fakes.Builders
             [CanBeNull] FileAttributes? attributes)
         {
             var absolutePath = new AbsolutePath(path);
+            var navigator = new PathNavigator(absolutePath);
 
             AssertDoesNotExistAsDirectory(absolutePath);
             RemoveExistingFile(absolutePath);
 
-            FileEntry file = root.GetOrCreateFile(absolutePath, true);
+            FileEntry file = root.GetOrCreateFile(navigator, true);
 
             using (IFileStream stream = file.Open(FileMode.Open, FileAccess.Write))
             {
@@ -75,7 +76,8 @@ namespace TestableFileSystem.Fakes.Builders
 
         private void AssertDoesNotExistAsDirectory([NotNull] AbsolutePath path)
         {
-            DirectoryEntry directory = root.TryGetExistingDirectory(path);
+            var navigator = new PathNavigator(path);
+            DirectoryEntry directory = root.TryGetExistingDirectory(navigator);
             if (directory != null)
             {
                 throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(path.GetText());
@@ -84,10 +86,11 @@ namespace TestableFileSystem.Fakes.Builders
 
         private void RemoveExistingFile([NotNull] AbsolutePath absolutePath)
         {
-            FileEntry file = root.TryGetExistingFile(absolutePath);
+            var navigator = new PathNavigator(absolutePath);
+            FileEntry file = root.TryGetExistingFile(navigator);
             if (file != null)
             {
-                root.DeleteFile(absolutePath);
+                root.DeleteFile(navigator);
             }
         }
 
@@ -95,8 +98,9 @@ namespace TestableFileSystem.Fakes.Builders
         public DirectoryTreeBuilder IncludingDirectory([NotNull] string path, [CanBeNull] FileAttributes? attributes = null)
         {
             var absolutePath = new AbsolutePath(path);
+            var navigator = new PathNavigator(absolutePath);
 
-            DirectoryEntry directory = root.CreateDirectories(absolutePath);
+            DirectoryEntry directory = root.CreateDirectories(navigator);
 
             if (attributes != null)
             {

@@ -15,7 +15,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             // Assert
             path.GetText().Should().Be(@"C:\");
             path.Components.Should().HaveCount(1);
-            path.Name.Should().Be("C:");
+            path.Components[0].Should().Be("C:");
         }
 
         [Fact]

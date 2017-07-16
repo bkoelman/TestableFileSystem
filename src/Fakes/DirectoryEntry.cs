@@ -104,82 +104,82 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public FileEntry GetOrCreateFile([NotNull] AbsolutePath path, bool createSubdirectories)
+        public FileEntry GetOrCreateFile([NotNull] PathNavigator pathNavigator, bool createSubdirectories)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
-            if (path.IsAtEnd)
+            if (pathNavigator.IsAtEnd)
             {
-                FileEntry file = contents.TryGetEntryAsFile(path.Name);
+                FileEntry file = contents.TryGetEntryAsFile(pathNavigator.Name);
                 if (file == null)
                 {
-                    contents.Add(new FileEntry(path.Name, this));
+                    contents.Add(new FileEntry(pathNavigator.Name, this));
                 }
 
-                return contents.GetEntryAsFile(path.Name);
+                return contents.GetEntryAsFile(pathNavigator.Name);
             }
 
-            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
+            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
             if (subdirectory == null && !createSubdirectories)
             {
-                throw ErrorFactory.DirectoryNotFound(path.GetText());
+                throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
             }
 
-            subdirectory = GetOrCreateSingleDirectory(path.Name);
-            return subdirectory.GetOrCreateFile(path.MoveDown(), createSubdirectories);
+            subdirectory = GetOrCreateSingleDirectory(pathNavigator.Name);
+            return subdirectory.GetOrCreateFile(pathNavigator.MoveDown(), createSubdirectories);
         }
 
         [CanBeNull]
-        public FileEntry TryGetExistingFile([NotNull] AbsolutePath path)
+        public FileEntry TryGetExistingFile([NotNull] PathNavigator pathNavigator)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
-            if (path.IsAtEnd)
+            if (pathNavigator.IsAtEnd)
             {
-                return contents.TryGetEntryAsFile(path.Name, false);
+                return contents.TryGetEntryAsFile(pathNavigator.Name, false);
             }
 
-            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
-            return subdirectory?.TryGetExistingFile(path.MoveDown());
+            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
+            return subdirectory?.TryGetExistingFile(pathNavigator.MoveDown());
         }
 
-        public void MoveFile([NotNull] FileEntry sourceFile, [NotNull] AbsolutePath destinationPath)
+        public void MoveFile([NotNull] FileEntry sourceFile, [NotNull] PathNavigator destinationPathNavigator)
         {
             Guard.NotNull(sourceFile, nameof(sourceFile));
-            Guard.NotNull(destinationPath, nameof(destinationPath));
+            Guard.NotNull(destinationPathNavigator, nameof(destinationPathNavigator));
 
-            if (destinationPath.IsAtEnd)
+            if (destinationPathNavigator.IsAtEnd)
             {
                 if (Parent == null)
                 {
                     throw ErrorFactory.CannotMoveBecauseTargetIsInvalid();
                 }
 
-                DirectoryEntry directory = contents.TryGetEntryAsDirectory(destinationPath.Name, false);
+                DirectoryEntry directory = contents.TryGetEntryAsDirectory(destinationPathNavigator.Name, false);
                 if (directory != null)
                 {
                     throw ErrorFactory.CannotCreateFileBecauseFileAlreadyExists();
                 }
 
-                FileEntry file = contents.TryGetEntryAsFile(destinationPath.Name, false);
+                FileEntry file = contents.TryGetEntryAsFile(destinationPathNavigator.Name, false);
                 if (file != null && file != sourceFile)
                 {
                     throw ErrorFactory.CannotCreateFileBecauseFileAlreadyExists();
                 }
 
                 sourceFile.Parent.contents.Remove(sourceFile.Name);
-                sourceFile.MoveTo(destinationPath.Name, this);
+                sourceFile.MoveTo(destinationPathNavigator.Name, this);
                 contents.Add(sourceFile);
                 return;
             }
 
-            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(destinationPath.Name);
+            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(destinationPathNavigator.Name);
             if (subdirectory == null)
             {
                 throw ErrorFactory.DirectoryNotFound();
             }
 
-            subdirectory.MoveFile(sourceFile, destinationPath.MoveDown());
+            subdirectory.MoveFile(sourceFile, destinationPathNavigator.MoveDown());
         }
 
         internal void DeleteFile([NotNull] FileEntry fileEntry)
@@ -189,13 +189,13 @@ namespace TestableFileSystem.Fakes
             contents.Remove(fileEntry.Name);
         }
 
-        public void DeleteFile([NotNull] AbsolutePath path)
+        public void DeleteFile([NotNull] PathNavigator pathNavigator)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
-            if (path.IsAtEnd)
+            if (pathNavigator.IsAtEnd)
             {
-                FileEntry file = contents.TryGetEntryAsFile(path.Name);
+                FileEntry file = contents.TryGetEntryAsFile(pathNavigator.Name);
                 if (file != null)
                 {
                     AssertIsNotReadOnly(file, true);
@@ -203,30 +203,30 @@ namespace TestableFileSystem.Fakes
                     // Block deletion when file is in use.
                     using (file.Open(FileMode.Open, FileAccess.ReadWrite))
                     {
-                        contents.Remove(path.Name);
+                        contents.Remove(pathNavigator.Name);
                     }
                 }
             }
             else
             {
-                DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
+                DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
                 if (subdirectory == null)
                 {
-                    throw ErrorFactory.DirectoryNotFound(path.GetText());
+                    throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
                 }
 
-                subdirectory.DeleteFile(path.MoveDown());
+                subdirectory.DeleteFile(pathNavigator.MoveDown());
             }
         }
 
         [NotNull]
-        public DirectoryEntry CreateDirectories([NotNull] AbsolutePath path)
+        public DirectoryEntry CreateDirectories([NotNull] PathNavigator pathNavigator)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
-            DirectoryEntry directory = GetOrCreateSingleDirectory(path.Name);
+            DirectoryEntry directory = GetOrCreateSingleDirectory(pathNavigator.Name);
 
-            return path.IsAtEnd ? directory : directory.CreateDirectories(path.MoveDown());
+            return pathNavigator.IsAtEnd ? directory : directory.CreateDirectories(pathNavigator.MoveDown());
         }
 
         [NotNull]
@@ -297,46 +297,46 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public DirectoryEntry GetExistingDirectory([NotNull] AbsolutePath path)
+        public DirectoryEntry GetExistingDirectory([NotNull] PathNavigator pathNavigator)
         {
-            DirectoryEntry directory = TryGetExistingDirectory(path);
+            DirectoryEntry directory = TryGetExistingDirectory(pathNavigator);
 
             if (directory == null)
             {
-                FileEntry file = TryGetExistingFile(path);
+                FileEntry file = TryGetExistingFile(pathNavigator);
                 if (file != null)
                 {
                     throw ErrorFactory.DirectoryNameIsInvalid();
                 }
 
-                throw ErrorFactory.DirectoryNotFound(path.GetText());
+                throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
             }
 
             return directory;
         }
 
         [CanBeNull]
-        public DirectoryEntry TryGetExistingDirectory([NotNull] AbsolutePath path)
+        public DirectoryEntry TryGetExistingDirectory([NotNull] PathNavigator pathNavigator)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
-            DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name, false);
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name, false);
 
             if (directory == null)
             {
                 return null;
             }
 
-            return path.IsAtEnd ? directory : directory.TryGetExistingDirectory(path.MoveDown());
+            return pathNavigator.IsAtEnd ? directory : directory.TryGetExistingDirectory(pathNavigator.MoveDown());
         }
 
-        public void DeleteDirectory([NotNull] AbsolutePath path, bool isRecursive)
+        public void DeleteDirectory([NotNull] PathNavigator pathNavigator, bool isRecursive)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
-            if (path.IsAtEnd)
+            if (pathNavigator.IsAtEnd)
             {
-                DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name);
+                DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
                 if (directory != null)
                 {
                     AssertNotDeletingDrive(directory, isRecursive);
@@ -354,18 +354,18 @@ namespace TestableFileSystem.Fakes
                         throw ErrorFactory.DirectoryIsNotEmpty();
                     }
 
-                    contents.Remove(path.Name);
+                    contents.Remove(pathNavigator.Name);
                 }
             }
             else
             {
-                DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(path.Name);
+                DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
                 if (subdirectory == null)
                 {
-                    throw ErrorFactory.DirectoryNotFound(path.GetText());
+                    throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
                 }
 
-                subdirectory.DeleteDirectory(path.MoveDown(), isRecursive);
+                subdirectory.DeleteDirectory(pathNavigator.MoveDown(), isRecursive);
             }
         }
 
@@ -432,23 +432,23 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        public IEnumerable<string> EnumerateDirectories([NotNull] AbsolutePath path, [CanBeNull] string searchPattern)
+        public IEnumerable<string> EnumerateDirectories([NotNull] PathNavigator pathNavigator, [CanBeNull] string searchPattern)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
-            DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name);
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
             if (directory == null)
             {
-                throw ErrorFactory.DirectoryNotFound(path.GetText());
+                throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
             }
 
-            if (path.IsAtEnd)
+            if (pathNavigator.IsAtEnd)
             {
                 PathPattern pattern = searchPattern == null ? PathPattern.MatchAny : PathPattern.Create(searchPattern);
                 return EnumerateDirectoriesInDirectory(directory, pattern);
             }
 
-            return directory.EnumerateDirectories(path.MoveDown(), searchPattern);
+            return directory.EnumerateDirectories(pathNavigator.MoveDown(), searchPattern);
         }
 
         [NotNull]
@@ -484,24 +484,24 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        public IEnumerable<string> EnumerateFiles([NotNull] AbsolutePath path, [CanBeNull] string searchPattern,
+        public IEnumerable<string> EnumerateFiles([NotNull] PathNavigator pathNavigator, [CanBeNull] string searchPattern,
             [CanBeNull] SearchOption? searchOption)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
-            DirectoryEntry directory = contents.TryGetEntryAsDirectory(path.Name);
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
             if (directory == null)
             {
-                throw ErrorFactory.DirectoryNotFound(path.GetText());
+                throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
             }
 
-            if (path.IsAtEnd)
+            if (pathNavigator.IsAtEnd)
             {
                 PathPattern pattern = searchPattern == null ? PathPattern.MatchAny : PathPattern.Create(searchPattern);
                 return EnumerateFilesInDirectory(directory, pattern, searchOption);
             }
 
-            return directory.EnumerateFiles(path.MoveDown(), searchPattern, searchOption);
+            return directory.EnumerateFiles(pathNavigator.MoveDown(), searchPattern, searchOption);
         }
 
         [NotNull]

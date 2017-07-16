@@ -8,7 +8,6 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    // TODO: Split into Path and Navigator components.
     internal sealed class AbsolutePath
     {
         [NotNull]
@@ -47,25 +46,18 @@ namespace TestableFileSystem.Fakes
                     "LPT9"
                 }, StringComparer.OrdinalIgnoreCase);
 
-        private readonly int offset;
-
         [NotNull]
         [ItemNotNull]
         public IReadOnlyList<string> Components { get; }
 
         private readonly bool isExtended;
 
-        [NotNull]
-        public string Name => Components[offset];
-
-        public bool IsAtEnd => offset == Components.Count - 1;
-
         public bool IsOnLocalDrive => StartsWithDriveLetter(Components);
 
         public bool IsRoot => IsOnLocalDrive ? Components.Count == 1 : Components.Count == 2;
 
         public AbsolutePath([NotNull] string path)
-            : this(ToComponents(path), 0, HasExtendedLengthPrefix(path))
+            : this(ToComponents(path), HasExtendedLengthPrefix(path))
         {
         }
 
@@ -169,21 +161,21 @@ namespace TestableFileSystem.Fakes
         }
 
         [AssertionMethod]
-        private static void AssertIsNotReservedComponentName([NotNull] string name)
-        {
-            if (ReservedComponentNames.Contains(name))
-            {
-                throw new NotSupportedException("Reserved names are not supported.");
-            }
-        }
-
-        [AssertionMethod]
         private static void AssertIsFileSystemNamespaceValid([NotNull] string path)
         {
             if (path.StartsWith(@"\\?\GLOBALROOT", StringComparison.OrdinalIgnoreCase) ||
                 path.StartsWith(@"\\.\", StringComparison.Ordinal))
             {
                 throw new NotSupportedException("Only Win32 File Namespaces are supported.");
+            }
+        }
+
+        [AssertionMethod]
+        private static void AssertIsNotReservedComponentName([NotNull] string name)
+        {
+            if (ReservedComponentNames.Contains(name))
+            {
+                throw new NotSupportedException("Reserved names are not supported.");
             }
         }
 
@@ -222,10 +214,9 @@ namespace TestableFileSystem.Fakes
             AssertIsNotReservedComponentName(component);
         }
 
-        private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, int offset, bool isExtended)
+        private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, bool isExtended)
         {
             Components = components;
-            this.offset = offset;
             this.isExtended = isExtended;
         }
 
@@ -251,7 +242,7 @@ namespace TestableFileSystem.Fakes
             List<string> newComponents = Components.ToList();
             newComponents.RemoveAt(newComponents.Count - 1);
 
-            return new AbsolutePath(newComponents, 0, isExtended);
+            return new AbsolutePath(newComponents, isExtended);
         }
 
         [NotNull]
@@ -292,17 +283,6 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public AbsolutePath MoveDown()
-        {
-            if (IsAtEnd)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return new AbsolutePath(Components, offset + 1, isExtended);
-        }
-
-        [NotNull]
         public string GetText()
         {
             var builder = new StringBuilder();
@@ -334,29 +314,7 @@ namespace TestableFileSystem.Fakes
 
         public override string ToString()
         {
-            var textBuilder = new StringBuilder();
-
-            for (int index = 0; index < Components.Count; index++)
-            {
-                if (textBuilder.Length > 0)
-                {
-                    textBuilder.Append(Path.DirectorySeparatorChar);
-                }
-
-                if (index == offset)
-                {
-                    textBuilder.Append('[');
-                }
-
-                textBuilder.Append(Components[index]);
-
-                if (index == offset)
-                {
-                    textBuilder.Append(']');
-                }
-            }
-
-            return textBuilder.ToString();
+            return string.Join(Path.DirectorySeparatorChar.ToString(), Components);
         }
     }
 }
