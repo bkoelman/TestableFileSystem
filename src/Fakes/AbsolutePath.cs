@@ -8,6 +8,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
+    // TODO: Split into Path and Navigator components.
     internal sealed class AbsolutePath
     {
         [NotNull]
@@ -232,6 +233,25 @@ namespace TestableFileSystem.Fakes
         public string GetRootName()
         {
             return IsOnLocalDrive ? GetRootNameForLocalDrive() : GetRootNameForUncPath();
+        }
+
+        [CanBeNull]
+        public AbsolutePath GetParentPath()
+        {
+            if (IsOnLocalDrive && Components.Count == 1)
+            {
+                return null;
+            }
+
+            if (!IsOnLocalDrive && Components.Count == 2)
+            {
+                return null;
+            }
+
+            List<string> newComponents = Components.ToList();
+            newComponents.RemoveAt(newComponents.Count - 1);
+
+            return new AbsolutePath(newComponents, 0, isExtended);
         }
 
         [NotNull]

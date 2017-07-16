@@ -58,6 +58,9 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             AssertValidCreationOptions(options, absolutePath);
 
+            AssertDoesNotExistAsDirectory(absolutePath);
+            AssertParentDirectoryExistsForFile(absolutePath);
+
             FileEntry newFile = root.GetOrCreateFile(absolutePath, false);
 
             if ((options & FileOptions.DeleteOnClose) != 0)
@@ -85,6 +88,30 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        private void AssertDoesNotExistAsDirectory([NotNull] AbsolutePath path)
+        {
+            DirectoryEntry directory = root.TryGetExistingDirectory(path);
+            if (directory != null)
+            {
+                throw ErrorFactory.UnauthorizedAccess(path.GetText());
+            }
+        }
+
+        private void AssertParentDirectoryExistsForFile([NotNull] AbsolutePath path)
+        {
+            AbsolutePath parentPath = path.GetParentPath();
+            if (parentPath != null)
+            {
+                DirectoryEntry directory = root.TryGetExistingDirectory(parentPath);
+                if (directory != null)
+                {
+                    return;
+                }
+            }
+
+            throw ErrorFactory.DirectoryNotFound(path.GetText());
+        }
+
         public IFileStream Open(string path, FileMode mode, FileAccess? access = null, FileShare share = FileShare.None)
         {
             Guard.NotNull(path, nameof(path));
@@ -93,6 +120,10 @@ namespace TestableFileSystem.Fakes
             FileAccess fileAccess = access ?? (mode == FileMode.Append ? FileAccess.Write : FileAccess.ReadWrite);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            AssertDoesNotExistAsDirectory(absolutePath);
+            AssertParentDirectoryExistsForFile(absolutePath);
+
             FileEntry existingFile = root.TryGetExistingFile(absolutePath);
 
             if (existingFile != null)
@@ -322,11 +353,7 @@ namespace TestableFileSystem.Fakes
 
             if (existingFile == null)
             {
-                DirectoryEntry directory = root.TryGetExistingDirectory(absolutePath);
-                if (directory != null)
-                {
-                    throw ErrorFactory.UnauthorizedAccess(absolutePath.GetText());
-                }
+                AssertDoesNotExistAsDirectory(absolutePath);
 
                 throw ErrorFactory.FileNotFound(absolutePath.GetText());
             }

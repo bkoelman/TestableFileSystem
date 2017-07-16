@@ -241,6 +241,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_creating_local_file_below_existing_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Create(@"c:\some\file.txt\nested.txt");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+        }
+
+        [Fact]
         private void When_creating_local_file_for_missing_parent_directory_it_must_fail()
         {
             // Arrange

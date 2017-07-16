@@ -81,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_opening_existing_file_it_must_succeed()
+        private void When_opening_existing_local_file_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some\file.txt";
@@ -99,7 +99,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_opening_missing_file_it_must_fail()
+        private void When_opening_missing_local_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -114,7 +114,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_opening_missing_file_in_Truncate_mode_it_must_fail()
+        private void When_opening_missing_local_file_in_Truncate_mode_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -188,6 +188,166 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.ShouldThrow<IOException>().WithMessage(@"The file 'C:\some\sheet.xls' already exists.");
         }
 
-        // TODO: Add missing specs.
+        [Fact]
+        private void When_opening_existing_local_file_with_different_casing_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(@"C:\some\FILE.txt", "ABC")
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(@"c:\SOME\file.TXT", FileMode.Open))
+            {
+                // Assert
+                stream.Length.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        private void When_opening_existing_local_file_with_trailing_whitespace_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(@"C:\some\file.txt", "ABC")
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(@"C:\some\file.txt  ", FileMode.Open))
+            {
+                // Assert
+                stream.Length.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        private void When_opening_existing_relative_local_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(@"C:\some\FILE.txt", "ABC")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open("file.txt", FileMode.Open))
+            {
+                // Assert
+                stream.Length.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        private void When_opening_local_file_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.Open);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+        }
+
+        [Fact]
+        private void When_opening_local_file_in_CreateNew_mode_below_existing_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(@"c:\some\file.txt\nested.txt", FileMode.CreateNew);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+        }
+
+        [Fact]
+        private void When_opening_local_file_for_missing_parent_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(@"C:\some\doc.txt", FileMode.Open);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\doc.txt'.");
+        }
+
+        [Fact]
+        private void When_opening_missing_remote_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"\\server\share")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(@"\\server\share\file.txt", FileMode.Open);
+
+            // Assert
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\file.txt'.");
+        }
+
+        [Fact]
+        private void When_opening_existing_remote_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\server\share\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Assert
+                stream.Length.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        private void When_opening_file_for_reserved_name_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(@"COM1", FileMode.Open);
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_opening_existing_extended_local_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(@"C:\folder\file.txt", "ABC")
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(@"\\?\C:\folder\file.txt", FileMode.Open))
+            {
+                // Assert
+                stream.Length.Should().Be(3);
+            }
+        }
     }
 }
