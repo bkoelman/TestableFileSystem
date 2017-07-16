@@ -3,7 +3,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/wiekgd62kq1o27kw?svg=true)](https://ci.appveyor.com/project/bkoelman/testablefilesystem/branch/master)
 
 Provides abstractions for `System.IO.*` including in-memory fakes, intended for unit-testing.
-Requires [NetStandard](https://github.com/dotnet/standard/blob/master/docs/versions.md) 1.3 or higher.
+Requires at least [NetStandard](https://github.com/dotnet/standard/blob/master/docs/versions.md) 1.3 or .NET Framework 4.5.
 
 Building from source requires Visual Studio 2017. Although the interfaces and wrappers are considered stable, the in-memory fake filesystem is still a work in progress.
 
