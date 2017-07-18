@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -25,15 +26,17 @@ namespace TestableFileSystem.Fakes.Builders
 
         [NotNull]
         public DirectoryTreeBuilder IncludingTextFile([NotNull] string path, [NotNull] string contents,
-            [CanBeNull] FileAttributes? attributes = null)
+            [CanBeNull] Encoding encoding = null, [CanBeNull] FileAttributes? attributes = null)
         {
-            IncludeFile(path, entry => WriteStringToFile(entry, contents), attributes);
+            IncludeFile(path, entry => WriteStringToFile(entry, contents, encoding), attributes);
             return this;
         }
 
-        private static void WriteStringToFile([NotNull] IFileStream stream, [NotNull] string text)
+        private static void WriteStringToFile([NotNull] IFileStream fileStream, [NotNull] string text,
+            [CanBeNull] Encoding encoding)
         {
-            using (var writer = new StreamWriter(stream.AsStream()))
+            Stream stream = fileStream.AsStream();
+            using (StreamWriter writer = encoding == null ? new StreamWriter(stream) : new StreamWriter(stream, encoding))
             {
                 writer.Write(text);
             }

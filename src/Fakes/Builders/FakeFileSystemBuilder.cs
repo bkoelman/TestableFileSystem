@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -26,12 +27,12 @@ namespace TestableFileSystem.Fakes.Builders
 
         [NotNull]
         public FakeFileSystemBuilder IncludingTextFile([NotNull] string path, [NotNull] string contents,
-            [CanBeNull] FileAttributes? attributes = null)
+            [CanBeNull] Encoding encoding = null, [CanBeNull] FileAttributes? attributes = null)
         {
             Guard.NotNull(path, nameof(path));
             Guard.NotNullNorEmpty(contents, nameof(contents));
 
-            builder.IncludingTextFile(path, contents, attributes);
+            builder.IncludingTextFile(path, contents, encoding, attributes);
             return this;
         }
 

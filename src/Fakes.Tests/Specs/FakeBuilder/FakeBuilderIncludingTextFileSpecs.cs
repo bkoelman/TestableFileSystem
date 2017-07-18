@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
@@ -127,6 +128,28 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         }
 
         [Fact]
+        private void When_including_local_text_file_with_encoding_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"d:\path\to\folder\readme.txt";
+            const int byteOrderMarkLength = 2;
+
+            var builder = new FakeFileSystemBuilder();
+            var encoding = new UnicodeEncoding(false, true);
+
+            // Act
+            IFileSystem fileSystem = builder
+                .IncludingTextFile(path, DefaultContents, encoding)
+                .Build();
+
+            // Assert
+            fileSystem.File.Exists(path).Should().BeTrue();
+
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Length.Should().Be(byteOrderMarkLength + 2 * DefaultContents.Length);
+        }
+
+        [Fact]
         private void When_including_local_text_file_with_attributes_it_must_succeed()
         {
             // Arrange
@@ -136,7 +159,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Act
             IFileSystem fileSystem = builder
-                .IncludingTextFile(path, DefaultContents, FileAttributes.Hidden)
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.Hidden)
                 .Build();
 
             // Assert
