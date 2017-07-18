@@ -18,9 +18,6 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         public PathPattern SubPattern { get; }
 
-        [NotNull]
-        public static readonly PathPattern MatchAny = new PathPattern(ParsePattern("*"), null);
-
         private PathPattern([NotNull] Sequence root, [CanBeNull] PathPattern subPattern)
         {
             this.root = root;
@@ -30,36 +27,42 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public static PathPattern Create([NotNull] string pattern)
         {
-            Guard.NotNullNorWhiteSpace(pattern, nameof(pattern));
+            Guard.NotNull(pattern, nameof(pattern));
+
+            if (string.IsNullOrWhiteSpace(pattern))
+            {
+                return new PathPattern(EmptySequence.Default, null);
+            }
 
             if (StartsWithPathSeparator(pattern) || StartsWithDriveLetter(pattern))
             {
-                throw CreateExceptionForInvalid(pattern);
+                throw ErrorFactory.SearchPatternMustNotBeDriveOrUnc(nameof(pattern));
             }
 
             PathPattern root = null;
             foreach (string directoryPattern in pattern.Split(DirectorySeparatorChars).Reverse())
             {
-                if (string.IsNullOrWhiteSpace(directoryPattern) || directoryPattern == "..")
+                if (string.IsNullOrWhiteSpace(directoryPattern))
                 {
-                    throw CreateExceptionForInvalid(pattern);
+                    throw ErrorFactory.SearchPatternMustNotBeDriveOrUnc(nameof(pattern));
+                }
+
+                if (directoryPattern == "..")
+                {
+                    throw ErrorFactory.SearchPatternCannotContainParent(nameof(pattern));
                 }
 
                 Sequence sequence = ParsePattern(directoryPattern);
 
                 if (root != null && SequenceContainsWildcards(sequence))
                 {
-                    throw CreateExceptionForInvalid(pattern);
+                    throw ErrorFactory.FileOrDirectoryNameIsIncorrect();
                 }
 
                 root = new PathPattern(sequence, root);
             }
 
-            if (root == null)
-            {
-                throw CreateExceptionForInvalid(pattern);
-            }
-
+            // ReSharper disable once AssignNullToNotNullAttribute
             return root;
         }
 
@@ -89,12 +92,6 @@ namespace TestableFileSystem.Fakes
             // TODO: Get rid of duplication in Drive/UNC handling (see AbsolutePath).
 
             return pattern.Length > 1 && pattern[1] == Path.VolumeSeparatorChar;
-        }
-
-        [NotNull]
-        private static ArgumentException CreateExceptionForInvalid([NotNull] string pattern)
-        {
-            return new ArgumentException($"Pattern '{pattern}' is invalid.", nameof(pattern));
         }
 
         [NotNull]
@@ -167,6 +164,23 @@ namespace TestableFileSystem.Fakes
             public abstract Sequence Next { get; }
 
             public abstract bool IsMatch([NotNull] string text);
+        }
+
+        private sealed class EmptySequence : Sequence
+        {
+            [NotNull]
+            public static readonly EmptySequence Default = new EmptySequence();
+
+            public override Sequence Next => null;
+
+            private EmptySequence()
+            {
+            }
+
+            public override bool IsMatch(string text)
+            {
+                return false;
+            }
         }
 
         private sealed class TextSequence : Sequence

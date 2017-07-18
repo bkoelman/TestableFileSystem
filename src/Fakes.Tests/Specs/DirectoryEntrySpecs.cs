@@ -314,7 +314,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var navigator = new PathNavigator(path);
 
             // Act
-            string[] directories = root.EnumerateDirectories(navigator, null).ToArray();
+            string[] directories = root.EnumerateDirectories(navigator, "*").ToArray();
 
             // Assert
             directories.Should().NotBeNull();
@@ -386,7 +386,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var navigator = new PathNavigator(path);
 
             // Act
-            string[] files = root.EnumerateFiles(navigator, null, null).ToArray();
+            string[] files = root.EnumerateFiles(navigator, "*", null).ToArray();
 
             // Assert
             files.Should().NotBeNull();
@@ -457,7 +457,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var navigator = new PathNavigator(path);
 
             // Act
-            string[] files = root.EnumerateFiles(navigator, null, SearchOption.AllDirectories).ToArray();
+            string[] files = root.EnumerateFiles(navigator, "*", SearchOption.AllDirectories).ToArray();
 
             // Assert
             files.Should().NotBeNull();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -39,7 +40,13 @@ namespace TestableFileSystem.Fakes
         public string[] GetFiles(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(searchPattern, nameof(searchPattern));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            var navigator = new PathNavigator(absolutePath);
+
+            return root.EnumerateFiles(navigator, searchPattern, searchOption).ToArray();
         }
 
         public IEnumerable<string> EnumerateFiles(string path, string searchPattern = "*",

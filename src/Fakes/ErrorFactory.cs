@@ -39,9 +39,9 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public static Exception CannotMoveBecauseTargetIsInvalid()
+        public static Exception FileOrDirectoryNameIsIncorrect()
         {
-            return new IOException("The filename, directory name, or volume label syntax is incorrect.");
+            return new IOException("The filename, directory name, or volume label syntax is incorrect");
         }
 
         [NotNull]
@@ -133,6 +133,20 @@ namespace TestableFileSystem.Fakes
         {
             return new IOException(
                 "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
+        }
+
+        [NotNull]
+        public static Exception SearchPatternMustNotBeDriveOrUnc([NotNull] [InvokerParameterName] string paramName)
+        {
+            return new ArgumentException("Second path fragment must not be a drive or UNC name.", paramName);
+        }
+
+        [NotNull]
+        public static Exception SearchPatternCannotContainParent([NotNull] [InvokerParameterName] string paramName)
+        {
+            return new ArgumentException(
+                "Search pattern cannot contain '..' to move up directories and can be contained only internally in file/directory names, as in 'a..b'.",
+                paramName);
         }
     }
 }

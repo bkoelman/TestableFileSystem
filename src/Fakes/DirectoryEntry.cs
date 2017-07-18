@@ -152,7 +152,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (Parent == null)
                 {
-                    throw ErrorFactory.CannotMoveBecauseTargetIsInvalid();
+                    throw ErrorFactory.FileOrDirectoryNameIsIncorrect();
                 }
 
                 DirectoryEntry directory = contents.TryGetEntryAsDirectory(destinationPathNavigator.Name, false);
@@ -372,7 +372,8 @@ namespace TestableFileSystem.Fakes
         }
 
         [AssertionMethod]
-        private static void AssertNotDeletingDriveOrNetworkShare([NotNull] DirectoryEntry directoryToDelete, [NotNull] AbsolutePath path, bool isRecursive)
+        private static void AssertNotDeletingDriveOrNetworkShare([NotNull] DirectoryEntry directoryToDelete,
+            [NotNull] AbsolutePath path, bool isRecursive)
         {
             if (directoryToDelete.Parent?.Parent == null)
             {
@@ -438,9 +439,10 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        public IEnumerable<string> EnumerateDirectories([NotNull] PathNavigator pathNavigator, [CanBeNull] string searchPattern)
+        public IEnumerable<string> EnumerateDirectories([NotNull] PathNavigator pathNavigator, [NotNull] string searchPattern)
         {
             Guard.NotNull(pathNavigator, nameof(pathNavigator));
+            Guard.NotNull(searchPattern, nameof(searchPattern));
 
             DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
             if (directory == null)
@@ -450,7 +452,7 @@ namespace TestableFileSystem.Fakes
 
             if (pathNavigator.IsAtEnd)
             {
-                PathPattern pattern = searchPattern == null ? PathPattern.MatchAny : PathPattern.Create(searchPattern);
+                PathPattern pattern = PathPattern.Create(searchPattern);
                 return EnumerateDirectoriesInDirectory(directory, pattern);
             }
 
@@ -490,10 +492,11 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        public IEnumerable<string> EnumerateFiles([NotNull] PathNavigator pathNavigator, [CanBeNull] string searchPattern,
+        public IEnumerable<string> EnumerateFiles([NotNull] PathNavigator pathNavigator, [NotNull] string searchPattern,
             [CanBeNull] SearchOption? searchOption)
         {
             Guard.NotNull(pathNavigator, nameof(pathNavigator));
+            Guard.NotNull(searchPattern, nameof(searchPattern));
 
             DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
             if (directory == null)
@@ -503,7 +506,7 @@ namespace TestableFileSystem.Fakes
 
             if (pathNavigator.IsAtEnd)
             {
-                PathPattern pattern = searchPattern == null ? PathPattern.MatchAny : PathPattern.Create(searchPattern);
+                PathPattern pattern = PathPattern.Create(searchPattern);
                 return EnumerateFilesInDirectory(directory, pattern, searchOption);
             }
 

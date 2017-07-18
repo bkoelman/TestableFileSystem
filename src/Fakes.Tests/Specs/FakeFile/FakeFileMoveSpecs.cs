@@ -117,7 +117,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(sourcePath, @"C:\");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect.");
+            action.ShouldThrow<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect");
         }
 
         [Fact]
