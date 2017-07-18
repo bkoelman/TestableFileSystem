@@ -298,7 +298,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             string[] files = fileSystem.Directory.GetFiles(@"c:\folder", @"?f");
 
             // Assert
-            files.Should().HaveCount(0);
+            files.Should().BeEmpty();
         }
 
         [Fact]
@@ -329,7 +329,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "?");
 
             // Assert
-            files.Should().HaveCount(0);
+            files.Should().BeEmpty();
         }
 
         [Fact]
@@ -374,7 +374,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "other");
 
             // Assert
-            files.Should().HaveCount(0);
+            files.Should().BeEmpty();
         }
 
         [Fact]
@@ -404,7 +404,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "*.txt");
 
             // Assert
-            files.Should().HaveCount(0);
+            files.Should().BeEmpty();
         }
 
         [Fact]

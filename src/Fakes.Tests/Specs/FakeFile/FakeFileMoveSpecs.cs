@@ -41,7 +41,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Move(sourcePath, destinationPath);
 
             // Assert
-            // TODO: Write assertion that checks for casing change. Requires enumeration support, which is not yet implemented.
+            string[] files = fileSystem.Directory.GetFiles(@"c:\some");
+            files.Should().ContainSingle(destinationPath);
         }
 
         [Fact]

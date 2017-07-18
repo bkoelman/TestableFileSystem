@@ -51,9 +51,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             var path = new AbsolutePath(@"\\teamserver\management");
 
             // Assert
-            path.Components.Should().HaveCount(1);
             path.GetText().Should().Be(@"\\teamserver\management");
-            path.Components[0].Should().Be(@"\\teamserver\management");
+            path.Components.Should().ContainSingle(@"\\teamserver\management");
         }
 
         [Fact]

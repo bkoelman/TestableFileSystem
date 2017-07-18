@@ -413,9 +413,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             // Assert
             files.Should().NotBeNull();
-            files.Should().HaveCount(1);
-
-            files.Should().Contain(@"C:\base\other.doc");
+            files.Should().ContainSingle(@"C:\base\other.doc");
         }
 
         [Fact]
@@ -438,9 +436,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             // Assert
             files.Should().NotBeNull();
-            files.Should().HaveCount(1);
-
-            files.Should().Contain(@"C:\base\second\other.doc");
+            files.Should().ContainSingle(@"C:\base\second\other.doc");
         }
 
         [Fact]
