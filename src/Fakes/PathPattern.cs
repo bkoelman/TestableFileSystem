@@ -262,10 +262,10 @@ namespace TestableFileSystem.Fakes
             {
                 if (Next == null)
                 {
-                    return text.Length == 1;
+                    return text.Length == 1 || text.Length == 0;
                 }
 
-                return Next.IsMatch(text.Substring(1));
+                return Next.IsMatch(text.Substring(1)) || Next.IsMatch(text);
             }
 
             public override string ToString()
