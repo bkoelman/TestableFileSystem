@@ -138,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_getting_file_from_missing_folder_it_must_fail()
+        private void When_getting_file_from_missing_directory_it_must_fail()
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder()
@@ -213,7 +213,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_trying_to_get_file_from_missing_folder_it_must_return_null()
+        private void When_trying_to_get_file_from_missing_directory_it_must_return_null()
         {
             // Arrange
             DirectoryEntry root = new DirectoryTreeBuilder().Build();

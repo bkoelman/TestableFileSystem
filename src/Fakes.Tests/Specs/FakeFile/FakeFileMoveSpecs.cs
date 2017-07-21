@@ -46,7 +46,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_file_to_different_name_in_same_folder_it_must_succeed()
+        private void When_moving_file_to_different_name_in_same_directory_it_must_succeed()
         {
             // Arrange
             const string sourcePath = @"C:\some\file.txt";
@@ -65,7 +65,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_file_to_parent_folder_it_must_succeed()
+        private void When_moving_file_to_parent_directory_it_must_succeed()
         {
             // Arrange
             const string sourcePath = @"C:\some\level\file.txt";

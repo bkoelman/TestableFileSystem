@@ -495,7 +495,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(pathNavigator, nameof(pathNavigator));
             Guard.NotNull(searchPattern, nameof(searchPattern));
 
-            DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name, false);
             if (directory == null)
             {
                 throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());

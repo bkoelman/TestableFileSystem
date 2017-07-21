@@ -528,6 +528,159 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             files[3].Should().Be(@"C:\base\more\nested\deepest\some.txt");
         }
 
-        // TODO: Add missing specs.
+        [Fact]
+        private void When_getting_files_for_missing_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.GetFiles(@"c:\folder");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'c:\folder'.");
+        }
+
+        [Fact]
+        private void When_getting_files_for_directory_with_different_casing_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"f:\SOME\folder\FILE.txt")
+                .Build();
+
+            // Act
+            string[] files = fileSystem.Directory.GetFiles(@"F:\some\FOLDER");
+
+            // Assert
+            files.Should().ContainSingle(@"f:\SOME\folder\FILE.txt");
+        }
+
+        [Fact]
+        private void When_getting_files_for_directory_with_trailing_whitespace_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"x:\path\to\file.ext")
+                .Build();
+
+            // Act
+            string[] files = fileSystem.Directory.GetFiles(@"x:\path\to  ");
+
+            // Assert
+            files.Should().ContainSingle(@"x:\path\to\file.ext");
+        }
+
+        [Fact]
+        private void When_getting_files_for_relative_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\folder\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            string[] files = fileSystem.Directory.GetFiles("folder");
+
+            // Assert
+            files.Should().ContainSingle(@"c:\some\folder\file.txt");
+        }
+
+        [Fact]
+        private void When_getting_files_for_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.GetFiles(path);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+        }
+
+        [Fact]
+        private void When_getting_files_for_missing_parent_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"P:\")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.GetFiles(@"P:\folder\sub");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'P:\folder\sub'.");
+        }
+
+        [Fact]
+        private void When_getting_files_for_missing_remote_directory_it_must_fail()
+        {
+            // Arrange
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.GetFiles(@"\\server\share\team");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path '\\server\share\team'.");
+        }
+
+        [Fact]
+        private void When_getting_files_for_existing_remote_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"\\server\share\team\work.doc")
+                .Build();
+
+            // Act
+            string[] files = fileSystem.Directory.GetFiles(@"\\server\share\team");
+
+            // Assert
+            files.Should().ContainSingle(@"\\server\share\team\work.doc");
+        }
+
+        [Fact]
+        private void When_getting_files_for_reserved_name_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.GetFiles("COM1");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_getting_files_for_extended_remote_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"\\server\share\team\work.doc")
+                .Build();
+
+            // Act
+            string[] files = fileSystem.Directory.GetFiles(@"\\?\UNC\server\share\team");
+
+            // Assert
+            files.Should().ContainSingle(@"\\server\share\team\work.doc");
+        }
     }
 }
