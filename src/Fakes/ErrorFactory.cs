@@ -87,6 +87,12 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
+        public static Exception EmptyFileNameIsNotLegal([NotNull] [InvokerParameterName] string paramName)
+        {
+            return new ArgumentException("Empty file name is not legal.", paramName);
+        }
+
+        [NotNull]
         public static Exception PathIsNotLegal([NotNull] [InvokerParameterName] string paramName)
         {
             return new ArgumentException("The path is not of a legal form.", paramName);

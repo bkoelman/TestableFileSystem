@@ -166,10 +166,16 @@ namespace TestableFileSystem.Fakes
         {
             // TODO: Implement timings - https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
 
-            Guard.NotNullNorWhiteSpace(sourceFileName, nameof(sourceFileName));
-            Guard.NotNullNorWhiteSpace(destFileName, nameof(destFileName));
+            Guard.NotNull(sourceFileName, nameof(sourceFileName));
+            Guard.NotNull(destFileName, nameof(destFileName));
 
-            FileEntry sourceFile = GetMoveSource(sourceFileName);
+            AssertFileNameIsNotEmpty(sourceFileName);
+            AssertFileNameIsNotEmpty(destFileName);
+
+            AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
+            AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
+
+            FileEntry sourceFile = GetMoveSource(sourcePath);
             if (sourceFile.IsOpen())
             {
                 // TODO: Copy
@@ -177,21 +183,27 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.FileIsInUse();
             }
 
-            AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
             var destinationNavigator = new PathNavigator(destinationPath);
             root.MoveFile(sourceFile, destinationNavigator);
         }
 
-        [NotNull]
-        private FileEntry GetMoveSource([NotNull] string sourceFileName)
+        private static void AssertFileNameIsNotEmpty([NotNull] string path)
         {
-            AbsolutePath absoluteSourceFilePath = owner.ToAbsolutePath(sourceFileName);
-            var sourceNavigator = new PathNavigator(absoluteSourceFilePath);
+            if (path.Length == 0)
+            {
+                throw ErrorFactory.EmptyFileNameIsNotLegal(nameof(path));
+            }
+        }
+
+        [NotNull]
+        private FileEntry GetMoveSource([NotNull] AbsolutePath sourcePath)
+        {
+            var sourceNavigator = new PathNavigator(sourcePath);
 
             FileEntry sourceFile = root.TryGetExistingFile(sourceNavigator);
             if (sourceFile == null)
             {
-                throw ErrorFactory.FileNotFound(absoluteSourceFilePath.GetText());
+                throw ErrorFactory.FileNotFound(sourcePath.GetText());
             }
 
             return sourceFile;

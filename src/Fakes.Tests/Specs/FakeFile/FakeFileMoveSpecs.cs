@@ -10,6 +10,148 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     public sealed class FakeFileMoveSpecs
     {
         [Fact]
+        private void When_moving_file_for_null_source_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Action action = () => fileSystem.File.Move(null, @"c:\destination.txt");
+
+            // Assert
+            action.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        private void When_moving_file_for_null_destination_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Action action = () => fileSystem.File.Move(@"c:\source.txt", null);
+
+            // Assert
+            action.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        private void When_moving_file_for_empty_string_source_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(string.Empty, @"c:\destination.txt");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Empty file name is not legal.*");
+        }
+
+        [Fact]
+        private void When_moving_file_for_empty_string_destination_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"c:\source.txt", string.Empty);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Empty file name is not legal.*");
+        }
+
+        [Fact]
+        private void When_moving_file_for_whitespace_source_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(" ", @"c:\destination.txt");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_moving_file_for_whitespace_destination_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"c:\source.txt", " ");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_moving_file_for_invalid_source_root_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move("::", @"c:\destination.txt");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+        }
+
+        [Fact]
+        private void When_moving_file_for_invalid_destination_root_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"c:\source.txt", "::");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+        }
+
+        [Fact]
+        private void When_moving_file_for_invalid_characters_in_source_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move("some?.txt", @"c:\destination.txt");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+        }
+
+        [Fact]
+        private void When_moving_file_for_invalid_characters_in_destination_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"c:\source.txt", "some?.txt");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+        }
+
+        [Fact]
         private void When_moving_file_to_same_location_it_must_succeed()
         {
             // Arrange
@@ -27,18 +169,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_file_to_same_location_with_different_casing_it_must_succeed()
+        private void When_moving_file_to_same_location_with_different_casing_it_must_rename()
         {
             // Arrange
             const string sourcePath = @"C:\some\file.txt";
-            const string destinationPath = @"C:\some\FILE1.txt";
+            const string destinationPath = @"C:\some\FILE.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(sourcePath)
                 .Build();
 
             // Act
-            fileSystem.File.Move(sourcePath, destinationPath);
+            fileSystem.File.Move(destinationPath, destinationPath);
 
             // Assert
             string[] files = fileSystem.Directory.GetFiles(@"c:\some");
@@ -46,7 +188,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_file_to_different_name_in_same_directory_it_must_succeed()
+        private void When_moving_file_to_different_name_in_same_directory_it_must_rename()
         {
             // Arrange
             const string sourcePath = @"C:\some\file.txt";
@@ -62,6 +204,203 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             fileSystem.File.Exists(sourcePath).Should().BeFalse();
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_file_with_trailing_whitespace_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\old.txt")
+                .Build();
+
+            // Act
+            fileSystem.File.Move(@"C:\some\old.txt  ", @"C:\some\new.txt  ");
+
+            // Assert
+            fileSystem.File.Exists(@"C:\some\old.txt").Should().BeFalse();
+            fileSystem.File.Exists(@"C:\some\new.txt").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_file_from_relative_path_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"D:\other\folder\newname.doc";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .IncludingDirectory(@"D:\other\folder")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\");
+
+            // Act
+            fileSystem.File.Move(@"some\file.txt", destinationPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_file_to_relative_path_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"D:\other\folder\newname.doc";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .IncludingDirectory(@"D:\other\folder")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+
+            // Act
+            fileSystem.File.Move(sourcePath, @"folder\newname.doc");
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_relative_file_on_different_drive_in_root_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\")
+                .IncludingDirectory(@"D:\other")
+                .IncludingEmptyFile(@"D:\source.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\");
+
+            // Act
+            fileSystem.File.Move("D:source.txt", "D:destination.txt");
+
+            // Assert
+            fileSystem.File.Exists(@"D:\destination.txt").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_relative_file_on_same_drive_in_subfolder_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"D:\other\source.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+
+            // Act
+            fileSystem.File.Move("D:source.txt", "D:destination.txt");
+
+            // Assert
+            fileSystem.File.Exists(@"d:\other\destination.txt").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_file_from_file_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some\subfolder")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\some\subfolder", "newname.doc");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\subfolder'.");
+        }
+
+        [Fact]
+        private void When_moving_file_to_file_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationDirectory = @"C:\some\newname.doc";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .IncludingDirectory(destinationDirectory)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(sourcePath, destinationDirectory);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists.");
+        }
+
+        [Fact]
+        private void When_moving_file_to_existing_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"C:\some\newname.doc";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .IncludingEmptyFile(destinationPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists.");
+        }
+
+        [Fact]
+        private void When_moving_file_from_missing_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\some\file.txt", @"C:\some\newname.doc");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
+        }
+
+        [Fact]
+        private void When_moving_file_to_missing_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"C:\other\newname.doc";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_moving_missing_file_it_must_fail()
+        {
+            // Arrange
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\some\file.txt", "newname.doc");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -105,6 +444,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_moving_file_that_is_root_of_drive_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\", @"C:\some\newname.doc");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\'.");
+        }
+
+        [Fact]
         private void When_moving_file_to_root_of_drive_it_must_fail()
         {
             // Arrange
@@ -122,15 +475,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_file_to_network_share_it_must_succeed()
+        private void When_moving_readonly_file_it_must_succeed()
         {
             // Arrange
-            const string sourcePath = @"C:\docs\mine.txt";
-            const string destinationPath = @"\\teamserver\documents\for-all.txt";
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"D:\other\folder\newname.doc";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(sourcePath)
-                .IncludingDirectory(@"\\teamserver\documents")
+                .IncludingEmptyFile(sourcePath, FileAttributes.ReadOnly)
+                .IncludingDirectory(@"D:\other\folder")
                 .Build();
 
             // Act
@@ -141,107 +494,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
-        private void When_moving_file_that_does_not_exist_it_must_fail()
-        {
-            // Arrange
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"C:\some")
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Move(@"C:\some\file.txt", "newname.doc");
-
-            // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
-        }
-
-        [Fact]
-        private void When_moving_file_from_directory_that_does_not_exist_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Move(@"C:\some\file.txt", @"C:\some\newname.doc");
-
-            // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
-        }
-
-        [Fact]
-        private void When_moving_from_drive_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Move(@"C:\", @"C:\some\newname.doc");
-
-            // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\'.");
-        }
-
-        [Fact]
-        private void When_moving_file_to_directory_that_does_not_exist_it_must_fail()
-        {
-            // Arrange
-            const string sourcePath = @"C:\some\file.txt";
-            const string destinationPath = @"C:\other\newname.doc";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(sourcePath)
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
-
-            // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
-        }
-
-        [Fact]
-        private void When_moving_file_to_existing_file_it_must_fail()
-        {
-            // Arrange
-            const string sourcePath = @"C:\some\file.txt";
-            const string destinationPath = @"C:\some\newname.doc";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(sourcePath)
-                .IncludingEmptyFile(destinationPath)
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
-
-            // Assert
-            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists.");
-        }
-
-        [Fact]
-        private void When_moving_file_to_existing_directory_it_must_fail()
-        {
-            // Arrange
-            const string sourcePath = @"C:\some\file.txt";
-            const string destinationDirectory = @"C:\some\newname.doc";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(sourcePath)
-                .IncludingDirectory(destinationDirectory)
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Move(sourcePath, destinationDirectory);
-
-            // Assert
-            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists.");
-        }
-
-        [Fact(Skip = "TODO")]
+        [Fact(Skip = "TODO: Enable this test when File.Copy is implemented.")]
         private void When_moving_an_open_file_it_must_copy_and_fail()
         {
             // Arrange
@@ -266,20 +519,88 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_file_that_exists_as_directory_it_must_fail()
+        private void When_moving_file_from_network_share_it_must_succeed()
         {
             // Arrange
+            const string sourcePath = @"\\teamserver\documents\for-all.txt";
+            const string destinationPath = @"C:\docs\mine.txt";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"C:\some\subfolder")
+                .IncludingEmptyFile(sourcePath)
+                .IncludingDirectory(@"C:\docs")
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Move(@"C:\some\subfolder", "newname.doc");
+            fileSystem.File.Move(sourcePath, destinationPath);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\subfolder'.");
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(destinationPath).Should().BeTrue();
         }
 
-        // TODO: Add missing specs.
+        [Fact]
+        private void When_moving_file_to_network_share_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\docs\mine.txt";
+            const string destinationPath = @"\\teamserver\documents\for-all.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .IncludingDirectory(@"\\teamserver\documents")
+                .Build();
+
+            // Act
+            fileSystem.File.Move(sourcePath, destinationPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_file_from_reserved_name_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move("com1", @"c:\new.txt");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_moving_file_to_reserved_name_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"c:\old.txt", "com1");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_moving_file_from_extended_path_to_extended_path_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"\\server\share\summary.doc")
+                .IncludingDirectory(@"c:\work")
+                .Build();
+
+            // Act
+            fileSystem.File.Move(@"\\?\UNC\server\share\summary.doc", @"\\?\c:\work\summary.doc");
+
+            // Assert
+            fileSystem.File.Exists(@"\\server\share\summary.doc").Should().BeFalse();
+            fileSystem.File.Exists(@"c:\work\summary.doc").Should().BeTrue();
+        }
     }
 }
