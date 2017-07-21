@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
@@ -55,8 +56,6 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal AbsolutePath ToAbsolutePath([NotNull] string path)
         {
-            // TODO: How to handle when caller passes a path like "e:file.txt"?
-
             if (string.IsNullOrWhiteSpace(path))
             {
                 throw ErrorFactory.PathIsNotLegal(nameof(path));
@@ -65,8 +64,32 @@ namespace TestableFileSystem.Fakes
             DirectoryEntry baseDirectory = CurrentDirectory.GetValue();
             string basePath = baseDirectory.GetAbsolutePath();
 
+            path = CompensatePathForRelativeDriveReference(path, basePath);
+
             string rooted = Path.Combine(basePath, path);
             return new AbsolutePath(rooted);
+        }
+
+        [NotNull]
+        private static string CompensatePathForRelativeDriveReference([NotNull] string path, [NotNull] string basePath)
+        {
+            bool hasRelativeDriveReference = path.Length >= 3 && path[1] == ':' && !IsPathSeparator(path[2]);
+            if (!hasRelativeDriveReference)
+            {
+                return path;
+            }
+
+            char pathDriveLetter = path[0];
+            char baseDriveLetter = basePath[0];
+
+            return pathDriveLetter == baseDriveLetter
+                ? path.Substring(2)
+                : path.Substring(0, 2) + Path.DirectorySeparatorChar + path.Substring(2);
+        }
+
+        private static bool IsPathSeparator(char ch)
+        {
+            return PathFacts.DirectorySeparatorChars.Contains(ch);
         }
 
         internal long GetFileSize([NotNull] string path)

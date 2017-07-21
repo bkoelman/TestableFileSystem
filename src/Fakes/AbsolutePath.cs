@@ -119,9 +119,6 @@ namespace TestableFileSystem.Fakes
             private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();
 
             [NotNull]
-            private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
-
-            [NotNull]
             [ItemNotNull]
             private static readonly ISet<string> ReservedComponentNames =
                 new HashSet<string>(
@@ -225,7 +222,7 @@ namespace TestableFileSystem.Fakes
             {
                 AssertIsNotReservedComponentName(path);
 
-                List<string> components = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToList();
+                List<string> components = path.Split(PathFacts.DirectorySeparatorChars).ToList();
 
                 bool isOnNetworkShare = AdjustComponentsForNetworkShare(components, path);
                 bool isOnDisk = IsDriveLetter(components.First());
@@ -253,7 +250,7 @@ namespace TestableFileSystem.Fakes
                     AssertDirectoryNameOrFileNameIsValid(components[2]);
                     AssertDirectoryNameOrFileNameIsValid(components[3]);
 
-                    components[3] = TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar + components[3];
+                    components[3] = PathFacts.TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar + components[3];
                     components.RemoveRange(0, 3);
 
                     return true;

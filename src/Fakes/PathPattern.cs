@@ -10,9 +10,6 @@ namespace TestableFileSystem.Fakes
     internal sealed class PathPattern
     {
         [NotNull]
-        private static readonly char[] DirectorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
-
-        [NotNull]
         private readonly Sequence root;
 
         [CanBeNull]
@@ -40,7 +37,7 @@ namespace TestableFileSystem.Fakes
             }
 
             PathPattern root = null;
-            foreach (string directoryPattern in pattern.Split(DirectorySeparatorChars).Reverse())
+            foreach (string directoryPattern in pattern.Split(PathFacts.DirectorySeparatorChars).Reverse())
             {
                 if (string.IsNullOrWhiteSpace(directoryPattern))
                 {
@@ -84,7 +81,7 @@ namespace TestableFileSystem.Fakes
 
         private static bool StartsWithPathSeparator([NotNull] string pattern)
         {
-            return DirectorySeparatorChars.Contains(pattern[0]);
+            return PathFacts.DirectorySeparatorChars.Contains(pattern[0]);
         }
 
         private static bool StartsWithDriveLetter([NotNull] string pattern)
@@ -145,7 +142,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(text, nameof(text));
 
-            if (text.IndexOfAny(DirectorySeparatorChars) != -1)
+            if (text.IndexOfAny(PathFacts.DirectorySeparatorChars) != -1)
             {
                 throw new InvalidOperationException("Only one file or directory level can be matched at a time.");
             }

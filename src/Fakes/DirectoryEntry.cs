@@ -9,9 +9,6 @@ namespace TestableFileSystem.Fakes
 {
     internal sealed class DirectoryEntry : BaseEntry
     {
-        [NotNull]
-        private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
-
         private const FileAttributes DirectoryAttributesToDiscard =
             FileAttributes.Device | FileAttributes.Normal | FileAttributes.SparseFile | FileAttributes.Compressed |
             FileAttributes.Encrypted | FileAttributes.IntegrityStream;
@@ -267,7 +264,7 @@ namespace TestableFileSystem.Fakes
                 return;
             }
 
-            if (name.StartsWith(TwoDirectorySeparators, StringComparison.Ordinal))
+            if (name.StartsWith(PathFacts.TwoDirectorySeparators, StringComparison.Ordinal))
             {
                 return;
             }
@@ -292,7 +289,7 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private void AssertIsDirectoryName([NotNull] string name)
         {
-            if (name.Contains(Path.VolumeSeparatorChar) || name.StartsWith(TwoDirectorySeparators, StringComparison.Ordinal))
+            if (name.Contains(Path.VolumeSeparatorChar) || name.StartsWith(PathFacts.TwoDirectorySeparators, StringComparison.Ordinal))
             {
                 throw new InvalidOperationException("Drive letter or network share cannot be created at this level.");
             }

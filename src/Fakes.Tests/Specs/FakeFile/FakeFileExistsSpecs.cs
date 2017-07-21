@@ -157,7 +157,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_existence_for_existing_relative_local_file_on_different_drive_it_must_succeed()
+        private void
+            When_getting_file_existence_for_existing_relative_local_file_on_different_drive_in_subfolder_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -167,6 +168,61 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             fileSystem.Directory.SetCurrentDirectory(@"D:\other");
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            bool found = fileSystem.File.Exists("D:child.txt");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_getting_file_existence_for_existing_relative_local_file_on_different_drive_in_root_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some")
+                .IncludingDirectory(@"D:\other")
+                .IncludingEmptyFile(@"D:\child.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            bool found = fileSystem.File.Exists("D:child.txt");
+
+            // Assert
+            found.Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_getting_file_existence_for_existing_relative_local_file_on_same_drive_in_subfolder_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"D:\other\child.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+
+            // Act
+            bool found = fileSystem.File.Exists("D:child.txt");
+
+            // Assert
+            found.Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_getting_file_existence_for_existing_relative_local_file_on_same_drive_in_root_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"D:\other")
+                .IncludingEmptyFile(@"D:\child.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
 
             // Act
             bool found = fileSystem.File.Exists("D:child.txt");

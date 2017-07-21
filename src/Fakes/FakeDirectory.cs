@@ -121,7 +121,7 @@ namespace TestableFileSystem.Fakes
 
             if (absolutePath.IsVolumeRoot && root.TryGetExistingDirectory(navigator) == null)
             {
-                throw ErrorFactory.DirectoryNotFound(path);
+                throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
             }
 
             root.CreateDirectories(navigator);

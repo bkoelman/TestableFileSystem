@@ -239,6 +239,82 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_opening_existing_relative_local_file_on_different_drive_in_subfolder_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .IncludingEmptyFile(@"D:\other\child.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            Action action = () => fileSystem.File.Open("D:child.txt", FileMode.Open);
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'D:\child.txt'.");
+        }
+
+        [Fact]
+        private void When_opening_existing_relative_local_file_on_different_drive_in_root_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some")
+                .IncludingDirectory(@"D:\other")
+                .IncludingTextFile(@"D:\child.txt", "ABC")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open("D:child.txt", FileMode.Open))
+            {
+                // Assert
+                stream.Length.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        private void When_opening_existing_relative_local_file_on_same_drive_in_subfolder_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(@"D:\other\child.txt", "ABC")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open("D:child.txt", FileMode.Open))
+            {
+                // Assert
+                stream.Length.Should().Be(3);
+            }
+        }
+
+        [Fact]
+        private void When_opening_existing_relative_local_file_on_same_drive_in_root_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"D:\other")
+                .IncludingEmptyFile(@"D:\child.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+
+            // Act
+            Action action = () => fileSystem.File.Open("D:child.txt", FileMode.Open);
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'D:\other\child.txt'.");
+        }
+
+        [Fact]
         private void When_opening_local_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange

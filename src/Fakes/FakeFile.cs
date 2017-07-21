@@ -140,7 +140,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (mode == FileMode.CreateNew)
                 {
-                    throw ErrorFactory.CannotCreateBecauseFileAlreadyExists(path);
+                    throw ErrorFactory.CannotCreateBecauseFileAlreadyExists(absolutePath.GetText());
                 }
 
                 return existingFile.Open(mode, fileAccess);
@@ -148,7 +148,7 @@ namespace TestableFileSystem.Fakes
 
             if (mode == FileMode.Open || mode == FileMode.Truncate)
             {
-                throw ErrorFactory.FileNotFound(path);
+                throw ErrorFactory.FileNotFound(absolutePath.GetText());
             }
 
             FileEntry newFile = root.GetOrCreateFile(navigator, false);
@@ -212,15 +212,15 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            BaseEntry entry = GetExistingEntry(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            BaseEntry entry = GetExistingEntry(absolutePath);
             return entry.Attributes;
         }
 
         [NotNull]
-        private BaseEntry GetExistingEntry([NotNull] string path)
+        private BaseEntry GetExistingEntry([NotNull] AbsolutePath absolutePath)
         {
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-
             AssertParentIsDirectoryOrMissing(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
@@ -231,7 +231,7 @@ namespace TestableFileSystem.Fakes
                 entry = root.TryGetExistingDirectory(navigator);
                 if (entry == null)
                 {
-                    var parentPath = absolutePath.GetParentPath();
+                    AbsolutePath parentPath = absolutePath.GetParentPath();
 
                     DirectoryEntry parentDirectory = parentPath != null
                         ? root.TryGetExistingDirectory(new PathNavigator(parentPath))
@@ -239,10 +239,10 @@ namespace TestableFileSystem.Fakes
 
                     if (parentDirectory == null)
                     {
-                        throw ErrorFactory.DirectoryNotFound(path);
+                        throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
                     }
 
-                    throw ErrorFactory.FileNotFound(path);
+                    throw ErrorFactory.FileNotFound(absolutePath.GetText());
                 }
             }
             return entry;
@@ -252,7 +252,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            BaseEntry entry = GetExistingEntry(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            BaseEntry entry = GetExistingEntry(absolutePath);
             entry.Attributes = fileAttributes;
         }
 
@@ -260,7 +262,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            BaseEntry entry = TryGetExistingEntry(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            BaseEntry entry = TryGetExistingEntry(absolutePath);
             return entry?.CreationTime ?? ZeroFileTime;
         }
 
@@ -268,7 +272,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            BaseEntry entry = TryGetExistingEntry(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            BaseEntry entry = TryGetExistingEntry(absolutePath);
             return entry?.CreationTimeUtc ?? ZeroFileTimeUtc;
         }
 
@@ -276,7 +282,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            FileEntry entry = GetExistingFile(absolutePath);
             entry.CreationTime = creationTime;
         }
 
@@ -284,7 +292,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            FileEntry entry = GetExistingFile(absolutePath);
             entry.CreationTimeUtc = creationTimeUtc;
         }
 
@@ -292,7 +302,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            BaseEntry entry = TryGetExistingEntry(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            BaseEntry entry = TryGetExistingEntry(absolutePath);
             return entry?.LastAccessTime ?? ZeroFileTime;
         }
 
@@ -300,7 +312,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            BaseEntry entry = TryGetExistingEntry(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            BaseEntry entry = TryGetExistingEntry(absolutePath);
             return entry?.LastAccessTimeUtc ?? ZeroFileTimeUtc;
         }
 
@@ -308,7 +322,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            FileEntry entry = GetExistingFile(absolutePath);
             entry.LastAccessTime = lastAccessTime;
         }
 
@@ -316,7 +332,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            FileEntry entry = GetExistingFile(absolutePath);
             entry.LastAccessTimeUtc = lastAccessTimeUtc;
         }
 
@@ -324,7 +342,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            BaseEntry entry = TryGetExistingEntry(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            BaseEntry entry = TryGetExistingEntry(absolutePath);
             return entry?.LastWriteTime ?? ZeroFileTime;
         }
 
@@ -332,7 +352,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            BaseEntry entry = TryGetExistingEntry(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            BaseEntry entry = TryGetExistingEntry(absolutePath);
             return entry?.LastWriteTimeUtc ?? ZeroFileTimeUtc;
         }
 
@@ -340,7 +362,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            FileEntry entry = GetExistingFile(absolutePath);
             entry.LastWriteTime = lastWriteTime;
         }
 
@@ -348,7 +372,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            FileEntry entry = GetExistingFile(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            FileEntry entry = GetExistingFile(absolutePath);
             entry.LastWriteTimeUtc = lastWriteTimeUtc;
         }
 
@@ -371,9 +397,8 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        private FileEntry GetExistingFile([NotNull] string path)
+        private FileEntry GetExistingFile([NotNull] AbsolutePath absolutePath)
         {
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             AssertParentIsDirectoryOrMissing(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
@@ -388,10 +413,8 @@ namespace TestableFileSystem.Fakes
         }
 
         [CanBeNull]
-        private BaseEntry TryGetExistingEntry([NotNull] string path)
+        private BaseEntry TryGetExistingEntry([NotNull] AbsolutePath absolutePath)
         {
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-
             AbsolutePath parentPath = absolutePath.GetParentPath();
             if (parentPath == null)
             {
