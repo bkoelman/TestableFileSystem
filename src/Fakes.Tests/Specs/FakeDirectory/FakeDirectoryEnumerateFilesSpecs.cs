@@ -573,6 +573,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_getting_files_for_pattern_with_trailing_whitespace_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"x:\path\to\file.ext")
+                .Build();
+
+            // Act
+            string[] files = fileSystem.Directory.GetFiles(@"x:\path\to", "*.ext  ");
+
+            // Assert
+            files.Should().ContainSingle(@"x:\path\to\file.ext");
+        }
+
+        [Fact]
         private void When_getting_files_for_relative_directory_it_must_succeed()
         {
             // Arrange

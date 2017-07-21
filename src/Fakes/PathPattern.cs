@@ -26,6 +26,8 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(pattern, nameof(pattern));
 
+            pattern = pattern.TrimEnd();
+
             if (string.IsNullOrWhiteSpace(pattern))
             {
                 return new PathPattern(EmptySequence.Default, null);
