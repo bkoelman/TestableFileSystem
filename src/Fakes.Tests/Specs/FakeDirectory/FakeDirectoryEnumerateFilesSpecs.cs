@@ -492,16 +492,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"d:\folder\file001.txt")
                 .IncludingEmptyFile(@"d:\folder\file003.txt")
                 .IncludingEmptyFile(@"d:\folder\file002.txt")
+                .IncludingEmptyFile(@"d:\folder\a..b.txt")
                 .Build();
 
             // Act
             string[] files = fileSystem.Directory.GetFiles(@"d:\folder");
 
             // Assert
-            files.Should().HaveCount(3);
+            files.Should().HaveCount(4);
             files[0].Should().Be(@"d:\folder\file001.txt");
             files[1].Should().Be(@"d:\folder\file003.txt");
             files[2].Should().Be(@"d:\folder\file002.txt");
+            files[3].Should().Be(@"d:\folder\a..b.txt");
         }
 
         [Fact]
