@@ -106,7 +106,7 @@ namespace TestableFileSystem.Fakes
 
         private void AssertParentIsDirectoryOrMissing([NotNull] AbsolutePath path)
         {
-            AbsolutePath parentPath = path.GetParentPath();
+            AbsolutePath parentPath = path.TryGetParentPath();
             if (parentPath == null)
             {
                 return;
@@ -191,6 +191,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
 
             AssertNetworkShareOrDriveExists(destinationPath);
+            AssertParentDirectoryDoesNotExistAsFile(destinationPath);
 
             FileEntry sourceFile = GetMoveSource(sourcePath);
             if (sourceFile.IsOpen())
@@ -209,6 +210,20 @@ namespace TestableFileSystem.Fakes
             if (path.Length == 0)
             {
                 throw ErrorFactory.EmptyFileNameIsNotLegal(nameof(path));
+            }
+        }
+
+        private void AssertParentDirectoryDoesNotExistAsFile([NotNull] AbsolutePath absolutePath)
+        {
+            AbsolutePath parentPath = absolutePath.TryGetParentPath();
+            if (parentPath != null)
+            {
+                var parentNavigator = new PathNavigator(parentPath);
+
+                if (root.TryGetExistingFile(parentNavigator) != null)
+                {
+                    throw ErrorFactory.ParameterIsIncorrect();
+                }
             }
         }
 
@@ -263,7 +278,7 @@ namespace TestableFileSystem.Fakes
                 entry = root.TryGetExistingDirectory(navigator);
                 if (entry == null)
                 {
-                    AbsolutePath parentPath = absolutePath.GetParentPath();
+                    AbsolutePath parentPath = absolutePath.TryGetParentPath();
 
                     DirectoryEntry parentDirectory = parentPath != null
                         ? root.TryGetExistingDirectory(new PathNavigator(parentPath))
@@ -448,7 +463,7 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         private BaseEntry TryGetExistingEntry([NotNull] AbsolutePath absolutePath)
         {
-            AbsolutePath parentPath = absolutePath.GetParentPath();
+            AbsolutePath parentPath = absolutePath.TryGetParentPath();
             if (parentPath == null)
             {
                 return null;

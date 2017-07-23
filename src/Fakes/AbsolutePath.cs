@@ -37,7 +37,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [CanBeNull]
-        public AbsolutePath GetParentPath()
+        public AbsolutePath TryGetParentPath()
         {
             if (Components.Count == 1)
             {

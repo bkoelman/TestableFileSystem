@@ -160,5 +160,11 @@ namespace TestableFileSystem.Fakes
                 "Search pattern cannot contain '..' to move up directories and can be contained only internally in file/directory names, as in 'a..b'.",
                 paramName);
         }
+
+        [NotNull]
+        public static Exception ParameterIsIncorrect()
+        {
+            return new IOException("The parameter is incorrect");
+        }
     }
 }

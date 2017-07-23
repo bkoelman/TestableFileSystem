@@ -337,6 +337,37 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_moving_file_from_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\some\file.txt\other.txt", "newname.doc");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt\other.txt'.");
+        }
+
+        [Fact]
+        private void When_moving_file_to_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .IncludingEmptyFile(@"C:\some\newname.doc")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\some\file.txt", @"C:\some\newname.doc\other.doc");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("The parameter is incorrect");
+        }
+
+        [Fact]
         private void When_moving_file_to_existing_file_it_must_fail()
         {
             // Arrange
