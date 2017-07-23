@@ -53,7 +53,22 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.DirectoryNameIsInvalid();
             }
 
-            return root.EnumerateFiles(navigator, searchPattern, searchOption).ToArray();
+            IEnumerable<string> fileNames = root.EnumerateFiles(navigator, searchPattern, searchOption);
+            return ToRelativeNames(fileNames, path, absolutePath).ToArray();
+        }
+
+        [NotNull]
+        [ItemNotNull]
+        private static IEnumerable<string> ToRelativeNames([NotNull] [ItemNotNull] IEnumerable<string> fileNames,
+            [NotNull] string sourcePath, [NotNull] AbsolutePath absolutePath)
+        {
+            string basePath = sourcePath.TrimEnd();
+
+            foreach (string fileName in fileNames)
+            {
+                string relativeName = fileName.Substring(absolutePath.GetText().Length);
+                yield return basePath + relativeName;
+            }
         }
 
         private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath, bool isCreatingDirectory = false)

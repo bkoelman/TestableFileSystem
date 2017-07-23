@@ -183,8 +183,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Move(destinationPath, destinationPath);
 
             // Assert
-            string[] files = fileSystem.Directory.GetFiles(@"c:\some");
-            files.Should().ContainSingle(destinationPath);
+            string[] files = fileSystem.Directory.GetFiles(@"C:\some");
+            files.Should().ContainSingle(x => x == destinationPath);
         }
 
         [Fact]

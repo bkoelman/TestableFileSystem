@@ -256,7 +256,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", @"*f*");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\f");
+            files.Should().ContainSingle(x => x == @"c:\folder\f");
         }
 
         [Fact]
@@ -272,7 +272,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\f");
+            files.Should().ContainSingle(x => x == @"c:\folder\f");
         }
 
         [Fact]
@@ -288,7 +288,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\abc.def");
+            files.Should().ContainSingle(x => x == @"c:\folder\abc.def");
         }
 
         [Fact]
@@ -303,7 +303,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", @"?f");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\f");
+            files.Should().ContainSingle(x => x == @"c:\folder\f");
         }
 
         [Fact]
@@ -319,7 +319,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "?");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\f");
+            files.Should().ContainSingle(x => x == @"c:\folder\f");
         }
 
         [Fact]
@@ -349,7 +349,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "file.txt");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\file.txt");
+            files.Should().ContainSingle(x => x == @"c:\folder\file.txt");
         }
 
         [Fact]
@@ -364,7 +364,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "file.TXT");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\FILE.txt");
+            files.Should().ContainSingle(x => x == @"c:\folder\FILE.txt");
         }
 
         [Fact]
@@ -388,14 +388,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(@"c:\folder\file.txt")
-                .IncludingEmptyFile(@"C:\folder\other.doc")
+                .IncludingEmptyFile(@"c:\folder\other.doc")
                 .Build();
 
             // Act
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*.txt");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\file.txt");
+            files.Should().ContainSingle(x => x == @"c:\folder\file.txt");
         }
 
         [Fact]
@@ -425,7 +425,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*.ba?");
 
             // Assert
-            files.Should().ContainSingle(@"c:\folder\file.bak");
+            files.Should().ContainSingle(x => x == @"c:\folder\file.bak");
         }
 
         [Fact]
@@ -444,9 +444,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             string[] fileArray = files.Should().HaveCount(3).And.Subject.ToArray();
-            fileArray[0].Should().Be(@"C:\base\one.txt");
-            fileArray[1].Should().Be(@"C:\base\deep\two.txt");
-            fileArray[2].Should().Be(@"C:\base\more\nested\four.txt");
+            fileArray[0].Should().Be(@"c:\base\one.txt");
+            fileArray[1].Should().Be(@"c:\base\deep\two.txt");
+            fileArray[2].Should().Be(@"c:\base\more\nested\four.txt");
         }
 
         [Fact]
@@ -466,7 +466,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"C:\", @"base\second\o*.do?");
 
             // Assert
-            files.Should().ContainSingle(@"C:\base\second\other.doc");
+            files.Should().ContainSingle(x => x == @"C:\base\second\other.doc");
         }
 
         [Fact]
@@ -528,10 +528,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             string[] fileArray = files.Should().HaveCount(4).And.Subject.ToArray();
-            fileArray[0].Should().Be(@"C:\base\where.txt");
-            fileArray[1].Should().Be(@"C:\base\other.txt");
-            fileArray[2].Should().Be(@"C:\base\more\nested\file.txt");
-            fileArray[3].Should().Be(@"C:\base\more\nested\deepest\some.txt");
+            fileArray[0].Should().Be(@"c:\base\where.txt");
+            fileArray[1].Should().Be(@"c:\base\other.txt");
+            fileArray[2].Should().Be(@"c:\base\more\nested\file.txt");
+            fileArray[3].Should().Be(@"c:\base\more\nested\deepest\some.txt");
         }
 
         [Fact]
@@ -553,14 +553,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"f:\SOME\folder\FILE.txt")
+                .IncludingEmptyFile(@"F:\some\FOLDER\file.TXT")
                 .Build();
 
             // Act
-            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"F:\some\FOLDER");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"f:\SOME\folder");
 
             // Assert
-            files.Should().ContainSingle(@"f:\SOME\folder\FILE.txt");
+            files.Should().ContainSingle(x => x == @"f:\SOME\folder\file.TXT");
         }
 
         [Fact]
@@ -575,7 +575,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"x:\path\to  ");
 
             // Assert
-            files.Should().ContainSingle(@"x:\path\to\file.ext");
+            files.Should().ContainSingle(x => x == @"x:\path\to\file.ext");
         }
 
         [Fact]
@@ -590,7 +590,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"x:\path\to", "*.ext  ");
 
             // Assert
-            files.Should().ContainSingle(@"x:\path\to\file.ext");
+            files.Should().ContainSingle(x => x == @"x:\path\to\file.ext");
         }
 
         [Fact]
@@ -604,10 +604,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
 
             // Act
-            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles("folder");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles("FOLDER");
 
             // Assert
-            files.Should().ContainSingle(@"c:\some\folder\file.txt");
+            files.Should().ContainSingle(x => x == @"FOLDER\file.txt");
         }
 
         [Fact]
@@ -701,7 +701,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"\\server\share\team");
 
             // Assert
-            files.Should().ContainSingle(@"\\server\share\team\work.doc");
+            files.Should().ContainSingle(x => x == @"\\server\share\team\work.doc");
         }
 
         [Fact]
@@ -730,7 +730,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"\\?\UNC\server\share\team");
 
             // Assert
-            files.Should().ContainSingle(@"\\server\share\team\work.doc");
+            files.Should().ContainSingle(x => x == @"\\?\UNC\server\share\team\work.doc");
         }
     }
 }

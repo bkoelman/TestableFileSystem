@@ -52,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             // Assert
             path.GetText().Should().Be(@"\\teamserver\management");
-            path.Components.Should().ContainSingle(@"\\teamserver\management");
+            path.Components.Should().ContainSingle(x => x == @"\\teamserver\management");
         }
 
         [Fact]

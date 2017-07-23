@@ -129,13 +129,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"x:\folder\to\file.txt")
                 .Build();
 
-            fileSystem.Directory.SetCurrentDirectory(@"x:\folder\to");
+            fileSystem.Directory.SetCurrentDirectory(@"X:\folder\to");
 
             // Act
             string root = fileSystem.Directory.GetDirectoryRoot("file.txt");
 
             // Assert
-            root.Should().Be(@"x:\");
+            root.Should().Be(@"X:\");
         }
 
         [Fact]

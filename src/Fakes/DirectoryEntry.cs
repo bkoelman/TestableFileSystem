@@ -87,6 +87,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string GetAbsolutePath()
         {
+            // TODO: Get rid of this method, as it is unable to account for extended paths or preserve original casing.
+
             if (Parent == null)
             {
                 throw new InvalidOperationException();
@@ -232,6 +234,11 @@ namespace TestableFileSystem.Fakes
             if (Parent == null)
             {
                 AssertIsDriveLetterOrNetworkShare(name);
+
+                if (IsDriveLetter(name))
+                {
+                    name = name.ToUpperInvariant();
+                }
             }
             else
             {
@@ -505,7 +512,7 @@ namespace TestableFileSystem.Fakes
             if (pathNavigator.IsAtEnd)
             {
                 PathPattern pattern = PathPattern.Create(searchPattern);
-                return EnumerateFilesInDirectory(directory, pattern, searchOption);
+                return EnumerateFilesInDirectory(directory, pattern, searchOption, pathNavigator.Path);
             }
 
             return directory.EnumerateFiles(pathNavigator.MoveDown(), searchPattern, searchOption);
@@ -514,13 +521,13 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         [ItemNotNull]
         private IEnumerable<string> EnumerateFilesInDirectory([NotNull] DirectoryEntry directory, [NotNull] PathPattern pattern,
-            [CanBeNull] SearchOption? searchOption)
+            [CanBeNull] SearchOption? searchOption, [NotNull] AbsolutePath directoryPath)
         {
             PathPattern subPattern = pattern.SubPattern;
 
             if (subPattern == null)
             {
-                string path = directory.GetAbsolutePath();
+                string path = directoryPath.GetText();
 
                 foreach (FileEntry fileEntry in directory.contents.GetFileEntries().Where(x => pattern.IsMatch(x.Name)))
                 {
@@ -531,7 +538,9 @@ namespace TestableFileSystem.Fakes
                 {
                     foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries())
                     {
-                        foreach (string filePath in EnumerateFilesInDirectory(subdirectory, pattern, searchOption))
+                        AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
+                        foreach (string filePath in EnumerateFilesInDirectory(subdirectory, pattern, searchOption,
+                            subdirectoryPath))
                         {
                             yield return filePath;
                         }
@@ -544,7 +553,9 @@ namespace TestableFileSystem.Fakes
                 {
                     if (pattern.IsMatch(subdirectory.Name))
                     {
-                        foreach (string filePath in EnumerateFilesInDirectory(subdirectory, subPattern, searchOption))
+                        AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
+                        foreach (string filePath in EnumerateFilesInDirectory(subdirectory, subPattern, searchOption,
+                            subdirectoryPath))
                         {
                             yield return filePath;
                         }

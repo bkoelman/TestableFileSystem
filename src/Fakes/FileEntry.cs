@@ -134,6 +134,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string GetAbsolutePath()
         {
+            // TODO: Get rid of this method, as it is unable to account for extended paths or preserve original casing.
+
             return Path.Combine(Parent.GetAbsolutePath(), Name);
         }
 

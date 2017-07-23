@@ -261,7 +261,7 @@ namespace TestableFileSystem.Fakes
             }
 
             [AssertionMethod]
-            private static void AssertDirectoryNameOrFileNameIsValid([NotNull] string name)
+            public static void AssertDirectoryNameOrFileNameIsValid([NotNull] string name)
             {
                 if (string.IsNullOrWhiteSpace(name))
                 {
@@ -330,6 +330,18 @@ namespace TestableFileSystem.Fakes
             }
 
             return false;
+        }
+
+        [NotNull]
+        public AbsolutePath Append([NotNull] string name)
+        {
+            Guard.NotNullNorWhiteSpace(name, nameof(name));
+            Parser.AssertDirectoryNameOrFileNameIsValid(name);
+
+            List<string> newComponents = Components.ToList();
+            newComponents.Add(name);
+
+            return new AbsolutePath(newComponents, isExtended);
         }
     }
 }
