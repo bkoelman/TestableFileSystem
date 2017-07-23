@@ -139,7 +139,36 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_directory_root_for_remote_file_it_must_succeed()
+        private void When_getting_directory_root_on_missing_network_share_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            string root = fileSystem.Directory.GetDirectoryRoot(@"\\server\share\file.txt");
+
+            // Assert
+            root.Should().Be(@"\\server\share");
+        }
+
+        [Fact]
+        private void When_getting_directory_root_for_missing_remote_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"\\server\share")
+                .Build();
+
+            // Act
+            string root = fileSystem.Directory.GetDirectoryRoot(@"\\server\share\file.txt");
+
+            // Assert
+            root.Should().Be(@"\\server\share");
+        }
+
+        [Fact]
+        private void When_getting_directory_root_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

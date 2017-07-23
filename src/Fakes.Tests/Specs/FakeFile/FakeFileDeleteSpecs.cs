@@ -222,7 +222,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_deleting_remote_file_it_must_succeed()
+        private void When_deleting_remote_file_on_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\teamshare\folder\doc.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(path);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+        }
+
+        [Fact]
+        private void When_deleting_remote_file_on_existing_network_share_it_must_succeed()
         {
             // Arrange
             const string path = @"\\teamshare\folder\doc.txt";

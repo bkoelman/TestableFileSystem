@@ -278,10 +278,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_getting_file_existence_for_missing_network_share_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            bool found = fileSystem.File.Exists(@"\\teamshare\documents\some.doc");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
         private void When_getting_file_existence_for_missing_remote_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"\\teamshare\documents")
                 .Build();
 
             // Act

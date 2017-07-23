@@ -222,7 +222,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_directory_existence_for_missing_remote_directory_it_must_succeed()
+        private void When_getting_directory_existence_for_missing_network_share_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -230,6 +230,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Act
             bool found = fileSystem.Directory.Exists(@"\\teamshare\documents");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_getting_directory_existence_for_missing_remote_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"\\teamshare\documents")
+                .Build();
+
+            // Act
+            bool found = fileSystem.Directory.Exists(@"\\teamshare\documents\sub");
 
             // Assert
             found.Should().BeFalse();

@@ -519,7 +519,43 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_file_from_network_share_it_must_succeed()
+        private void When_moving_file_from_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"\\teamserver\documents\for-all.txt";
+            const string destinationPath = @"C:\docs\mine.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\docs")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\teamserver\documents\for-all.txt'.");
+        }
+
+        [Fact]
+        private void When_moving_file_to_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\docs\mine.txt";
+            const string destinationPath = @"\\teamserver\documents\for-all.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+        }
+
+        [Fact]
+        private void When_moving_file_from_existing_network_share_it_must_succeed()
         {
             // Arrange
             const string sourcePath = @"\\teamserver\documents\for-all.txt";
@@ -539,7 +575,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_file_to_network_share_it_must_succeed()
+        private void When_moving_file_to_existing_network_share_it_must_succeed()
         {
             // Arrange
             const string sourcePath = @"C:\docs\mine.txt";

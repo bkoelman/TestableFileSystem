@@ -468,37 +468,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_attributes_for_existing_remote_file_it_must_succeed()
+        private void When_getting_attributes_on_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\personal.docx";
+            const string path = @"\\server\share\missing.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
                 .Build();
 
             // Act
-            FileAttributes attributes = fileSystem.File.GetAttributes(path);
+            Action action = () => fileSystem.File.GetAttributes(path);
 
             // Assert
-            attributes.Should().Be(FileAttributes.ReadOnly);
+            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
         }
 
         [Fact]
-        private void When_setting_attributes_for_existing_remote_file_it_must_succeed()
+        private void When_setting_attributes_on_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\personal.docx";
+            const string path = @"\\server\share\missing.docx";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
                 .Build();
 
             // Act
-            fileSystem.File.SetAttributes(path, FileAttributes.Hidden);
+            Action action = () => fileSystem.File.SetAttributes(path, FileAttributes.Hidden);
 
             // Assert
-            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Hidden);
+            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
         }
 
         [Fact]
@@ -533,6 +531,40 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing.docx'.");
+        }
+
+        [Fact]
+        private void When_getting_attributes_for_existing_remote_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\server\share\personal.docx";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            FileAttributes attributes = fileSystem.File.GetAttributes(path);
+
+            // Assert
+            attributes.Should().Be(FileAttributes.ReadOnly);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_remote_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\server\share\personal.docx";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Hidden);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Hidden);
         }
 
         [Fact]

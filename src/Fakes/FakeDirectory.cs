@@ -44,7 +44,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(searchPattern, nameof(searchPattern));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertNetworkShareExists(absolutePath);
+            AssertNetworkShareOrDriveExists(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
 
@@ -56,10 +56,20 @@ namespace TestableFileSystem.Fakes
             return root.EnumerateFiles(navigator, searchPattern, searchOption).ToArray();
         }
 
-        private void AssertNetworkShareExists([NotNull] AbsolutePath absolutePath)
+        private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath, bool isCreatingDirectory = false)
         {
-            if (!absolutePath.IsOnLocalDrive && !root.Directories.ContainsKey(absolutePath.Components[0]))
+            if (!root.Directories.ContainsKey(absolutePath.Components[0]))
             {
+                if (absolutePath.IsOnLocalDrive)
+                {
+                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
+                }
+
+                if (isCreatingDirectory && absolutePath.IsVolumeRoot)
+                {
+                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
+                }
+
                 throw ErrorFactory.NetworkPathNotFound();
             }
         }
@@ -132,6 +142,8 @@ namespace TestableFileSystem.Fakes
             AssertPathIsNotWhiteSpace(path);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            AssertNetworkShareOrDriveExists(absolutePath, true);
+
             var navigator = new PathNavigator(absolutePath);
 
             if (absolutePath.IsVolumeRoot && root.TryGetExistingDirectory(navigator) == null)
@@ -156,6 +168,8 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            AssertNetworkShareOrDriveExists(absolutePath);
+
             var navigator = new PathNavigator(absolutePath);
 
             DirectoryEntry directoryToDelete = root.GetExistingDirectory(navigator);
@@ -189,8 +203,11 @@ namespace TestableFileSystem.Fakes
             AssertPathIsNotWhiteSpace(path);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            AssertNetworkShareOrDriveExists(absolutePath);
+
             if (!absolutePath.IsOnLocalDrive)
             {
+                // TODO: Remove this limitation.
                 throw ErrorFactory.PathIsInvalid();
             }
 

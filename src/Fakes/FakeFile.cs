@@ -62,6 +62,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             AssertValidCreationOptions(options, absolutePath);
 
+            AssertNetworkShareOrDriveExists(absolutePath);
             AssertDoesNotExistAsDirectory(absolutePath);
             AssertParentIsDirectoryOrMissing(absolutePath);
 
@@ -130,6 +131,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
+            AssertNetworkShareOrDriveExists(absolutePath);
             AssertDoesNotExistAsDirectory(absolutePath);
             AssertParentIsDirectoryOrMissing(absolutePath);
 
@@ -155,6 +157,19 @@ namespace TestableFileSystem.Fakes
             return newFile.Open(mode, fileAccess);
         }
 
+        private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath)
+        {
+            if (!root.Directories.ContainsKey(absolutePath.Components[0]))
+            {
+                if (absolutePath.IsOnLocalDrive)
+                {
+                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
+                }
+
+                throw ErrorFactory.NetworkPathNotFound();
+            }
+        }
+
         public void Copy(string sourceFileName, string destFileName, bool overwrite = false)
         {
             // TODO: Implement timings - https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
@@ -174,6 +189,8 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
             AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
+
+            AssertNetworkShareOrDriveExists(destinationPath);
 
             FileEntry sourceFile = GetMoveSource(sourcePath);
             if (sourceFile.IsOpen())
@@ -214,6 +231,8 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            AssertNetworkShareOrDriveExists(absolutePath);
             AssertParentIsDirectoryOrMissing(absolutePath);
 
             var navigator = new PathNavigator(absolutePath);
@@ -225,6 +244,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            AssertNetworkShareOrDriveExists(absolutePath);
 
             BaseEntry entry = GetExistingEntry(absolutePath);
             return entry.Attributes;
@@ -265,6 +285,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            AssertNetworkShareOrDriveExists(absolutePath);
 
             BaseEntry entry = GetExistingEntry(absolutePath);
             entry.Attributes = fileAttributes;

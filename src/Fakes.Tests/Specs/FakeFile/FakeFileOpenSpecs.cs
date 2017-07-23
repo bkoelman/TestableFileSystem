@@ -363,6 +363,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_opening_file_on_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(@"\\server\share\file.txt", FileMode.Open);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+        }
+
+        [Fact]
         private void When_opening_missing_remote_file_it_must_fail()
         {
             // Arrange
@@ -373,7 +387,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             Action action = () => fileSystem.File.Open(@"\\server\share\file.txt", FileMode.Open);
 
-            // Assert
             // Assert
             action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\file.txt'.");
         }

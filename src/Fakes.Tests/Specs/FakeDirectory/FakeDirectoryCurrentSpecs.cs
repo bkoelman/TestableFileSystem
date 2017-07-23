@@ -188,6 +188,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_setting_current_directory_below_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.SetCurrentDirectory(@"\\server\share\team");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"The network path was not found");
+        }
+
+        [Fact]
         private void When_setting_current_directory_to_existing_remote_directory_it_must_fail()
         {
             // Arrange
@@ -199,8 +213,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(@"\\docserver\teams");
 
             // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(@"The specified path is invalid.");
+            action.ShouldThrow<IOException>().WithMessage(@"The specified path is invalid.");
         }
 
         [Fact]

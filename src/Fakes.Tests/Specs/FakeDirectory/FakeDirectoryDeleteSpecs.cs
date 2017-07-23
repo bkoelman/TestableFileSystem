@@ -381,7 +381,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_deleting_file_share_it_must_fail()
+        private void When_deleting_network_share_it_must_fail()
         {
             // Arrange
             const string path = @"\\teamshare\folder";
@@ -400,7 +400,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_deleting_file_share_recursively_it_must_fail()
+        private void When_deleting_network_share_recursively_it_must_fail()
         {
             // Arrange
             const string path = @"\\teamshare\folder";
@@ -416,6 +416,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.ShouldThrow<IOException>()
                 .WithMessage(
                     @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
+        }
+
+        [Fact]
+        private void When_deleting_directory_below_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(@"\\server\share\team");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"The network path was not found");
         }
 
         [Fact]

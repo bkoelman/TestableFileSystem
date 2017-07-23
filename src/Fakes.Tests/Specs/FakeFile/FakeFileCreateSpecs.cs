@@ -272,7 +272,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_creating_remote_file_it_must_succeed()
+        private void When_creating_remote_file_on_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Create(@"\\server\share\file.txt");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+        }
+
+        [Fact]
+        private void When_creating_remote_file_on_existing_network_share_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
