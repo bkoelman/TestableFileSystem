@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
@@ -18,7 +20,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Act
             // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.Directory.GetFiles(null);
+            Action action = () => fileSystem.Directory.EnumerateFiles(null);
 
             // Assert
             action.ShouldThrow<ArgumentNullException>();
@@ -32,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(string.Empty);
+            Action action = () => fileSystem.Directory.EnumerateFiles(string.Empty);
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
@@ -46,7 +48,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(" ");
+            Action action = () => fileSystem.Directory.EnumerateFiles(" ");
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
@@ -60,7 +62,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles("::");
+            Action action = () => fileSystem.Directory.EnumerateFiles("::");
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
@@ -74,7 +76,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\dir?i");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\dir?i");
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
@@ -88,7 +90,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\", null);
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", null);
 
             // Assert
             action.ShouldThrow<ArgumentNullException>();
@@ -103,7 +106,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\", "");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\", "");
 
             // Assert
             files.Should().BeEmpty();
@@ -117,7 +120,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\", " ");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\", " ");
 
             // Assert
             files.Should().BeEmpty();
@@ -131,7 +134,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\", @"\some");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"\some");
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
@@ -145,7 +148,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\", @"c:\some");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"c:\some");
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
@@ -159,7 +162,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\", @"\\?\c:\some");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"\\?\c:\some");
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
@@ -173,7 +176,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\", @"\\server\share");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"\\server\share");
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
@@ -187,7 +190,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\", @"some\\*.*");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"some\\*.*");
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
@@ -202,7 +205,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\folder", @"..\*.*");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder", @"..\*.*");
 
             // Assert
             action.ShouldThrow<ArgumentException>()
@@ -219,7 +222,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\folder", @"fol*\*.*");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder", @"fol*\*.*");
 
             // Assert
             action.ShouldThrow<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect");
@@ -234,7 +237,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\folder", @"fol?er\*.*");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder", @"fol?er\*.*");
 
             // Assert
             action.ShouldThrow<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect");
@@ -250,7 +253,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", @"*f*");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", @"*f*");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\f");
@@ -265,7 +268,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "*");
+            // ReSharper disable once RedundantArgumentDefaultValue
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\f");
@@ -280,7 +284,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "*");
+            // ReSharper disable once RedundantArgumentDefaultValue
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\abc.def");
@@ -295,7 +300,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", @"?f");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", @"?f");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\f");
@@ -311,7 +316,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "?");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "?");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\f");
@@ -326,7 +331,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "?");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "?");
 
             // Assert
             files.Should().BeEmpty();
@@ -341,7 +346,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "file.txt");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "file.txt");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\file.txt");
@@ -356,7 +361,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "file.TXT");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "file.TXT");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\FILE.txt");
@@ -371,7 +376,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "other");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "other");
 
             // Assert
             files.Should().BeEmpty();
@@ -387,7 +392,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "*.txt");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*.txt");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\file.txt");
@@ -402,7 +407,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "*.txt");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*.txt");
 
             // Assert
             files.Should().BeEmpty();
@@ -417,7 +422,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\folder", "*.ba?");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\folder", "*.ba?");
 
             // Assert
             files.Should().ContainSingle(@"c:\folder\file.bak");
@@ -435,13 +440,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\base", "*o*.txt", SearchOption.AllDirectories);
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\base", "*o*.txt", SearchOption.AllDirectories);
 
             // Assert
-            files.Should().HaveCount(3);
-            files[0].Should().Be(@"C:\base\one.txt");
-            files[1].Should().Be(@"C:\base\deep\two.txt");
-            files[2].Should().Be(@"C:\base\more\nested\four.txt");
+            string[] fileArray = files.Should().HaveCount(3).And.Subject.ToArray();
+            fileArray[0].Should().Be(@"C:\base\one.txt");
+            fileArray[1].Should().Be(@"C:\base\deep\two.txt");
+            fileArray[2].Should().Be(@"C:\base\more\nested\four.txt");
         }
 
         [Fact]
@@ -458,7 +463,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"C:\", @"base\second\o*.do?");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"C:\", @"base\second\o*.do?");
 
             // Assert
             files.Should().ContainSingle(@"C:\base\second\other.doc");
@@ -476,12 +481,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"e:\", @"Sub\s*.txt", SearchOption.AllDirectories);
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"e:\", @"Sub\s*.txt", SearchOption.AllDirectories);
 
             // Assert
-            files.Should().HaveCount(2);
-            files[0].Should().Be(@"e:\Sub\some2.txt");
-            files[1].Should().Be(@"e:\Sub\Deeper\some3.txt");
+            string[] fileArray = files.Should().HaveCount(2).And.Subject.ToArray();
+            fileArray[0].Should().Be(@"e:\Sub\some2.txt");
+            fileArray[1].Should().Be(@"e:\Sub\Deeper\some3.txt");
         }
 
         [Fact]
@@ -496,14 +501,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"d:\folder");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"d:\folder");
 
             // Assert
-            files.Should().HaveCount(4);
-            files[0].Should().Be(@"d:\folder\file001.txt");
-            files[1].Should().Be(@"d:\folder\file003.txt");
-            files[2].Should().Be(@"d:\folder\file002.txt");
-            files[3].Should().Be(@"d:\folder\a..b.txt");
+            string[] fileArray = files.Should().HaveCount(4).And.Subject.ToArray();
+            fileArray[0].Should().Be(@"d:\folder\file001.txt");
+            fileArray[1].Should().Be(@"d:\folder\file003.txt");
+            fileArray[2].Should().Be(@"d:\folder\file002.txt");
+            fileArray[3].Should().Be(@"d:\folder\a..b.txt");
         }
 
         [Fact]
@@ -518,14 +523,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"c:\base", searchOption: SearchOption.AllDirectories);
+            IEnumerable<string> files =
+                fileSystem.Directory.EnumerateFiles(@"c:\base", searchOption: SearchOption.AllDirectories);
 
             // Assert
-            files.Should().HaveCount(4);
-            files[0].Should().Be(@"C:\base\where.txt");
-            files[1].Should().Be(@"C:\base\other.txt");
-            files[2].Should().Be(@"C:\base\more\nested\file.txt");
-            files[3].Should().Be(@"C:\base\more\nested\deepest\some.txt");
+            string[] fileArray = files.Should().HaveCount(4).And.Subject.ToArray();
+            fileArray[0].Should().Be(@"C:\base\where.txt");
+            fileArray[1].Should().Be(@"C:\base\other.txt");
+            fileArray[2].Should().Be(@"C:\base\more\nested\file.txt");
+            fileArray[3].Should().Be(@"C:\base\more\nested\deepest\some.txt");
         }
 
         [Fact]
@@ -536,7 +542,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"c:\folder");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder");
 
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'c:\folder'.");
@@ -551,7 +557,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"F:\some\FOLDER");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"F:\some\FOLDER");
 
             // Assert
             files.Should().ContainSingle(@"f:\SOME\folder\FILE.txt");
@@ -566,7 +572,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"x:\path\to  ");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"x:\path\to  ");
 
             // Assert
             files.Should().ContainSingle(@"x:\path\to\file.ext");
@@ -581,7 +587,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"x:\path\to", "*.ext  ");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"x:\path\to", "*.ext  ");
 
             // Assert
             files.Should().ContainSingle(@"x:\path\to\file.ext");
@@ -598,7 +604,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles("folder");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles("folder");
 
             // Assert
             files.Should().ContainSingle(@"c:\some\folder\file.txt");
@@ -615,7 +621,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(path);
+            Action action = () => fileSystem.Directory.EnumerateFiles(path);
 
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
@@ -631,7 +637,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"P:\folder\sub");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"P:\folder\sub");
 
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
@@ -647,7 +653,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles(@"\\server\share\team");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"\\server\share\team");
 
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
@@ -663,7 +669,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"\\server\share\team");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"\\server\share\team");
 
             // Assert
             files.Should().ContainSingle(@"\\server\share\team\work.doc");
@@ -677,7 +683,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetFiles("COM1");
+            Action action = () => fileSystem.Directory.EnumerateFiles("COM1");
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
@@ -692,7 +698,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string[] files = fileSystem.Directory.GetFiles(@"\\?\UNC\server\share\team");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"\\?\UNC\server\share\team");
 
             // Assert
             files.Should().ContainSingle(@"\\server\share\team\work.doc");
