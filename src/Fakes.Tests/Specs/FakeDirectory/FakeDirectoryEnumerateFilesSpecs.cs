@@ -12,7 +12,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
     public sealed class FakeDirectoryEnumerateFilesSpecs
     {
         [Fact]
-        private void When_getting_files_for_null_path_it_must_fail()
+        private void When_enumerating_files_for_null_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -27,7 +27,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_empty_string_path_it_must_fail()
+        private void When_enumerating_files_for_empty_string_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -41,7 +41,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_whitespace_path_it_must_fail()
+        private void When_enumerating_files_for_whitespace_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -55,7 +55,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_invalid_root_path_it_must_fail()
+        private void When_enumerating_files_for_invalid_root_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -69,7 +69,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_invalid_characters_in_path_it_must_fail()
+        private void When_enumerating_files_for_invalid_characters_in_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -83,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_null_pattern_it_must_fail()
+        private void When_enumerating_files_for_null_pattern_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -98,7 +98,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_empty_string_pattern_it_must_succeed()
+        private void When_enumerating_files_for_empty_string_pattern_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -113,7 +113,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_whitespace_pattern_it_must_succeed()
+        private void When_enumerating_files_for_whitespace_pattern_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -127,7 +127,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_that_starts_with_path_separator_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_starts_with_path_separator_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -141,7 +141,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_that_starts_with_drive_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_starts_with_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -155,7 +155,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_that_starts_with_extended_drive_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_starts_with_extended_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -169,7 +169,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_that_starts_with_network_path_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_starts_with_network_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -183,7 +183,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_that_contains_empty_directory_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_contains_empty_directory_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -197,7 +197,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_that_contains_parent_directory_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_contains_parent_directory_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -214,7 +214,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_that_contains_parent_directory_with_asterisk_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_contains_parent_directory_with_asterisk_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -229,7 +229,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_that_contains_parent_directory_with_question_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_contains_parent_directory_with_question_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -244,7 +244,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_asterisk_it_must_match_empty()
+        private void When_enumerating_files_for_pattern_with_asterisk_it_must_match_empty()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -260,7 +260,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_asterisk_it_must_match_single_character()
+        private void When_enumerating_files_for_pattern_with_asterisk_it_must_match_single_character()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -276,7 +276,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_asterisk_it_must_match_multiple_characters()
+        private void When_enumerating_files_for_pattern_with_asterisk_it_must_match_multiple_characters()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -292,7 +292,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_question_it_must_match_empty()
+        private void When_enumerating_files_for_pattern_with_question_it_must_match_empty()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -307,7 +307,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_question_it_must_match_single_character()
+        private void When_enumerating_files_for_pattern_with_question_it_must_match_single_character()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -323,7 +323,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_question_it_must_not_match_multiple_characters()
+        private void When_enumerating_files_for_pattern_with_question_it_must_not_match_multiple_characters()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -338,7 +338,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_text_it_must_match_same_characters()
+        private void When_enumerating_files_for_pattern_with_text_it_must_match_same_characters()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -353,7 +353,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_text_it_must_match_same_characters_ignoring_case()
+        private void When_enumerating_files_for_pattern_with_text_it_must_match_same_characters_ignoring_case()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -368,7 +368,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_text_it_must_not_match_different_characters()
+        private void When_enumerating_files_for_pattern_with_text_it_must_not_match_different_characters()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -383,7 +383,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_asterisk_for_filename_it_must_match_same_extension()
+        private void When_enumerating_files_for_pattern_with_asterisk_for_filename_it_must_match_same_extension()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -399,7 +399,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_asterisk_for_filename_it_must_not_match_different_extension()
+        private void When_enumerating_files_for_pattern_with_asterisk_for_filename_it_must_not_match_different_extension()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -414,7 +414,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_question_for_extension_it_must_match()
+        private void When_enumerating_files_for_pattern_with_question_for_extension_it_must_match()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -429,7 +429,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_recursively_for_filename_pattern_it_must_match()
+        private void When_enumerating_files_recursively_for_filename_pattern_it_must_match()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -450,7 +450,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_path_it_must_match()
+        private void When_enumerating_files_for_pattern_with_path_it_must_match()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -470,7 +470,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_recursively_for_pattern_with_path_it_must_match()
+        private void When_enumerating_files_recursively_for_pattern_with_path_it_must_match()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -490,7 +490,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_it_must_return_them_in_order()
+        private void When_enumerating_files_it_must_return_them_in_order()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -512,7 +512,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_recursively_it_must_return_them_in_order()
+        private void When_enumerating_files_recursively_it_must_return_them_in_order()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -535,7 +535,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_missing_directory_it_must_fail()
+        private void When_enumerating_files_for_missing_directory_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -549,7 +549,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_directory_with_different_casing_it_must_succeed()
+        private void When_enumerating_files_for_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -564,7 +564,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_directory_with_trailing_whitespace_it_must_succeed()
+        private void When_enumerating_files_for_directory_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -579,7 +579,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_pattern_with_trailing_whitespace_it_must_succeed()
+        private void When_enumerating_files_for_pattern_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -594,7 +594,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_relative_directory_it_must_succeed()
+        private void When_enumerating_files_for_relative_directory_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -611,7 +611,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_directory_that_exists_as_file_it_must_fail()
+        private void When_enumerating_files_for_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\file.txt";
@@ -624,12 +624,27 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(path);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+            action.ShouldThrow<IOException>().WithMessage(@"The directory name is invalid.");
         }
 
         [Fact]
-        private void When_getting_files_for_missing_parent_directory_it_must_fail()
+        private void When_enumerating_files_for_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"C:\some\file.txt\deeper");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\deeper'.");
+        }
+
+        [Fact]
+        private void When_enumerating_files_for_missing_parent_directory_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -645,11 +660,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_missing_remote_directory_it_must_fail()
+        private void When_enumerating_files_for_missing_network_share_it_must_fail()
         {
             // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"\\server\share\team");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"The network path was not found");
+        }
+
+        [Fact]
+        private void When_enumerating_files_for_missing_remote_directory_it_must_fail()
+        {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"\\server\share")
                 .Build();
 
             // Act
@@ -661,7 +690,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_existing_remote_directory_it_must_succeed()
+        private void When_enumerating_files_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -676,7 +705,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_reserved_name_it_must_fail()
+        private void When_enumerating_files_for_reserved_name_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -690,7 +719,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_files_for_extended_remote_directory_it_must_succeed()
+        private void When_enumerating_files_for_extended_remote_directory_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

@@ -44,9 +44,24 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(searchPattern, nameof(searchPattern));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            AssertNetworkShareExists(absolutePath);
+
             var navigator = new PathNavigator(absolutePath);
 
+            if (root.TryGetExistingFile(navigator) != null)
+            {
+                throw ErrorFactory.DirectoryNameIsInvalid();
+            }
+
             return root.EnumerateFiles(navigator, searchPattern, searchOption).ToArray();
+        }
+
+        private void AssertNetworkShareExists([NotNull] AbsolutePath absolutePath)
+        {
+            if (!absolutePath.IsOnLocalDrive && !root.Directories.ContainsKey(absolutePath.Components[0]))
+            {
+                throw ErrorFactory.NetworkPathNotFound();
+            }
         }
 
         public IEnumerable<string> EnumerateFiles(string path, string searchPattern = "*",

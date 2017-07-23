@@ -447,9 +447,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"c:\some\file.txt\subfolder");
 
             // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(
-                    @"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
         }
 
         [Fact]

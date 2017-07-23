@@ -136,7 +136,7 @@ namespace TestableFileSystem.Fakes
                 return contents.TryGetEntryAsFile(pathNavigator.Name, false);
             }
 
-            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
+            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name, false);
             return subdirectory?.TryGetExistingFile(pathNavigator.MoveDown());
         }
 
