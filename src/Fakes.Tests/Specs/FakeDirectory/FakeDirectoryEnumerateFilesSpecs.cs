@@ -611,6 +611,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_enumerating_files_for_relative_directory_with_parent_reference_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\folder\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some\folder");
+
+            // Act
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"..\FOLDER");
+
+            // Assert
+            files.Should().ContainSingle(x => x == @"..\FOLDER\file.txt");
+        }
+
+        [Fact]
         private void When_enumerating_files_for_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
