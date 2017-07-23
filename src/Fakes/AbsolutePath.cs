@@ -250,7 +250,8 @@ namespace TestableFileSystem.Fakes
                     AssertDirectoryNameOrFileNameIsValid(components[2]);
                     AssertDirectoryNameOrFileNameIsValid(components[3]);
 
-                    components[3] = PathFacts.TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar + components[3];
+                    components[3] = PathFacts.TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar +
+                        components[3];
                     components.RemoveRange(0, 3);
 
                     return true;

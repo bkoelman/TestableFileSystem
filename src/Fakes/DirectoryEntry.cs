@@ -289,7 +289,8 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private void AssertIsDirectoryName([NotNull] string name)
         {
-            if (name.Contains(Path.VolumeSeparatorChar) || name.StartsWith(PathFacts.TwoDirectorySeparators, StringComparison.Ordinal))
+            if (name.Contains(Path.VolumeSeparatorChar) ||
+                name.StartsWith(PathFacts.TwoDirectorySeparators, StringComparison.Ordinal))
             {
                 throw new InvalidOperationException("Drive letter or network share cannot be created at this level.");
             }
