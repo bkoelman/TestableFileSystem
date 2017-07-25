@@ -494,21 +494,49 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"d:\folder\file001.txt")
-                .IncludingEmptyFile(@"d:\folder\file003.txt")
-                .IncludingEmptyFile(@"d:\folder\file002.txt")
-                .IncludingEmptyFile(@"d:\folder\a..b.txt")
+                .IncludingEmptyFile(@"C:\base\zzz.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderZ\sub-zzz.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\n-002.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\deeper\ddd-1.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\deeper\ddd-2.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\aaa\n-aaa.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\n-001.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\sub-aaa.txt")
+                .IncludingEmptyFile(@"C:\base\aaa.txt")
                 .Build();
 
             // Act
-            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"d:\folder");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\base");
 
             // Assert
-            string[] fileArray = files.Should().HaveCount(4).And.Subject.ToArray();
-            fileArray[0].Should().Be(@"d:\folder\file001.txt");
-            fileArray[1].Should().Be(@"d:\folder\file003.txt");
-            fileArray[2].Should().Be(@"d:\folder\file002.txt");
-            fileArray[3].Should().Be(@"d:\folder\a..b.txt");
+            string[] fileArray = files.Should().HaveCount(2).And.Subject.ToArray();
+            fileArray[0].Should().Be(@"c:\base\aaa.txt");
+            fileArray[1].Should().Be(@"c:\base\zzz.txt");
+        }
+
+        [Fact]
+        private void When_enumerating_files_with_pattern_it_must_return_them_in_order()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\base\zzz.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderZ\sub-zzz.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\n-002.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\deeper\ddd-1.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\deeper\ddd-2.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\aaa\n-aaa.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\n-001.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\sub-aaa.txt")
+                .IncludingEmptyFile(@"C:\base\aaa.txt")
+                .Build();
+
+            // Act
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"c:\base", "*.txt");
+
+            // Assert
+            string[] fileArray = files.Should().HaveCount(2).And.Subject.ToArray();
+            fileArray[0].Should().Be(@"c:\base\aaa.txt");
+            fileArray[1].Should().Be(@"c:\base\zzz.txt");
         }
 
         [Fact]
@@ -516,10 +544,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"C:\base\where.txt")
-                .IncludingEmptyFile(@"C:\base\more\nested\file.txt")
-                .IncludingEmptyFile(@"C:\base\more\nested\deepest\some.txt")
-                .IncludingEmptyFile(@"C:\base\other.txt")
+                .IncludingEmptyFile(@"C:\base\zzz.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderZ\sub-zzz.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\n-002.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\deeper\ddd-1.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\deeper\ddd-2.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\aaa\n-aaa.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\n-001.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\sub-aaa.txt")
+                .IncludingEmptyFile(@"C:\base\aaa.txt")
                 .Build();
 
             // Act
@@ -527,11 +560,49 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 fileSystem.Directory.EnumerateFiles(@"c:\base", searchOption: SearchOption.AllDirectories);
 
             // Assert
-            string[] fileArray = files.Should().HaveCount(4).And.Subject.ToArray();
-            fileArray[0].Should().Be(@"c:\base\where.txt");
-            fileArray[1].Should().Be(@"c:\base\other.txt");
-            fileArray[2].Should().Be(@"c:\base\more\nested\file.txt");
-            fileArray[3].Should().Be(@"c:\base\more\nested\deepest\some.txt");
+            string[] fileArray = files.Should().HaveCount(9).And.Subject.ToArray();
+            fileArray[0].Should().Be(@"c:\base\aaa.txt");
+            fileArray[1].Should().Be(@"c:\base\zzz.txt");
+            fileArray[2].Should().Be(@"c:\base\subfolderA\sub-aaa.txt");
+            fileArray[3].Should().Be(@"c:\base\subfolderA\nested\n-001.txt");
+            fileArray[4].Should().Be(@"c:\base\subfolderA\nested\n-002.txt");
+            fileArray[5].Should().Be(@"c:\base\subfolderA\nested\aaa\n-aaa.txt");
+            fileArray[6].Should().Be(@"c:\base\subfolderA\nested\deeper\ddd-1.txt");
+            fileArray[7].Should().Be(@"c:\base\subfolderA\nested\deeper\ddd-2.txt");
+            fileArray[8].Should().Be(@"c:\base\subfolderZ\sub-zzz.txt");
+        }
+
+        [Fact]
+        private void When_enumerating_files_recursively_for_pattern_with_path_it_must_return_them_in_order()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\base\zzz.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderZ\sub-zzz.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\n-002.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\deeper\ddd-1.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\deeper\ddd-2.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\aaa\n-aaa.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\nested\n-001.txt")
+                .IncludingEmptyFile(@"C:\base\subfolderA\sub-aaa.txt")
+                .IncludingEmptyFile(@"C:\base\aaa.txt")
+                .Build();
+
+            // Act
+            IEnumerable<string> files =
+                fileSystem.Directory.EnumerateFiles(@"c:\", @"base\*.txt", SearchOption.AllDirectories);
+
+            // Assert
+            string[] fileArray = files.Should().HaveCount(9).And.Subject.ToArray();
+            fileArray[0].Should().Be(@"c:\base\aaa.txt");
+            fileArray[1].Should().Be(@"c:\base\zzz.txt");
+            fileArray[2].Should().Be(@"c:\base\subfolderA\sub-aaa.txt");
+            fileArray[3].Should().Be(@"c:\base\subfolderA\nested\n-001.txt");
+            fileArray[4].Should().Be(@"c:\base\subfolderA\nested\n-002.txt");
+            fileArray[5].Should().Be(@"c:\base\subfolderA\nested\aaa\n-aaa.txt");
+            fileArray[6].Should().Be(@"c:\base\subfolderA\nested\deeper\ddd-1.txt");
+            fileArray[7].Should().Be(@"c:\base\subfolderA\nested\deeper\ddd-2.txt");
+            fileArray[8].Should().Be(@"c:\base\subfolderZ\sub-zzz.txt");
         }
 
         [Fact]

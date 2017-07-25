@@ -444,12 +444,13 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        public IEnumerable<string> EnumerateDirectories([NotNull] PathNavigator pathNavigator, [NotNull] string searchPattern)
+        public IEnumerable<string> EnumerateDirectories([NotNull] PathNavigator pathNavigator, [NotNull] string searchPattern,
+            [CanBeNull] SearchOption? searchOption)
         {
             Guard.NotNull(pathNavigator, nameof(pathNavigator));
             Guard.NotNull(searchPattern, nameof(searchPattern));
 
-            DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
+            DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name, false);
             if (directory == null)
             {
                 throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
@@ -458,26 +459,40 @@ namespace TestableFileSystem.Fakes
             if (pathNavigator.IsAtEnd)
             {
                 PathPattern pattern = PathPattern.Create(searchPattern);
-                return EnumerateDirectoriesInDirectory(directory, pattern);
+                return EnumerateDirectoriesInDirectory(directory, pattern, searchOption, pathNavigator.Path);
             }
 
-            return directory.EnumerateDirectories(pathNavigator.MoveDown(), searchPattern);
+            return directory.EnumerateDirectories(pathNavigator.MoveDown(), searchPattern, searchOption);
         }
 
         [NotNull]
         [ItemNotNull]
         private IEnumerable<string> EnumerateDirectoriesInDirectory([NotNull] DirectoryEntry directory,
-            [NotNull] PathPattern pattern)
+            [NotNull] PathPattern pattern, [CanBeNull] SearchOption? searchOption, [NotNull] AbsolutePath directoryPath)
         {
             PathPattern subPattern = pattern.SubPattern;
 
             if (subPattern == null)
             {
-                string directoryPath = directory.GetAbsolutePath();
-                foreach (DirectoryEntry directoryEntry in directory.contents.GetDirectoryEntries()
-                    .Where(x => pattern.IsMatch(x.Name)))
+                string path = directoryPath.GetText();
+
+                foreach (DirectoryEntry entry in directory.contents.GetDirectoryEntries().Where(x => pattern.IsMatch(x.Name))
+                    .OrderBy(x => x.Name))
                 {
-                    yield return Path.Combine(directoryPath, directoryEntry.Name);
+                    yield return Path.Combine(path, entry.Name);
+                }
+
+                if (searchOption == SearchOption.AllDirectories)
+                {
+                    foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries().OrderBy(x => x.Name))
+                    {
+                        AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
+                        foreach (string result in EnumerateDirectoriesInDirectory(subdirectory, pattern, searchOption,
+                            subdirectoryPath))
+                        {
+                            yield return result;
+                        }
+                    }
                 }
             }
             else
@@ -486,9 +501,11 @@ namespace TestableFileSystem.Fakes
                 {
                     if (pattern.IsMatch(subdirectory.Name))
                     {
-                        foreach (string directoryPath in EnumerateDirectoriesInDirectory(subdirectory, subPattern))
+                        AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
+                        foreach (string result in EnumerateDirectoriesInDirectory(subdirectory, subPattern, searchOption,
+                            subdirectoryPath))
                         {
-                            yield return directoryPath;
+                            yield return result;
                         }
                     }
                 }
@@ -529,14 +546,15 @@ namespace TestableFileSystem.Fakes
             {
                 string path = directoryPath.GetText();
 
-                foreach (FileEntry fileEntry in directory.contents.GetFileEntries().Where(x => pattern.IsMatch(x.Name)))
+                foreach (FileEntry entry in directory.contents.GetFileEntries().Where(x => pattern.IsMatch(x.Name))
+                    .OrderBy(x => x.Name))
                 {
-                    yield return Path.Combine(path, fileEntry.Name);
+                    yield return Path.Combine(path, entry.Name);
                 }
 
                 if (searchOption == SearchOption.AllDirectories)
                 {
-                    foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries())
+                    foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries().OrderBy(x => x.Name))
                     {
                         AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
                         foreach (string filePath in EnumerateFilesInDirectory(subdirectory, pattern, searchOption,

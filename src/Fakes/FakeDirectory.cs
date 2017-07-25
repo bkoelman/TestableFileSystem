@@ -99,7 +99,21 @@ namespace TestableFileSystem.Fakes
         public string[] GetDirectories(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(searchPattern, nameof(searchPattern));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            AssertNetworkShareOrDriveExists(absolutePath);
+
+            var navigator = new PathNavigator(absolutePath);
+
+            if (root.TryGetExistingFile(navigator) != null)
+            {
+                throw ErrorFactory.DirectoryNameIsInvalid();
+            }
+
+            IEnumerable<string> fileNames = root.EnumerateDirectories(navigator, searchPattern, searchOption);
+            return ToRelativeNames(fileNames, path, absolutePath).ToArray();
         }
 
         public IEnumerable<string> EnumerateDirectories(string path, string searchPattern = "*",
