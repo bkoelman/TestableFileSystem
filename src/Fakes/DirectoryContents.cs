@@ -116,11 +116,18 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        public IEnumerable<BaseEntry> GetEntries()
+        public IEnumerable<BaseEntry> GetEntries(EnumerationFilter filter)
         {
-            foreach (BaseEntry entry in entries.Values)
+            switch (filter)
             {
-                yield return entry;
+                case EnumerationFilter.Files:
+                    return entries.Values.OfType<FileEntry>();
+                case EnumerationFilter.Directories:
+                    return entries.Values.OfType<DirectoryEntry>();
+                case EnumerationFilter.All:
+                    return entries.Values;
+                default:
+                    throw new NotSupportedException($"Unsupported filter '{filter}'.");
             }
         }
 

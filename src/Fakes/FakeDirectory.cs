@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -40,54 +41,11 @@ namespace TestableFileSystem.Fakes
         public string[] GetFiles(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            Guard.NotNull(path, nameof(path));
-            Guard.NotNull(searchPattern, nameof(searchPattern));
-
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertNetworkShareOrDriveExists(absolutePath);
-
-            var navigator = new PathNavigator(absolutePath);
-
-            if (root.TryGetExistingFile(navigator) != null)
-            {
-                throw ErrorFactory.DirectoryNameIsInvalid();
-            }
-
-            IEnumerable<string> fileNames = root.EnumerateFiles(navigator, searchPattern, searchOption);
-            return ToRelativeNames(fileNames, path, absolutePath).ToArray();
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption, EnumerationFilter.Files);
+            return handler.Handle().ToArray();
         }
 
-        [NotNull]
-        [ItemNotNull]
-        private static IEnumerable<string> ToRelativeNames([NotNull] [ItemNotNull] IEnumerable<string> fileNames,
-            [NotNull] string sourcePath, [NotNull] AbsolutePath absolutePath)
-        {
-            string basePath = sourcePath.TrimEnd();
 
-            foreach (string fileName in fileNames)
-            {
-                string relativeName = fileName.Substring(absolutePath.GetText().Length);
-                yield return basePath + relativeName;
-            }
-        }
-
-        private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath, bool isCreatingDirectory = false)
-        {
-            if (!root.Directories.ContainsKey(absolutePath.Components[0]))
-            {
-                if (absolutePath.IsOnLocalDrive)
-                {
-                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
-                }
-
-                if (isCreatingDirectory && absolutePath.IsVolumeRoot)
-                {
-                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
-                }
-
-                throw ErrorFactory.NetworkPathNotFound();
-            }
-        }
 
         public IEnumerable<string> EnumerateFiles(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
@@ -99,21 +57,8 @@ namespace TestableFileSystem.Fakes
         public string[] GetDirectories(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            Guard.NotNull(path, nameof(path));
-            Guard.NotNull(searchPattern, nameof(searchPattern));
-
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertNetworkShareOrDriveExists(absolutePath);
-
-            var navigator = new PathNavigator(absolutePath);
-
-            if (root.TryGetExistingFile(navigator) != null)
-            {
-                throw ErrorFactory.DirectoryNameIsInvalid();
-            }
-
-            IEnumerable<string> fileNames = root.EnumerateDirectories(navigator, searchPattern, searchOption);
-            return ToRelativeNames(fileNames, path, absolutePath).ToArray();
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption, EnumerationFilter.Directories);
+            return handler.Handle().ToArray();
         }
 
         public IEnumerable<string> EnumerateDirectories(string path, string searchPattern = "*",
@@ -126,21 +71,8 @@ namespace TestableFileSystem.Fakes
         public string[] GetFileSystemEntries(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            Guard.NotNull(path, nameof(path));
-            Guard.NotNull(searchPattern, nameof(searchPattern));
-
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertNetworkShareOrDriveExists(absolutePath);
-
-            var navigator = new PathNavigator(absolutePath);
-
-            if (root.TryGetExistingFile(navigator) != null)
-            {
-                throw ErrorFactory.DirectoryNameIsInvalid();
-            }
-
-            IEnumerable<string> fileNames = root.EnumerateEntries(navigator, searchPattern, searchOption);
-            return ToRelativeNames(fileNames, path, absolutePath).ToArray();
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption, EnumerationFilter.All);
+            return handler.Handle().ToArray();
         }
 
         public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern = "*",
@@ -196,6 +128,24 @@ namespace TestableFileSystem.Fakes
 
             root.CreateDirectories(navigator);
             return owner.ConstructDirectoryInfo(absolutePath.GetText());
+        }
+
+        private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath, bool isCreatingDirectory = false)
+        {
+            if (!root.Directories.ContainsKey(absolutePath.Components[0]))
+            {
+                if (absolutePath.IsOnLocalDrive)
+                {
+                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
+                }
+
+                if (isCreatingDirectory && absolutePath.IsVolumeRoot)
+                {
+                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
+                }
+
+                throw ErrorFactory.NetworkPathNotFound();
+            }
         }
 
         private static void AssertPathIsNotWhiteSpace([NotNull] string path)
