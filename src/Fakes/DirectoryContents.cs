@@ -114,6 +114,16 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        [NotNull]
+        [ItemNotNull]
+        public IEnumerable<BaseEntry> GetEntries()
+        {
+            foreach (BaseEntry entry in entries.Values)
+            {
+                yield return entry;
+            }
+        }
+
         public void Add([NotNull] BaseEntry entry)
         {
             Guard.NotNull(entry, nameof(entry));
