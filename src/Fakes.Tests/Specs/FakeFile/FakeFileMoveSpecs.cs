@@ -525,8 +525,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact(Skip = "TODO: Enable this test when File.Copy is implemented.")]
-        private void When_moving_an_open_file_it_must_copy_and_fail()
+        [Fact]
+        private void When_moving_an_open_file_to_same_drive_it_must_fail()
         {
             // Arrange
             const string sourcePath = @"C:\some\file.txt";
@@ -545,7 +545,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 action.ShouldThrow<IOException>()
                     .WithMessage("The process cannot access the file because it is being used by another process.");
                 fileSystem.File.Exists(sourcePath).Should().BeTrue();
-                fileSystem.File.Exists(destinationPath).Should().BeTrue();
+                fileSystem.File.Exists(destinationPath).Should().BeFalse();
+            }
+        }
+
+        [Fact]
+        private void When_moving_an_open_file_to_different_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"X:\newname.doc";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .IncludingDirectory(@"X:\")
+                .Build();
+
+            using (fileSystem.File.Open(sourcePath, FileMode.Open, FileAccess.Read))
+            {
+                // Act
+                Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
+
+                // Assert
+                action.ShouldThrow<IOException>()
+                    .WithMessage("The process cannot access the file because it is being used by another process.");
+                fileSystem.File.Exists(sourcePath).Should().BeTrue();
+                fileSystem.File.Exists(destinationPath).Should().BeFalse();
             }
         }
 
