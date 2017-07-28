@@ -205,8 +205,6 @@ namespace TestableFileSystem.Fakes
             FileEntry sourceFile = GetMoveSource(sourcePath);
             if (sourceFile.IsOpen())
             {
-                // TODO: Copy
-
                 throw ErrorFactory.FileIsInUse();
             }
 
