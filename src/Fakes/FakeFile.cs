@@ -174,6 +174,15 @@ namespace TestableFileSystem.Fakes
         {
             // TODO: Implement timings - https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
 
+            Guard.NotNull(sourceFileName, nameof(sourceFileName));
+            Guard.NotNull(destFileName, nameof(destFileName));
+
+            AssertFileNameIsNotEmpty(sourceFileName);
+            AssertFileNameIsNotEmpty(destFileName);
+
+            AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
+            AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
+
             throw new NotImplementedException();
         }
 
