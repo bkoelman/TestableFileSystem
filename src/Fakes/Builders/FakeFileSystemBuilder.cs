@@ -8,7 +8,7 @@ namespace TestableFileSystem.Fakes.Builders
 {
     public sealed class FakeFileSystemBuilder : ITestDataBuilder<FakeFileSystem>
     {
-        // TODO: Consider allowing to set attributes like Compressed/Encrypted/... from here.
+        // TODO: Consider allowing to set attributes like Compressed/Encrypted/... from this builder.
 
         private bool includeDriveC = true;
 
