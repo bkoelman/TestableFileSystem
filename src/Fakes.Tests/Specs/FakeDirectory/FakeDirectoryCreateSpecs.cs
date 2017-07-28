@@ -220,6 +220,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_creating_remote_current_directory_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\server\share\documents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(path);
+
+            // Act
+            IDirectoryInfo info = fileSystem.Directory.CreateDirectory(path);
+
+            // Assert
+            info.Should().NotBeNull();
+            fileSystem.Directory.Exists(path).Should().BeTrue();
+        }
+
+        [Fact]
         private void When_creating_above_root_of_drive_it_must_succeed()
         {
             // Arrange

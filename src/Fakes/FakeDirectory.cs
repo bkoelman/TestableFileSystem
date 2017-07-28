@@ -41,11 +41,10 @@ namespace TestableFileSystem.Fakes
         public string[] GetFiles(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption, EnumerationFilter.Files);
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption,
+                EnumerationFilter.Files);
             return handler.Handle().ToArray();
         }
-
-
 
         public IEnumerable<string> EnumerateFiles(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
@@ -57,7 +56,8 @@ namespace TestableFileSystem.Fakes
         public string[] GetDirectories(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption, EnumerationFilter.Directories);
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption,
+                EnumerationFilter.Directories);
             return handler.Handle().ToArray();
         }
 
@@ -71,7 +71,8 @@ namespace TestableFileSystem.Fakes
         public string[] GetFileSystemEntries(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption, EnumerationFilter.All);
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption,
+                EnumerationFilter.All);
             return handler.Handle().ToArray();
         }
 
@@ -197,12 +198,6 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             AssertNetworkShareOrDriveExists(absolutePath);
-
-            if (!absolutePath.IsOnLocalDrive)
-            {
-                // TODO: Remove this limitation.
-                throw ErrorFactory.PathIsInvalid();
-            }
 
             var navigator = new PathNavigator(absolutePath);
             DirectoryEntry directory = root.GetExistingDirectory(navigator);

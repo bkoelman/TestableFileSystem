@@ -299,6 +299,27 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_deleting_remote_current_directory_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\server\share\documents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(path);
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(path, true);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(
+                    @"The process cannot access the file '\\server\share\documents' because it is being used by another process.");
+        }
+
+        [Fact]
         private void When_deleting_above_current_directory_it_must_fail()
         {
             // Arrange
@@ -314,6 +335,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             action.ShouldThrow<IOException>()
                 .WithMessage(@"The process cannot access the file 'C:\store' because it is being used by another process.");
+        }
+
+        [Fact]
+        private void When_deleting_above_remote_current_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"\\server\share\documents\teamA")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"\\server\share\documents\teamA");
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(@"\\server\share\documents", true);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(
+                    @"The process cannot access the file '\\server\share\documents' because it is being used by another process.");
         }
 
         [Fact]

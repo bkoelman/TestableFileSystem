@@ -202,7 +202,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_setting_current_directory_to_existing_remote_directory_it_must_fail()
+        private void When_setting_current_directory_to_existing_remote_directory_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -210,10 +210,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.SetCurrentDirectory(@"\\docserver\teams");
+            fileSystem.Directory.SetCurrentDirectory(@"\\docserver\teams");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"The specified path is invalid.");
+            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"\\docserver\teams");
         }
 
         [Fact]
