@@ -132,7 +132,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_creating_missing_local_directory_recursively_it_must_succeed()
+        private void When_creating_missing_local_directory_tree_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some\folder\tree";
@@ -333,7 +333,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_creating_remote_directory_it_must_succeed()
+        private void When_creating_remote_directory_tree_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

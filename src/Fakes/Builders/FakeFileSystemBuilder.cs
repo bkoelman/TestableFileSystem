@@ -7,13 +7,29 @@ namespace TestableFileSystem.Fakes.Builders
 {
     public sealed class FakeFileSystemBuilder : ITestDataBuilder<FakeFileSystem>
     {
+        // TODO: Consider allowing to set attributes like Compressed/Encrypted/... from here.
+
+        private bool includeDriveC = true;
+
         [NotNull]
-        private readonly DirectoryTreeBuilder builder = new DirectoryTreeBuilder().IncludingDirectory("C:");
+        private readonly DirectoryTreeBuilder builder = new DirectoryTreeBuilder();
 
         public FakeFileSystem Build()
         {
+            if (includeDriveC)
+            {
+                builder.IncludingDirectory("C:");
+            }
+
             DirectoryEntry root = builder.Build();
             return new FakeFileSystem(root);
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder WithoutDefaultDriveC()
+        {
+            includeDriveC = false;
+            return this;
         }
 
         [NotNull]

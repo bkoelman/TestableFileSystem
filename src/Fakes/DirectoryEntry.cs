@@ -276,7 +276,7 @@ namespace TestableFileSystem.Fakes
                 return;
             }
 
-            throw new InvalidOperationException("Drive letter or network share must be created at this level.");
+            throw new InvalidOperationException("Internal error: Drive letter or network share must be created at this level.");
         }
 
         private static bool IsDriveLetter([NotNull] string name)

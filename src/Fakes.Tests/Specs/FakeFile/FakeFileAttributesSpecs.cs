@@ -182,7 +182,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_attributes_for_existing_file_to_normal_it_must_succeed()
+        private void When_setting_attributes_for_existing_file_to_Normal_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some.txt";
@@ -199,7 +199,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_attributes_for_existing_file_to_archive_with_trailing_whitespace_it_must_succeed()
+        private void When_setting_attributes_for_existing_file_to_Archive_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some.txt";
@@ -232,7 +232,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_attributes_for_existing_file_to_zero_it_must_reset_to_normal()
+        private void When_setting_attributes_for_existing_file_to_zero_it_must_reset_to_Normal()
         {
             // Arrange
             const string path = @"C:\some.txt";
@@ -249,7 +249,92 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_attributes_for_existing_file_to_a_discarded_value_it_must_reset_to_normal()
+        private void When_setting_attributes_for_existing_file_to_Directory_it_must_discard_and_reset_to_Normal()
+        {
+            // Arrange
+            const string path = @"C:\some.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Directory);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Normal);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_file_to_Device_it_must_discard_and_reset_to_Normal()
+        {
+            // Arrange
+            const string path = @"C:\some.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Device);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Normal);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_file_to_SparseFile_it_must_discard_and_reset_to_Normal()
+        {
+            // Arrange
+            const string path = @"C:\some.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.SparseFile);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Normal);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_file_to_ReparsePoint_it_must_discard_and_reset_to_Normal()
+        {
+            // Arrange
+            const string path = @"C:\some.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.ReparsePoint);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Normal);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_file_to_Compressed_it_must_discard_and_reset_to_Normal()
+        {
+            // Arrange
+            const string path = @"C:\some.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Compressed);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Normal);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_file_to_Encrypted_it_must_discard_and_reset_to_Normal()
         {
             // Arrange
             const string path = @"C:\some.txt";
@@ -260,6 +345,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Act
             fileSystem.File.SetAttributes(path, FileAttributes.Encrypted);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Normal);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_file_to_IntegrityStream_it_must_discard_and_reset_to_Normal()
+        {
+            // Arrange
+            const string path = @"C:\some.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.IntegrityStream);
 
             // Assert
             fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Normal);
@@ -568,7 +670,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_attributes_for_directory_it_must_succeed()
+        private void When_getting_attributes_for_existing_directory_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -585,7 +687,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_attributes_for_directory_it_must_succeed()
+        private void When_setting_attributes_for_existing_directory_to_Directory_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -599,6 +701,170 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_directory_to_Temporary_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(path, FileAttributes.Temporary);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Invalid File or Directory attributes value.*");
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_directory_to_all_except_Temporary_it_must_filter_and_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path,
+                FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System | FileAttributes.Directory |
+                FileAttributes.Archive | FileAttributes.Device | FileAttributes.Normal | FileAttributes.SparseFile |
+                FileAttributes.ReparsePoint | FileAttributes.Compressed | FileAttributes.Offline |
+                FileAttributes.NotContentIndexed | FileAttributes.Encrypted | FileAttributes.IntegrityStream |
+                FileAttributes.NoScrubData);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.ReadOnly | FileAttributes.Hidden |
+                FileAttributes.System | FileAttributes.Directory | FileAttributes.Archive | FileAttributes.Offline |
+                FileAttributes.NotContentIndexed | FileAttributes.NoScrubData | FileAttributes.ReparsePoint);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_directory_to_Device_it_must_discard_and_preserve_directory_attribute()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Device);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void
+            When_setting_attributes_for_existing_directory_to_SparseFile_it_must_discard_and_preserve_directory_attribute()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.SparseFile);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_directory_to_Normal_it_must_discard_and_preserve_directory_attribute()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Normal);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void
+            When_setting_attributes_for_existing_directory_to_Compressed_it_must_discard_and_preserve_directory_attribute()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Compressed);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void
+            When_setting_attributes_for_existing_directory_to_Encrypted_it_must_discard_and_preserve_directory_attribute()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Encrypted);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void
+            When_setting_attributes_for_existing_directory_to_IntegrityStream_it_must_discard_and_preserve_directory_attribute()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.IntegrityStream);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_existing_directory_to_Hidden_it_must_preserve_directory_attribute()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            fileSystem.File.SetAttributes(path, FileAttributes.Hidden);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Directory | FileAttributes.Hidden);
         }
 
         [Fact]
