@@ -245,6 +245,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_enumerating_directories_for_pattern_that_contains_invalid_characters_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\folder")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.EnumerateDirectories(@"c:\folder", @"<|>");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+        }
+
+        [Fact]
         private void When_enumerating_directories_for_pattern_with_asterisk_it_must_match_empty()
         {
             // Arrange

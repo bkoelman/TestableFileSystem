@@ -10,6 +10,9 @@ namespace TestableFileSystem.Fakes
     internal sealed class PathPattern
     {
         [NotNull]
+        private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();
+
+        [NotNull]
         private readonly Sequence root;
 
         [CanBeNull]
@@ -41,15 +44,7 @@ namespace TestableFileSystem.Fakes
             PathPattern root = null;
             foreach (string directoryPattern in pattern.Split(PathFacts.DirectorySeparatorChars).Reverse())
             {
-                if (string.IsNullOrWhiteSpace(directoryPattern))
-                {
-                    throw ErrorFactory.SearchPatternMustNotBeDriveOrUnc(nameof(pattern));
-                }
-
-                if (directoryPattern == "..")
-                {
-                    throw ErrorFactory.SearchPatternCannotContainParent(nameof(pattern));
-                }
+                AssertDirectoryPatternIsValid(directoryPattern);
 
                 Sequence sequence = ParsePattern(directoryPattern);
 
@@ -63,6 +58,41 @@ namespace TestableFileSystem.Fakes
 
             // ReSharper disable once AssignNullToNotNullAttribute
             return root;
+        }
+
+        [AssertionMethod]
+        private static void AssertDirectoryPatternIsValid([NotNull] string pattern)
+        {
+            AssertIsNotWhiteSpace(pattern);
+            AssertIsNotParentReference(pattern);
+            AssertContainsNoInvalidCharacters(pattern);
+        }
+
+        private static void AssertIsNotWhiteSpace([NotNull] string pattern)
+        {
+            if (string.IsNullOrWhiteSpace(pattern))
+            {
+                throw ErrorFactory.SearchPatternMustNotBeDriveOrUnc(nameof(pattern));
+            }
+        }
+
+        private static void AssertIsNotParentReference([NotNull] string pattern)
+        {
+            if (pattern == "..")
+            {
+                throw ErrorFactory.SearchPatternCannotContainParent(nameof(pattern));
+            }
+        }
+
+        private static void AssertContainsNoInvalidCharacters([NotNull] string pattern)
+        {
+            foreach (char ch in pattern)
+            {
+                if (ch != '?' && ch != '*' && FileNameCharsInvalid.Contains(ch))
+                {
+                    throw ErrorFactory.IllegalCharactersInPath();
+                }
+            }
         }
 
         private static bool SequenceContainsWildcards([NotNull] Sequence sequence)
