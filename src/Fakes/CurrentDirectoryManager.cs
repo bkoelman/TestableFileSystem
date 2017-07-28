@@ -17,7 +17,7 @@ namespace TestableFileSystem.Fakes
             AssertIsTopLevel(rootEntry);
 
             ICollection<DirectoryEntry> drives = rootEntry.FilterDrives();
-            AssertFileSystemContainsVolumes(drives);
+            AssertFileSystemContainsDrives(drives);
 
             directory = drives.First();
         }
@@ -32,7 +32,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [AssertionMethod]
-        private static void AssertFileSystemContainsVolumes([NotNull] [ItemNotNull] IEnumerable<DirectoryEntry> drives)
+        private static void AssertFileSystemContainsDrives([NotNull] [ItemNotNull] IEnumerable<DirectoryEntry> drives)
         {
             if (!drives.Any())
             {
