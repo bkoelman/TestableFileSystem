@@ -203,10 +203,7 @@ namespace TestableFileSystem.Fakes
             AssertParentDirectoryDoesNotExistAsFile(destinationPath);
 
             FileEntry sourceFile = GetMoveSource(sourcePath);
-            if (sourceFile.IsOpen())
-            {
-                throw ErrorFactory.FileIsInUse();
-            }
+            AssertHasExclusiveAccess(sourceFile);
 
             var destinationNavigator = new PathNavigator(destinationPath);
             root.MoveFile(sourceFile, destinationNavigator);
@@ -231,6 +228,14 @@ namespace TestableFileSystem.Fakes
                 {
                     throw ErrorFactory.ParameterIsIncorrect();
                 }
+            }
+        }
+
+        private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
+        {
+            if (file.IsOpen())
+            {
+                throw ErrorFactory.FileIsInUse();
             }
         }
 
