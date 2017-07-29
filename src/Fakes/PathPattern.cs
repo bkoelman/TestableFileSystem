@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,14 +10,26 @@ namespace TestableFileSystem.Fakes
 {
     internal sealed class PathPattern
     {
+        private const char AsteriskChar = '*';
+        private const char QuestionChar = '?';
+
         [NotNull]
-        private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();
+        private static readonly char[] PatternCharsInvalid = GetPatternCharsInvalid();
 
         [NotNull]
         private readonly Sequence root;
 
         [CanBeNull]
         public PathPattern SubPattern { get; }
+
+        [NotNull]
+        private static char[] GetPatternCharsInvalid()
+        {
+            List<char> characters = Path.GetInvalidFileNameChars().ToList();
+            characters.Remove(AsteriskChar);
+            characters.Remove(QuestionChar);
+            return characters.ToArray();
+        }
 
         private PathPattern([NotNull] Sequence root, [CanBeNull] PathPattern subPattern)
         {
@@ -88,7 +101,7 @@ namespace TestableFileSystem.Fakes
         {
             foreach (char ch in pattern)
             {
-                if (ch != '?' && ch != '*' && FileNameCharsInvalid.Contains(ch))
+                if (PatternCharsInvalid.Contains(ch))
                 {
                     throw ErrorFactory.IllegalCharactersInPath();
                 }
@@ -131,7 +144,7 @@ namespace TestableFileSystem.Fakes
 
             foreach (char ch in pattern.Reverse())
             {
-                if (ch == '*')
+                if (ch == AsteriskChar)
                 {
                     if (builder.Length > 0)
                     {
@@ -141,7 +154,7 @@ namespace TestableFileSystem.Fakes
 
                     root = new MultiWildcardSequence(root);
                 }
-                else if (ch == '?')
+                else if (ch == QuestionChar)
                 {
                     if (builder.Length > 0)
                     {
@@ -277,7 +290,7 @@ namespace TestableFileSystem.Fakes
 
             public override string ToString()
             {
-                return Next == null ? "*" : "* > " + Next;
+                return Next == null ? AsteriskChar.ToString() : AsteriskChar + " > " + Next;
             }
         }
 
@@ -302,7 +315,7 @@ namespace TestableFileSystem.Fakes
 
             public override string ToString()
             {
-                return Next == null ? "?" : "? > " + Next;
+                return Next == null ? QuestionChar.ToString() : QuestionChar + " > " + Next;
             }
         }
     }
