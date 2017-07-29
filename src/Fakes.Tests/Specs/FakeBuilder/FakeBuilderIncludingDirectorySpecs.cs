@@ -100,7 +100,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_including_above_root_of_drive_it_must_succeed()
         {
             // Arrange
-
             var builder = new FakeFileSystemBuilder();
 
             // Act

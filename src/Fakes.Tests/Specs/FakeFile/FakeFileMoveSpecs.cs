@@ -422,7 +422,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_moving_missing_file_it_must_fail()
         {
             // Arrange
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some")
                 .Build();
@@ -479,10 +478,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"d:\")
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Move(@"C:\", @"C:\some\newname.doc");
+            Action action = () => fileSystem.File.Move(@"C:\", @"d:\newname.doc");
 
             // Assert
             action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\'.");
