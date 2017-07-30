@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FakeFileAttributesSpecs
+    public sealed class FileAttributesSpecs
     {
         [Fact]
         private void When_getting_attributes_for_null_it_must_fail()

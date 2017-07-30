@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FakeFileMoveSpecs
+    public sealed class FileMoveSpecs
     {
         [Fact]
         private void When_moving_file_for_null_source_it_must_fail()
@@ -365,6 +365,37 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.ShouldThrow<IOException>().WithMessage("The parameter is incorrect");
+        }
+
+        [Fact]
+        private void When_moving_file_from_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\some\file.txt\other.txt\missing.txt", "newname.doc");
+
+            // Assert
+            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt\other.txt\missing.txt'.");
+        }
+
+        [Fact]
+        private void When_moving_file_to_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .IncludingEmptyFile(@"C:\some\newname.doc")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(@"C:\some\file.txt", @"C:\some\newname.doc\other.doc\more.doc");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
         [Fact]

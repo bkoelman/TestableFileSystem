@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
-    public sealed class FakeDirectoryCreateSpecs
+    public sealed class DirectoryCreateSpecs
     {
         [Fact]
         private void When_creating_directory_for_null_it_must_fail()

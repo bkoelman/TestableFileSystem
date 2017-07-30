@@ -41,6 +41,7 @@ namespace TestableFileSystem.Fakes.Handlers
             var sourceResolver = new FileResolver(Root)
             {
                 ErrorFileFoundAsDirectory = incomingPath => ErrorFactory.FileNotFound(incomingPath),
+                ErrorDirectoryFoundAsFile = incomingPath => ErrorFactory.FileNotFound(incomingPath),
                 ErrorLastDirectoryFoundAsFile = incomingPath => ErrorFactory.FileNotFound(incomingPath),
                 ErrorDirectoryNotFound = incomingPath => ErrorFactory.FileNotFound(incomingPath),
                 ErrorPathIsVolumeRoot = incomingPath => ErrorFactory.FileNotFound(incomingPath),
@@ -57,6 +58,7 @@ namespace TestableFileSystem.Fakes.Handlers
             var destinationResolver = new FileResolver(Root)
             {
                 ErrorFileFoundAsDirectory = _ => ErrorFactory.CannotCreateFileBecauseFileAlreadyExists(),
+                ErrorDirectoryFoundAsFile = _ => ErrorFactory.DirectoryNotFound(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.ParameterIsIncorrect(),
                 ErrorDirectoryNotFound = _ => ErrorFactory.DirectoryNotFound(),
                 ErrorPathIsVolumeRoot = _ => ErrorFactory.FileOrDirectoryOrVolumeIsIncorrect(),

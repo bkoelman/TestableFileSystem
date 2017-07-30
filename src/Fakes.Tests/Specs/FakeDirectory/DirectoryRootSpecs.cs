@@ -6,7 +6,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
-    public sealed class FakeDirectoryRootSpecs
+    public sealed class DirectoryRootSpecs
     {
         [Fact]
         private void When_getting_directory_root_for_null_it_must_fail()

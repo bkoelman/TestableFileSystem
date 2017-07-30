@@ -9,7 +9,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
-    public sealed class FakeDirectoryEnumerateDirectoriesSpecs
+    public sealed class DirectoryEnumerateDirectoriesSpecs
     {
         [Fact]
         private void When_enumerating_directories_for_null_path_it_must_fail()

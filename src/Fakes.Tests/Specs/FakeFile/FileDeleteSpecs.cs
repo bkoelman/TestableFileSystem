@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FakeFileDeleteSpecs
+    public sealed class FileDeleteSpecs
     {
         [Fact]
         private void When_deleting_file_for_null_it_must_fail()

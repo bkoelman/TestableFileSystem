@@ -8,7 +8,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 {
-    public sealed class FakeBuilderIncludingTextFileSpecs
+    public sealed class BuilderIncludingTextFileSpecs
     {
         private const string DefaultContents = "ABC";
         private const string LongerContents = "ABC...XYZ";

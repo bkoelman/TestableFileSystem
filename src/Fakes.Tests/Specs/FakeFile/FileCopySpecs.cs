@@ -6,7 +6,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FakeFileCopySpecs
+    public sealed class FileCopySpecs
     {
         [Fact]
         private void When_copying_file_for_null_source_it_must_fail()

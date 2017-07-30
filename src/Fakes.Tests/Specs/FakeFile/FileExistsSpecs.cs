@@ -5,7 +5,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FakeFileExistsSpecs
+    public sealed class FileExistsSpecs
     {
         [Fact]
         private void When_getting_file_existence_for_null_it_must_succeed()

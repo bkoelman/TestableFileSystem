@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FakeFileCreateSpecs
+    public sealed class FileCreateSpecs
     {
         [Fact]
         private void When_creating_file_for_null_it_must_fail()

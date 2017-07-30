@@ -8,7 +8,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FakeFileTimeSpecs
+    public sealed class FileTimeSpecs
     {
         private static readonly DateTime ZeroFileTime = 1.January(1601).AsUtc().ToLocalTime();
         private static readonly DateTime ZeroFileTimeUtc = 1.January(1601).AsUtc();

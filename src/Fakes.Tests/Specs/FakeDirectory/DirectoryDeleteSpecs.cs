@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
-    public sealed class FakeDirectoryDeleteSpecs
+    public sealed class DirectoryDeleteSpecs
     {
         [Fact]
         private void When_deleting_directory_for_null_it_must_fail()

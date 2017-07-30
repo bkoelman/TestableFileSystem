@@ -1,6 +1,6 @@
 ﻿namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
-    public sealed class FakeDirectoryParentSpecs
+    public sealed class DirectoryParentSpecs
     {
         // TODO: Create specs.
     }

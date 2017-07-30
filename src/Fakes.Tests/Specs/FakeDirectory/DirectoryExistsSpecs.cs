@@ -5,7 +5,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
-    public sealed class FakeDirectoryExistsSpecs
+    public sealed class DirectoryExistsSpecs
     {
         [Fact]
         private void When_getting_directory_existence_for_null_it_must_succeed()

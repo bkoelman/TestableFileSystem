@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
-    public sealed class FakeDirectoryCurrentSpecs
+    public sealed class DirectoryCurrentSpecs
     {
         [Fact]
         private void When_setting_current_directory_to_null_it_must_fail()

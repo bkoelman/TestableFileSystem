@@ -9,7 +9,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FakeFileStreamSpecs
+    public sealed class FileStreamSpecs
     {
         [Fact]
         private void When_requesting_stream_for_new_file_it_must_succeed()
