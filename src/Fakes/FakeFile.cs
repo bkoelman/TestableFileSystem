@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Handlers;
+using TestableFileSystem.Fakes.Handlers.Arguments;
 using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 
@@ -127,31 +129,10 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
             AssertPathIsNotEmpty(path);
 
-            FileAccess fileAccess = access ?? (mode == FileMode.Append ? FileAccess.Write : FileAccess.ReadWrite);
+            var handler = new FileOpenHandler(owner, root);
+            var arguments = new FileOpenArguments(path, mode, access);
 
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            var resolver = new FileResolver(root);
-
-            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) =
-                resolver.TryResolveFile(absolutePath);
-
-            if (existingFileOrNull != null)
-            {
-                if (mode == FileMode.CreateNew)
-                {
-                    throw ErrorFactory.CannotCreateBecauseFileAlreadyExists(absolutePath.GetText());
-                }
-
-                return existingFileOrNull.Open(mode, fileAccess);
-            }
-
-            if (mode == FileMode.Open || mode == FileMode.Truncate)
-            {
-                throw ErrorFactory.FileNotFound(absolutePath.GetText());
-            }
-
-            FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);
-            return newFile.Open(mode, fileAccess);
+            return handler.Handle(arguments);
         }
 
         private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath)

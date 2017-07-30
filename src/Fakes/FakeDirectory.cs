@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers;
+using TestableFileSystem.Fakes.Handlers.Arguments;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -41,9 +41,10 @@ namespace TestableFileSystem.Fakes
         public string[] GetFiles(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption,
-                EnumerationFilter.Files);
-            return handler.Handle().ToArray();
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root);
+            var arguments = new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.Files);
+
+            return handler.Handle(arguments);
         }
 
         public IEnumerable<string> EnumerateFiles(string path, string searchPattern = "*",
@@ -56,9 +57,11 @@ namespace TestableFileSystem.Fakes
         public string[] GetDirectories(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption,
-                EnumerationFilter.Directories);
-            return handler.Handle().ToArray();
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root);
+            var arguments =
+                new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.Directories);
+
+            return handler.Handle(arguments);
         }
 
         public IEnumerable<string> EnumerateDirectories(string path, string searchPattern = "*",
@@ -71,9 +74,10 @@ namespace TestableFileSystem.Fakes
         public string[] GetFileSystemEntries(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root, path, searchPattern, searchOption,
-                EnumerationFilter.All);
-            return handler.Handle().ToArray();
+            var handler = new DirectoryEnumerateEntriesHandler(owner, root);
+            var arguments = new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.All);
+
+            return handler.Handle(arguments);
         }
 
         public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern = "*",

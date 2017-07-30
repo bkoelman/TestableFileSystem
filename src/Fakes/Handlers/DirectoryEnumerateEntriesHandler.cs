@@ -2,62 +2,39 @@
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Handlers.Arguments;
 using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class DirectoryEnumerateEntriesHandler
+    internal sealed class DirectoryEnumerateEntriesHandler : FakeOperationHandler<DirectoryEnumerateEntriesArguments, string[]>
     {
-        [NotNull]
-        private readonly DirectoryEntry root;
-
-        [NotNull]
-        private readonly string incomingPath;
-
-        [NotNull]
-        private readonly AbsolutePath absolutePath;
-
-        [NotNull]
-        private readonly string searchPattern;
-
-        private readonly SearchOption searchOption;
-        private readonly EnumerationFilter filter;
-
-        public DirectoryEnumerateEntriesHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root,
-            [NotNull] string incomingPath, [NotNull] string searchPattern, SearchOption searchOption, EnumerationFilter filter)
+        public DirectoryEnumerateEntriesHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
+            : base(fileSystem, root)
         {
-            Guard.NotNull(fileSystem, nameof(fileSystem));
-            Guard.NotNull(root, nameof(root));
-            Guard.NotNull(incomingPath, nameof(incomingPath));
-            Guard.NotNull(searchPattern, nameof(searchPattern));
-
-            absolutePath = fileSystem.ToAbsolutePath(incomingPath);
-
-            this.root = root;
-            this.incomingPath = incomingPath;
-            this.searchPattern = searchPattern;
-            this.searchOption = searchOption;
-            this.filter = filter;
         }
 
-        [NotNull]
         [ItemNotNull]
-        public IEnumerable<string> Handle()
+        public override string[] Handle(DirectoryEnumerateEntriesArguments arguments)
         {
-            DirectoryEntry directory = ResolveDirectory();
+            Guard.NotNull(arguments, nameof(arguments));
 
-            PathPattern pattern = PathPattern.Create(searchPattern);
+            AbsolutePath absolutePath = FileSystem.ToAbsolutePath(arguments.Path);
+            DirectoryEntry directory = ResolveDirectory(absolutePath);
 
-            IEnumerable<string> absoluteNames = EnumerateEntriesInDirectory(directory, pattern, absolutePath);
+            PathPattern pattern = PathPattern.Create(arguments.SearchPattern);
 
-            return ToRelativeNames(absoluteNames);
+            IEnumerable<string> absoluteNames =
+                EnumerateEntriesInDirectory(directory, pattern, absolutePath, arguments.SearchOption, arguments.Filter);
+
+            return ToRelativeNames(absoluteNames, absolutePath, arguments.Path).ToArray();
         }
 
         [NotNull]
-        private DirectoryEntry ResolveDirectory()
+        private DirectoryEntry ResolveDirectory([NotNull] AbsolutePath absolutePath)
         {
-            var resolver = new DirectoryResolver(root)
+            var resolver = new DirectoryResolver(Root)
             {
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.DirectoryNameIsInvalid()
             };
@@ -68,7 +45,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         [ItemNotNull]
         private IEnumerable<string> EnumerateEntriesInDirectory([NotNull] DirectoryEntry directory, [NotNull] PathPattern pattern,
-            [NotNull] AbsolutePath directoryPath)
+            [NotNull] AbsolutePath directoryPath, SearchOption searchOption, EnumerationFilter filter)
         {
             PathPattern subPattern = pattern.SubPattern;
 
@@ -85,7 +62,8 @@ namespace TestableFileSystem.Fakes.Handlers
                     foreach (DirectoryEntry subdirectory in directory.Directories.Values.OrderBy(x => x.Name))
                     {
                         AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
-                        foreach (string nextPath in EnumerateEntriesInDirectory(subdirectory, pattern, subdirectoryPath))
+                        foreach (string nextPath in EnumerateEntriesInDirectory(subdirectory, pattern, subdirectoryPath,
+                            searchOption, filter))
                         {
                             yield return nextPath;
                         }
@@ -99,7 +77,8 @@ namespace TestableFileSystem.Fakes.Handlers
                     if (pattern.IsMatch(subdirectory.Name))
                     {
                         AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
-                        foreach (string nextPath in EnumerateEntriesInDirectory(subdirectory, subPattern, subdirectoryPath))
+                        foreach (string nextPath in EnumerateEntriesInDirectory(subdirectory, subPattern, subdirectoryPath,
+                            searchOption, filter))
                         {
                             yield return nextPath;
                         }
@@ -110,7 +89,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
         [NotNull]
         [ItemNotNull]
-        private IEnumerable<string> ToRelativeNames([NotNull] [ItemNotNull] IEnumerable<string> absoluteNames)
+        private IEnumerable<string> ToRelativeNames([NotNull] [ItemNotNull] IEnumerable<string> absoluteNames,
+            [NotNull] AbsolutePath absolutePath, [NotNull] string incomingPath)
         {
             string basePath = incomingPath.TrimEnd();
             int absolutePathLength = absolutePath.GetText().Length;
