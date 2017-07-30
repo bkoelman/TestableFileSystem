@@ -193,13 +193,10 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            var handler = new FileDeleteHandler(owner, root);
+            var arguments = new FileDeleteArguments(path);
 
-            AssertNetworkShareOrDriveExists(absolutePath);
-            AssertParentIsDirectoryOrMissing(absolutePath);
-
-            var navigator = new PathNavigator(absolutePath);
-            root.DeleteFile(navigator);
+            handler.Handle(arguments);
         }
 
         public FileAttributes GetAttributes(string path)

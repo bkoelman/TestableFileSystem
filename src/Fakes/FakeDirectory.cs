@@ -41,6 +41,9 @@ namespace TestableFileSystem.Fakes
         public string[] GetFiles(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
+            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(searchPattern, nameof(searchPattern));
+
             var handler = new DirectoryEnumerateEntriesHandler(owner, root);
             var arguments = new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.Files);
 
@@ -57,6 +60,9 @@ namespace TestableFileSystem.Fakes
         public string[] GetDirectories(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
+            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(searchPattern, nameof(searchPattern));
+
             var handler = new DirectoryEnumerateEntriesHandler(owner, root);
             var arguments =
                 new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.Directories);
@@ -74,6 +80,9 @@ namespace TestableFileSystem.Fakes
         public string[] GetFileSystemEntries(string path, string searchPattern = "*",
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
+            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(searchPattern, nameof(searchPattern));
+
             var handler = new DirectoryEnumerateEntriesHandler(owner, root);
             var arguments = new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.All);
 
