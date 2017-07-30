@@ -224,7 +224,7 @@ namespace TestableFileSystem.Fakes
 
                 List<string> components = path.Split(PathFacts.DirectorySeparatorChars).ToList();
 
-                bool isOnNetworkShare = AdjustComponentsForNetworkShare(components, path);
+                bool isOnNetworkShare = AdjustComponentsForNetworkShare(components);
                 bool isOnDisk = IsDriveLetter(components.First());
 
                 if (!isOnNetworkShare && !isOnDisk)
@@ -237,8 +237,7 @@ namespace TestableFileSystem.Fakes
                 return components.AsReadOnly();
             }
 
-            private static bool AdjustComponentsForNetworkShare([NotNull] [ItemNotNull] List<string> components,
-                [NotNull] string path)
+            private bool AdjustComponentsForNetworkShare([NotNull] [ItemNotNull] List<string> components)
             {
                 if (path.StartsWith(@"\\", StringComparison.Ordinal))
                 {
@@ -247,8 +246,8 @@ namespace TestableFileSystem.Fakes
                         throw ErrorFactory.UncPathIsInvalid();
                     }
 
-                    AssertDirectoryNameOrFileNameIsValid(components[2]);
-                    AssertDirectoryNameOrFileNameIsValid(components[3]);
+                    AssertDirectoryNameOrFileNameIsValid(components[2], path);
+                    AssertDirectoryNameOrFileNameIsValid(components[3], path);
 
                     components[3] = PathFacts.TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar +
                         components[3];
@@ -261,18 +260,18 @@ namespace TestableFileSystem.Fakes
             }
 
             [AssertionMethod]
-            public static void AssertDirectoryNameOrFileNameIsValid([NotNull] string name)
+            public static void AssertDirectoryNameOrFileNameIsValid([NotNull] string name, [NotNull] string path)
             {
                 if (string.IsNullOrWhiteSpace(name))
                 {
-                    throw ErrorFactory.IllegalCharactersInPath();
+                    throw ErrorFactory.IllegalCharactersInPath(nameof(path));
                 }
 
                 foreach (char ch in name)
                 {
                     if (FileNameCharsInvalid.Contains(ch))
                     {
-                        throw ErrorFactory.IllegalCharactersInPath();
+                        throw ErrorFactory.IllegalCharactersInPath(nameof(path));
                     }
                 }
 
@@ -315,7 +314,7 @@ namespace TestableFileSystem.Fakes
                     }
                     else
                     {
-                        AssertDirectoryNameOrFileNameIsValid(component);
+                        AssertDirectoryNameOrFileNameIsValid(component, path);
                     }
                 }
             }
@@ -336,7 +335,7 @@ namespace TestableFileSystem.Fakes
         public AbsolutePath Append([NotNull] string name)
         {
             Guard.NotNullNorWhiteSpace(name, nameof(name));
-            Parser.AssertDirectoryNameOrFileNameIsValid(name);
+            Parser.AssertDirectoryNameOrFileNameIsValid(name, nameof(name));
 
             List<string> newComponents = Components.ToList();
             newComponents.Add(name);

@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]

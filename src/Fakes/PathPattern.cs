@@ -103,7 +103,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (PatternCharsInvalid.Contains(ch))
                 {
-                    throw ErrorFactory.IllegalCharactersInPath();
+                    throw ErrorFactory.IllegalCharactersInPath(nameof(pattern));
                 }
             }
         }

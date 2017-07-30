@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create("some?.txt");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]

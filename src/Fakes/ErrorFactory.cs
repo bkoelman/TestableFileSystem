@@ -70,7 +70,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public static Exception FileNotFound([NotNull] string path)
         {
-            return new FileNotFoundException($"Could not find file '{path}'.");
+            return new FileNotFoundException($"Could not find file '{path}'.", path);
         }
 
         [NotNull]
@@ -116,9 +116,9 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public static Exception IllegalCharactersInPath()
+        public static Exception IllegalCharactersInPath([NotNull] [InvokerParameterName] string paramName)
         {
-            throw new ArgumentException("Illegal characters in path.");
+            throw new ArgumentException("Illegal characters in path.", paramName);
         }
 
         [NotNull]

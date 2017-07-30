@@ -134,7 +134,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(@"c:\dir?i", FileAttributes.Archive);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]

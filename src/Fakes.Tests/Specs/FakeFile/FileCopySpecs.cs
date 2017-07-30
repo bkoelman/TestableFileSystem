@@ -134,7 +134,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy("some?.txt", @"c:\destination.txt");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(@"c:\source.txt", "some?.txt");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.");
+            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -739,7 +739,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         // - LastAccessTime and SRC.LastAccessTime are set to NOW.
 
         // Documented behavior at https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders:
-        // "If you copy a file, it keeps the same modified date and time but changes 
+        // "If you copy a file, it keeps the same modified date and time but changes
         // the created date and time to the current date and time."
     }
 }
