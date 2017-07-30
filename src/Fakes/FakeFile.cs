@@ -29,31 +29,10 @@ namespace TestableFileSystem.Fakes
 
         public bool Exists(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return false;
-            }
+            var handler = new FileExistsHandler(owner, root);
+            var arguments = new FileExistsArguments(path);
 
-            try
-            {
-                AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-                var navigator = new PathNavigator(absolutePath);
-
-                FileEntry file = root.TryGetExistingFile(navigator);
-                return file != null;
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-            catch (ArgumentException)
-            {
-                return false;
-            }
-            catch (NotSupportedException)
-            {
-                return false;
-            }
+            return handler.Handle(arguments);
         }
 
         public IFileStream Create(string path, int bufferSize = 4096, FileOptions options = FileOptions.None)
