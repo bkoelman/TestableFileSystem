@@ -124,25 +124,16 @@ namespace TestableFileSystem.Fakes
 
         public void Move(string sourceFileName, string destFileName)
         {
-            // TODO: Implement timings - https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
-
             Guard.NotNull(sourceFileName, nameof(sourceFileName));
             Guard.NotNull(destFileName, nameof(destFileName));
 
             AssertFileNameIsNotEmpty(sourceFileName);
             AssertFileNameIsNotEmpty(destFileName);
 
-            AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
-            AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
+            var handler = new FileMoveHandler(owner, root);
+            var arguments = new FileMoveArguments(sourceFileName, destFileName);
 
-            AssertNetworkShareOrDriveExists(destinationPath);
-            AssertParentDirectoryDoesNotExistAsFile(destinationPath);
-
-            FileEntry sourceFile = GetMoveSource(sourcePath);
-            AssertHasExclusiveAccess(sourceFile);
-
-            var destinationNavigator = new PathNavigator(destinationPath);
-            root.MoveFile(sourceFile, destinationNavigator);
+            handler.Handle(arguments);
         }
 
         private static void AssertFileNameIsNotEmpty([NotNull] string path)
@@ -151,42 +142,6 @@ namespace TestableFileSystem.Fakes
             {
                 throw ErrorFactory.EmptyFileNameIsNotLegal(nameof(path));
             }
-        }
-
-        private void AssertParentDirectoryDoesNotExistAsFile([NotNull] AbsolutePath absolutePath)
-        {
-            AbsolutePath parentPath = absolutePath.TryGetParentPath();
-            if (parentPath != null)
-            {
-                var parentNavigator = new PathNavigator(parentPath);
-
-                if (root.TryGetExistingFile(parentNavigator) != null)
-                {
-                    throw ErrorFactory.ParameterIsIncorrect();
-                }
-            }
-        }
-
-        private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
-        {
-            if (file.IsOpen())
-            {
-                throw ErrorFactory.FileIsInUse();
-            }
-        }
-
-        [NotNull]
-        private FileEntry GetMoveSource([NotNull] AbsolutePath sourcePath)
-        {
-            var sourceNavigator = new PathNavigator(sourcePath);
-
-            FileEntry sourceFile = root.TryGetExistingFile(sourceNavigator);
-            if (sourceFile == null)
-            {
-                throw ErrorFactory.FileNotFound(sourcePath.GetText());
-            }
-
-            return sourceFile;
         }
 
         public void Delete(string path)

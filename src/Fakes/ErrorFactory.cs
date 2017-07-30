@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public static Exception CannotCreateBecauseFileAlreadyExists([NotNull] string path)
+        public static Exception FileAlreadyExists([NotNull] string path)
         {
             return new IOException($"The file '{path}' already exists.");
         }
@@ -38,7 +38,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public static Exception FileOrDirectoryNameIsIncorrect()
+        public static Exception FileOrDirectoryOrVolumeIsIncorrect()
         {
             return new IOException("The filename, directory name, or volume label syntax is incorrect");
         }

@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.Resolvers
         private readonly DirectoryEntry root;
 
         [NotNull]
-        public Func<Exception> ErrorNetworkShareNotFound { get; set; }
+        public Func<string, Exception> ErrorNetworkShareNotFound { get; set; }
 
         [NotNull]
         public Func<string, Exception> ErrorDirectoryFoundAsFile { get; set; }
@@ -27,7 +27,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             Guard.NotNull(root, nameof(root));
             this.root = root;
 
-            ErrorNetworkShareNotFound = ErrorFactory.NetworkPathNotFound;
+            ErrorNetworkShareNotFound = _ => ErrorFactory.NetworkPathNotFound();
             ErrorDirectoryFoundAsFile = ErrorFactory.DirectoryNotFound;
             ErrorLastDirectoryFoundAsFile = ErrorFactory.DirectoryNotFound;
             ErrorDirectoryNotFound = ErrorFactory.DirectoryNotFound;
@@ -45,7 +45,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             {
                 if (offset == 0 && !path.IsOnLocalDrive && !directory.Directories.ContainsKey(name))
                 {
-                    throw ErrorNetworkShareNotFound();
+                    throw ErrorNetworkShareNotFound(incomingPath);
                 }
 
                 if (directory.Files.ContainsKey(name))

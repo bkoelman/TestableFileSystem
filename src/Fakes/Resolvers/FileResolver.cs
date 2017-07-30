@@ -8,13 +8,10 @@ namespace TestableFileSystem.Fakes.Resolvers
     internal sealed class FileResolver
     {
         [NotNull]
-        private readonly DirectoryEntry root;
-
-        [NotNull]
         private readonly DirectoryResolver directoryResolver;
 
         [NotNull]
-        public Func<Exception> ErrorNetworkShareNotFound
+        public Func<string, Exception> ErrorNetworkShareNotFound
         {
             get => directoryResolver.ErrorNetworkShareNotFound;
             set => directoryResolver.ErrorNetworkShareNotFound = value;
@@ -48,17 +45,20 @@ namespace TestableFileSystem.Fakes.Resolvers
         public Func<string, Exception> ErrorFileNotFound { get; set; }
 
         [NotNull]
+        public Func<string, Exception> ErrorPathIsVolumeRoot { get; set; }
+
+        [NotNull]
         public Func<string, Exception> ErrorFileExists { get; set; }
 
         public FileResolver([NotNull] DirectoryEntry root)
         {
             Guard.NotNull(root, nameof(root));
-            this.root = root;
             directoryResolver = new DirectoryResolver(root);
 
             ErrorFileFoundAsDirectory = ErrorFactory.UnauthorizedAccess;
             ErrorFileNotFound = ErrorFactory.FileNotFound;
-            ErrorFileExists = ErrorFactory.CannotCreateBecauseFileAlreadyExists;
+            ErrorFileExists = ErrorFactory.FileAlreadyExists;
+            ErrorPathIsVolumeRoot = incomingPath => throw new Exception($"Internal Error: Path '{incomingPath}' is volume root.");
         }
 
         [NotNull]
@@ -66,7 +66,7 @@ namespace TestableFileSystem.Fakes.Resolvers
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath parentPath = GetParentPath(path);
+            AbsolutePath parentPath = AssertAndGetParentPath(path);
 
             DirectoryEntry directory = directoryResolver.ResolveDirectory(parentPath, path.GetText());
             string fileName = path.Components.Last();
@@ -82,7 +82,7 @@ namespace TestableFileSystem.Fakes.Resolvers
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath parentPath = GetParentPath(path);
+            AbsolutePath parentPath = AssertAndGetParentPath(path);
 
             DirectoryEntry directory = directoryResolver.ResolveDirectory(parentPath, path.GetText());
             string fileName = path.Components.Last();
@@ -98,7 +98,7 @@ namespace TestableFileSystem.Fakes.Resolvers
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath parentPath = GetParentPath(path);
+            AbsolutePath parentPath = AssertAndGetParentPath(path);
 
             DirectoryEntry directory = directoryResolver.ResolveDirectory(parentPath, path.GetText());
             string fileName = path.Components.Last();
@@ -110,16 +110,19 @@ namespace TestableFileSystem.Fakes.Resolvers
         }
 
         [NotNull]
-        private static AbsolutePath GetParentPath([NotNull] AbsolutePath path)
+        private AbsolutePath AssertAndGetParentPath([NotNull] AbsolutePath path)
         {
             AbsolutePath parentPath = path.TryGetParentPath();
+
             if (parentPath == null)
             {
-                throw new Exception($"Internal Error: Path '{path}' has no parent.");
+                throw ErrorPathIsVolumeRoot(path.GetText());
             }
+
             return parentPath;
         }
 
+        [AssertionMethod]
         private void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory,
             [NotNull] AbsolutePath path)
         {
@@ -129,6 +132,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             }
         }
 
+        [AssertionMethod]
         private void AssertFileExists([NotNull] string fileName, [NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
         {
             if (!directory.Files.ContainsKey(fileName))
@@ -137,6 +141,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             }
         }
 
+        [AssertionMethod]
         private void AssertFileDoesNotExist([NotNull] string fileName, [NotNull] DirectoryEntry directory,
             [NotNull] AbsolutePath path)
         {

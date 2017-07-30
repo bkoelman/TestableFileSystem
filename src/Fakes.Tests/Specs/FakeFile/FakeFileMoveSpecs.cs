@@ -180,7 +180,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            fileSystem.File.Move(destinationPath, destinationPath);
+            fileSystem.File.Move(sourcePath, destinationPath);
 
             // Assert
             string[] files = fileSystem.Directory.GetFiles(@"C:\some");
@@ -322,7 +322,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             const string sourcePath = @"C:\some\file.txt";
-            const string destinationDirectory = @"C:\some\newname.doc";
+            const string destinationDirectory = @"C:\some\folder";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(sourcePath)

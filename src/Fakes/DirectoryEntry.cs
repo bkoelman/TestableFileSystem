@@ -149,14 +149,6 @@ namespace TestableFileSystem.Fakes
         }
 
         [CanBeNull]
-        public FileEntry TryGetExistingFile([NotNull] string fileName)
-        {
-            Guard.NotNull(fileName, nameof(fileName));
-
-            return contents.TryGetEntryAsFile(fileName, false);
-        }
-
-        [CanBeNull]
         public FileEntry TryGetExistingFile([NotNull] PathNavigator pathNavigator)
         {
             Guard.NotNull(pathNavigator, nameof(pathNavigator));
@@ -168,45 +160,6 @@ namespace TestableFileSystem.Fakes
 
             DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name, false);
             return subdirectory?.TryGetExistingFile(pathNavigator.MoveDown());
-        }
-
-        public void MoveFile([NotNull] FileEntry sourceFile, [NotNull] PathNavigator destinationPathNavigator)
-        {
-            Guard.NotNull(sourceFile, nameof(sourceFile));
-            Guard.NotNull(destinationPathNavigator, nameof(destinationPathNavigator));
-
-            if (destinationPathNavigator.IsAtEnd)
-            {
-                if (Parent == null)
-                {
-                    throw ErrorFactory.FileOrDirectoryNameIsIncorrect();
-                }
-
-                DirectoryEntry directory = contents.TryGetEntryAsDirectory(destinationPathNavigator.Name, false);
-                if (directory != null)
-                {
-                    throw ErrorFactory.CannotCreateFileBecauseFileAlreadyExists();
-                }
-
-                FileEntry file = contents.TryGetEntryAsFile(destinationPathNavigator.Name, false);
-                if (file != null && file != sourceFile)
-                {
-                    throw ErrorFactory.CannotCreateFileBecauseFileAlreadyExists();
-                }
-
-                sourceFile.Parent.contents.Remove(sourceFile.Name);
-                sourceFile.MoveTo(destinationPathNavigator.Name, this);
-                contents.Add(sourceFile);
-                return;
-            }
-
-            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(destinationPathNavigator.Name);
-            if (subdirectory == null)
-            {
-                throw ErrorFactory.DirectoryNotFound();
-            }
-
-            subdirectory.MoveFile(sourceFile, destinationPathNavigator.MoveDown());
         }
 
         internal void DeleteFile([NotNull] FileEntry fileEntry)
@@ -468,6 +421,20 @@ namespace TestableFileSystem.Fakes
             }
 
             return file;
+        }
+
+        public void Attach([NotNull] FileEntry file)
+        {
+            Guard.NotNull(file, nameof(file));
+
+            contents.Add(file);
+        }
+
+        public void Detach([NotNull] FileEntry file)
+        {
+            Guard.NotNull(file, nameof(file));
+
+            contents.Remove(file.Name);
         }
 
         public override string ToString()

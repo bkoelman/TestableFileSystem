@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers.Arguments;
 using TestableFileSystem.Fakes.Resolvers;
@@ -25,15 +26,12 @@ namespace TestableFileSystem.Fakes.Handlers
             if (existingFileOrNull != null)
             {
                 AssertIsNotReadOnly(existingFileOrNull, absolutePath);
+                AssertHasExclusiveAccess(existingFileOrNull, absolutePath);
 
-                // Block deletion when file is in use.
-                using (existingFileOrNull.Open(FileMode.Open, FileAccess.ReadWrite))
-                {
-                    containingDirectory.DeleteFile(existingFileOrNull);
-                }
+                containingDirectory.DeleteFile(existingFileOrNull);
             }
 
-            return new object();
+            return Missing.Value;
         }
 
         [AssertionMethod]
@@ -42,6 +40,14 @@ namespace TestableFileSystem.Fakes.Handlers
             if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
                 throw ErrorFactory.UnauthorizedAccess(absolutePath.GetText());
+            }
+        }
+
+        private static void AssertHasExclusiveAccess([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
+        {
+            if (file.IsOpen())
+            {
+                throw ErrorFactory.FileIsInUse(absolutePath.GetText());
             }
         }
     }

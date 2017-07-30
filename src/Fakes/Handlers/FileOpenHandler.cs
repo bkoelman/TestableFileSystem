@@ -29,7 +29,7 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 if (arguments.Mode == FileMode.CreateNew)
                 {
-                    throw ErrorFactory.CannotCreateBecauseFileAlreadyExists(absolutePath.GetText());
+                    throw ErrorFactory.FileAlreadyExists(absolutePath.GetText());
                 }
 
                 return existingFileOrNull.Open(arguments.Mode, fileAccess);

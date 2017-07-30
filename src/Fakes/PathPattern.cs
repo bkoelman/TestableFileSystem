@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes
 
                 if (root != null && SequenceContainsWildcards(sequence))
                 {
-                    throw ErrorFactory.FileOrDirectoryNameIsIncorrect();
+                    throw ErrorFactory.FileOrDirectoryOrVolumeIsIncorrect();
                 }
 
                 root = new PathPattern(sequence, root);
