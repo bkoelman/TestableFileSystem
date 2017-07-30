@@ -22,8 +22,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public static Exception CannotCreateBecauseFileAlreadyExists([NotNull] string path)
         {
-            string message = $"The file '{path}' already exists.";
-            return new IOException(message);
+            return new IOException($"The file '{path}' already exists.");
         }
 
         [NotNull]
@@ -108,12 +107,6 @@ namespace TestableFileSystem.Fakes
         public static Exception PathCannotBeEmptyOrWhitespace([NotNull] [InvokerParameterName] string paramName)
         {
             return new ArgumentException("Path cannot be the empty string or all whitespace.", paramName);
-        }
-
-        [NotNull]
-        public static Exception PathIsInvalid()
-        {
-            return new IOException("The specified path is invalid.");
         }
 
         [NotNull]

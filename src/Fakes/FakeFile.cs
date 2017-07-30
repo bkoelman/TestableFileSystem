@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -62,12 +63,11 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             AssertValidCreationOptions(options, absolutePath);
 
-            AssertNetworkShareOrDriveExists(absolutePath);
-            AssertDoesNotExistAsDirectory(absolutePath);
-            AssertParentIsDirectoryOrMissing(absolutePath);
+            var resolver = new FileResolver(root);
 
-            var navigator = new PathNavigator(absolutePath);
-            FileEntry newFile = root.GetOrCreateFile(navigator, false);
+            (DirectoryEntry parentDirectory, FileEntry _, string fileName) = resolver.TryResolveFile(absolutePath);
+
+            FileEntry newFile = parentDirectory.GetOrCreateFile(fileName);
 
             if ((options & FileOptions.DeleteOnClose) != 0)
             {
@@ -130,13 +130,9 @@ namespace TestableFileSystem.Fakes
             FileAccess fileAccess = access ?? (mode == FileMode.Append ? FileAccess.Write : FileAccess.ReadWrite);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            var resolver = new FileResolver(root);
 
-            AssertNetworkShareOrDriveExists(absolutePath);
-            AssertDoesNotExistAsDirectory(absolutePath);
-            AssertParentIsDirectoryOrMissing(absolutePath);
-
-            var navigator = new PathNavigator(absolutePath);
-            FileEntry existingFile = root.TryGetExistingFile(navigator);
+            (DirectoryEntry parentDirectory, FileEntry existingFile, string fileName) = resolver.TryResolveFile(absolutePath);
 
             if (existingFile != null)
             {
@@ -153,7 +149,7 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.FileNotFound(absolutePath.GetText());
             }
 
-            FileEntry newFile = root.GetOrCreateFile(navigator, false);
+            FileEntry newFile = parentDirectory.GetOrCreateFile(fileName);
             return newFile.Open(mode, fileAccess);
         }
 
@@ -441,7 +437,6 @@ namespace TestableFileSystem.Fakes
         internal long GetSize([NotNull] string path)
         {
             Guard.NotNull(path, nameof(path));
-            AssertPathIsNotEmpty(path);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             var navigator = new PathNavigator(absolutePath);

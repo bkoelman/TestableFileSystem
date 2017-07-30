@@ -5,6 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
+    // TODO: Replace usages with Resolvers.
     internal sealed class PathNavigator
     {
         [NotNull]

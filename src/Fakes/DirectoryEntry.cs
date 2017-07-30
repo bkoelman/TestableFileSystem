@@ -103,6 +103,20 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
+        public FileEntry GetOrCreateFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+
+            FileEntry file = contents.TryGetEntryAsFile(fileName);
+            if (file == null)
+            {
+                contents.Add(new FileEntry(fileName, this));
+            }
+
+            return contents.GetEntryAsFile(fileName);
+        }
+
+        [NotNull]
         public FileEntry GetOrCreateFile([NotNull] PathNavigator pathNavigator, bool createSubdirectories)
         {
             Guard.NotNull(pathNavigator, nameof(pathNavigator));
@@ -126,6 +140,14 @@ namespace TestableFileSystem.Fakes
 
             subdirectory = GetOrCreateSingleDirectory(pathNavigator.Name);
             return subdirectory.GetOrCreateFile(pathNavigator.MoveDown(), createSubdirectories);
+        }
+
+        [CanBeNull]
+        public FileEntry TryGetExistingFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+
+            return contents.TryGetEntryAsFile(fileName, false);
         }
 
         [CanBeNull]
