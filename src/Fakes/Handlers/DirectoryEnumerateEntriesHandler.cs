@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
@@ -43,30 +44,16 @@ namespace TestableFileSystem.Fakes.Handlers
         [ItemNotNull]
         public IEnumerable<string> Handle()
         {
-            AssertNetworkShareOrDriveExists();
-
-            var navigator = new PathNavigator(absolutePath);
-
-            if (root.TryGetExistingFile(navigator) != null)
+            var resolver = new DirectoryResolver(root)
             {
-                throw ErrorFactory.DirectoryNameIsInvalid();
-            }
+                ErrorLastDirectoryFoundAsFile = incomingPath => ErrorFactory.DirectoryNameIsInvalid()
+            };
 
-            IEnumerable<string> absoluteNames = root.EnumerateEntries(navigator, searchPattern, searchOption, filter);
+            DirectoryEntry directory = resolver.ResolveDirectory(absolutePath, absolutePath.GetText());
+
+            IEnumerable<string> absoluteNames =
+                root.EnumerateEntries(directory, searchPattern, searchOption, filter, absolutePath);
             return ToRelativeNames(absoluteNames);
-        }
-
-        private void AssertNetworkShareOrDriveExists()
-        {
-            if (!root.Directories.ContainsKey(absolutePath.Components[0]))
-            {
-                if (absolutePath.IsOnLocalDrive)
-                {
-                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
-                }
-
-                throw ErrorFactory.NetworkPathNotFound();
-            }
         }
 
         [NotNull]

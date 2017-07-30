@@ -14,34 +14,41 @@ namespace TestableFileSystem.Fakes.Resolvers
         private readonly DirectoryResolver directoryResolver;
 
         [NotNull]
-        public Func<Exception> OnNetworkShareNotFound
+        public Func<Exception> ErrorNetworkShareNotFound
         {
             get => directoryResolver.ErrorNetworkShareNotFound;
             set => directoryResolver.ErrorNetworkShareNotFound = value;
         }
 
         [NotNull]
-        public Func<string, Exception> OnDirectoryFoundAsFile
+        public Func<string, Exception> ErrorDirectoryFoundAsFile
         {
             get => directoryResolver.ErrorDirectoryFoundAsFile;
             set => directoryResolver.ErrorDirectoryFoundAsFile = value;
         }
 
         [NotNull]
+        public Func<string, Exception> ErrorLastDirectoryFoundAsFile
+        {
+            get => directoryResolver.ErrorLastDirectoryFoundAsFile;
+            set => directoryResolver.ErrorLastDirectoryFoundAsFile = value;
+        }
+
+        [NotNull]
         public Func<string, Exception> ErrorFileFoundAsDirectory { get; set; }
 
         [NotNull]
-        public Func<string, Exception> OnDirectoryNotFound
+        public Func<string, Exception> ErrorDirectoryNotFound
         {
             get => directoryResolver.ErrorDirectoryNotFound;
             set => directoryResolver.ErrorDirectoryNotFound = value;
         }
 
         [NotNull]
-        public Func<string, Exception> OnFileNotFound { get; set; }
+        public Func<string, Exception> ErrorFileNotFound { get; set; }
 
         [NotNull]
-        public Func<string, Exception> OnFileExists { get; set; }
+        public Func<string, Exception> ErrorFileExists { get; set; }
 
         public FileResolver([NotNull] DirectoryEntry root)
         {
@@ -50,8 +57,8 @@ namespace TestableFileSystem.Fakes.Resolvers
             directoryResolver = new DirectoryResolver(root);
 
             ErrorFileFoundAsDirectory = ErrorFactory.UnauthorizedAccess;
-            OnFileNotFound = ErrorFactory.FileNotFound;
-            OnFileExists = ErrorFactory.CannotCreateBecauseFileAlreadyExists;
+            ErrorFileNotFound = ErrorFactory.FileNotFound;
+            ErrorFileExists = ErrorFactory.CannotCreateBecauseFileAlreadyExists;
         }
 
         [NotNull]
@@ -113,7 +120,8 @@ namespace TestableFileSystem.Fakes.Resolvers
             return parentPath;
         }
 
-        private void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
+        private void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory,
+            [NotNull] AbsolutePath path)
         {
             if (directory.Directories.ContainsKey(fileName))
             {
@@ -125,15 +133,16 @@ namespace TestableFileSystem.Fakes.Resolvers
         {
             if (!directory.Files.ContainsKey(fileName))
             {
-                throw OnFileNotFound(path.GetText());
+                throw ErrorFileNotFound(path.GetText());
             }
         }
 
-        private void AssertFileDoesNotExist([NotNull] string fileName, [NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
+        private void AssertFileDoesNotExist([NotNull] string fileName, [NotNull] DirectoryEntry directory,
+            [NotNull] AbsolutePath path)
         {
             if (directory.Files.ContainsKey(fileName))
             {
-                throw OnFileExists(path.GetText());
+                throw ErrorFileExists(path.GetText());
             }
         }
     }

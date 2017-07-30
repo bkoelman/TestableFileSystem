@@ -132,7 +132,8 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             var resolver = new FileResolver(root);
 
-            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) = resolver.TryResolveFile(absolutePath);
+            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) =
+                resolver.TryResolveFile(absolutePath);
 
             if (existingFileOrNull != null)
             {

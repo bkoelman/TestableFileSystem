@@ -17,6 +17,9 @@ namespace TestableFileSystem.Fakes.Resolvers
         public Func<string, Exception> ErrorDirectoryFoundAsFile { get; set; }
 
         [NotNull]
+        public Func<string, Exception> ErrorLastDirectoryFoundAsFile { get; set; }
+
+        [NotNull]
         public Func<string, Exception> ErrorDirectoryNotFound { get; set; }
 
         public DirectoryResolver([NotNull] DirectoryEntry root)
@@ -26,14 +29,15 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             ErrorNetworkShareNotFound = ErrorFactory.NetworkPathNotFound;
             ErrorDirectoryFoundAsFile = ErrorFactory.DirectoryNotFound;
+            ErrorLastDirectoryFoundAsFile = ErrorFactory.DirectoryNotFound;
             ErrorDirectoryNotFound = ErrorFactory.DirectoryNotFound;
         }
 
         [NotNull]
-        public DirectoryEntry ResolveDirectory([NotNull] AbsolutePath path, [NotNull] string completePath)
+        public DirectoryEntry ResolveDirectory([NotNull] AbsolutePath path, [NotNull] string incomingPath)
         {
             Guard.NotNull(path, nameof(path));
-            Guard.NotNull(completePath, nameof(completePath));
+            Guard.NotNull(incomingPath, nameof(incomingPath));
 
             DirectoryEntry directory = root;
 
@@ -46,12 +50,14 @@ namespace TestableFileSystem.Fakes.Resolvers
 
                 if (directory.Files.ContainsKey(name))
                 {
-                    throw ErrorDirectoryFoundAsFile(completePath);
+                    throw offset == path.Components.Count - 1
+                        ? ErrorLastDirectoryFoundAsFile(incomingPath)
+                        : ErrorDirectoryFoundAsFile(incomingPath);
                 }
 
                 if (!directory.Directories.ContainsKey(name))
                 {
-                    throw ErrorDirectoryNotFound(completePath);
+                    throw ErrorDirectoryNotFound(incomingPath);
                 }
 
                 directory = directory.Directories[name];
