@@ -65,9 +65,9 @@ namespace TestableFileSystem.Fakes
 
             var resolver = new FileResolver(root);
 
-            (DirectoryEntry parentDirectory, FileEntry _, string fileName) = resolver.TryResolveFile(absolutePath);
+            (DirectoryEntry containingDirectory, FileEntry _, string fileName) = resolver.TryResolveFile(absolutePath);
 
-            FileEntry newFile = parentDirectory.GetOrCreateFile(fileName);
+            FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);
 
             if ((options & FileOptions.DeleteOnClose) != 0)
             {
@@ -132,16 +132,16 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
             var resolver = new FileResolver(root);
 
-            (DirectoryEntry parentDirectory, FileEntry existingFile, string fileName) = resolver.TryResolveFile(absolutePath);
+            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) = resolver.TryResolveFile(absolutePath);
 
-            if (existingFile != null)
+            if (existingFileOrNull != null)
             {
                 if (mode == FileMode.CreateNew)
                 {
                     throw ErrorFactory.CannotCreateBecauseFileAlreadyExists(absolutePath.GetText());
                 }
 
-                return existingFile.Open(mode, fileAccess);
+                return existingFileOrNull.Open(mode, fileAccess);
             }
 
             if (mode == FileMode.Open || mode == FileMode.Truncate)
@@ -149,7 +149,7 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.FileNotFound(absolutePath.GetText());
             }
 
-            FileEntry newFile = parentDirectory.GetOrCreateFile(fileName);
+            FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);
             return newFile.Open(mode, fileAccess);
         }
 

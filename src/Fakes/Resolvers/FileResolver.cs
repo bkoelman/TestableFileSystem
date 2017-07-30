@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -58,77 +59,82 @@ namespace TestableFileSystem.Fakes.Resolvers
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath parentPath = path.TryGetParentPath();
-            if (parentPath == null)
-            {
-                throw new Exception("TODO");
-            }
+            AbsolutePath parentPath = GetParentPath(path);
 
             DirectoryEntry directory = directoryResolver.ResolveDirectory(parentPath, path.GetText());
+            string fileName = path.Components.Last();
 
-            string fileName = path.Components[path.Components.Count - 1];
-
-            if (directory.Directories.ContainsKey(fileName))
-            {
-                throw ErrorFileFoundAsDirectory(path.GetText());
-            }
-
-            if (!directory.Files.ContainsKey(fileName))
-            {
-                throw OnFileNotFound(path.GetText());
-            }
+            AssertIsNotDirectory(fileName, directory, path);
+            AssertFileExists(fileName, directory, path);
 
             return directory.Files[fileName];
         }
 
         [NotNull]
-        public DirectoryEntry ResolveParentDirectoryForMissingFile([NotNull] AbsolutePath path)
+        public DirectoryEntry ResolveContainingDirectoryForMissingFile([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath parentPath = path.TryGetParentPath();
-            if (parentPath == null)
-            {
-                throw new Exception("TODO");
-            }
-
-            string fileName = path.Components[path.Components.Count - 1];
-            DirectoryEntry parentDirectory = directoryResolver.ResolveDirectory(parentPath, path.GetText());
-
-            if (parentDirectory.Directories.ContainsKey(fileName))
-            {
-                throw ErrorFileFoundAsDirectory(path.GetText());
-            }
-
-            if (parentDirectory.Files.ContainsKey(fileName))
-            {
-                throw OnFileExists(path.GetText());
-            }
-
-            return parentDirectory;
-        }
-
-        public (DirectoryEntry parentDirectory, FileEntry existingFile, string fileName) TryResolveFile([NotNull] AbsolutePath path)
-        {
-            Guard.NotNull(path, nameof(path));
-
-            AbsolutePath parentPath = path.TryGetParentPath();
-            if (parentPath == null)
-            {
-                throw new Exception("TODO");
-            }
+            AbsolutePath parentPath = GetParentPath(path);
 
             DirectoryEntry directory = directoryResolver.ResolveDirectory(parentPath, path.GetText());
+            string fileName = path.Components.Last();
 
-            string fileName = path.Components[path.Components.Count - 1];
+            AssertIsNotDirectory(fileName, directory, path);
+            AssertFileDoesNotExist(fileName, directory, path);
 
+            return directory;
+        }
+
+        public (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) TryResolveFile(
+            [NotNull] AbsolutePath path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath parentPath = GetParentPath(path);
+
+            DirectoryEntry directory = directoryResolver.ResolveDirectory(parentPath, path.GetText());
+            string fileName = path.Components.Last();
+
+            AssertIsNotDirectory(fileName, directory, path);
+
+            FileEntry fileEntry = !directory.Files.ContainsKey(fileName) ? null : directory.Files[fileName];
+            return (directory, fileEntry, fileName);
+        }
+
+        [NotNull]
+        private static AbsolutePath GetParentPath([NotNull] AbsolutePath path)
+        {
+            AbsolutePath parentPath = path.TryGetParentPath();
+            if (parentPath == null)
+            {
+                throw new Exception($"Internal Error: Path '{path}' has no parent.");
+            }
+            return parentPath;
+        }
+
+        private void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
+        {
             if (directory.Directories.ContainsKey(fileName))
             {
                 throw ErrorFileFoundAsDirectory(path.GetText());
             }
+        }
 
-            FileEntry fileEntry = !directory.Files.ContainsKey(fileName) ? null : directory.Files[fileName];
-            return (directory, fileEntry, fileName);
+        private void AssertFileExists([NotNull] string fileName, [NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
+        {
+            if (!directory.Files.ContainsKey(fileName))
+            {
+                throw OnFileNotFound(path.GetText());
+            }
+        }
+
+        private void AssertFileDoesNotExist([NotNull] string fileName, [NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
+        {
+            if (directory.Files.ContainsKey(fileName))
+            {
+                throw OnFileExists(path.GetText());
+            }
         }
     }
 }
