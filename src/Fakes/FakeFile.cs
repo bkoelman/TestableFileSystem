@@ -3,7 +3,6 @@ using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Fakes.Handlers.Arguments;
-using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -62,21 +61,10 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
             AssertPathIsNotEmpty(path);
 
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertValidCreationOptions(options, absolutePath);
+            var handler = new FileCreateHandler(owner, root);
+            var arguments = new FileCreateArguments(path, options);
 
-            var resolver = new FileResolver(root);
-
-            (DirectoryEntry containingDirectory, FileEntry _, string fileName) = resolver.TryResolveFile(absolutePath);
-
-            FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);
-
-            if ((options & FileOptions.DeleteOnClose) != 0)
-            {
-                newFile.EnableDeleteOnClose();
-            }
-
-            return newFile.Open(FileMode.Create, FileAccess.ReadWrite);
+            return handler.Handle(arguments);
         }
 
         private static void AssertPathIsNotEmpty([NotNull] string path)
@@ -84,15 +72,6 @@ namespace TestableFileSystem.Fakes
             if (path.Length == 0)
             {
                 throw ErrorFactory.EmptyPathIsNotLegal(nameof(path));
-            }
-        }
-
-        [AssertionMethod]
-        private static void AssertValidCreationOptions(FileOptions options, [NotNull] AbsolutePath absolutePath)
-        {
-            if ((options & FileOptions.Encrypted) != 0)
-            {
-                throw new UnauthorizedAccessException($"Access to the path '{absolutePath.GetText()}' is denied.");
             }
         }
 
