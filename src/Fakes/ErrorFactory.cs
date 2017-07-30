@@ -159,5 +159,11 @@ namespace TestableFileSystem.Fakes
         {
             return new IOException("The parameter is incorrect");
         }
+
+        [NotNull]
+        public static Exception TargetIsNotFile([NotNull] string path)
+        {
+            return new IOException($"The target file '{path}' is a directory, not a file.");
+        }
     }
 }

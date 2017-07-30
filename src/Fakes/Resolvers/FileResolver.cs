@@ -58,7 +58,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             ErrorFileFoundAsDirectory = ErrorFactory.UnauthorizedAccess;
             ErrorFileNotFound = ErrorFactory.FileNotFound;
             ErrorFileExists = ErrorFactory.FileAlreadyExists;
-            ErrorPathIsVolumeRoot = incomingPath => throw new Exception($"Internal Error: Path '{incomingPath}' is volume root.");
+            ErrorPathIsVolumeRoot = ErrorFactory.DirectoryNotFound;
         }
 
         [NotNull]
