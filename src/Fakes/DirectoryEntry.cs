@@ -19,10 +19,12 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly DirectoryContents contents;
 
+        // TODO: Refactor to prevent making copies.
         [NotNull]
         public IReadOnlyDictionary<string, FileEntry> Files => contents.GetFileEntries()
             .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
+        // TODO: Refactor to prevent making copies.
         [NotNull]
         public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.GetDirectoryEntries()
             .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
@@ -76,6 +78,10 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         public static DirectoryEntry CreateRoot() => new DirectoryEntry("My Computer", null);
+
+        [NotNull]
+        [ItemNotNull]
+        public IEnumerable<BaseEntry> GetEntries(EnumerationFilter filter) => contents.GetEntries(filter);
 
         [NotNull]
         [ItemNotNull]
@@ -462,66 +468,6 @@ namespace TestableFileSystem.Fakes
             }
 
             return file;
-        }
-
-        [NotNull]
-        [ItemNotNull]
-        public IEnumerable<string> EnumerateEntries([NotNull] DirectoryEntry directory, [NotNull] string searchPattern,
-            [CanBeNull] SearchOption? searchOption, EnumerationFilter filter, [NotNull] AbsolutePath incomingPath)
-        {
-            Guard.NotNull(directory, nameof(directory));
-            Guard.NotNull(searchPattern, nameof(searchPattern));
-            Guard.NotNull(incomingPath, nameof(incomingPath));
-
-            PathPattern pattern = PathPattern.Create(searchPattern);
-            return EnumerateEntriesInDirectory(directory, pattern, searchOption, filter, incomingPath);
-        }
-
-        [NotNull]
-        [ItemNotNull]
-        private IEnumerable<string> EnumerateEntriesInDirectory([NotNull] DirectoryEntry directory, [NotNull] PathPattern pattern,
-            [CanBeNull] SearchOption? searchOption, EnumerationFilter filter, [NotNull] AbsolutePath incomingPath)
-        {
-            PathPattern subPattern = pattern.SubPattern;
-
-            if (subPattern == null)
-            {
-                string basePath = incomingPath.GetText();
-
-                foreach (BaseEntry entry in directory.contents.GetEntries(filter).Where(x => pattern.IsMatch(x.Name))
-                    .OrderBy(x => x.Name))
-                {
-                    yield return Path.Combine(basePath, entry.Name);
-                }
-
-                if (searchOption == SearchOption.AllDirectories)
-                {
-                    foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries().OrderBy(x => x.Name))
-                    {
-                        AbsolutePath subdirectoryPath = incomingPath.Append(subdirectory.Name);
-                        foreach (string path in EnumerateEntriesInDirectory(subdirectory, pattern, searchOption, filter,
-                            subdirectoryPath))
-                        {
-                            yield return path;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries())
-                {
-                    if (pattern.IsMatch(subdirectory.Name))
-                    {
-                        AbsolutePath subdirectoryPath = incomingPath.Append(subdirectory.Name);
-                        foreach (string path in EnumerateEntriesInDirectory(subdirectory, subPattern, searchOption, filter,
-                            subdirectoryPath))
-                        {
-                            yield return path;
-                        }
-                    }
-                }
-            }
         }
 
         public override string ToString()
