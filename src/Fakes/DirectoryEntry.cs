@@ -177,25 +177,6 @@ namespace TestableFileSystem.Fakes
             return false;
         }
 
-        [NotNull]
-        public DirectoryEntry GetExistingDirectory([NotNull] PathNavigator pathNavigator)
-        {
-            DirectoryEntry directory = TryGetExistingDirectory(pathNavigator);
-
-            if (directory == null)
-            {
-                FileEntry file = TryGetExistingFile(pathNavigator);
-                if (file != null)
-                {
-                    throw ErrorFactory.DirectoryNameIsInvalid();
-                }
-
-                throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
-            }
-
-            return directory;
-        }
-
         [CanBeNull]
         public DirectoryEntry TryGetExistingDirectory([NotNull] PathNavigator pathNavigator)
         {

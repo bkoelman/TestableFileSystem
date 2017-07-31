@@ -156,6 +156,7 @@ namespace TestableFileSystem.Fakes.Builders
             return CreateDirectories(parentPath);
         }
 
+        [AssertionMethod]
         private static void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory,
             [NotNull] AbsolutePath absolutePath)
         {

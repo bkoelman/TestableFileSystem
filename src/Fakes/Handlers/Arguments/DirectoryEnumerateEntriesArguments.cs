@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
@@ -19,8 +18,8 @@ namespace TestableFileSystem.Fakes.Handlers.Arguments
         public SearchOption SearchOption { get; }
         public EnumerationFilter Filter { get; }
 
-        public DirectoryEnumerateEntriesArguments([NotNull] AbsolutePath path, [NotNull] string incomingPath, [NotNull] string searchPattern,
-            SearchOption searchOption, EnumerationFilter filter)
+        public DirectoryEnumerateEntriesArguments([NotNull] AbsolutePath path, [NotNull] string incomingPath,
+            [NotNull] string searchPattern, SearchOption searchOption, EnumerationFilter filter)
         {
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(incomingPath, nameof(incomingPath));
