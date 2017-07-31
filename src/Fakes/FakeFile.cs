@@ -112,19 +112,6 @@ namespace TestableFileSystem.Fakes
             return handler.Handle(arguments);
         }
 
-        private void AssertVolumeRootExists([NotNull] AbsolutePath absolutePath)
-        {
-            if (!root.Directories.ContainsKey(absolutePath.Components[0]))
-            {
-                if (absolutePath.IsOnLocalDrive)
-                {
-                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
-                }
-
-                throw ErrorFactory.NetworkPathNotFound();
-            }
-        }
-
         public void Copy(string sourceFileName, string destFileName, bool overwrite = false)
         {
             Guard.NotNull(sourceFileName, nameof(sourceFileName));
@@ -223,45 +210,16 @@ namespace TestableFileSystem.Fakes
             return handler.Handle(arguments);
         }
 
-        [NotNull]
-        private BaseEntry GetExistingEntry([NotNull] AbsolutePath absolutePath)
-        {
-            AssertParentIsDirectoryOrMissing(absolutePath);
-
-            var navigator = new PathNavigator(absolutePath);
-            BaseEntry entry = root.TryGetExistingFile(navigator);
-
-            if (entry == null)
-            {
-                entry = root.TryGetExistingDirectory(navigator);
-                if (entry == null)
-                {
-                    AbsolutePath parentPath = absolutePath.TryGetParentPath();
-
-                    DirectoryEntry parentDirectory = parentPath != null
-                        ? root.TryGetExistingDirectory(new PathNavigator(parentPath))
-                        : null;
-
-                    if (parentDirectory == null)
-                    {
-                        throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
-                    }
-
-                    throw ErrorFactory.FileNotFound(absolutePath.GetText());
-                }
-            }
-            return entry;
-        }
-
         public void SetAttributes(string path, FileAttributes fileAttributes)
         {
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertVolumeRootExists(absolutePath);
 
-            BaseEntry entry = GetExistingEntry(absolutePath);
-            entry.Attributes = fileAttributes;
+            var handler = new FileSetAttributesHandler(root);
+            var arguments = new FileSetAttributesArguments(absolutePath, fileAttributes);
+
+            handler.Handle(arguments);
         }
 
         public DateTime GetCreationTime(string path)
