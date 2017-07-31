@@ -363,6 +363,8 @@ namespace TestableFileSystem.Fakes
 
                         Position = Length + offset;
                         break;
+                    default:
+                        throw new NotSupportedException($"Unsupported origin '{origin}'.");
                 }
 
                 return Position;
