@@ -25,7 +25,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            AssertNotDeletingDriveOrNetworkShare(arguments);
+            AssertNotDeletingVolumeRoot(arguments);
 
             DirectoryEntry directory = ResolveDirectory(arguments.Path);
 
@@ -40,7 +40,7 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private static void AssertNotDeletingDriveOrNetworkShare([NotNull] DirectoryDeleteArguments arguments)
+        private static void AssertNotDeletingVolumeRoot([NotNull] DirectoryDeleteArguments arguments)
         {
             if (arguments.Path.IsVolumeRoot)
             {

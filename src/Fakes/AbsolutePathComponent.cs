@@ -1,29 +1,37 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
     internal sealed class AbsolutePathComponent
     {
-        [NotNull]
-        private readonly AbsolutePath path;
-
         private readonly int offset;
+
+        [NotNull]
+        public AbsolutePath Path { get; }
+
+        [NotNull]
+        public string Name => Path.Components[offset];
 
         public bool IsAtStart => offset == 0;
 
-        public bool IsAtEnd => offset == path.Components.Count - 1;
-
-        [NotNull]
-        public string Name => path.Components[offset];
+        public bool IsAtEnd => offset == Path.Components.Count - 1;
 
         public AbsolutePathComponent([NotNull] AbsolutePath path, int offset)
         {
             Guard.NotNull(path, nameof(path));
             Guard.InRangeInclusive(offset, nameof(offset), 0, path.Components.Count - 1);
 
-            this.path = path;
+            Path = path;
             this.offset = offset;
+        }
+
+        [NotNull]
+        public AbsolutePath GetPathUpToHere()
+        {
+            return Path.GetAncestorPath(offset);
         }
     }
 }

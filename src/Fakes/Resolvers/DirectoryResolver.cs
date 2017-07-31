@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -58,20 +57,8 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             foreach (AbsolutePathComponent component in path.EnumerateComponents())
             {
-                if (component.IsAtStart && !path.IsOnLocalDrive && !directory.Directories.ContainsKey(component.Name))
-                {
-                    throw ErrorNetworkShareNotFound(incomingPath);
-                }
-
-                if (directory.Files.ContainsKey(component.Name))
-                {
-                    if (component.IsAtEnd)
-                    {
-                        throw ErrorLastDirectoryFoundAsFile(incomingPath);
-                    }
-
-                    throw ErrorDirectoryFoundAsFile(incomingPath);
-                }
+                AssertNetworkShareExists(component, incomingPath);
+                AssertIsNotFile(component, directory, incomingPath);
 
                 if (!directory.Directories.ContainsKey(component.Name))
                 {
@@ -83,6 +70,29 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             return directory;
         }
-    }
 
+        [AssertionMethod]
+        private void AssertNetworkShareExists([NotNull] AbsolutePathComponent component, [NotNull] string incomingPath)
+        {
+            if (component.IsAtStart && !component.Path.IsOnLocalDrive && !root.Directories.ContainsKey(component.Name))
+            {
+                throw ErrorNetworkShareNotFound(incomingPath);
+            }
+        }
+
+        [AssertionMethod]
+        private void AssertIsNotFile([NotNull] AbsolutePathComponent component, [NotNull] DirectoryEntry directory,
+            [NotNull] string incomingPath)
+        {
+            if (directory.Files.ContainsKey(component.Name))
+            {
+                if (component.IsAtEnd)
+                {
+                    throw ErrorLastDirectoryFoundAsFile(incomingPath);
+                }
+
+                throw ErrorDirectoryFoundAsFile(incomingPath);
+            }
+        }
+    }
 }

@@ -36,6 +36,20 @@ namespace TestableFileSystem.Fakes
             this.isExtended = isExtended;
         }
 
+        [NotNull]
+        public AbsolutePath GetAncestorPath(int depth)
+        {
+            Guard.InRangeInclusive(depth, nameof(depth), 0, Components.Count - 1);
+
+            if (depth == Components.Count - 1)
+            {
+                return this;
+            }
+
+            List<string> newComponents = Components.Take(depth + 1).ToList();
+            return new AbsolutePath(newComponents, isExtended);
+        }
+
         [CanBeNull]
         public AbsolutePath TryGetParentPath()
         {

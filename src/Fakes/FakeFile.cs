@@ -112,7 +112,7 @@ namespace TestableFileSystem.Fakes
             return handler.Handle(arguments);
         }
 
-        private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath)
+        private void AssertVolumeRootExists([NotNull] AbsolutePath absolutePath)
         {
             if (!root.Directories.ContainsKey(absolutePath.Components[0]))
             {
@@ -216,7 +216,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertNetworkShareOrDriveExists(absolutePath);
+            AssertVolumeRootExists(absolutePath);
 
             BaseEntry entry = GetExistingEntry(absolutePath);
             return entry.Attributes;
@@ -257,7 +257,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertNetworkShareOrDriveExists(absolutePath);
+            AssertVolumeRootExists(absolutePath);
 
             BaseEntry entry = GetExistingEntry(absolutePath);
             entry.Attributes = fileAttributes;

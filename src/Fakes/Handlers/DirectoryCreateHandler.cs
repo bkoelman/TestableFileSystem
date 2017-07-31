@@ -1,3 +1,4 @@
+using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers.Arguments;
 using TestableFileSystem.Interfaces;
@@ -14,35 +15,56 @@ namespace TestableFileSystem.Fakes.Handlers
         public override DirectoryEntry Handle(DirectoryCreateArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
+            AssertVolumeRootExists(arguments.Path);
 
-            AssertNetworkShareOrDriveExists(arguments.Path);
+            DirectoryEntry directory = Root;
 
-            var navigator = new PathNavigator(arguments.Path);
-
-            if (arguments.Path.IsVolumeRoot && Root.TryGetExistingDirectory(navigator) == null)
+            foreach (AbsolutePathComponent component in arguments.Path.EnumerateComponents())
             {
-                throw ErrorFactory.DirectoryNotFound(arguments.Path.GetText());
+                AssertIsNotFile(component, directory);
+
+                if (!directory.Directories.ContainsKey(component.Name))
+                {
+                    string name = GetDirectoryName(component);
+                    directory = directory.CreateSingleDirectory(name);
+                }
+                else
+                {
+                    directory = directory.Directories[component.Name];
+                }
             }
 
-            return Root.CreateDirectories(navigator);
+            return directory;
         }
 
-        private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath)
+        [AssertionMethod]
+        private void AssertVolumeRootExists([NotNull] AbsolutePath path)
         {
-            if (!Root.Directories.ContainsKey(absolutePath.Components[0]))
+            if (!Root.Directories.ContainsKey(path.Components.First()))
             {
-                if (absolutePath.IsOnLocalDrive)
+                if (!path.IsOnLocalDrive && !path.IsVolumeRoot)
                 {
-                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
+                    throw ErrorFactory.NetworkPathNotFound();
                 }
 
-                if (absolutePath.IsVolumeRoot)
-                {
-                    throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
-                }
-
-                throw ErrorFactory.NetworkPathNotFound();
+                throw ErrorFactory.DirectoryNotFound(path.GetText());
             }
+        }
+
+        [AssertionMethod]
+        private static void AssertIsNotFile([NotNull] AbsolutePathComponent component, [NotNull] DirectoryEntry directory)
+        {
+            if (directory.Files.ContainsKey(component.Name))
+            {
+                AbsolutePath pathUpToHere = component.GetPathUpToHere();
+                throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere.GetText());
+            }
+        }
+
+        [NotNull]
+        private static string GetDirectoryName([NotNull] AbsolutePathComponent component)
+        {
+            return component.IsAtStart && component.Path.IsOnLocalDrive ? component.Name.ToUpperInvariant() : component.Name;
         }
     }
 }

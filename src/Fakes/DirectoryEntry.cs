@@ -215,11 +215,20 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
+        public DirectoryEntry CreateSingleDirectory([NotNull] string name)
+        {
+            Guard.NotNull(name, nameof(name));
+
+            contents.Add(new DirectoryEntry(name, this, SystemClock));
+            return contents.GetEntryAsDirectory(name);
+        }
+
+        [NotNull]
         private DirectoryEntry GetOrCreateSingleDirectory([NotNull] string name)
         {
             if (Parent == null)
             {
-                AssertIsDriveLetterOrNetworkShare(name);
+                AssertIsVolumeRoot(name);
 
                 if (IsDriveLetter(name))
                 {
@@ -248,7 +257,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [AssertionMethod]
-        private static void AssertIsDriveLetterOrNetworkShare([NotNull] string name)
+        private static void AssertIsVolumeRoot([NotNull] string name)
         {
             // TODO: Get rid of duplication in Drive/UNC handling (see AbsolutePath).
 
