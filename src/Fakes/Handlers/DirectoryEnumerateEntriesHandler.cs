@@ -38,7 +38,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.DirectoryNameIsInvalid()
             };
 
-            return resolver.ResolveDirectory(absolutePath, absolutePath.GetText());
+            return resolver.ResolveDirectory(absolutePath);
         }
 
         [NotNull]

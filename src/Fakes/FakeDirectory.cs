@@ -183,7 +183,7 @@ namespace TestableFileSystem.Fakes
             {
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.DirectoryNameIsInvalid()
             };
-            DirectoryEntry directory = resolver.ResolveDirectory(absolutePath, absolutePath.GetText());
+            DirectoryEntry directory = resolver.ResolveDirectory(absolutePath);
 
             owner.CurrentDirectory.SetValue(directory);
         }

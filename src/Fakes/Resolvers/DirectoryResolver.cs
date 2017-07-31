@@ -33,32 +33,34 @@ namespace TestableFileSystem.Fakes.Resolvers
         }
 
         [NotNull]
-        public DirectoryEntry ResolveDirectory([NotNull] AbsolutePath path, [NotNull] string incomingPath)
+        public DirectoryEntry ResolveDirectory([NotNull] AbsolutePath path, [CanBeNull] string incomingPath = null)
         {
             Guard.NotNull(path, nameof(path));
-            Guard.NotNull(incomingPath, nameof(incomingPath));
 
-            DirectoryEntry directory = TryResolveDirectory(path, incomingPath);
+            string completePath = incomingPath ?? path.GetText();
+
+            DirectoryEntry directory = TryResolveDirectory(path, completePath);
             if (directory == null)
             {
-                throw ErrorDirectoryNotFound(incomingPath);
+                throw ErrorDirectoryNotFound(completePath);
             }
 
             return directory;
         }
 
         [CanBeNull]
-        public DirectoryEntry TryResolveDirectory([NotNull] AbsolutePath path, [NotNull] string incomingPath)
+        public DirectoryEntry TryResolveDirectory([NotNull] AbsolutePath path, [CanBeNull] string incomingPath = null)
         {
             Guard.NotNull(path, nameof(path));
-            Guard.NotNull(incomingPath, nameof(incomingPath));
+
+            string completePath = incomingPath ?? path.GetText();
 
             DirectoryEntry directory = root;
 
             foreach (AbsolutePathComponent component in path.EnumerateComponents())
             {
-                AssertNetworkShareExists(component, incomingPath);
-                AssertIsNotFile(component, directory, incomingPath);
+                AssertNetworkShareExists(component, completePath);
+                AssertIsNotFile(component, directory, completePath);
 
                 if (!directory.Directories.ContainsKey(component.Name))
                 {

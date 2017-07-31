@@ -22,7 +22,7 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             var resolver = new DirectoryResolver(Root);
-            DirectoryEntry existingDirectoryOrNull = resolver.TryResolveDirectory(arguments.Path, arguments.Path.GetText());
+            DirectoryEntry existingDirectoryOrNull = resolver.TryResolveDirectory(arguments.Path);
 
             return existingDirectoryOrNull != null;
         }
