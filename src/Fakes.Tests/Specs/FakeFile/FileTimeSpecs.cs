@@ -36,11 +36,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             DateTime creationTimeLocal = 3.February(2017).At(12, 34, 56, 777).AsLocal();
-            SystemClock.Now = () => creationTimeLocal;
+            var clock = new SystemClock { Now = () => creationTimeLocal };
 
             const string path = @"C:\some\subfolder";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
@@ -56,11 +56,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             DateTime creationTimeUtc = 4.February(2017).At(12, 34, 56, 777).AsUtc();
-            SystemClock.UtcNow = () => creationTimeUtc;
+            var clock = new SystemClock { Now = () => creationTimeUtc };
 
             const string path = @"C:\some\subfolder";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
@@ -170,12 +170,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_setting_file_creation_time_for_file_below_existing_file_it_must_fail()
         {
             // Arrange
+            var clock = new SystemClock();
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(@"c:\some\file.txt")
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.SetCreationTime(@"c:\some\file.txt\subfolder", SystemClock.UtcNow());
+            Action action = () => fileSystem.File.SetCreationTime(@"c:\some\file.txt\subfolder", clock.UtcNow());
 
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
@@ -207,11 +209,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             DateTime lastWriteTimeLocal = 7.February(2017).At(12, 34, 56, 777).AsLocal();
-            SystemClock.Now = () => lastWriteTimeLocal;
+            var clock = new SystemClock { Now = () => lastWriteTimeLocal };
 
             const string path = @"C:\some\subfolder";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
@@ -227,11 +229,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             DateTime lastWriteTimeUtc = 8.February(2017).At(12, 34, 56, 777).AsUtc();
-            SystemClock.UtcNow = () => lastWriteTimeUtc;
+            var clock = new SystemClock { UtcNow = () => lastWriteTimeUtc };
 
             const string path = @"C:\some\subfolder";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
@@ -345,11 +347,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             DateTime lastAccessTimeLocal = 11.February(2017).At(12, 34, 56, 777).AsLocal();
-            SystemClock.Now = () => lastAccessTimeLocal;
+            var clock = new SystemClock { Now = () => lastAccessTimeLocal };
 
             const string path = @"C:\some\subfolder";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
@@ -365,11 +367,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             DateTime lastAccessTimeUtc = 12.February(2017).At(12, 34, 56, 777).AsUtc();
-            SystemClock.UtcNow = () => lastAccessTimeUtc;
+            var clock = new SystemClock { UtcNow = () => lastAccessTimeUtc };
 
             const string path = @"C:\some\subfolder";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
@@ -466,11 +468,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\file.txt";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
             DateTime createTimeUtc = 1.January(2017).At(22, 14);
-            SystemClock.UtcNow = () => createTimeUtc;
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .Build();
 
             // Act
             using (fileSystem.File.Create(path))
@@ -490,9 +492,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\file.txt";
 
             DateTime createTimeUtc = 2.January(2017).At(22, 14);
-            SystemClock.UtcNow = () => createTimeUtc;
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
                 .Build();
 
@@ -503,7 +505,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
             {
-                SystemClock.UtcNow = () => writeTimeUtc;
+                clock.UtcNow = () => writeTimeUtc;
 
                 stream.WriteByte(0x20);
 
@@ -527,14 +529,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\file.txt";
 
             DateTime createTimeUtc = 4.January(2017).At(22, 14);
-            SystemClock.UtcNow = () => createTimeUtc;
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingTextFile(path, "X")
                 .Build();
 
             DateTime accessTimeUtc = 5.January(2017).At(23, 11);
-            SystemClock.UtcNow = () => accessTimeUtc;
+            clock.UtcNow = () => accessTimeUtc;
 
             // Act
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
@@ -559,14 +561,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\file.txt";
 
             DateTime createTimeUtc = 4.January(2017).At(22, 14);
-            SystemClock.UtcNow = () => createTimeUtc;
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingTextFile(path, "X")
                 .Build();
 
             DateTime accessTimeUtc = 5.January(2017).At(23, 11);
-            SystemClock.UtcNow = () => accessTimeUtc;
+            clock.UtcNow = () => accessTimeUtc;
 
             // Act
             using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
@@ -586,9 +588,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"C:\file.txt";
 
             DateTime createTimeUtc = 31.January(2017).At(22, 14);
-            SystemClock.UtcNow = () => createTimeUtc;
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
                 .Build();
 
@@ -601,11 +603,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             Task.Factory.StartNew(() =>
             {
-                SystemClock.UtcNow = () => createTimeUtc.AddSeconds(1);
+                clock.UtcNow = () => createTimeUtc.AddSeconds(1);
                 fileSystem.File.WriteAllText(path, "Y");
             }).Wait();
 
-            SystemClock.UtcNow = () => createTimeUtc.AddSeconds(2);
+            clock.UtcNow = () => createTimeUtc.AddSeconds(2);
 
             DateTime accessTimeUtcAfter = fileSystem.File.GetLastAccessTimeUtc(path);
             DateTime writeTimeUtcAfter = fileSystem.File.GetLastWriteTimeUtc(path);

@@ -81,7 +81,7 @@ namespace TestableFileSystem.Fakes.Handlers
             return destinationFileOrNull ?? destinationDirectory.GetOrCreateFile(fileName);
         }
 
-        private static void InitializeDestinationFile([NotNull] FileEntry destinationFile, DateTime sourceLastWriteTimeUtc,
+        private void InitializeDestinationFile([NotNull] FileEntry destinationFile, DateTime sourceLastWriteTimeUtc,
             long sourceLength, FileAttributes sourceFileAttributes)
         {
             using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write))
@@ -91,7 +91,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             destinationFile.Attributes = sourceFileAttributes;
 
-            DateTime now = SystemClock.UtcNow();
+            DateTime now = Root.SystemClock.UtcNow();
             destinationFile.CreationTimeUtc = now;
             destinationFile.LastAccessTimeUtc = now;
             destinationFile.LastWriteTimeUtc = sourceLastWriteTimeUtc;

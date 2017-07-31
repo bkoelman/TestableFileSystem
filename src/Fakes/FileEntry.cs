@@ -89,7 +89,7 @@ namespace TestableFileSystem.Fakes
             Parent = parent;
             Attributes = FileAttributes.Normal;
 
-            CreationTimeUtc = SystemClock.UtcNow();
+            CreationTimeUtc = parent.SystemClock.UtcNow();
             HandleFileChanged(false);
         }
 
@@ -115,7 +115,7 @@ namespace TestableFileSystem.Fakes
 
         private void HandleFileAccessed()
         {
-            LastAccessTimeUtc = SystemClock.UtcNow();
+            LastAccessTimeUtc = Parent.SystemClock.UtcNow();
         }
 
         public bool IsOpen()

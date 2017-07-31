@@ -13,10 +13,22 @@ namespace TestableFileSystem.Fakes.Builders
         private bool includeDriveC = true;
 
         [NotNull]
-        private readonly DirectoryEntry root = DirectoryEntry.CreateRoot();
+        private readonly DirectoryEntry root;
 
         [NotNull]
         private WaitIndicator copyWaitIndicator = WaitIndicator.None;
+
+        public FakeFileSystemBuilder()
+            : this(new SystemClock())
+        {
+        }
+
+        public FakeFileSystemBuilder([NotNull] SystemClock systemClock)
+        {
+            Guard.NotNull(systemClock, nameof(systemClock));
+
+            root = DirectoryEntry.CreateRoot(systemClock);
+        }
 
         public FakeFileSystem Build()
         {
@@ -32,15 +44,6 @@ namespace TestableFileSystem.Fakes.Builders
         public FakeFileSystemBuilder WithoutDefaultDriveC()
         {
             includeDriveC = false;
-            return this;
-        }
-
-        [NotNull]
-        public FakeFileSystemBuilder WithCopyWaitIndicator([NotNull] WaitIndicator waitIndicator)
-        {
-            Guard.NotNull(waitIndicator, nameof(waitIndicator));
-
-            copyWaitIndicator = waitIndicator;
             return this;
         }
 
@@ -148,6 +151,15 @@ namespace TestableFileSystem.Fakes.Builders
             {
                 root.DeleteFile(navigator);
             }
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder WithCopyWaitIndicator([NotNull] WaitIndicator waitIndicator)
+        {
+            Guard.NotNull(waitIndicator, nameof(waitIndicator));
+
+            copyWaitIndicator = waitIndicator;
+            return this;
         }
     }
 }

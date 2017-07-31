@@ -17,6 +17,9 @@ namespace TestableFileSystem.Fakes
             FileAttributes.Directory | FileAttributes.System | FileAttributes.Hidden;
 
         [NotNull]
+        internal readonly SystemClock SystemClock;
+
+        [NotNull]
         private readonly DirectoryContents contents;
 
         // TODO: Refactor to prevent making copies.
@@ -68,16 +71,22 @@ namespace TestableFileSystem.Fakes
             set => throw new NotImplementedException();
         }
 
-        private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent)
+        private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent, [NotNull] SystemClock systemClock)
             : base(name)
         {
             Parent = parent;
             Attributes = IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
             contents = new DirectoryContents(this);
+            this.SystemClock = systemClock;
         }
 
         [NotNull]
-        public static DirectoryEntry CreateRoot() => new DirectoryEntry("My Computer", null);
+        public static DirectoryEntry CreateRoot([NotNull] SystemClock systemClock)
+        {
+            Guard.NotNull(systemClock, nameof(systemClock));
+
+            return new DirectoryEntry("My Computer", null, systemClock);
+        }
 
         [NotNull]
         [ItemNotNull]
@@ -236,7 +245,7 @@ namespace TestableFileSystem.Fakes
             DirectoryEntry directory = contents.TryGetEntryAsDirectory(name);
             if (directory == null)
             {
-                contents.Add(new DirectoryEntry(name, this));
+                contents.Add(new DirectoryEntry(name, this, SystemClock));
             }
 
             return contents.GetEntryAsDirectory(name);

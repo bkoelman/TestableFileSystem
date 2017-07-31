@@ -739,26 +739,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             var copyWaitIndicator = new WaitIndicator();
 
             DateTime sourceCreationTime = 4.January(2017).At(7, 52, 01);
-            SystemClock.UtcNow = () => sourceCreationTime;
+            var clock = new SystemClock { UtcNow = () => sourceCreationTime };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .WithCopyWaitIndicator(copyWaitIndicator)
                 .IncludingEmptyFile(sourcePath)
                 .Build();
 
             DateTime sourceLastWriteTimeUtc = 10.January(2017).At(3, 12, 34);
-            SystemClock.UtcNow = () => sourceLastWriteTimeUtc;
+            clock.UtcNow = () => sourceLastWriteTimeUtc;
 
             fileSystem.File.WriteAllText(sourcePath, "ABCDE");
 
             DateTime destinationCreationTimeUtc = 12.January(2017).At(11, 23, 45);
-            SystemClock.UtcNow = () => destinationCreationTimeUtc;
+            clock.UtcNow = () => destinationCreationTimeUtc;
 
             // Act
-            var copyThread = new Thread(() =>
-            {
-                fileSystem.File.Copy(sourcePath, destinationPath);
-            });
+            var copyThread = new Thread(() => { fileSystem.File.Copy(sourcePath, destinationPath); });
             copyThread.Start();
 
             copyWaitIndicator.WaitForStart();
@@ -773,7 +770,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
 
             DateTime destinationCompletedTime = 10.January(2017).At(11, 27, 36);
-            SystemClock.UtcNow = () => destinationCompletedTime;
+            clock.UtcNow = () => destinationCompletedTime;
 
             copyWaitIndicator.SetCompleted();
             copyThread.Join();
@@ -782,7 +779,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTime);
             destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
 
-            var sourceInfo = fileSystem.ConstructFileInfo(sourcePath);
+            IFileInfo sourceInfo = fileSystem.ConstructFileInfo(sourcePath);
             sourceInfo.CreationTimeUtc.Should().Be(sourceCreationTime);
             sourceInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTime);
             sourceInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
