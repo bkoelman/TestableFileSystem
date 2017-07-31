@@ -120,7 +120,7 @@ namespace TestableFileSystem.Fakes.Builders
             AssertDoesNotExistAsDirectory(absolutePath);
             RemoveExistingFile(absolutePath);
 
-            FileEntry file = root.GetOrCreateFile(navigator, true);
+            FileEntry file = root.GetOrCreateFile(navigator);
 
             using (IFileStream stream = file.Open(FileMode.Open, FileAccess.Write))
             {

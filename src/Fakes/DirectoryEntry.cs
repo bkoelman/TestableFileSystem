@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes
             Parent = parent;
             Attributes = IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
             contents = new DirectoryContents(this);
-            this.SystemClock = systemClock;
+            SystemClock = systemClock;
         }
 
         [NotNull]
@@ -132,7 +132,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public FileEntry GetOrCreateFile([NotNull] PathNavigator pathNavigator, bool createSubdirectories)
+        public FileEntry GetOrCreateFile([NotNull] PathNavigator pathNavigator)
         {
             Guard.NotNull(pathNavigator, nameof(pathNavigator));
 
@@ -147,14 +147,8 @@ namespace TestableFileSystem.Fakes
                 return contents.GetEntryAsFile(pathNavigator.Name);
             }
 
-            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
-            if (subdirectory == null && !createSubdirectories)
-            {
-                throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
-            }
-
-            subdirectory = GetOrCreateSingleDirectory(pathNavigator.Name);
-            return subdirectory.GetOrCreateFile(pathNavigator.MoveDown(), createSubdirectories);
+            DirectoryEntry subdirectory = GetOrCreateSingleDirectory(pathNavigator.Name);
+            return subdirectory.GetOrCreateFile(pathNavigator.MoveDown());
         }
 
         [CanBeNull]
