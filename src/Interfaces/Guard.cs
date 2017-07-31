@@ -51,5 +51,18 @@ namespace TestableFileSystem.Interfaces
         {
             return new InvalidOperationException("This program location is thought to be unreachable.");
         }
+
+        [AssertionMethod]
+        public static void InRangeInclusive(int value, [NotNull] [InvokerParameterName] string name, int minValue, int maxValue)
+        {
+            if (value < minValue || value > maxValue)
+            {
+                if (minValue == maxValue)
+                {
+                    throw new ArgumentOutOfRangeException(name, value, $"{name} must be {minValue}.");
+                }
+                throw new ArgumentOutOfRangeException(name, value, $"{name} must be in range [{minValue}-{maxValue}].");
+            }
+        }
     }
 }

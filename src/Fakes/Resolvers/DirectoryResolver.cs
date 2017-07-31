@@ -56,16 +56,16 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             DirectoryEntry directory = root;
 
-            foreach ((string name, int offset) in path.Components.Select((c, i) => (c, i)))
+            foreach (AbsolutePathComponent component in path.EnumerateComponents())
             {
-                if (offset == 0 && !path.IsOnLocalDrive && !directory.Directories.ContainsKey(name))
+                if (component.IsAtStart && !path.IsOnLocalDrive && !directory.Directories.ContainsKey(component.Name))
                 {
                     throw ErrorNetworkShareNotFound(incomingPath);
                 }
 
-                if (directory.Files.ContainsKey(name))
+                if (directory.Files.ContainsKey(component.Name))
                 {
-                    if (offset == path.Components.Count - 1)
+                    if (component.IsAtEnd)
                     {
                         throw ErrorLastDirectoryFoundAsFile(incomingPath);
                     }
@@ -73,15 +73,16 @@ namespace TestableFileSystem.Fakes.Resolvers
                     throw ErrorDirectoryFoundAsFile(incomingPath);
                 }
 
-                if (!directory.Directories.ContainsKey(name))
+                if (!directory.Directories.ContainsKey(component.Name))
                 {
                     return null;
                 }
 
-                directory = directory.Directories[name];
+                directory = directory.Directories[component.Name];
             }
 
             return directory;
         }
     }
+
 }

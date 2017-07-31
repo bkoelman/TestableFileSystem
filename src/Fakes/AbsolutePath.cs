@@ -92,6 +92,16 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
+        [ItemNotNull]
+        public IEnumerable<AbsolutePathComponent> EnumerateComponents()
+        {
+            for (int offset = 0; offset < Components.Count; offset++)
+            {
+                yield return new AbsolutePathComponent(this, offset);
+            }
+        }
+
+        [NotNull]
         public string GetText()
         {
             var builder = new StringBuilder();
