@@ -1,5 +1,5 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers.Arguments;
 using TestableFileSystem.Fakes.Resolvers;
@@ -7,14 +7,17 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileCopyHandler : FakeOperationHandler<FileCopyArguments, object>
+    internal sealed class FileCopyHandler
+        : FakeOperationHandler<FileCopyArguments, (FileEntry sourceFile, Stream sourceStream, FileEntry destinationFile, Stream
+            destinationStream)>
     {
         public FileCopyHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
             : base(fileSystem, root)
         {
         }
 
-        public override object Handle(FileCopyArguments arguments)
+        public override (FileEntry sourceFile, Stream sourceStream, FileEntry destinationFile, Stream destinationStream) Handle(
+            FileCopyArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 
@@ -26,23 +29,25 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileEntry destinationFile = ResolveDestinationFile(destinationPath, arguments.Overwrite);
 
-            using (IFileStream sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite))
+            InitializeDestinationFile(destinationFile, sourceFile.LastWriteTimeUtc, sourceFile.Size, sourceFile.Attributes);
+
+            IFileStream sourceStream = null;
+            IFileStream destinationStream = null;
+
+            try
             {
-                destinationFile.Attributes = sourceFile.Attributes;
+                sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite);
+                destinationStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write);
 
-                // TODO: Set timings.
-
-                using (IFileStream destinationStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write))
-                {
-                    destinationStream.SetLength(sourceStream.Length);
-
-                    // TODO: Move copying of data outside FileSystem lock.
-
-                    sourceStream.CopyTo(destinationStream.AsStream());
-                }
+                return (sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream());
             }
+            catch (Exception)
+            {
+                destinationStream?.Dispose();
+                sourceStream?.Dispose();
 
-            return Missing.Value;
+                throw;
+            }
         }
 
         [NotNull]
@@ -74,6 +79,22 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             return destinationFileOrNull ?? destinationDirectory.GetOrCreateFile(fileName);
+        }
+
+        private static void InitializeDestinationFile([NotNull] FileEntry destinationFile, DateTime sourceLastWriteTimeUtc,
+            long sourceLength, FileAttributes sourceFileAttributes)
+        {
+            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write))
+            {
+                createStream.SetLength(sourceLength);
+            }
+
+            destinationFile.Attributes = sourceFileAttributes;
+
+            DateTime now = SystemClock.UtcNow();
+            destinationFile.CreationTimeUtc = now;
+            destinationFile.LastAccessTimeUtc = now;
+            destinationFile.LastWriteTimeUtc = sourceLastWriteTimeUtc;
         }
 
         private static void AssertHasExclusiveAccess([NotNull] FileEntry file)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
@@ -728,18 +729,63 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"c:\work\summary.doc").Should().BeTrue();
         }
 
-        // TOOD: See if we can test concurrent access.
-        // Within FileSystem lock:
-        // - File should be created/truncated to final size.
-        // - CreationTime = LastAccessTime = NOW, LastWriteTime = SRC.LastWriteTime.
-        // Then outside the lock (but having a writer lock on the stream):
-        // - Contents should be copied (timings do not change).
-        // - If aborted during copy, yet-uncopied data is zeroed.
-        // Once copy has completed (still having a writer lock on the stream):
-        // - LastAccessTime and SRC.LastAccessTime are set to NOW.
+        [Fact]
+        private void When_copying_file_it_must_allocate_initial_size_and_update_timings()
+        {
+            // Arrange
+            const string sourcePath = @"c:\file.txt";
+            const string destinationPath = @"c:\copy.txt";
 
-        // Documented behavior at https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders:
-        // "If you copy a file, it keeps the same modified date and time but changes
-        // the created date and time to the current date and time."
+            var copyWaitIndicator = new WaitIndicator();
+
+            DateTime sourceCreationTime = 4.January(2017).At(7, 52, 01);
+            SystemClock.UtcNow = () => sourceCreationTime;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .WithCopyWaitIndicator(copyWaitIndicator)
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            DateTime sourceLastWriteTimeUtc = 10.January(2017).At(3, 12, 34);
+            SystemClock.UtcNow = () => sourceLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(sourcePath, "ABCDE");
+
+            DateTime destinationCreationTimeUtc = 12.January(2017).At(11, 23, 45);
+            SystemClock.UtcNow = () => destinationCreationTimeUtc;
+
+            // Act
+            var copyThread = new Thread(() =>
+            {
+                fileSystem.File.Copy(sourcePath, destinationPath);
+            });
+            copyThread.Start();
+
+            copyWaitIndicator.WaitForStart();
+
+            IFileInfo destinationInfo = fileSystem.ConstructFileInfo(destinationPath);
+
+            // Assert
+            destinationInfo.Exists.Should().BeTrue();
+            destinationInfo.Length.Should().Be(5);
+            destinationInfo.CreationTimeUtc.Should().Be(destinationCreationTimeUtc);
+            destinationInfo.LastAccessTimeUtc.Should().Be(destinationCreationTimeUtc);
+            destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+
+            DateTime destinationCompletedTime = 10.January(2017).At(11, 27, 36);
+            SystemClock.UtcNow = () => destinationCompletedTime;
+
+            copyWaitIndicator.SetCompleted();
+            copyThread.Join();
+
+            destinationInfo.CreationTimeUtc.Should().Be(destinationCreationTimeUtc);
+            destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTime);
+            destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+
+            var sourceInfo = fileSystem.ConstructFileInfo(sourcePath);
+            sourceInfo.CreationTimeUtc.Should().Be(sourceCreationTime);
+            sourceInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTime);
+            sourceInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+        }
     }
 }

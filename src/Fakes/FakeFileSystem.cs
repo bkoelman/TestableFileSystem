@@ -27,13 +27,17 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal CurrentDirectoryManager CurrentDirectory { get; }
 
-        internal FakeFileSystem([NotNull] DirectoryEntry rootEntry)
+        [NotNull]
+        internal WaitIndicator CopyWaitIndicator { get; }
+
+        internal FakeFileSystem([NotNull] DirectoryEntry rootEntry, [NotNull] WaitIndicator copyWaitIndicator)
         {
             Guard.NotNull(rootEntry, nameof(rootEntry));
 
             CurrentDirectory = new CurrentDirectoryManager(rootEntry);
             Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(rootEntry, this));
             File = new FileOperationLocker<FakeFile>(this, new FakeFile(rootEntry, this));
+            CopyWaitIndicator = copyWaitIndicator;
         }
 
         [NotNull]

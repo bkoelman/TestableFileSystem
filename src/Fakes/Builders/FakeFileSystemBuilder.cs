@@ -15,6 +15,9 @@ namespace TestableFileSystem.Fakes.Builders
         [NotNull]
         private readonly DirectoryEntry root = DirectoryEntry.CreateRoot();
 
+        [NotNull]
+        private WaitIndicator copyWaitIndicator = WaitIndicator.None;
+
         public FakeFileSystem Build()
         {
             if (includeDriveC)
@@ -22,13 +25,22 @@ namespace TestableFileSystem.Fakes.Builders
                 IncludingDirectory("C:");
             }
 
-            return new FakeFileSystem(root);
+            return new FakeFileSystem(root, copyWaitIndicator);
         }
 
         [NotNull]
         public FakeFileSystemBuilder WithoutDefaultDriveC()
         {
             includeDriveC = false;
+            return this;
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder WithCopyWaitIndicator([NotNull] WaitIndicator waitIndicator)
+        {
+            Guard.NotNull(waitIndicator, nameof(waitIndicator));
+
+            copyWaitIndicator = waitIndicator;
             return this;
         }
 

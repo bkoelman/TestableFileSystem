@@ -35,7 +35,8 @@ namespace TestableFileSystem.Fakes
 
         public void Copy(string sourceFileName, string destFileName, bool overwrite = false)
         {
-            ExecuteInLock(() => target.Copy(sourceFileName, destFileName, overwrite));
+            // Locking is handled by caller.
+            target.Copy(sourceFileName, destFileName, overwrite);
         }
 
         public void Move(string sourceFileName, string destFileName)

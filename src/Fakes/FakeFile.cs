@@ -114,10 +114,42 @@ namespace TestableFileSystem.Fakes
             AssertFileNameIsNotEmpty(sourceFileName);
             AssertFileNameIsNotEmpty(destFileName);
 
-            var handler = new FileCopyHandler(owner, root);
-            var arguments = new FileCopyArguments(sourceFileName, destFileName, overwrite);
+            FileEntry sourceFile;
+            FileEntry destinationFile;
 
-            handler.Handle(arguments);
+            Stream sourceStream = null;
+            Stream destinationStream = null;
+
+            try
+            {
+                lock (owner.TreeLock)
+                {
+                    var handler = new FileCopyHandler(owner, root);
+                    var arguments = new FileCopyArguments(sourceFileName, destFileName, overwrite);
+
+                    (sourceFile, sourceStream, destinationFile, destinationStream) = handler.Handle(arguments);
+                }
+
+                WaitOnIndicator(owner.CopyWaitIndicator);
+
+                sourceStream.CopyTo(destinationStream);
+            }
+            finally
+            {
+                destinationStream?.Dispose();
+                sourceStream?.Dispose();
+            }
+
+            lock (owner.TreeLock)
+            {
+                destinationFile.LastWriteTimeUtc = sourceFile.LastWriteTimeUtc;
+            }
+        }
+
+        private void WaitOnIndicator([NotNull] WaitIndicator indicator)
+        {
+            indicator.SetStarted();
+            indicator.WaitForComplete();
         }
 
         public void Move(string sourceFileName, string destFileName)
