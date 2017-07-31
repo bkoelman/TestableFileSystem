@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -14,7 +15,7 @@ namespace TestableFileSystem.Fakes
         protected FakeOperationHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
         {
             Guard.NotNull(fileSystem, nameof(fileSystem));
-            Guard.NotNull(fileSystem, nameof(fileSystem));
+            Guard.NotNull(root, nameof(root));
 
             FileSystem = fileSystem;
             Root = root;
