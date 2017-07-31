@@ -216,10 +216,11 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertVolumeRootExists(absolutePath);
 
-            BaseEntry entry = GetExistingEntry(absolutePath);
-            return entry.Attributes;
+            var handler = new FileGetAttributesHandler(root);
+            var arguments = new FileGetAttributesArguments(absolutePath);
+
+            return handler.Handle(arguments);
         }
 
         [NotNull]
