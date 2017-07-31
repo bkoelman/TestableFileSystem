@@ -7,11 +7,11 @@ namespace TestableFileSystem.Fakes.Handlers.Arguments
     internal sealed class FileCreateArguments
     {
         [NotNull]
-        public string Path { get; }
+        public AbsolutePath Path { get; }
 
         public FileOptions Options { get; }
 
-        public FileCreateArguments([NotNull] string path, FileOptions options)
+        public FileCreateArguments([NotNull] AbsolutePath path, FileOptions options)
         {
             Guard.NotNull(path, nameof(path));
 

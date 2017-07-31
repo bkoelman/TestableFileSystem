@@ -44,8 +44,11 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(searchPattern, nameof(searchPattern));
 
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root);
-            var arguments = new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.Files);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectoryEnumerateEntriesHandler(root);
+            var arguments =
+                new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption, EnumerationFilter.Files);
 
             return handler.Handle(arguments);
         }
@@ -63,9 +66,11 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(searchPattern, nameof(searchPattern));
 
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root);
-            var arguments =
-                new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.Directories);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectoryEnumerateEntriesHandler(root);
+            var arguments = new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption,
+                EnumerationFilter.Directories);
 
             return handler.Handle(arguments);
         }
@@ -83,8 +88,11 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(searchPattern, nameof(searchPattern));
 
-            var handler = new DirectoryEnumerateEntriesHandler(owner, root);
-            var arguments = new DirectoryEnumerateEntriesArguments(path, searchPattern, searchOption, EnumerationFilter.All);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectoryEnumerateEntriesHandler(root);
+            var arguments =
+                new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption, EnumerationFilter.All);
 
             return handler.Handle(arguments);
         }
@@ -98,10 +106,25 @@ namespace TestableFileSystem.Fakes
 
         public bool Exists(string path)
         {
-            var handler = new DirectoryExistsHandler(owner, root);
-            var arguments = new DirectoryExistsArguments(path);
+            try
+            {
+                AbsolutePath absolutePath = string.IsNullOrWhiteSpace(path) ? null : owner.ToAbsolutePath(path);
 
-            return handler.Handle(arguments);
+                var handler = new DirectoryExistsHandler(root);
+                var arguments = new DirectoryExistsArguments(absolutePath);
+
+                return handler.Handle(arguments);
+            }
+            catch (Exception ex) when (ShouldSuppress(ex))
+            {
+                return false;
+            }
+        }
+
+        private static bool ShouldSuppress([NotNull] Exception ex)
+        {
+            return ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException ||
+                ex is NotSupportedException;
         }
 
         public IDirectoryInfo CreateDirectory(string path)

@@ -11,8 +11,8 @@ namespace TestableFileSystem.Fakes.Handlers
         : FakeOperationHandler<FileCopyArguments, (FileEntry sourceFile, Stream sourceStream, FileEntry destinationFile, Stream
             destinationStream)>
     {
-        public FileCopyHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
-            : base(fileSystem, root)
+        public FileCopyHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
@@ -21,13 +21,10 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            AbsolutePath sourcePath = FileSystem.ToAbsolutePath(arguments.SourceFileName);
-            AbsolutePath destinationPath = FileSystem.ToAbsolutePath(arguments.DestinationFileName);
-
-            FileEntry sourceFile = ResolveSourceFile(sourcePath);
+            FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath);
             AssertHasExclusiveAccess(sourceFile);
 
-            FileEntry destinationFile = ResolveDestinationFile(destinationPath, arguments.Overwrite);
+            FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath, arguments.Overwrite);
 
             InitializeDestinationFile(destinationFile, sourceFile.LastWriteTimeUtc, sourceFile.Size, sourceFile.Attributes);
 

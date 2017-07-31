@@ -6,9 +6,9 @@ namespace TestableFileSystem.Fakes.Handlers.Arguments
     internal sealed class FileDeleteArguments
     {
         [NotNull]
-        public string Path { get; }
+        public AbsolutePath Path { get; }
 
-        public FileDeleteArguments([NotNull] string path)
+        public FileDeleteArguments([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
             Path = path;

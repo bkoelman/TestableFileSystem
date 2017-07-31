@@ -12,8 +12,8 @@ namespace TestableFileSystem.Fakes.Handlers
     {
         // TODO: Implement timings - https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
 
-        public FileMoveHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
-            : base(fileSystem, root)
+        public FileMoveHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
@@ -21,15 +21,13 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            AbsolutePath sourcePath = FileSystem.ToAbsolutePath(arguments.SourceFileName);
-            AbsolutePath destinationPath = FileSystem.ToAbsolutePath(arguments.DestinationFileName);
-
-            FileEntry sourceFile = ResolveSourceFile(sourcePath);
+            FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath);
             AssertHasExclusiveAccess(sourceFile);
 
-            DirectoryEntry destinationDirectory = ResolveDestinationDirectory(sourcePath, destinationPath, sourceFile);
+            DirectoryEntry destinationDirectory =
+                ResolveDestinationDirectory(arguments.SourcePath, arguments.DestinationPath, sourceFile);
 
-            string newFileName = destinationPath.Components.Last();
+            string newFileName = arguments.DestinationPath.Components.Last();
             MoveFile(sourceFile, destinationDirectory, newFileName);
 
             return Missing.Value;

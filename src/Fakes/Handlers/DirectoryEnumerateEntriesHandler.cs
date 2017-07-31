@@ -10,8 +10,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class DirectoryEnumerateEntriesHandler : FakeOperationHandler<DirectoryEnumerateEntriesArguments, string[]>
     {
-        public DirectoryEnumerateEntriesHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
-            : base(fileSystem, root)
+        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
@@ -20,15 +20,14 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            AbsolutePath absolutePath = FileSystem.ToAbsolutePath(arguments.Path);
-            DirectoryEntry directory = ResolveDirectory(absolutePath);
+            DirectoryEntry directory = ResolveDirectory(arguments.Path);
 
             PathPattern pattern = PathPattern.Create(arguments.SearchPattern);
 
             IEnumerable<string> absoluteNames =
-                EnumerateEntriesInDirectory(directory, pattern, absolutePath, arguments.SearchOption, arguments.Filter);
+                EnumerateEntriesInDirectory(directory, pattern, arguments.Path, arguments.SearchOption, arguments.Filter);
 
-            return ToRelativeNames(absoluteNames, absolutePath, arguments.Path).ToArray();
+            return ToRelativeNames(absoluteNames, arguments.Path, arguments.IncomingPath).ToArray();
         }
 
         [NotNull]

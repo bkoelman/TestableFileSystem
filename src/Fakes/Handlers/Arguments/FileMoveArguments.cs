@@ -6,18 +6,18 @@ namespace TestableFileSystem.Fakes.Handlers.Arguments
     internal sealed class FileMoveArguments
     {
         [NotNull]
-        public string SourceFileName { get; }
+        public AbsolutePath SourcePath { get; }
 
         [NotNull]
-        public string DestinationFileName { get; }
+        public AbsolutePath DestinationPath { get; }
 
-        public FileMoveArguments([NotNull] string sourceFileName, [NotNull] string destinationFileName)
+        public FileMoveArguments([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath)
         {
-            Guard.NotNull(sourceFileName, nameof(sourceFileName));
-            Guard.NotNull(destinationFileName, nameof(destinationFileName));
+            Guard.NotNull(sourcePath, nameof(sourcePath));
+            Guard.NotNull(destinationPath, nameof(destinationPath));
 
-            SourceFileName = sourceFileName;
-            DestinationFileName = destinationFileName;
+            SourcePath = sourcePath;
+            DestinationPath = destinationPath;
         }
     }
 }

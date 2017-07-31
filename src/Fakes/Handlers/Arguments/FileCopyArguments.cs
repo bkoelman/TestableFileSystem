@@ -6,20 +6,20 @@ namespace TestableFileSystem.Fakes.Handlers.Arguments
     internal sealed class FileCopyArguments
     {
         [NotNull]
-        public string SourceFileName { get; }
+        public AbsolutePath SourcePath { get; }
 
         [NotNull]
-        public string DestinationFileName { get; }
+        public AbsolutePath DestinationPath { get; }
 
         public bool Overwrite { get; }
 
-        public FileCopyArguments([NotNull] string sourceFileName, [NotNull] string destinationFileName, bool overwrite)
+        public FileCopyArguments([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath, bool overwrite)
         {
-            Guard.NotNull(sourceFileName, nameof(sourceFileName));
-            Guard.NotNull(destinationFileName, nameof(destinationFileName));
+            Guard.NotNull(sourcePath, nameof(sourcePath));
+            Guard.NotNull(destinationPath, nameof(destinationPath));
 
-            SourceFileName = sourceFileName;
-            DestinationFileName = destinationFileName;
+            SourcePath = sourcePath;
+            DestinationPath = destinationPath;
             Overwrite = overwrite;
         }
     }

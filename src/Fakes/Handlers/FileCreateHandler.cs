@@ -8,20 +8,18 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileCreateHandler : FakeOperationHandler<FileCreateArguments, IFileStream>
     {
-        public FileCreateHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
-            : base(fileSystem, root)
+        public FileCreateHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
         public override IFileStream Handle(FileCreateArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
-
-            AbsolutePath absolutePath = FileSystem.ToAbsolutePath(arguments.Path);
-            AssertValidCreationOptions(arguments.Options, absolutePath);
+            AssertValidCreationOptions(arguments);
 
             var resolver = new FileResolver(Root);
-            (DirectoryEntry containingDirectory, FileEntry _, string fileName) = resolver.TryResolveFile(absolutePath);
+            (DirectoryEntry containingDirectory, FileEntry _, string fileName) = resolver.TryResolveFile(arguments.Path);
 
             FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);
 
@@ -34,11 +32,11 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private static void AssertValidCreationOptions(FileOptions options, [NotNull] AbsolutePath absolutePath)
+        private static void AssertValidCreationOptions([NotNull] FileCreateArguments arguments)
         {
-            if (options.HasFlag(FileOptions.Encrypted))
+            if (arguments.Options.HasFlag(FileOptions.Encrypted))
             {
-                throw ErrorFactory.UnauthorizedAccess(absolutePath.GetText());
+                throw ErrorFactory.UnauthorizedAccess(arguments.Path.GetText());
             }
         }
     }

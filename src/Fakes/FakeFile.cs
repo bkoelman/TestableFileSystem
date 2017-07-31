@@ -29,10 +29,25 @@ namespace TestableFileSystem.Fakes
 
         public bool Exists(string path)
         {
-            var handler = new FileExistsHandler(owner, root);
-            var arguments = new FileExistsArguments(path);
+            try
+            {
+                AbsolutePath absolutePath = string.IsNullOrWhiteSpace(path) ? null : owner.ToAbsolutePath(path);
 
-            return handler.Handle(arguments);
+                var handler = new FileExistsHandler(root);
+                var arguments = new FileExistsArguments(absolutePath);
+
+                return handler.Handle(arguments);
+            }
+            catch (Exception ex) when (ShouldSuppress(ex))
+            {
+                return false;
+            }
+        }
+
+        private static bool ShouldSuppress([NotNull] Exception ex)
+        {
+            return ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException ||
+                ex is NotSupportedException;
         }
 
         public IFileStream Create(string path, int bufferSize = 4096, FileOptions options = FileOptions.None)
@@ -40,8 +55,10 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
             AssertPathIsNotEmpty(path);
 
-            var handler = new FileCreateHandler(owner, root);
-            var arguments = new FileCreateArguments(path, options);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new FileCreateHandler(root);
+            var arguments = new FileCreateArguments(absolutePath, options);
 
             return handler.Handle(arguments);
         }
@@ -87,8 +104,10 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
             AssertPathIsNotEmpty(path);
 
-            var handler = new FileOpenHandler(owner, root);
-            var arguments = new FileOpenArguments(path, mode, access);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new FileOpenHandler(root);
+            var arguments = new FileOpenArguments(absolutePath, mode, access);
 
             return handler.Handle(arguments);
         }
@@ -124,8 +143,11 @@ namespace TestableFileSystem.Fakes
             {
                 lock (owner.TreeLock)
                 {
-                    var handler = new FileCopyHandler(owner, root);
-                    var arguments = new FileCopyArguments(sourceFileName, destFileName, overwrite);
+                    AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
+                    AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
+
+                    var handler = new FileCopyHandler(root);
+                    var arguments = new FileCopyArguments(sourcePath, destinationPath, overwrite);
 
                     (sourceFile, sourceStream, destinationFile, destinationStream) = handler.Handle(arguments);
                 }
@@ -160,8 +182,11 @@ namespace TestableFileSystem.Fakes
             AssertFileNameIsNotEmpty(sourceFileName);
             AssertFileNameIsNotEmpty(destFileName);
 
-            var handler = new FileMoveHandler(owner, root);
-            var arguments = new FileMoveArguments(sourceFileName, destFileName);
+            AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
+            AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
+
+            var handler = new FileMoveHandler(root);
+            var arguments = new FileMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);
         }
@@ -178,8 +203,10 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            var handler = new FileDeleteHandler(owner, root);
-            var arguments = new FileDeleteArguments(path);
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new FileDeleteHandler(root);
+            var arguments = new FileDeleteArguments(absolutePath);
 
             handler.Handle(arguments);
         }

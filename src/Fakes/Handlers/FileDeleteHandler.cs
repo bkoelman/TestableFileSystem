@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileDeleteHandler : FakeOperationHandler<FileDeleteArguments, object>
     {
-        public FileDeleteHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
-            : base(fileSystem, root)
+        public FileDeleteHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
@@ -18,15 +18,13 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            AbsolutePath absolutePath = FileSystem.ToAbsolutePath(arguments.Path);
-
             var resolver = new FileResolver(Root);
-            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string _) = resolver.TryResolveFile(absolutePath);
+            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string _) = resolver.TryResolveFile(arguments.Path);
 
             if (existingFileOrNull != null)
             {
-                AssertIsNotReadOnly(existingFileOrNull, absolutePath);
-                AssertHasExclusiveAccess(existingFileOrNull, absolutePath);
+                AssertIsNotReadOnly(existingFileOrNull, arguments.Path);
+                AssertHasExclusiveAccess(existingFileOrNull, arguments.Path);
 
                 containingDirectory.DeleteFile(existingFileOrNull);
             }

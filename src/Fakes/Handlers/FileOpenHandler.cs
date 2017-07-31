@@ -8,8 +8,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileOpenHandler : FakeOperationHandler<FileOpenArguments, IFileStream>
     {
-        public FileOpenHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
-            : base(fileSystem, root)
+        public FileOpenHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
@@ -19,17 +19,15 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileAccess fileAccess = DetectFileAccess(arguments);
 
-            AbsolutePath absolutePath = FileSystem.ToAbsolutePath(arguments.Path);
-
             var resolver = new FileResolver(Root);
             (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) =
-                resolver.TryResolveFile(absolutePath);
+                resolver.TryResolveFile(arguments.Path);
 
             if (existingFileOrNull != null)
             {
                 if (arguments.Mode == FileMode.CreateNew)
                 {
-                    throw ErrorFactory.FileAlreadyExists(absolutePath.GetText());
+                    throw ErrorFactory.FileAlreadyExists(arguments.Path.GetText());
                 }
 
                 return existingFileOrNull.Open(arguments.Mode, fileAccess);
@@ -37,7 +35,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (arguments.Mode == FileMode.Open || arguments.Mode == FileMode.Truncate)
             {
-                throw ErrorFactory.FileNotFound(absolutePath.GetText());
+                throw ErrorFactory.FileNotFound(arguments.Path.GetText());
             }
 
             FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);

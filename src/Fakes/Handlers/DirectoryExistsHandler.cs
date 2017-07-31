@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers.Arguments;
 using TestableFileSystem.Fakes.Resolvers;
@@ -9,8 +7,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class DirectoryExistsHandler : FakeOperationHandler<DirectoryExistsArguments, bool>
     {
-        public DirectoryExistsHandler([NotNull] FakeFileSystem fileSystem, [NotNull] DirectoryEntry root)
-            : base(fileSystem, root)
+        public DirectoryExistsHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
@@ -18,30 +16,15 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            if (string.IsNullOrWhiteSpace(arguments.Path))
+            if (arguments.Path == null)
             {
                 return false;
             }
 
-            try
-            {
-                AbsolutePath absolutePath = FileSystem.ToAbsolutePath(arguments.Path);
+            var resolver = new DirectoryResolver(Root);
+            DirectoryEntry existingDirectoryOrNull = resolver.TryResolveDirectory(arguments.Path, arguments.Path.GetText());
 
-                var resolver = new DirectoryResolver(Root);
-                DirectoryEntry existingDirectoryOrNull = resolver.TryResolveDirectory(absolutePath, absolutePath.GetText());
-
-                return existingDirectoryOrNull != null;
-            }
-            catch (Exception ex) when (ShouldSuppress(ex))
-            {
-                return false;
-            }
-        }
-
-        private static bool ShouldSuppress([NotNull] Exception ex)
-        {
-            return ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException ||
-                ex is NotSupportedException;
+            return existingDirectoryOrNull != null;
         }
     }
 }
