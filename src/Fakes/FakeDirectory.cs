@@ -133,17 +133,12 @@ namespace TestableFileSystem.Fakes
             AssertPathIsNotWhiteSpace(path);
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertNetworkShareOrDriveExists(absolutePath, true);
 
-            var navigator = new PathNavigator(absolutePath);
+            var handler = new DirectoryCreateHandler(root);
+            var arguments = new DirectoryCreateArguments(absolutePath);
 
-            if (absolutePath.IsVolumeRoot && root.TryGetExistingDirectory(navigator) == null)
-            {
-                throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
-            }
-
-            root.CreateDirectories(navigator);
-            return owner.ConstructDirectoryInfo(absolutePath.GetText());
+            handler.Handle(arguments);
+            return owner.ConstructDirectoryInfo(path);
         }
 
         private void AssertNetworkShareOrDriveExists([NotNull] AbsolutePath absolutePath, bool isCreatingDirectory = false)
@@ -183,7 +178,6 @@ namespace TestableFileSystem.Fakes
 
             handler.Handle(arguments);
         }
-
 
         public void Move(string sourceDirName, string destDirName)
         {
