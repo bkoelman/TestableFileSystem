@@ -315,7 +315,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_opening_local_file_that_exists_as_directory_it_must_fail()
+        private void When_opening_local_file_for_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -332,7 +332,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_opening_local_file_that_exists_as_parent_file_it_must_fail()
+        private void When_opening_local_file_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -345,6 +345,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\nested.txt'.");
+        }
+
+        [Fact]
+        private void When_opening_local_file_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(@"C:\some\file.txt\nested.txt\more.txt", FileMode.Open);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\nested.txt\more.txt'.");
         }
 
         [Fact]

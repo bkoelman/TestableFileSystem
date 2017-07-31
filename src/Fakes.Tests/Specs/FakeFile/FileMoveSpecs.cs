@@ -379,7 +379,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(@"C:\some\file.txt\other.txt\missing.txt", "newname.doc");
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt\other.txt\missing.txt'.");
+            action.ShouldThrow<FileNotFoundException>()
+                .WithMessage(@"Could not find file 'C:\some\file.txt\other.txt\missing.txt'.");
         }
 
         [Fact]

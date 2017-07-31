@@ -538,7 +538,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_attributes_for_local_file_below_existing_file_it_must_fail()
+        private void When_getting_attributes_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -554,7 +554,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_attributes_for_local_file_below_existing_file_it_must_fail()
+        private void When_setting_attributes_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -567,6 +567,38 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+        }
+
+        [Fact]
+        private void When_getting_attributes_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes(@"c:\some\file.txt\nested.txt\more.txt");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(@"c:\some\file.txt\nested.txt\more.txt", FileAttributes.Archive);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
         [Fact]

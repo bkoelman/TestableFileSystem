@@ -224,7 +224,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_creating_local_file_that_exists_as_directory_it_must_fail()
+        private void When_creating_local_file_for_missing_parent_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Create(@"C:\some\subfolder");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\subfolder'.");
+        }
+
+        [Fact]
+        private void When_creating_local_file_for_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -241,7 +256,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_creating_local_file_below_existing_file_it_must_fail()
+        private void When_creating_local_file_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -257,18 +272,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_creating_local_file_for_missing_parent_directory_it_must_fail()
+        private void When_creating_local_file_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Create(@"C:\some\subfolder");
+            Action action = () => fileSystem.File.Create(@"c:\some\file.txt\nested.txt\more.txt");
 
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\subfolder'.");
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
         [Fact]

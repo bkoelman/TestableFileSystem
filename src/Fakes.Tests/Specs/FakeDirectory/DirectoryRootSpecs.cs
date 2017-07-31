@@ -139,6 +139,53 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_getting_directory_root_for_directory_that_exists_as_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            string root = fileSystem.Directory.GetDirectoryRoot(path);
+
+            // Assert
+            root.Should().Be(@"C:\");
+        }
+
+        [Fact]
+        private void When_getting_directory_root_for_parent_directory_that_exists_as_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            string root = fileSystem.Directory.GetDirectoryRoot(@"C:\some\file.txt\deeper");
+
+            // Assert
+            root.Should().Be(@"C:\");
+        }
+
+        [Fact]
+        private void When_getting_directory_root_for_parent_parent_directory_that_exists_as_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            string root = fileSystem.Directory.GetDirectoryRoot(@"C:\some\file.txt\deeper\more");
+
+            // Assert
+            root.Should().Be(@"C:\");
+        }
+
+        [Fact]
         private void When_getting_directory_root_on_missing_network_share_it_must_succeed()
         {
             // Arrange

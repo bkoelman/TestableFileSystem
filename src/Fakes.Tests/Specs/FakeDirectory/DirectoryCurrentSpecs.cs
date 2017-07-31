@@ -217,7 +217,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_setting_current_directory_to_existing_file_it_must_fail()
+        private void When_setting_current_directory_for_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\file.txt";
@@ -234,7 +234,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_setting_current_directory_below_existing_file_it_must_fail()
+        private void When_setting_current_directory_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -247,6 +247,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             action.ShouldThrow<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
+        }
+
+        [Fact]
+        private void When_setting_current_directory_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.SetCurrentDirectory(@"c:\some\file.txt\subfolder\deeper");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder\deeper'.");
         }
 
         [Fact]

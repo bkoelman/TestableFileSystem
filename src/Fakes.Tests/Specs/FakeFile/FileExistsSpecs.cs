@@ -232,7 +232,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_existence_for_existing_local_file_that_exists_as_directory_it_must_succeed()
+        private void When_getting_file_existence_for_missing_parent_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            bool found = fileSystem.File.Exists(@"C:\other\file.txt");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_getting_file_existence_for_file_that_exists_as_directory_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -249,7 +263,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_existence_below_existing_file_it_must_succeed()
+        private void When_getting_file_existence_for_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -264,14 +278,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_existence_for_missing_parent_directory_it_must_succeed()
+        private void When_getting_file_existence_for_parent_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
                 .Build();
 
             // Act
-            bool found = fileSystem.File.Exists(@"C:\other\file.txt");
+            bool found = fileSystem.File.Exists(@"c:\some\file.txt\nested.txt\deeper.txt");
 
             // Assert
             found.Should().BeFalse();

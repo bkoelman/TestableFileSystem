@@ -306,6 +306,56 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_creating_local_directory_for_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"c:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.CreateDirectory(path);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
+        }
+
+        [Fact]
+        private void When_creating_local_directory_for_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.CreateDirectory(@"C:\some\file.txt\sub");
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+        }
+
+        [Fact]
+        private void When_creating_local_directory_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.CreateDirectory(@"C:\some\file.txt\sub\deeper");
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+        }
+
+        [Fact]
         private void When_creating_only_server_part_of_network_share_it_must_fail()
         {
             // Arrange
@@ -366,42 +416,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             info.Should().NotBeNull();
             fileSystem.Directory.Exists(@"\\teamshare\folder\documents\for\us").Should().BeTrue();
-        }
-
-        [Fact]
-        private void When_creating_local_directory_that_exists_as_file_it_must_fail()
-        {
-            // Arrange
-            const string path = @"c:\some\file.txt";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.Directory.CreateDirectory(path);
-
-            // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(
-                    @"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
-        }
-
-        [Fact]
-        private void When_creating_local_directory_below_existing_file_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"c:\some\file.txt")
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.Directory.CreateDirectory(@"c:\some\file.txt\subfolder");
-
-            // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(
-                    @"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]

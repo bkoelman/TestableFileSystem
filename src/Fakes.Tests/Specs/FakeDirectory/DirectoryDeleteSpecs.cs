@@ -404,6 +404,55 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_deleting_local_directory_for_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(path);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"The directory name is invalid.");
+        }
+
+        [Fact]
+        private void When_deleting_local_directory_for_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(@"c:\some\file.txt\subfolder");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
+        }
+
+        [Fact]
+        private void When_deleting_local_directory_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Delete(@"c:\some\file.txt\subfolder\deeper");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder\deeper'.");
+        }
+
+        [Fact]
         private void When_deleting_remote_empty_directory_it_must_succeed()
         {
             // Arrange
@@ -470,39 +519,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.ShouldThrow<IOException>().WithMessage(@"The network path was not found");
-        }
-
-        [Fact]
-        private void When_deleting_local_directory_that_exists_as_file_it_must_fail()
-        {
-            // Arrange
-            const string path = @"C:\some\file.txt";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.Directory.Delete(path);
-
-            // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"The directory name is invalid.");
-        }
-
-        [Fact]
-        private void When_deleting_local_directory_below_existing_file_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"c:\some\file.txt")
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.Directory.Delete(@"c:\some\file.txt\subfolder");
-
-            // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
         }
 
         [Fact]

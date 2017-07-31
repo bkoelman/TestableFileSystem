@@ -485,6 +485,39 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_copying_file_from_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Copy(@"C:\some\file.txt\other.txt\deeper.txt", "newname.doc");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\other.txt\deeper.txt'.");
+        }
+
+        [Fact]
+        private void When_copying_file_to_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .IncludingEmptyFile(@"C:\some\newname.doc")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Copy(@"C:\some\file.txt", @"C:\some\newname.doc\other.doc\deeper.doc");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\newname.doc\other.doc\deeper.doc'.");
+        }
+
+        [Fact]
         private void When_copying_file_from_missing_directory_it_must_fail()
         {
             // Arrange

@@ -182,7 +182,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         }
 
         [Fact]
-        private void When_including_local_empty_file_that_exists_as_directory_it_must_fail()
+        private void When_including_local_empty_file_for_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\subfolder";
@@ -196,6 +196,36 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             // Assert
             action.ShouldThrow<IOException>()
                 .WithMessage(@"Cannot create 'C:\some\subfolder' because a file or directory with the same name already exists.");
+        }
+
+        [Fact]
+        private void When_including_local_empty_file_for_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            FakeFileSystemBuilder builder = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt");
+
+            // Act
+            Action action = () => builder.IncludingEmptyFile(@"c:\some\file.txt\nested.txt");
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+        }
+
+        [Fact]
+        private void When_including_local_empty_file_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            FakeFileSystemBuilder builder = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt");
+
+            // Act
+            Action action = () => builder.IncludingEmptyFile(@"c:\some\file.txt\nested.txt\deeper.txt");
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]

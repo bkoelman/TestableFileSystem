@@ -761,6 +761,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_enumerating_directories_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.EnumerateDirectories(@"C:\some\file.txt\deeper\more");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\deeper\more'.");
+        }
+
+        [Fact]
         private void When_enumerating_directories_for_missing_parent_directory_it_must_fail()
         {
             // Arrange

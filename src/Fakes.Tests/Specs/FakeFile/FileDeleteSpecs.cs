@@ -222,6 +222,55 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_deleting_local_file_for_file_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\subfolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(path);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+        }
+
+        [Fact]
+        private void When_deleting_local_file_for_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(@"c:\some\file.txt\nested.txt");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+        }
+
+        [Fact]
+        private void When_deleting_local_file_for_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Delete(@"c:\some\file.txt\nested.txt\other.txt");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\other.txt'.");
+        }
+
+        [Fact]
         private void When_deleting_remote_file_on_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -252,39 +301,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             fileSystem.File.Exists(path).Should().BeFalse();
-        }
-
-        [Fact]
-        private void When_deleting_local_file_that_exists_as_directory_it_must_fail()
-        {
-            // Arrange
-            const string path = @"C:\some\subfolder";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Delete(path);
-
-            // Assert
-            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
-        }
-
-        [Fact]
-        private void When_deleting_local_file_below_existing_file_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"c:\some\file.txt")
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Delete(@"c:\some\file.txt\nested.txt\other.txt");
-
-            // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\other.txt'.");
         }
 
         [Fact]
