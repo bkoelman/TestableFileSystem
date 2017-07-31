@@ -133,26 +133,6 @@ namespace TestableFileSystem.Fakes
             return contents.GetEntryAsFile(fileName);
         }
 
-        [NotNull]
-        public FileEntry GetOrCreateFile([NotNull] PathNavigator pathNavigator)
-        {
-            Guard.NotNull(pathNavigator, nameof(pathNavigator));
-
-            if (pathNavigator.IsAtEnd)
-            {
-                FileEntry file = contents.TryGetEntryAsFile(pathNavigator.Name);
-                if (file == null)
-                {
-                    contents.Add(new FileEntry(pathNavigator.Name, this));
-                }
-
-                return contents.GetEntryAsFile(pathNavigator.Name);
-            }
-
-            DirectoryEntry subdirectory = GetOrCreateSingleDirectory(pathNavigator.Name);
-            return subdirectory.GetOrCreateFile(pathNavigator.MoveDown());
-        }
-
         [CanBeNull]
         public FileEntry TryGetExistingFile([NotNull] PathNavigator pathNavigator)
         {
@@ -174,36 +154,6 @@ namespace TestableFileSystem.Fakes
             contents.Remove(fileEntry.Name);
         }
 
-        public void DeleteFile([NotNull] PathNavigator pathNavigator)
-        {
-            Guard.NotNull(pathNavigator, nameof(pathNavigator));
-
-            if (pathNavigator.IsAtEnd)
-            {
-                FileEntry file = contents.TryGetEntryAsFile(pathNavigator.Name);
-                if (file != null)
-                {
-                    AssertIsNotReadOnly(file, true);
-
-                    // Block deletion when file is in use.
-                    using (file.Open(FileMode.Open, FileAccess.ReadWrite))
-                    {
-                        contents.Remove(pathNavigator.Name);
-                    }
-                }
-            }
-            else
-            {
-                DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
-                if (subdirectory == null)
-                {
-                    throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
-                }
-
-                subdirectory.DeleteFile(pathNavigator.MoveDown());
-            }
-        }
-
         [NotNull]
         public DirectoryEntry CreateSingleDirectory([NotNull] string name)
         {
@@ -211,57 +161,6 @@ namespace TestableFileSystem.Fakes
 
             contents.Add(new DirectoryEntry(name, this, SystemClock));
             return contents.GetEntryAsDirectory(name);
-        }
-
-        [NotNull]
-        private DirectoryEntry GetOrCreateSingleDirectory([NotNull] string name)
-        {
-            if (Parent == null)
-            {
-                AssertIsVolumeRoot(name);
-
-                if (IsDriveLetter(name))
-                {
-                    name = name.ToUpperInvariant();
-                }
-            }
-            else
-            {
-                AssertIsDirectoryName(name);
-            }
-
-            FileEntry file = contents.TryGetEntryAsFile(name, false);
-            if (file != null)
-            {
-                string pathUpToHere = Path.Combine(GetAbsolutePath(), name);
-                throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere);
-            }
-
-            DirectoryEntry directory = contents.TryGetEntryAsDirectory(name);
-            if (directory == null)
-            {
-                contents.Add(new DirectoryEntry(name, this, SystemClock));
-            }
-
-            return contents.GetEntryAsDirectory(name);
-        }
-
-        [AssertionMethod]
-        private static void AssertIsVolumeRoot([NotNull] string name)
-        {
-            // TODO: Get rid of duplication in Drive/UNC handling (see AbsolutePath).
-
-            if (IsDriveLetter(name))
-            {
-                return;
-            }
-
-            if (name.StartsWith(PathFacts.TwoDirectorySeparators, StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            throw new InvalidOperationException("Internal error: Drive letter or network share must be created at this level.");
         }
 
         private static bool IsDriveLetter([NotNull] string name)
@@ -276,16 +175,6 @@ namespace TestableFileSystem.Fakes
             }
 
             return false;
-        }
-
-        [AssertionMethod]
-        private void AssertIsDirectoryName([NotNull] string name)
-        {
-            if (name.Contains(Path.VolumeSeparatorChar) ||
-                name.StartsWith(PathFacts.TwoDirectorySeparators, StringComparison.Ordinal))
-            {
-                throw new InvalidOperationException("Drive letter or network share cannot be created at this level.");
-            }
         }
 
         [NotNull]
@@ -327,15 +216,6 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(directoryName, nameof(directoryName));
 
             contents.Remove(directoryName);
-        }
-
-        private static void AssertIsNotReadOnly([NotNull] FileEntry file, bool reportAbsolutePath)
-        {
-            if ((file.Attributes & FileAttributes.ReadOnly) != 0)
-            {
-                string path = reportAbsolutePath ? file.GetAbsolutePath() : file.Name;
-                throw ErrorFactory.UnauthorizedAccess(path);
-            }
         }
 
         public void Attach([NotNull] FileEntry file)

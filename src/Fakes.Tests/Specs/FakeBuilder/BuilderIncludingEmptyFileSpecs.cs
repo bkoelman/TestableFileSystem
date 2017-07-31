@@ -182,6 +182,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         }
 
         [Fact]
+        private void When_including_local_empty_file_that_is_drive_letter_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\";
+
+            FakeFileSystemBuilder builder = new FakeFileSystemBuilder()
+                .IncludingDirectory(path);
+
+            // Act
+            Action action = () => builder.IncludingEmptyFile(path);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Could not find a part of the path 'C:\'.");
+        }
+
+        [Fact]
         private void When_including_local_empty_file_for_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange

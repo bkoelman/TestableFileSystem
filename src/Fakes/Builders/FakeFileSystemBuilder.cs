@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers;
@@ -55,11 +56,7 @@ namespace TestableFileSystem.Fakes.Builders
             Guard.NotNull(path, nameof(path));
 
             var absolutePath = new AbsolutePath(path);
-
-            var arguments = new DirectoryCreateArguments(absolutePath, true);
-            var handler = new DirectoryCreateHandler(root);
-
-            DirectoryEntry directory = handler.Handle(arguments);
+            DirectoryEntry directory = CreateDirectories(absolutePath);
 
             if (attributes != null)
             {
@@ -67,6 +64,15 @@ namespace TestableFileSystem.Fakes.Builders
             }
 
             return this;
+        }
+
+        [NotNull]
+        private DirectoryEntry CreateDirectories([NotNull] AbsolutePath absolutePath)
+        {
+            var arguments = new DirectoryCreateArguments(absolutePath, true);
+            var handler = new DirectoryCreateHandler(root);
+
+            return handler.Handle(arguments);
         }
 
         [NotNull]
@@ -119,14 +125,15 @@ namespace TestableFileSystem.Fakes.Builders
             [CanBeNull] FileAttributes? attributes)
         {
             var absolutePath = new AbsolutePath(path);
-            var navigator = new PathNavigator(absolutePath);
 
-            AssertDoesNotExistAsDirectory(absolutePath);
-            RemoveExistingFile(absolutePath);
+            DirectoryEntry directory = CreateParentDirectories(absolutePath);
 
-            FileEntry file = root.GetOrCreateFile(navigator);
+            string fileName = absolutePath.Components.Last();
+            AssertIsNotDirectory(fileName, directory, absolutePath);
 
-            using (IFileStream stream = file.Open(FileMode.Open, FileAccess.Write))
+            FileEntry file = directory.GetOrCreateFile(fileName);
+
+            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write))
             {
                 writeContentsToStream(stream);
             }
@@ -137,23 +144,24 @@ namespace TestableFileSystem.Fakes.Builders
             }
         }
 
-        private void AssertDoesNotExistAsDirectory([NotNull] AbsolutePath path)
+        [NotNull]
+        private DirectoryEntry CreateParentDirectories([NotNull] AbsolutePath absolutePath)
         {
-            var navigator = new PathNavigator(path);
-            DirectoryEntry directory = root.TryGetExistingDirectory(navigator);
-            if (directory != null)
+            AbsolutePath parentPath = absolutePath.TryGetParentPath();
+            if (parentPath == null)
             {
-                throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(path.GetText());
+                throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
             }
+
+            return CreateDirectories(parentPath);
         }
 
-        private void RemoveExistingFile([NotNull] AbsolutePath absolutePath)
+        private static void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory,
+            [NotNull] AbsolutePath absolutePath)
         {
-            var navigator = new PathNavigator(absolutePath);
-            FileEntry file = root.TryGetExistingFile(navigator);
-            if (file != null)
+            if (directory.Directories.ContainsKey(fileName))
             {
-                root.DeleteFile(navigator);
+                throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(absolutePath.GetText());
             }
         }
 
