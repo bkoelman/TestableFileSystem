@@ -135,7 +135,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new DirectoryCreateHandler(root);
-            var arguments = new DirectoryCreateArguments(absolutePath);
+            var arguments = new DirectoryCreateArguments(absolutePath, false);
 
             handler.Handle(arguments);
             return owner.ConstructDirectoryInfo(path);

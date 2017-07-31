@@ -2,6 +2,8 @@
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Handlers;
+using TestableFileSystem.Fakes.Handlers.Arguments;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Builders
@@ -53,9 +55,11 @@ namespace TestableFileSystem.Fakes.Builders
             Guard.NotNull(path, nameof(path));
 
             var absolutePath = new AbsolutePath(path);
-            var navigator = new PathNavigator(absolutePath);
 
-            DirectoryEntry directory = root.CreateDirectories(navigator);
+            var arguments = new DirectoryCreateArguments(absolutePath, true);
+            var handler = new DirectoryCreateHandler(root);
+
+            DirectoryEntry directory = handler.Handle(arguments);
 
             if (attributes != null)
             {

@@ -15,7 +15,11 @@ namespace TestableFileSystem.Fakes.Handlers
         public override DirectoryEntry Handle(DirectoryCreateArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
-            AssertVolumeRootExists(arguments.Path);
+
+            if (!arguments.CanCreateVolumeRoot)
+            {
+                AssertVolumeRootExists(arguments.Path);
+            }
 
             DirectoryEntry directory = Root;
 

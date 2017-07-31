@@ -8,11 +8,14 @@ namespace TestableFileSystem.Fakes.Handlers.Arguments
         [NotNull]
         public AbsolutePath Path { get; }
 
-        public DirectoryCreateArguments([NotNull] AbsolutePath path)
+        public bool CanCreateVolumeRoot { get; }
+
+        public DirectoryCreateArguments([NotNull] AbsolutePath path, bool canCreateVolumeRoot)
         {
             Guard.NotNull(path, nameof(path));
 
             Path = path;
+            CanCreateVolumeRoot = canCreateVolumeRoot;
         }
     }
 }

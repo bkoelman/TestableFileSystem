@@ -205,16 +205,6 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public DirectoryEntry CreateDirectories([NotNull] PathNavigator pathNavigator)
-        {
-            Guard.NotNull(pathNavigator, nameof(pathNavigator));
-
-            DirectoryEntry directory = GetOrCreateSingleDirectory(pathNavigator.Name);
-
-            return pathNavigator.IsAtEnd ? directory : directory.CreateDirectories(pathNavigator.MoveDown());
-        }
-
-        [NotNull]
         public DirectoryEntry CreateSingleDirectory([NotNull] string name)
         {
             Guard.NotNull(name, nameof(name));
