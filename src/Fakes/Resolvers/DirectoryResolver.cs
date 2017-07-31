@@ -65,9 +65,12 @@ namespace TestableFileSystem.Fakes.Resolvers
 
                 if (directory.Files.ContainsKey(name))
                 {
-                    throw offset == path.Components.Count - 1
-                        ? ErrorLastDirectoryFoundAsFile(incomingPath)
-                        : ErrorDirectoryFoundAsFile(incomingPath);
+                    if (offset == path.Components.Count - 1)
+                    {
+                        throw ErrorLastDirectoryFoundAsFile(incomingPath);
+                    }
+
+                    throw ErrorDirectoryFoundAsFile(incomingPath);
                 }
 
                 if (!directory.Directories.ContainsKey(name))

@@ -35,6 +35,8 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         public DirectoryEntry Parent { get; }
 
+        public bool IsEmpty => contents.IsEmpty;
+
         public override DateTime CreationTime
         {
             get => throw new NotImplementedException();
@@ -321,81 +323,11 @@ namespace TestableFileSystem.Fakes
             return pathNavigator.IsAtEnd ? directory : directory.TryGetExistingDirectory(pathNavigator.MoveDown());
         }
 
-        public void DeleteDirectory([NotNull] PathNavigator pathNavigator, bool isRecursive)
+        public void DeleteDirectory([NotNull] string directoryName)
         {
-            Guard.NotNull(pathNavigator, nameof(pathNavigator));
+            Guard.NotNull(directoryName, nameof(directoryName));
 
-            if (pathNavigator.IsAtEnd)
-            {
-                DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
-                if (directory != null)
-                {
-                    AssertNotDeletingDriveOrNetworkShare(directory, pathNavigator.Path, isRecursive);
-                    AssertIsNotReadOnly(directory);
-
-                    // Block deletion when directory contains file that is in use.
-                    FileEntry openFile = directory.TryGetFirstOpenFile();
-                    if (openFile != null)
-                    {
-                        throw ErrorFactory.FileIsInUse(openFile.GetAbsolutePath());
-                    }
-
-                    if (!isRecursive && !directory.contents.IsEmpty)
-                    {
-                        throw ErrorFactory.DirectoryIsNotEmpty();
-                    }
-
-                    contents.Remove(pathNavigator.Name);
-                }
-            }
-            else
-            {
-                DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name);
-                if (subdirectory == null)
-                {
-                    throw ErrorFactory.DirectoryNotFound(pathNavigator.Path.GetText());
-                }
-
-                subdirectory.DeleteDirectory(pathNavigator.MoveDown(), isRecursive);
-            }
-        }
-
-        [AssertionMethod]
-        private static void AssertNotDeletingDriveOrNetworkShare([NotNull] DirectoryEntry directoryToDelete,
-            [NotNull] AbsolutePath path, bool isRecursive)
-        {
-            if (directoryToDelete.Parent?.Parent == null)
-            {
-                if (!path.IsOnLocalDrive)
-                {
-                    throw ErrorFactory.FileIsInUse(path.GetText());
-                }
-
-                if (isRecursive)
-                {
-                    throw ErrorFactory.FileNotFound(path.GetText());
-                }
-
-                throw ErrorFactory.DirectoryIsNotEmpty();
-            }
-        }
-
-        private static void AssertIsNotReadOnly([NotNull] DirectoryEntry directory)
-        {
-            if ((directory.Attributes & FileAttributes.ReadOnly) != 0)
-            {
-                throw ErrorFactory.AccessDenied(directory.GetAbsolutePath());
-            }
-
-            foreach (DirectoryEntry subdirectory in directory.contents.GetDirectoryEntries())
-            {
-                AssertIsNotReadOnly(subdirectory);
-            }
-
-            foreach (FileEntry file in directory.contents.GetFileEntries())
-            {
-                AssertIsNotReadOnly(file, false);
-            }
+            contents.Remove(directoryName);
         }
 
         private static void AssertIsNotReadOnly([NotNull] FileEntry file, bool reportAbsolutePath)
@@ -405,25 +337,6 @@ namespace TestableFileSystem.Fakes
                 string path = reportAbsolutePath ? file.GetAbsolutePath() : file.Name;
                 throw ErrorFactory.UnauthorizedAccess(path);
             }
-        }
-
-        [CanBeNull]
-        private FileEntry TryGetFirstOpenFile()
-        {
-            FileEntry file = contents.GetFileEntries().FirstOrDefault(x => x.IsOpen());
-            if (file == null)
-            {
-                foreach (DirectoryEntry directory in contents.GetDirectoryEntries())
-                {
-                    file = directory.TryGetFirstOpenFile();
-                    if (file != null)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return file;
         }
 
         public void Attach([NotNull] FileEntry file)

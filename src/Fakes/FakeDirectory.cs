@@ -177,24 +177,13 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            AssertNetworkShareOrDriveExists(absolutePath);
 
-            var navigator = new PathNavigator(absolutePath);
+            var handler = new DirectoryDeleteHandler(root, owner.CurrentDirectory);
+            var arguments = new DirectoryDeleteArguments(absolutePath, recursive);
 
-            DirectoryEntry directoryToDelete = root.GetExistingDirectory(navigator);
-            AssertNoConflictWithCurrentDirectory(directoryToDelete);
-
-            root.DeleteDirectory(navigator, recursive);
+            handler.Handle(arguments);
         }
 
-        [AssertionMethod]
-        private void AssertNoConflictWithCurrentDirectory([NotNull] DirectoryEntry directory)
-        {
-            if (owner.CurrentDirectory.IsAtOrAboveCurrentDirectory(directory))
-            {
-                throw ErrorFactory.FileIsInUse(directory.GetAbsolutePath());
-            }
-        }
 
         public void Move(string sourceDirName, string destDirName)
         {
