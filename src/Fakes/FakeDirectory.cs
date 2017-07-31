@@ -98,31 +98,10 @@ namespace TestableFileSystem.Fakes
 
         public bool Exists(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return false;
-            }
+            var handler = new DirectoryExistsHandler(owner, root);
+            var arguments = new DirectoryExistsArguments(path);
 
-            try
-            {
-                AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-                var navigator = new PathNavigator(absolutePath);
-
-                DirectoryEntry directory = root.TryGetExistingDirectory(navigator);
-                return directory != null;
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-            catch (ArgumentException)
-            {
-                return false;
-            }
-            catch (NotSupportedException)
-            {
-                return false;
-            }
+            return handler.Handle(arguments);
         }
 
         public IDirectoryInfo CreateDirectory(string path)

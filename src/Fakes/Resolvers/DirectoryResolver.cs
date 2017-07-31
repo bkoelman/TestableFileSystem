@@ -39,6 +39,21 @@ namespace TestableFileSystem.Fakes.Resolvers
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(incomingPath, nameof(incomingPath));
 
+            DirectoryEntry directory = TryResolveDirectory(path, incomingPath);
+            if (directory == null)
+            {
+                throw ErrorDirectoryNotFound(incomingPath);
+            }
+
+            return directory;
+        }
+
+        [CanBeNull]
+        public DirectoryEntry TryResolveDirectory([NotNull] AbsolutePath path, [NotNull] string incomingPath)
+        {
+            Guard.NotNull(path, nameof(path));
+            Guard.NotNull(incomingPath, nameof(incomingPath));
+
             DirectoryEntry directory = root;
 
             foreach ((string name, int offset) in path.Components.Select((c, i) => (c, i)))
@@ -57,7 +72,7 @@ namespace TestableFileSystem.Fakes.Resolvers
 
                 if (!directory.Directories.ContainsKey(name))
                 {
-                    throw ErrorDirectoryNotFound(incomingPath);
+                    return null;
                 }
 
                 directory = directory.Directories[name];
