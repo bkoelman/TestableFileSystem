@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers;
-using TestableFileSystem.Fakes.Handlers.Arguments;
+using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Builders

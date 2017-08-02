@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
-namespace TestableFileSystem.Fakes.Handlers.Arguments
+namespace TestableFileSystem.Fakes.HandlerArguments
 {
     internal sealed class FileOpenArguments
     {

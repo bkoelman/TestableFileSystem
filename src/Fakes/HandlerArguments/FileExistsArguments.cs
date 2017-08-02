@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace TestableFileSystem.Fakes.Handlers.Arguments
+namespace TestableFileSystem.Fakes.HandlerArguments
 {
     internal sealed class FileExistsArguments
     {

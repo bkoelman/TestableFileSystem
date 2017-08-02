@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using TestableFileSystem.Fakes.Handlers.Arguments;
+using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 

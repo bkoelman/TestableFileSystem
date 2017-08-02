@@ -1,9 +1,9 @@
 ﻿using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
-namespace TestableFileSystem.Fakes.Handlers.Arguments
+namespace TestableFileSystem.Fakes.HandlerArguments
 {
-    internal sealed class FileMoveArguments
+    internal sealed class FileCopyArguments
     {
         [NotNull]
         public AbsolutePath SourcePath { get; }
@@ -11,13 +11,16 @@ namespace TestableFileSystem.Fakes.Handlers.Arguments
         [NotNull]
         public AbsolutePath DestinationPath { get; }
 
-        public FileMoveArguments([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath)
+        public bool Overwrite { get; }
+
+        public FileCopyArguments([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath, bool overwrite)
         {
             Guard.NotNull(sourcePath, nameof(sourcePath));
             Guard.NotNull(destinationPath, nameof(destinationPath));
 
             SourcePath = sourcePath;
             DestinationPath = destinationPath;
+            Overwrite = overwrite;
         }
     }
 }

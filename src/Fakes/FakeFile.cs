@@ -2,7 +2,7 @@
 using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Handlers;
-using TestableFileSystem.Fakes.Handlers.Arguments;
+using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 
@@ -59,14 +59,6 @@ namespace TestableFileSystem.Fakes
             var arguments = new FileCreateArguments(absolutePath, options);
 
             return handler.Handle(arguments);
-        }
-
-        private static void AssertPathIsNotEmpty([NotNull] string path)
-        {
-            if (path.Length == 0)
-            {
-                throw ErrorFactory.EmptyPathIsNotLegal(nameof(path));
-            }
         }
 
         public IFileStream Open(string path, FileMode mode, FileAccess? access = null, FileShare share = FileShare.None)
@@ -146,14 +138,6 @@ namespace TestableFileSystem.Fakes
             var arguments = new FileMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);
-        }
-
-        private static void AssertFileNameIsNotEmpty([NotNull] string path)
-        {
-            if (path.Length == 0)
-            {
-                throw ErrorFactory.EmptyFileNameIsNotLegal(nameof(path));
-            }
         }
 
         public void Delete(string path)
@@ -346,6 +330,22 @@ namespace TestableFileSystem.Fakes
             FileEntry file = resolver.ResolveExistingFile(absolutePath);
 
             return file.Size;
+        }
+
+        private static void AssertPathIsNotEmpty([NotNull] string path)
+        {
+            if (path.Length == 0)
+            {
+                throw ErrorFactory.EmptyPathIsNotLegal(nameof(path));
+            }
+        }
+
+        private static void AssertFileNameIsNotEmpty([NotNull] string path)
+        {
+            if (path.Length == 0)
+            {
+                throw ErrorFactory.EmptyFileNameIsNotLegal(nameof(path));
+            }
         }
     }
 }
