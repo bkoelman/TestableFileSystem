@@ -133,20 +133,6 @@ namespace TestableFileSystem.Fakes
             return contents.GetEntryAsFile(fileName);
         }
 
-        [CanBeNull]
-        public FileEntry TryGetExistingFile([NotNull] PathNavigator pathNavigator)
-        {
-            Guard.NotNull(pathNavigator, nameof(pathNavigator));
-
-            if (pathNavigator.IsAtEnd)
-            {
-                return contents.TryGetEntryAsFile(pathNavigator.Name, false);
-            }
-
-            DirectoryEntry subdirectory = contents.TryGetEntryAsDirectory(pathNavigator.Name, false);
-            return subdirectory?.TryGetExistingFile(pathNavigator.MoveDown());
-        }
-
         internal void DeleteFile([NotNull] FileEntry fileEntry)
         {
             Guard.NotNull(fileEntry, nameof(fileEntry));
@@ -175,21 +161,6 @@ namespace TestableFileSystem.Fakes
             }
 
             return false;
-        }
-
-        [CanBeNull]
-        public DirectoryEntry TryGetExistingDirectory([NotNull] PathNavigator pathNavigator)
-        {
-            Guard.NotNull(pathNavigator, nameof(pathNavigator));
-
-            DirectoryEntry directory = contents.TryGetEntryAsDirectory(pathNavigator.Name, false);
-
-            if (directory == null)
-            {
-                return null;
-            }
-
-            return pathNavigator.IsAtEnd ? directory : directory.TryGetExistingDirectory(pathNavigator.MoveDown());
         }
 
         public void DeleteDirectory([NotNull] string directoryName)

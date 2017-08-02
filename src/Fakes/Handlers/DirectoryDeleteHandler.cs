@@ -32,7 +32,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertNoConflictWithCurrentDirectory(directory);
             AssertIsEmptyOrRecursive(directory, arguments.Recursive);
             AssertIsNotReadOnly(directory);
-            AssertDirectoryContainsNoOpenFiles(directory);
+            AssertDirectoryContainsNoOpenFiles(directory, arguments.Path);
 
             directory.Parent?.DeleteDirectory(directory.Name);
 
@@ -116,33 +116,37 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private static void AssertDirectoryContainsNoOpenFiles([NotNull] DirectoryEntry directory)
+        private static void AssertDirectoryContainsNoOpenFiles([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
         {
-            FileEntry openFile = TryGetFirstOpenFile(directory);
-            if (openFile != null)
+            AbsolutePath openFilePath = TryGetFirstOpenFilePath(directory, path);
+            if (openFilePath != null)
             {
-                throw ErrorFactory.FileIsInUse(openFile.GetAbsolutePath());
+                throw ErrorFactory.FileIsInUse(openFilePath.GetText());
             }
         }
 
         [CanBeNull]
-        private static FileEntry TryGetFirstOpenFile([NotNull] DirectoryEntry directory)
+        private static AbsolutePath TryGetFirstOpenFilePath([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
         {
             FileEntry file = directory.Files.Values.FirstOrDefault(x => x.IsOpen());
 
-            if (file == null)
+            if (file != null)
             {
-                foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+                return path.Append(file.Name);
+            }
+
+            foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+            {
+                AbsolutePath subdirectoryPath = path.Append(subdirectory.Name);
+
+                AbsolutePath openFilePath = TryGetFirstOpenFilePath(subdirectory, subdirectoryPath);
+                if (openFilePath != null)
                 {
-                    file = TryGetFirstOpenFile(subdirectory);
-                    if (file != null)
-                    {
-                        break;
-                    }
+                    return openFilePath;
                 }
             }
 
-            return file;
+            return null;
         }
     }
 }
