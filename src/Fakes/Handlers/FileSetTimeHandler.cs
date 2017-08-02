@@ -1,0 +1,95 @@
+﻿using System;
+using System.IO;
+using System.Reflection;
+using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Handlers.Arguments;
+using TestableFileSystem.Fakes.Resolvers;
+using TestableFileSystem.Interfaces;
+
+namespace TestableFileSystem.Fakes.Handlers
+{
+    internal sealed class FileSetTimeHandler : FakeOperationHandler<FileSetTimeArguments, object>
+    {
+        public FileSetTimeHandler([NotNull] DirectoryEntry root)
+            : base(root)
+        {
+        }
+
+        public override object Handle(FileSetTimeArguments arguments)
+        {
+            Guard.NotNull(arguments, nameof(arguments));
+            AssertTimeValueIsInRange(arguments);
+
+            var resolver = new EntryResolver(Root);
+            BaseEntry entry = resolver.ResolveEntry(arguments.Path);
+
+            AssertFileIsNotReadOnly(entry, arguments.Path);
+            AssertHasExclusiveAccessToFile(entry, arguments.Path);
+
+            switch (arguments.Kind)
+            {
+                case FileTimeKind.CreationTime:
+                    if (arguments.IsInUtc)
+                    {
+                        entry.CreationTimeUtc = arguments.TimeValue;
+                    }
+                    else
+                    {
+                        entry.CreationTime = arguments.TimeValue;
+                    }
+                    break;
+                case FileTimeKind.LastWriteTime:
+                    if (arguments.IsInUtc)
+                    {
+                        entry.LastWriteTimeUtc = arguments.TimeValue;
+                    }
+                    else
+                    {
+                        entry.LastWriteTime = arguments.TimeValue;
+                    }
+                    break;
+                case FileTimeKind.LastAccessTime:
+                    if (arguments.IsInUtc)
+                    {
+                        entry.LastAccessTimeUtc = arguments.TimeValue;
+                    }
+                    else
+                    {
+                        entry.LastAccessTime = arguments.TimeValue;
+                    }
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported kind of file time '{arguments.Kind}'.");
+            }
+
+            return Missing.Value;
+        }
+
+        private static void AssertTimeValueIsInRange([NotNull] FileSetTimeArguments arguments)
+        {
+            DateTime minTime = arguments.IsInUtc ? PathFacts.ZeroFileTimeUtc : PathFacts.ZeroFileTime;
+
+            if (arguments.TimeValue < minTime)
+            {
+                throw ErrorFactory.FileTimeOutOfRange(nameof(arguments.Path));
+            }
+        }
+
+        [AssertionMethod]
+        private void AssertFileIsNotReadOnly([NotNull] BaseEntry entry, [NotNull] AbsolutePath absolutePath)
+        {
+            if (entry is FileEntry file && file.Attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                throw ErrorFactory.UnauthorizedAccess(absolutePath.GetText());
+            }
+        }
+
+        private static void AssertHasExclusiveAccessToFile([NotNull] BaseEntry entry, [NotNull] AbsolutePath absolutePath)
+        {
+            if (entry is FileEntry file && file.IsOpen())
+            {
+                throw ErrorFactory.FileIsInUse(absolutePath.GetText());
+            }
+        }
+    }
+}

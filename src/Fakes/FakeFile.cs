@@ -9,9 +9,6 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFile : IFile
     {
-        private static readonly DateTime ZeroFileTime = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
-        private static readonly DateTime ZeroFileTimeUtc = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
         [NotNull]
         private readonly DirectoryEntry root;
 
@@ -69,34 +66,6 @@ namespace TestableFileSystem.Fakes
             {
                 throw ErrorFactory.EmptyPathIsNotLegal(nameof(path));
             }
-        }
-
-        private void AssertDoesNotExistAsDirectory([NotNull] AbsolutePath path)
-        {
-            var navigator = new PathNavigator(path);
-            DirectoryEntry directory = root.TryGetExistingDirectory(navigator);
-            if (directory != null)
-            {
-                throw ErrorFactory.UnauthorizedAccess(path.GetText());
-            }
-        }
-
-        private void AssertParentIsDirectoryOrMissing([NotNull] AbsolutePath path)
-        {
-            AbsolutePath parentPath = path.TryGetParentPath();
-            if (parentPath == null)
-            {
-                return;
-            }
-
-            var navigator = new PathNavigator(parentPath);
-            DirectoryEntry directory = root.TryGetExistingDirectory(navigator);
-            if (directory != null)
-            {
-                return;
-            }
-
-            throw ErrorFactory.DirectoryNotFound(path.GetText());
         }
 
         public IFileStream Open(string path, FileMode mode, FileAccess? access = null, FileShare share = FileShare.None)
@@ -228,8 +197,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            BaseEntry entry = TryGetExistingEntry(absolutePath);
-            return entry?.CreationTime ?? ZeroFileTime;
+            var handler = new FileGetTimeHandler(root);
+            var arguments = new FileGetTimeArguments(absolutePath, FileTimeKind.CreationTime, false);
+
+            return handler.Handle(arguments);
         }
 
         public DateTime GetCreationTimeUtc(string path)
@@ -238,8 +209,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            BaseEntry entry = TryGetExistingEntry(absolutePath);
-            return entry?.CreationTimeUtc ?? ZeroFileTimeUtc;
+            var handler = new FileGetTimeHandler(root);
+            var arguments = new FileGetTimeArguments(absolutePath, FileTimeKind.CreationTime, true);
+
+            return handler.Handle(arguments);
         }
 
         public void SetCreationTime(string path, DateTime creationTime)
@@ -248,8 +221,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            FileEntry entry = GetExistingFile(absolutePath);
-            entry.CreationTime = creationTime;
+            var handler = new FileSetTimeHandler(root);
+            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.CreationTime, false, creationTime);
+
+            handler.Handle(arguments);
         }
 
         public void SetCreationTimeUtc(string path, DateTime creationTimeUtc)
@@ -258,8 +233,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            FileEntry entry = GetExistingFile(absolutePath);
-            entry.CreationTimeUtc = creationTimeUtc;
+            var handler = new FileSetTimeHandler(root);
+            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.CreationTime, true, creationTimeUtc);
+
+            handler.Handle(arguments);
         }
 
         public DateTime GetLastAccessTime(string path)
@@ -268,8 +245,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            BaseEntry entry = TryGetExistingEntry(absolutePath);
-            return entry?.LastAccessTime ?? ZeroFileTime;
+            var handler = new FileGetTimeHandler(root);
+            var arguments = new FileGetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, false);
+
+            return handler.Handle(arguments);
         }
 
         public DateTime GetLastAccessTimeUtc(string path)
@@ -278,8 +257,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            BaseEntry entry = TryGetExistingEntry(absolutePath);
-            return entry?.LastAccessTimeUtc ?? ZeroFileTimeUtc;
+            var handler = new FileGetTimeHandler(root);
+            var arguments = new FileGetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, true);
+
+            return handler.Handle(arguments);
         }
 
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
@@ -288,8 +269,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            FileEntry entry = GetExistingFile(absolutePath);
-            entry.LastAccessTime = lastAccessTime;
+            var handler = new FileSetTimeHandler(root);
+            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, false, lastAccessTime);
+
+            handler.Handle(arguments);
         }
 
         public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
@@ -298,8 +281,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            FileEntry entry = GetExistingFile(absolutePath);
-            entry.LastAccessTimeUtc = lastAccessTimeUtc;
+            var handler = new FileSetTimeHandler(root);
+            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, true, lastAccessTimeUtc);
+
+            handler.Handle(arguments);
         }
 
         public DateTime GetLastWriteTime(string path)
@@ -308,8 +293,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            BaseEntry entry = TryGetExistingEntry(absolutePath);
-            return entry?.LastWriteTime ?? ZeroFileTime;
+            var handler = new FileGetTimeHandler(root);
+            var arguments = new FileGetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, false);
+
+            return handler.Handle(arguments);
         }
 
         public DateTime GetLastWriteTimeUtc(string path)
@@ -318,8 +305,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            BaseEntry entry = TryGetExistingEntry(absolutePath);
-            return entry?.LastWriteTimeUtc ?? ZeroFileTimeUtc;
+            var handler = new FileGetTimeHandler(root);
+            var arguments = new FileGetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, true);
+
+            return handler.Handle(arguments);
         }
 
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
@@ -328,8 +317,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            FileEntry entry = GetExistingFile(absolutePath);
-            entry.LastWriteTime = lastWriteTime;
+            var handler = new FileSetTimeHandler(root);
+            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, false, lastWriteTime);
+
+            handler.Handle(arguments);
         }
 
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
@@ -338,8 +329,10 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            FileEntry entry = GetExistingFile(absolutePath);
-            entry.LastWriteTimeUtc = lastWriteTimeUtc;
+            var handler = new FileSetTimeHandler(root);
+            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, true, lastWriteTimeUtc);
+
+            handler.Handle(arguments);
         }
 
         internal long GetSize([NotNull] string path)
@@ -357,42 +350,6 @@ namespace TestableFileSystem.Fakes
             }
 
             return existingFile.Size;
-        }
-
-        [NotNull]
-        private FileEntry GetExistingFile([NotNull] AbsolutePath absolutePath)
-        {
-            AssertParentIsDirectoryOrMissing(absolutePath);
-
-            var navigator = new PathNavigator(absolutePath);
-            FileEntry existingFile = root.TryGetExistingFile(navigator);
-            if (existingFile == null)
-            {
-                AssertDoesNotExistAsDirectory(absolutePath);
-
-                throw ErrorFactory.FileNotFound(absolutePath.GetText());
-            }
-            return existingFile;
-        }
-
-        [CanBeNull]
-        private BaseEntry TryGetExistingEntry([NotNull] AbsolutePath absolutePath)
-        {
-            AbsolutePath parentPath = absolutePath.TryGetParentPath();
-            if (parentPath == null)
-            {
-                return null;
-            }
-
-            var parentNavigator = new PathNavigator(parentPath);
-            DirectoryEntry directory = root.TryGetExistingDirectory(parentNavigator);
-            if (directory == null)
-            {
-                return null;
-            }
-
-            var navigator = new PathNavigator(absolutePath);
-            return root.TryGetExistingFile(navigator) ?? (BaseEntry)root.TryGetExistingDirectory(navigator);
         }
     }
 }

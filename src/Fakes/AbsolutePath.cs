@@ -10,6 +10,9 @@ namespace TestableFileSystem.Fakes
 {
     internal sealed class AbsolutePath
     {
+        [NotNull]
+        private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
+
         private readonly bool isExtended;
 
         [NotNull]
@@ -273,8 +276,7 @@ namespace TestableFileSystem.Fakes
                     AssertDirectoryNameOrFileNameIsValid(components[2], path);
                     AssertDirectoryNameOrFileNameIsValid(components[3], path);
 
-                    components[3] = PathFacts.TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar +
-                        components[3];
+                    components[3] = TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar + components[3];
                     components.RemoveRange(0, 3);
 
                     return true;

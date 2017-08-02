@@ -49,6 +49,30 @@ namespace TestableFileSystem.Fakes.Resolvers
             directoryResolver = new DirectoryResolver(root);
         }
 
+        [CanBeNull]
+        public BaseEntry SafeResolveEntry([NotNull] AbsolutePath path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            DirectoryEntry directory = SafeResolveContainingDirectory(path);
+            if (directory != null)
+            {
+                string entryName = path.Components.Last();
+
+                if (directory.Files.ContainsKey(entryName))
+                {
+                    return directory.Files[entryName];
+                }
+
+                if (directory.Directories.ContainsKey(entryName))
+                {
+                    return directory.Directories[entryName];
+                }
+            }
+
+            return null;
+        }
+
         [NotNull]
         public BaseEntry ResolveEntry([NotNull] AbsolutePath path)
         {
@@ -68,6 +92,13 @@ namespace TestableFileSystem.Fakes.Resolvers
             }
 
             throw ErrorFactory.FileNotFound(path.GetText());
+        }
+
+        [CanBeNull]
+        private DirectoryEntry SafeResolveContainingDirectory([NotNull] AbsolutePath path)
+        {
+            AbsolutePath parentPath = path.TryGetParentPath();
+            return parentPath == null ? root : directoryResolver.SafeResolveDirectory(parentPath, path.GetText());
         }
 
         [NotNull]

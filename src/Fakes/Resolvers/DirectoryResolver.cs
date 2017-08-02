@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -54,12 +55,12 @@ namespace TestableFileSystem.Fakes.Resolvers
             Guard.NotNull(path, nameof(path));
 
             string completePath = incomingPath ?? path.GetText();
+            AssertNetworkShareExists(path, completePath);
 
             DirectoryEntry directory = root;
 
             foreach (AbsolutePathComponent component in path.EnumerateComponents())
             {
-                AssertNetworkShareExists(component, completePath);
                 AssertIsNotFile(component, directory, completePath);
 
                 if (!directory.Directories.ContainsKey(component.Name))
@@ -73,13 +74,41 @@ namespace TestableFileSystem.Fakes.Resolvers
             return directory;
         }
 
-        [AssertionMethod]
-        private void AssertNetworkShareExists([NotNull] AbsolutePathComponent component, [NotNull] string incomingPath)
+        [CanBeNull]
+        public DirectoryEntry SafeResolveDirectory([NotNull] AbsolutePath path, [CanBeNull] string incomingPath = null)
         {
-            if (component.IsAtStart && !component.Path.IsOnLocalDrive && !root.Directories.ContainsKey(component.Name))
+            Guard.NotNull(path, nameof(path));
+
+            string completePath = incomingPath ?? path.GetText();
+            AssertNetworkShareExists(path, completePath);
+
+            DirectoryEntry directory = root;
+
+            foreach (AbsolutePathComponent component in path.EnumerateComponents())
+            {
+                if (!directory.Directories.ContainsKey(component.Name))
+                {
+                    return null;
+                }
+
+                directory = directory.Directories[component.Name];
+            }
+
+            return directory;
+        }
+
+        [AssertionMethod]
+        private void AssertNetworkShareExists([NotNull] AbsolutePath path, [NotNull] string incomingPath)
+        {
+            if (IsNetworkShareMissing(path))
             {
                 throw ErrorNetworkShareNotFound(incomingPath);
             }
+        }
+
+        private bool IsNetworkShareMissing([NotNull] AbsolutePath path)
+        {
+            return !path.IsOnLocalDrive && !root.Directories.ContainsKey(path.Components.First());
         }
 
         [AssertionMethod]

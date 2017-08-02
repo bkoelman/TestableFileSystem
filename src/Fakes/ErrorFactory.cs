@@ -165,5 +165,12 @@ namespace TestableFileSystem.Fakes
         {
             return new IOException($"The target file '{path}' is a directory, not a file.");
         }
+
+        [NotNull]
+        public static Exception FileTimeOutOfRange([NotNull] [InvokerParameterName] string paramName)
+        {
+            throw new ArgumentOutOfRangeException(paramName,
+                "The UTC time represented when the offset is applied must be between year 0 and 10,000.");
+        }
     }
 }
