@@ -146,7 +146,7 @@ namespace TestableFileSystem.Fakes
         {
             if (path.Length == 0)
             {
-                throw ErrorFactory.PathCannotBeEmptyOrWhitespace(nameof(path));
+                throw ErrorFactory.System.PathCannotBeEmptyOrWhitespace(nameof(path));
             }
         }
 
@@ -181,7 +181,7 @@ namespace TestableFileSystem.Fakes
 
             var resolver = new DirectoryResolver(root)
             {
-                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.DirectoryNameIsInvalid()
+                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNameIsInvalid()
             };
             DirectoryEntry directory = resolver.ResolveDirectory(absolutePath);
 

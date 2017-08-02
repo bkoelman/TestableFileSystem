@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw ErrorFactory.PathIsNotLegal(nameof(path));
+                throw ErrorFactory.System.PathIsNotLegal(nameof(path));
             }
 
             DirectoryEntry baseDirectory = CurrentDirectory.GetValue();

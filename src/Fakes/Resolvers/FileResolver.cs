@@ -55,10 +55,10 @@ namespace TestableFileSystem.Fakes.Resolvers
             Guard.NotNull(root, nameof(root));
             directoryResolver = new DirectoryResolver(root);
 
-            ErrorFileFoundAsDirectory = ErrorFactory.UnauthorizedAccess;
-            ErrorFileNotFound = ErrorFactory.FileNotFound;
-            ErrorFileExists = ErrorFactory.FileAlreadyExists;
-            ErrorPathIsVolumeRoot = ErrorFactory.DirectoryNotFound;
+            ErrorFileFoundAsDirectory = ErrorFactory.System.UnauthorizedAccess;
+            ErrorFileNotFound = ErrorFactory.System.FileNotFound;
+            ErrorFileExists = ErrorFactory.System.FileAlreadyExists;
+            ErrorPathIsVolumeRoot = ErrorFactory.System.DirectoryNotFound;
         }
 
         [NotNull]

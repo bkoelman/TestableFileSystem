@@ -27,10 +27,10 @@ namespace TestableFileSystem.Fakes.Resolvers
             Guard.NotNull(root, nameof(root));
             this.root = root;
 
-            ErrorNetworkShareNotFound = _ => ErrorFactory.NetworkPathNotFound();
-            ErrorDirectoryFoundAsFile = ErrorFactory.DirectoryNotFound;
-            ErrorLastDirectoryFoundAsFile = ErrorFactory.DirectoryNotFound;
-            ErrorDirectoryNotFound = ErrorFactory.DirectoryNotFound;
+            ErrorNetworkShareNotFound = _ => ErrorFactory.System.NetworkPathNotFound();
+            ErrorDirectoryFoundAsFile = ErrorFactory.System.DirectoryNotFound;
+            ErrorLastDirectoryFoundAsFile = ErrorFactory.System.DirectoryNotFound;
+            ErrorDirectoryNotFound = ErrorFactory.System.DirectoryNotFound;
         }
 
         [NotNull]

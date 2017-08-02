@@ -15,9 +15,6 @@ namespace TestableFileSystem.Fakes
             FileAttributes.Encrypted | FileAttributes.IntegrityStream;
 
         [NotNull]
-        private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();
-
-        [NotNull]
         [ItemNotNull]
         private readonly List<byte[]> blocks = new List<byte[]>();
 
@@ -132,16 +129,10 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public string GetAbsolutePath()
+        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path)
         {
-            // TODO: Get rid of this method, as it is unable to account for extended paths or preserve original casing.
+            Guard.NotNull(path, nameof(path));
 
-            return Path.Combine(Parent.GetAbsolutePath(), Name);
-        }
-
-        [NotNull]
-        public IFileStream Open(FileMode mode, FileAccess access)
-        {
             bool isReaderOnly = access == FileAccess.Read;
             bool truncate = false;
             bool seekToEnd = false;
@@ -166,12 +157,12 @@ namespace TestableFileSystem.Fakes
             {
                 if (activeWriter != null)
                 {
-                    throw CreateErrorForFileInUse();
+                    throw ErrorFactory.System.FileIsInUse(path.GetText());
                 }
 
                 if (!isReaderOnly && activeReaders.Any())
                 {
-                    throw CreateErrorForFileInUse();
+                    throw ErrorFactory.System.FileIsInUse(path.GetText());
                 }
 
                 stream = new FakeFileStream(this, access);
@@ -197,8 +188,7 @@ namespace TestableFileSystem.Fakes
                 stream.SetLength(0);
             }
 
-            string path = GetAbsolutePath();
-            return new FileStreamWrapper(stream, () => path, () => false, () => throw new NotSupportedException(),
+            return new FileStreamWrapper(stream, path.GetText, () => false, () => throw new NotSupportedException(),
                 _ => stream.Flush());
         }
 
@@ -211,13 +201,6 @@ namespace TestableFileSystem.Fakes
 
             Name = newName;
             Parent = newParent;
-        }
-
-        [NotNull]
-        private Exception CreateErrorForFileInUse()
-        {
-            string path = GetAbsolutePath();
-            return ErrorFactory.FileIsInUse(path);
         }
 
         private void CloseStream([NotNull] FakeFileStream stream)
@@ -241,18 +224,6 @@ namespace TestableFileSystem.Fakes
         public override string ToString()
         {
             return $"File: {Name} ({Size} bytes)";
-        }
-
-        [AssertionMethod]
-        protected override void AssertNameIsValid(string name)
-        {
-            foreach (char ch in name)
-            {
-                if (FileNameCharsInvalid.Contains(ch))
-                {
-                    throw ErrorFactory.PathIsNotLegal(nameof(name));
-                }
-            }
         }
 
         protected override FileAttributes FilterAttributes(FileAttributes attributes)
@@ -301,7 +272,7 @@ namespace TestableFileSystem.Fakes
 
                     if (appendOffset != null && value < appendOffset)
                     {
-                        throw ErrorFactory.CannotSeekToPositionBeforeAppend();
+                        throw ErrorFactory.System.CannotSeekToPositionBeforeAppend();
                     }
 
                     if (value > Length)

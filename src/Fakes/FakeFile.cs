@@ -336,7 +336,7 @@ namespace TestableFileSystem.Fakes
         {
             if (path.Length == 0)
             {
-                throw ErrorFactory.EmptyPathIsNotLegal(nameof(path));
+                throw ErrorFactory.System.EmptyPathIsNotLegal(nameof(path));
             }
         }
 
@@ -344,7 +344,7 @@ namespace TestableFileSystem.Fakes
         {
             if (path.Length == 0)
             {
-                throw ErrorFactory.EmptyFileNameIsNotLegal(nameof(path));
+                throw ErrorFactory.System.EmptyFileNameIsNotLegal(nameof(path));
             }
         }
     }

@@ -37,7 +37,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
-                throw ErrorFactory.UnauthorizedAccess(absolutePath.GetText());
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
         }
 
@@ -45,7 +45,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (file.IsOpen())
             {
-                throw ErrorFactory.FileIsInUse(absolutePath.GetText());
+                throw ErrorFactory.System.FileIsInUse(absolutePath.GetText());
             }
         }
     }

@@ -28,7 +28,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 newFile.EnableDeleteOnClose();
             }
 
-            return newFile.Open(FileMode.Create, FileAccess.ReadWrite);
+            return newFile.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path);
         }
 
         [AssertionMethod]
@@ -36,7 +36,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (arguments.Options.HasFlag(FileOptions.Encrypted))
             {
-                throw ErrorFactory.UnauthorizedAccess(arguments.Path.GetText());
+                throw ErrorFactory.System.UnauthorizedAccess(arguments.Path.GetText());
             }
         }
     }

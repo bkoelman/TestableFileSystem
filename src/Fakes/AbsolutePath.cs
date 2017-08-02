@@ -256,7 +256,7 @@ namespace TestableFileSystem.Fakes
 
                 if (!isOnNetworkShare && !isOnDisk)
                 {
-                    throw ErrorFactory.PathFormatIsNotSupported();
+                    throw ErrorFactory.System.PathFormatIsNotSupported();
                 }
 
                 AdjustComponentsForSelfOrParentIndicators(components);
@@ -270,7 +270,7 @@ namespace TestableFileSystem.Fakes
                 {
                     if (components.Count < 4)
                     {
-                        throw ErrorFactory.UncPathIsInvalid();
+                        throw ErrorFactory.System.UncPathIsInvalid();
                     }
 
                     AssertDirectoryNameOrFileNameIsValid(components[2], path);
@@ -290,14 +290,14 @@ namespace TestableFileSystem.Fakes
             {
                 if (string.IsNullOrWhiteSpace(name))
                 {
-                    throw ErrorFactory.IllegalCharactersInPath(nameof(path));
+                    throw ErrorFactory.System.IllegalCharactersInPath(nameof(path));
                 }
 
                 foreach (char ch in name)
                 {
                     if (FileNameCharsInvalid.Contains(ch))
                     {
-                        throw ErrorFactory.IllegalCharactersInPath(nameof(path));
+                        throw ErrorFactory.System.IllegalCharactersInPath(nameof(path));
                     }
                 }
 

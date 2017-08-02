@@ -91,7 +91,7 @@ namespace TestableFileSystem.Fakes.Resolvers
                 return directory.Directories[entryName];
             }
 
-            throw ErrorFactory.FileNotFound(path.GetText());
+            throw ErrorFactory.System.FileNotFound(path.GetText());
         }
 
         [CanBeNull]

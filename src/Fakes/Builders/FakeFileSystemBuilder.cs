@@ -133,7 +133,7 @@ namespace TestableFileSystem.Fakes.Builders
 
             FileEntry file = directory.GetOrCreateFile(fileName);
 
-            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write))
+            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath))
             {
                 writeContentsToStream(stream);
             }
@@ -150,7 +150,7 @@ namespace TestableFileSystem.Fakes.Builders
             AbsolutePath parentPath = absolutePath.TryGetParentPath();
             if (parentPath == null)
             {
-                throw ErrorFactory.DirectoryNotFound(absolutePath.GetText());
+                throw ErrorFactory.System.DirectoryNotFound(absolutePath.GetText());
             }
 
             return CreateDirectories(parentPath);
@@ -162,7 +162,7 @@ namespace TestableFileSystem.Fakes.Builders
         {
             if (directory.Directories.ContainsKey(fileName))
             {
-                throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(absolutePath.GetText());
+                throw ErrorFactory.System.CannotCreateBecauseFileOrDirectoryAlreadyExists(absolutePath.GetText());
             }
         }
 

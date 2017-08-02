@@ -38,12 +38,12 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var sourceResolver = new FileResolver(Root)
             {
-                ErrorFileFoundAsDirectory = incomingPath => ErrorFactory.FileNotFound(incomingPath),
-                ErrorDirectoryFoundAsFile = incomingPath => ErrorFactory.FileNotFound(incomingPath),
-                ErrorLastDirectoryFoundAsFile = incomingPath => ErrorFactory.FileNotFound(incomingPath),
-                ErrorDirectoryNotFound = incomingPath => ErrorFactory.FileNotFound(incomingPath),
-                ErrorPathIsVolumeRoot = incomingPath => ErrorFactory.FileNotFound(incomingPath),
-                ErrorNetworkShareNotFound = incomingPath => ErrorFactory.FileNotFound(incomingPath)
+                ErrorFileFoundAsDirectory = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
+                ErrorDirectoryFoundAsFile = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
+                ErrorLastDirectoryFoundAsFile = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
+                ErrorDirectoryNotFound = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
+                ErrorPathIsVolumeRoot = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
+                ErrorNetworkShareNotFound = incomingPath => ErrorFactory.System.FileNotFound(incomingPath)
             };
 
             return sourceResolver.ResolveExistingFile(sourcePath);
@@ -55,12 +55,12 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var destinationResolver = new FileResolver(Root)
             {
-                ErrorFileFoundAsDirectory = _ => ErrorFactory.CannotCreateFileBecauseFileAlreadyExists(),
-                ErrorDirectoryFoundAsFile = _ => ErrorFactory.DirectoryNotFound(),
-                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.ParameterIsIncorrect(),
-                ErrorDirectoryNotFound = _ => ErrorFactory.DirectoryNotFound(),
-                ErrorPathIsVolumeRoot = _ => ErrorFactory.FileOrDirectoryOrVolumeIsIncorrect(),
-                ErrorFileExists = _ => ErrorFactory.CannotCreateFileBecauseFileAlreadyExists()
+                ErrorFileFoundAsDirectory = _ => ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists(),
+                ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
+                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.ParameterIsIncorrect(),
+                ErrorDirectoryNotFound = _ => ErrorFactory.System.DirectoryNotFound(),
+                ErrorPathIsVolumeRoot = _ => ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect(),
+                ErrorFileExists = _ => ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists()
             };
 
             bool isFileCasingChangeOnly = IsFileCasingChangeOnly(sourcePath, destinationPath);
@@ -74,7 +74,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (file.IsOpen())
             {
-                throw ErrorFactory.FileIsInUse();
+                throw ErrorFactory.System.FileIsInUse();
             }
         }
 

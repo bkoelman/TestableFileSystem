@@ -51,7 +51,7 @@ namespace TestableFileSystem.Fakes
 
             if (StartsWithPathSeparator(pattern) || StartsWithDriveLetter(pattern))
             {
-                throw ErrorFactory.SearchPatternMustNotBeDriveOrUnc(nameof(pattern));
+                throw ErrorFactory.System.SearchPatternMustNotBeDriveOrUnc(nameof(pattern));
             }
 
             PathPattern root = null;
@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes
 
                 if (root != null && SequenceContainsWildcards(sequence))
                 {
-                    throw ErrorFactory.FileOrDirectoryOrVolumeIsIncorrect();
+                    throw ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect();
                 }
 
                 root = new PathPattern(sequence, root);
@@ -85,7 +85,7 @@ namespace TestableFileSystem.Fakes
         {
             if (string.IsNullOrWhiteSpace(pattern))
             {
-                throw ErrorFactory.SearchPatternMustNotBeDriveOrUnc(nameof(pattern));
+                throw ErrorFactory.System.SearchPatternMustNotBeDriveOrUnc(nameof(pattern));
             }
         }
 
@@ -93,7 +93,7 @@ namespace TestableFileSystem.Fakes
         {
             if (pattern == "..")
             {
-                throw ErrorFactory.SearchPatternCannotContainParent(nameof(pattern));
+                throw ErrorFactory.System.SearchPatternCannotContainParent(nameof(pattern));
             }
         }
 
@@ -103,7 +103,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (PatternCharsInvalid.Contains(ch))
                 {
-                    throw ErrorFactory.IllegalCharactersInPath(nameof(pattern));
+                    throw ErrorFactory.System.IllegalCharactersInPath(nameof(pattern));
                 }
             }
         }

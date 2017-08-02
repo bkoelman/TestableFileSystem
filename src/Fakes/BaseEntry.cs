@@ -7,21 +7,10 @@ namespace TestableFileSystem.Fakes
 {
     internal abstract class BaseEntry
     {
-        [NotNull]
-        private string name;
-
         private FileAttributes attributes;
 
         [NotNull]
-        public string Name
-        {
-            get => name;
-            protected set
-            {
-                AssertNameIsValid(value);
-                name = value;
-            }
-        }
+        public string Name { get; protected set; }
 
         public FileAttributes Attributes
         {
@@ -41,9 +30,6 @@ namespace TestableFileSystem.Fakes
             Guard.NotNullNorWhiteSpace(name, nameof(name));
             Name = name;
         }
-
-        [AssertionMethod]
-        protected abstract void AssertNameIsValid([NotNull] string name);
 
         protected abstract FileAttributes FilterAttributes(FileAttributes attributes);
     }

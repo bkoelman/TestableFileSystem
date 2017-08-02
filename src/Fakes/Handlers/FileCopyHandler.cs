@@ -26,15 +26,16 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath, arguments.Overwrite);
 
-            InitializeDestinationFile(destinationFile, sourceFile.LastWriteTimeUtc, sourceFile.Size, sourceFile.Attributes);
+            InitializeDestinationFile(destinationFile, arguments.DestinationPath, sourceFile.LastWriteTimeUtc, sourceFile.Size,
+                sourceFile.Attributes);
 
             IFileStream sourceStream = null;
             IFileStream destinationStream = null;
 
             try
             {
-                sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite);
-                destinationStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write);
+                sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite, arguments.SourcePath);
+                destinationStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, arguments.DestinationPath);
 
                 return (sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream());
             }
@@ -52,7 +53,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var sourceResolver = new FileResolver(Root)
             {
-                ErrorPathIsVolumeRoot = incomingPath => ErrorFactory.DirectoryNotFound(incomingPath)
+                ErrorPathIsVolumeRoot = incomingPath => ErrorFactory.System.DirectoryNotFound(incomingPath)
             };
 
             return sourceResolver.ResolveExistingFile(sourcePath);
@@ -63,7 +64,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var destinationResolver = new FileResolver(Root)
             {
-                ErrorFileFoundAsDirectory = incomingPath => ErrorFactory.TargetIsNotFile(incomingPath)
+                ErrorFileFoundAsDirectory = incomingPath => ErrorFactory.System.TargetIsNotFile(incomingPath)
             };
 
             (DirectoryEntry destinationDirectory, FileEntry destinationFileOrNull, string fileName) =
@@ -78,10 +79,10 @@ namespace TestableFileSystem.Fakes.Handlers
             return destinationFileOrNull ?? destinationDirectory.GetOrCreateFile(fileName);
         }
 
-        private void InitializeDestinationFile([NotNull] FileEntry destinationFile, DateTime sourceLastWriteTimeUtc,
-            long sourceLength, FileAttributes sourceFileAttributes)
+        private void InitializeDestinationFile([NotNull] FileEntry destinationFile, [NotNull] AbsolutePath destinationPath,
+            DateTime sourceLastWriteTimeUtc, long sourceLength, FileAttributes sourceFileAttributes)
         {
-            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write))
+            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath))
             {
                 createStream.SetLength(sourceLength);
             }
@@ -98,7 +99,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (file.IsOpen())
             {
-                throw ErrorFactory.FileIsInUse();
+                throw ErrorFactory.System.FileIsInUse();
             }
         }
 
@@ -107,7 +108,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (!overwrite)
             {
-                throw ErrorFactory.FileAlreadyExists(path.GetText());
+                throw ErrorFactory.System.FileAlreadyExists(path.GetText());
             }
         }
 
@@ -116,7 +117,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
-                throw ErrorFactory.UnauthorizedAccess(path.GetText());
+                throw ErrorFactory.System.UnauthorizedAccess(path.GetText());
             }
         }
     }

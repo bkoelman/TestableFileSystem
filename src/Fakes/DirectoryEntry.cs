@@ -189,13 +189,6 @@ namespace TestableFileSystem.Fakes
             return $"Directory: {Name} ({contents})";
         }
 
-        protected override void AssertNameIsValid(string name)
-        {
-            // Only reachable through an AbsolutePath instance, which already performs validation.
-
-            // TODO: Add validation when implementing Rename, Copy etc.
-        }
-
         protected override FileAttributes FilterAttributes(FileAttributes attributes)
         {
             if ((attributes & FileAttributes.Temporary) != 0)

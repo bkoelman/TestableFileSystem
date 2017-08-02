@@ -48,10 +48,10 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 if (!path.IsOnLocalDrive && !path.IsVolumeRoot)
                 {
-                    throw ErrorFactory.NetworkPathNotFound();
+                    throw ErrorFactory.System.NetworkPathNotFound();
                 }
 
-                throw ErrorFactory.DirectoryNotFound(path.GetText());
+                throw ErrorFactory.System.DirectoryNotFound(path.GetText());
             }
         }
 
@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes.Handlers
             if (directory.Files.ContainsKey(component.Name))
             {
                 AbsolutePath pathUpToHere = component.GetPathUpToHere();
-                throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere.GetText());
+                throw ErrorFactory.System.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere.GetText());
             }
         }
 

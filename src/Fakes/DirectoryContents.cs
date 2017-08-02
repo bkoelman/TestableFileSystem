@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes
             FileEntry file = TryGetEntryAsFile(name);
             if (file == null)
             {
-                throw new InvalidOperationException($"Internal Error: File '{name}' not found.");
+                throw ErrorFactory.Internal.UnknownError($"File '{name}' not found.");
             }
 
             return file;
@@ -52,7 +52,7 @@ namespace TestableFileSystem.Fakes
                 if (throwIfExistsAsDirectory)
                 {
                     string pathUpToHere = Path.Combine(owner.GetAbsolutePath(), name);
-                    throw ErrorFactory.UnauthorizedAccess(pathUpToHere);
+                    throw ErrorFactory.System.UnauthorizedAccess(pathUpToHere);
                 }
             }
 
@@ -65,7 +65,7 @@ namespace TestableFileSystem.Fakes
             DirectoryEntry directory = TryGetEntryAsDirectory(name);
             if (directory == null)
             {
-                throw new InvalidOperationException($"Internal Error: Directory '{name}' not found.");
+                throw ErrorFactory.Internal.UnknownError($"Directory '{name}' not found.");
             }
 
             return directory;
@@ -87,7 +87,7 @@ namespace TestableFileSystem.Fakes
                 if (throwIfExistsAsFile)
                 {
                     string pathUpToHere = Path.Combine(owner.GetAbsolutePath(), name);
-                    throw ErrorFactory.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere);
+                    throw ErrorFactory.System.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere);
                 }
             }
 

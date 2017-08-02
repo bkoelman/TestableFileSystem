@@ -27,19 +27,19 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 if (arguments.Mode == FileMode.CreateNew)
                 {
-                    throw ErrorFactory.FileAlreadyExists(arguments.Path.GetText());
+                    throw ErrorFactory.System.FileAlreadyExists(arguments.Path.GetText());
                 }
 
-                return existingFileOrNull.Open(arguments.Mode, fileAccess);
+                return existingFileOrNull.Open(arguments.Mode, fileAccess, arguments.Path);
             }
 
             if (arguments.Mode == FileMode.Open || arguments.Mode == FileMode.Truncate)
             {
-                throw ErrorFactory.FileNotFound(arguments.Path.GetText());
+                throw ErrorFactory.System.FileNotFound(arguments.Path.GetText());
             }
 
             FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);
-            return newFile.Open(arguments.Mode, fileAccess);
+            return newFile.Open(arguments.Mode, fileAccess, arguments.Path);
         }
 
         private static FileAccess DetectFileAccess([NotNull] FileOpenArguments arguments)

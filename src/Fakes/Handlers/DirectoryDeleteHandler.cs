@@ -29,9 +29,9 @@ namespace TestableFileSystem.Fakes.Handlers
 
             DirectoryEntry directory = ResolveDirectory(arguments.Path);
 
-            AssertNoConflictWithCurrentDirectory(directory);
+            AssertNoConflictWithCurrentDirectory(directory, arguments.Path);
             AssertIsEmptyOrRecursive(directory, arguments.Recursive);
-            AssertIsNotReadOnly(directory);
+            AssertIsNotReadOnly(directory, arguments.Path);
             AssertDirectoryContainsNoOpenFiles(directory, arguments.Path);
 
             directory.Parent?.DeleteDirectory(directory.Name);
@@ -46,24 +46,24 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 if (!arguments.Path.IsOnLocalDrive)
                 {
-                    throw ErrorFactory.FileIsInUse(arguments.Path.GetText());
+                    throw ErrorFactory.System.FileIsInUse(arguments.Path.GetText());
                 }
 
                 if (arguments.Recursive)
                 {
-                    throw ErrorFactory.FileNotFound(arguments.Path.GetText());
+                    throw ErrorFactory.System.FileNotFound(arguments.Path.GetText());
                 }
 
-                throw ErrorFactory.DirectoryIsNotEmpty();
+                throw ErrorFactory.System.DirectoryIsNotEmpty();
             }
         }
 
         [AssertionMethod]
-        private void AssertNoConflictWithCurrentDirectory([NotNull] DirectoryEntry directory)
+        private void AssertNoConflictWithCurrentDirectory([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
         {
             if (currentDirectoryManager.IsAtOrAboveCurrentDirectory(directory))
             {
-                throw ErrorFactory.FileIsInUse(directory.GetAbsolutePath());
+                throw ErrorFactory.System.FileIsInUse(path.GetText());
             }
         }
 
@@ -72,7 +72,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var resolver = new DirectoryResolver(Root)
             {
-                ErrorLastDirectoryFoundAsFile = incomingPath => ErrorFactory.DirectoryNameIsInvalid()
+                ErrorLastDirectoryFoundAsFile = incomingPath => ErrorFactory.System.DirectoryNameIsInvalid()
             };
 
             return resolver.ResolveDirectory(path);
@@ -83,16 +83,16 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (!recursive && !directory.IsEmpty)
             {
-                throw ErrorFactory.DirectoryIsNotEmpty();
+                throw ErrorFactory.System.DirectoryIsNotEmpty();
             }
         }
 
         [AssertionMethod]
-        private static void AssertIsNotReadOnly([NotNull] DirectoryEntry directory)
+        private static void AssertIsNotReadOnly([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath directoryPath)
         {
             if (directory.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
-                throw ErrorFactory.AccessDenied(directory.GetAbsolutePath());
+                throw ErrorFactory.System.AccessDenied(directoryPath.GetText());
             }
 
             foreach (FileEntry file in directory.Files.Values)
@@ -102,7 +102,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             foreach (DirectoryEntry subdirectory in directory.Directories.Values)
             {
-                AssertIsNotReadOnly(subdirectory);
+                AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
+                AssertIsNotReadOnly(subdirectory, subdirectoryPath);
             }
         }
 
@@ -111,7 +112,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
-                throw ErrorFactory.UnauthorizedAccess(file.Name);
+                throw ErrorFactory.System.UnauthorizedAccess(file.Name);
             }
         }
 
@@ -121,7 +122,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AbsolutePath openFilePath = TryGetFirstOpenFilePath(directory, path);
             if (openFilePath != null)
             {
-                throw ErrorFactory.FileIsInUse(openFilePath.GetText());
+                throw ErrorFactory.System.FileIsInUse(openFilePath.GetText());
             }
         }
 

@@ -71,7 +71,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (arguments.TimeValue < minTime)
             {
-                throw ErrorFactory.FileTimeOutOfRange(nameof(arguments.Path));
+                throw ErrorFactory.System.FileTimeOutOfRange(nameof(arguments.Path));
             }
         }
 
@@ -80,7 +80,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (entry is FileEntry file && file.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
-                throw ErrorFactory.UnauthorizedAccess(absolutePath.GetText());
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
         }
 
@@ -88,7 +88,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (entry is FileEntry file && file.IsOpen())
             {
-                throw ErrorFactory.FileIsInUse(absolutePath.GetText());
+                throw ErrorFactory.System.FileIsInUse(absolutePath.GetText());
             }
         }
     }
