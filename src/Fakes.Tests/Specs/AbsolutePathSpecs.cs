@@ -6,6 +6,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 {
     public sealed class AbsolutePathSpecs
     {
+        // TODO: Replace these specs, then remove InternalsVisibleTo attribute.
+
         [Fact]
         private void When_creating_drive_letter_it_must_succeed()
         {

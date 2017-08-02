@@ -9,6 +9,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileCreationTimeUtcSpecs
     {
+        // TODO: Add similar set of tests for LastWriteTime and LastAccessTime. Consider local times.
+
         private static readonly DateTime DefaultTimeUtc = 1.February(2034).At(12, 34, 56).AsUtc();
         private static readonly DateTime ZeroFileTimeUtc = 1.January(1601).AsUtc();
 
