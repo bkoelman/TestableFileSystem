@@ -75,8 +75,6 @@ namespace TestableFileSystem.Fakes
             set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
         }
 
-        public event EventHandler ContentChanged;
-
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)
             : base(name)
         {
@@ -87,7 +85,7 @@ namespace TestableFileSystem.Fakes
             Attributes = FileAttributes.Normal;
 
             CreationTimeUtc = parent.SystemClock.UtcNow();
-            HandleFileChanged(false);
+            HandleFileChanged();
         }
 
         [AssertionMethod]
@@ -99,15 +97,10 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private void HandleFileChanged(bool raiseChangeEvent)
+        private void HandleFileChanged()
         {
             HandleFileAccessed();
             LastWriteTimeUtc = LastAccessTimeUtc;
-
-            if (raiseChangeEvent)
-            {
-                ContentChanged?.Invoke(this, EventArgs.Empty);
-            }
         }
 
         private void HandleFileAccessed()
@@ -462,7 +455,7 @@ namespace TestableFileSystem.Fakes
 
                         if (hasUpdated)
                         {
-                            owner.HandleFileChanged(true);
+                            owner.HandleFileChanged();
                         }
                         else if (hasAccessed)
                         {

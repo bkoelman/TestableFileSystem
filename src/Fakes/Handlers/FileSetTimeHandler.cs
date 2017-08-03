@@ -19,10 +19,12 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
             AssertTimeValueIsInRange(arguments);
+            AssertIsNotVolumeRoot(arguments.Path);
 
             var resolver = new EntryResolver(Root);
             BaseEntry entry = resolver.ResolveEntry(arguments.Path);
 
+            AssertIsNotDirectory(entry, arguments.Path);
             AssertFileIsNotReadOnly(entry, arguments.Path);
             AssertHasExclusiveAccessToFile(entry, arguments.Path);
 
@@ -72,6 +74,28 @@ namespace TestableFileSystem.Fakes.Handlers
             if (arguments.TimeValue < minTime)
             {
                 throw ErrorFactory.System.FileTimeOutOfRange(nameof(arguments.Path));
+            }
+        }
+
+        private void AssertIsNotVolumeRoot([NotNull] AbsolutePath path)
+        {
+            if (path.IsVolumeRoot)
+            {
+                if (path.IsOnLocalDrive)
+                {
+                    throw ErrorFactory.System.PathMustNotBeDrive(nameof(path));
+                }
+
+                throw ErrorFactory.System.UnauthorizedAccess(path.GetText());
+            }
+        }
+
+        [AssertionMethod]
+        private void AssertIsNotDirectory([NotNull] BaseEntry entry, [NotNull] AbsolutePath path)
+        {
+            if (entry is DirectoryEntry)
+            {
+                throw ErrorFactory.System.DirectoryNotFound(path.GetText());
             }
         }
 

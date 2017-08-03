@@ -180,6 +180,12 @@ namespace TestableFileSystem.Fakes
             {
                 return new ArgumentException($"Combining FileMode: {mode} with FileAccess: {access} is invalid.", nameof(access));
             }
+
+            [NotNull]
+            public static Exception PathMustNotBeDrive([NotNull] [InvokerParameterName] string paramName)
+            {
+                return new ArgumentException("Path must not be a drive.", paramName);
+            }
         }
 
         public static class Internal

@@ -305,7 +305,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(DateTime.MaxValue);
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories")]
+        [Fact]
         private void When_getting_creation_time_in_UTC_for_drive_it_must_succeed()
         {
             // Arrange
@@ -324,7 +324,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTimeUtc);
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories")]
+        [Fact]
         private void When_setting_creation_time_in_UTC_for_drive_it_must_fail()
         {
             // Arrange
@@ -338,7 +338,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetCreationTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path must not be a drive.");
+            action.ShouldThrow<ArgumentException>().WithMessage("Path must not be a drive.*");
         }
 
         [Fact]
@@ -438,7 +438,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories")]
+        [Fact]
         private void When_getting_creation_time_in_UTC_for_existing_directory_it_must_succeed()
         {
             // Arrange
@@ -457,7 +457,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTimeUtc);
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories")]
+        [Fact]
         private void When_setting_creation_time_in_UTC_for_existing_directory_it_must_fail()
         {
             // Arrange
@@ -569,7 +569,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.ShouldThrow<IOException>().WithMessage("The network path was not found");
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories")]
+        [Fact]
         private void When_getting_creation_time_in_UTC_for_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -588,7 +588,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTimeUtc);
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories")]
+        [Fact]
         private void When_setting_creation_time_in_UTC_for_existing_network_share_it_must_fail()
         {
             // Arrange

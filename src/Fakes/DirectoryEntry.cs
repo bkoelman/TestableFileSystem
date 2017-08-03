@@ -37,40 +37,44 @@ namespace TestableFileSystem.Fakes
 
         public bool IsEmpty => contents.IsEmpty;
 
+        private long creationTimeStampUtc;
+        private long lastWriteTimeStampUtc;
+        private long lastAccessTimeStampUtc;
+
         public override DateTime CreationTime
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => DateTime.FromFileTime(creationTimeStampUtc);
+            set => creationTimeStampUtc = value.ToFileTime();
         }
 
         public override DateTime CreationTimeUtc
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => DateTime.FromFileTimeUtc(creationTimeStampUtc);
+            set => creationTimeStampUtc = value.ToFileTimeUtc();
         }
 
         public override DateTime LastWriteTime
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTime();
         }
 
         public override DateTime LastWriteTimeUtc
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
         }
 
         public override DateTime LastAccessTime
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => DateTime.FromFileTime(lastAccessTimeStampUtc);
+            set => lastAccessTimeStampUtc = value.ToFileTime();
         }
 
         public override DateTime LastAccessTimeUtc
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
+            set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
         }
 
         private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent, [NotNull] SystemClock systemClock)
@@ -79,6 +83,8 @@ namespace TestableFileSystem.Fakes
             Parent = parent;
             Attributes = IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
             SystemClock = systemClock;
+
+            CreationTimeUtc = systemClock.UtcNow();
         }
 
         private static bool IsDriveLetter([NotNull] string name)
