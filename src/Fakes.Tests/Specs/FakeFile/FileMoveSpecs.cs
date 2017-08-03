@@ -486,6 +486,39 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_moving_file_to_subdirectory_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"C:\some\sub\newname.txt";
+
+            var creationTimeUtc = 7.October(2015);
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(sourcePath)
+                .IncludingDirectory(@"c:\some\sub")
+                .Build();
+
+            var lastWriteTimeUtc = 8.October(2015);
+            clock.UtcNow = () => lastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(sourcePath, "ABC");
+
+            // Act
+            fileSystem.File.Move(sourcePath, destinationPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(destinationPath).Should().BeTrue();
+
+            var destinationInfo = fileSystem.ConstructFileInfo(destinationPath);
+            destinationInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            destinationInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+            destinationInfo.LastAccessTimeUtc.Should().Be(lastWriteTimeUtc);
+        }
+
+        [Fact]
         private void When_moving_file_to_different_drive_it_must_succeed()
         {
             // Arrange

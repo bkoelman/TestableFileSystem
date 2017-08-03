@@ -10,8 +10,6 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileMoveHandler : FakeOperationHandler<FileMoveArguments, object>
     {
-        // TODO: Implement timings - https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
-
         public FileMoveHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
