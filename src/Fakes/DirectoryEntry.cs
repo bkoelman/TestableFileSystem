@@ -131,20 +131,6 @@ namespace TestableFileSystem.Fakes
             return fileEntry;
         }
 
-        [NotNull]
-        public FileEntry GetOrCreateFile([NotNull] string fileName)
-        {
-            Guard.NotNull(fileName, nameof(fileName));
-
-            FileEntry file = contents.TryGetEntryAsFile(fileName);
-            if (file == null)
-            {
-                contents.Add(new FileEntry(fileName, this));
-            }
-
-            return contents.GetEntryAsFile(fileName);
-        }
-
         internal void DeleteFile([NotNull] FileEntry fileEntry)
         {
             Guard.NotNull(fileEntry, nameof(fileEntry));

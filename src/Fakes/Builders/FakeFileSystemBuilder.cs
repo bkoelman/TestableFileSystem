@@ -131,7 +131,7 @@ namespace TestableFileSystem.Fakes.Builders
             string fileName = absolutePath.Components.Last();
             AssertIsNotDirectory(fileName, directory, absolutePath);
 
-            FileEntry file = directory.GetOrCreateFile(fileName);
+            FileEntry file = directory.Files.ContainsKey(fileName) ? directory.Files[fileName] : directory.CreateFile(fileName);
 
             using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath))
             {

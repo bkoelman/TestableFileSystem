@@ -25,41 +25,6 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public FileEntry GetEntryAsFile([NotNull] string name)
-        {
-            FileEntry file = TryGetEntryAsFile(name);
-            if (file == null)
-            {
-                throw ErrorFactory.Internal.UnknownError($"File '{name}' not found.");
-            }
-
-            return file;
-        }
-
-        [CanBeNull]
-        public FileEntry TryGetEntryAsFile([NotNull] string name, bool throwIfExistsAsDirectory = true)
-        {
-            Guard.NotNull(name, nameof(name));
-
-            if (entries.ContainsKey(name))
-            {
-                var file = entries[name] as FileEntry;
-                if (file != null)
-                {
-                    return file;
-                }
-
-                if (throwIfExistsAsDirectory)
-                {
-                    string pathUpToHere = Path.Combine(owner.GetAbsolutePath(), name);
-                    throw ErrorFactory.System.UnauthorizedAccess(pathUpToHere);
-                }
-            }
-
-            return null;
-        }
-
-        [NotNull]
         public DirectoryEntry GetEntryAsDirectory([NotNull] string name)
         {
             DirectoryEntry directory = TryGetEntryAsDirectory(name);
@@ -143,12 +108,6 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(name, nameof(name));
 
             entries.Remove(name);
-        }
-
-        public bool Contains([NotNull] string name)
-        {
-            Guard.NotNull(name, nameof(name));
-            return entries.ContainsKey(name);
         }
 
         [AssertionMethod]

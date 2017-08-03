@@ -74,9 +74,11 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 AssertCanOverwriteFile(overwrite, destinationPath);
                 AssertIsNotReadOnly(destinationFileOrNull, destinationPath);
+
+                return destinationDirectory.Files[fileName];
             }
 
-            return destinationFileOrNull ?? destinationDirectory.GetOrCreateFile(fileName);
+            return destinationDirectory.CreateFile(fileName);
         }
 
         private void InitializeDestinationFile([NotNull] FileEntry destinationFile, [NotNull] AbsolutePath destinationPath,
