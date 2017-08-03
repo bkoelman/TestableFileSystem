@@ -19,7 +19,8 @@ namespace TestableFileSystem.Fakes.Handlers
             Guard.NotNull(arguments, nameof(arguments));
 
             var resolver = new FileResolver(Root);
-            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string _) = resolver.TryResolveFile(arguments.Path);
+            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string _) =
+                resolver.TryResolveFile(arguments.Path);
 
             if (existingFileOrNull != null)
             {

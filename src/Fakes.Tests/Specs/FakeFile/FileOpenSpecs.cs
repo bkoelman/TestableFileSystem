@@ -9,6 +9,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileOpenSpecs
     {
+        private const string DefaultContents = "ABC";
+
         [Fact]
         private void When_opening_file_for_null_it_must_fail()
         {
@@ -81,25 +83,247 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_opening_existing_local_file_it_must_succeed()
+        private void When_opening_file_in_CreateNew_mode_with_Read_access_it_must_fail()
         {
             // Arrange
             const string path = @"C:\some\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(path, "X")
                 .Build();
 
             // Act
-            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            Action action = () => fileSystem.File.Open(path, FileMode.CreateNew, FileAccess.Read);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>()
+                .WithMessage(@"Combining FileMode: CreateNew with FileAccess: Read is invalid.*");
+        }
+
+        [Fact]
+        private void When_opening_existing_local_file_in_CreateNew_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\sheet.xls";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.CreateNew);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"The file 'C:\some\sheet.xls' already exists.");
+        }
+
+        [Fact]
+        private void When_opening_missing_local_file_in_CreateNew_mode_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => creationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingDirectory(@"c:\some")
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.CreateNew))
             {
                 // Assert
-                stream.Length.Should().Be(1);
+                stream.Length.Should().Be(0);
+            }
+
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+            info.Length.Should().Be(0);
+
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(creationTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
+        }
+
+        [Fact]
+        private void When_opening_file_in_Create_mode_with_Read_access_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.Create, FileAccess.Read);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage(@"Combining FileMode: Create with FileAccess: Read is invalid.*");
+        }
+
+        [Fact]
+        private void When_opening_existing_local_file_in_Create_mode_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Create))
+            {
+                // Assert
+                stream.Length.Should().Be(0);
             }
         }
 
         [Fact]
-        private void When_opening_missing_local_file_it_must_fail()
+        private void When_opening_existing_local_hidden_file_in_Create_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.Hidden)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.Create);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+        }
+
+        [Fact]
+        private void When_opening_existing_local_readonly_file_in_Create_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.Create);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+        }
+
+        [Fact]
+        private void When_opening_missing_local_file_in_Create_mode_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => creationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingDirectory(@"c:\some")
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Create))
+            {
+                // Assert
+                stream.Length.Should().Be(0);
+            }
+
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+            info.Length.Should().Be(0);
+
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(creationTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
+        }
+
+        [Fact]
+        private void When_opening_existing_local_file_in_Open_mode_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime initialCreationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => initialCreationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            DateTime lastAccessTimeUtc = 12.September(2016);
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                stream.ReadByte();
+
+                // Assert
+                stream.Length.Should().Be(DefaultContents.Length);
+            }
+
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+
+            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(initialCreationTimeUtc);
+        }
+
+        [Fact]
+        private void When_opening_existing_local_readonly_file_in_Open_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.Open);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+        }
+
+        [Fact]
+        private void When_opening_existing_local_readonly_file_in_Open_mode_with_Read_access_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                // Assert
+                stream.Length.Should().Be(DefaultContents.Length);
+            }
+        }
+
+        [Fact]
+        private void When_opening_missing_local_file_in_Open_mode_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -111,6 +335,128 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\sheet.xls'.");
+        }
+
+        [Fact]
+        private void When_opening_existing_local_file_in_OpenOrCreate_mode_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime initialCreationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => initialCreationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            DateTime lastAccessTimeUtc = 12.September(2016);
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.OpenOrCreate))
+            {
+                stream.ReadByte();
+
+                // Assert
+                stream.Length.Should().Be(DefaultContents.Length);
+            }
+
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+
+            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(initialCreationTimeUtc);
+        }
+
+        [Fact]
+        private void When_opening_existing_local_readonly_file_in_OpenOrCreate_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.OpenOrCreate);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+        }
+
+        [Fact]
+        private void When_opening_existing_local_readonly_file_in_OpenOrCreate_mode_with_Read_access_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.OpenOrCreate, FileAccess.Read))
+            {
+                // Assert
+                stream.Length.Should().Be(DefaultContents.Length);
+            }
+        }
+
+        [Fact]
+        private void When_opening_missing_local_file_in_OpenOrCreate_mode_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => creationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingDirectory(@"c:\some")
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.OpenOrCreate))
+            {
+                // Assert
+                stream.Length.Should().Be(0);
+            }
+
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+            info.Length.Should().Be(0);
+
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(creationTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
+        }
+
+        [Fact]
+        private void When_opening_file_in_Truncate_mode_with_Read_access_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.Truncate, FileAccess.Read);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>()
+                .WithMessage(@"Combining FileMode: Truncate with FileAccess: Read is invalid.*");
         }
 
         [Fact]
@@ -134,9 +480,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(path, "ABC")
+            DateTime initialCreationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => initialCreationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
                 .Build();
+
+            DateTime lastWriteTimeUtc = 12.September(2016);
+            clock.UtcNow = () => lastWriteTimeUtc;
 
             // Act
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Truncate))
@@ -145,8 +501,81 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
 
             // Assert
-            fileSystem.ConstructFileInfo(path).Length.Should().Be(1);
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+            info.Length.Should().Be(1);
+
+            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(lastWriteTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+
             fileSystem.File.ReadAllText(path).Should().Be(" ");
+        }
+
+        [Fact]
+        private void When_opening_existing_local_readonly_file_in_Truncate_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.Truncate);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+        }
+
+        [Fact]
+        private void When_opening_file_in_Append_mode_with_Read_access_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Open(path, FileMode.Append, FileAccess.Read);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage(@"Combining FileMode: Append with FileAccess: Read is invalid.*");
+        }
+
+        [Fact]
+        private void When_opening_missing_local_file_in_Append_mode_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => creationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingDirectory(@"c:\some")
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Append))
+            {
+                // Assert
+                stream.Length.Should().Be(0);
+            }
+
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+            info.Length.Should().Be(0);
+
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(creationTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
         }
 
         [Fact]
@@ -155,9 +584,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(path, "ABC")
+            DateTime initialCreationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => initialCreationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
                 .Build();
+
+            DateTime lastWriteTimeUtc = 12.September(2016);
+            clock.UtcNow = () => lastWriteTimeUtc;
 
             // Act
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Append))
@@ -167,25 +606,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
 
             // Assert
-            fileSystem.ConstructFileInfo(path).Length.Should().Be(6);
-            fileSystem.File.ReadAllText(path).Should().Be("ABCXYZ");
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+            info.Length.Should().Be(DefaultContents.Length + 3);
+
+            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(lastWriteTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+
+            fileSystem.File.ReadAllText(path).Should().Be(DefaultContents + "XYZ");
         }
 
         [Fact]
-        private void When_opening_existing_local_file_in_CreateNew_mode_it_must_fail()
+        private void When_opening_existing_local_readonly_file_in_Append_mode_it_must_fail()
         {
             // Arrange
-            const string path = @"C:\some\sheet.xls";
+            const string path = @"C:\some\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
+                .IncludingTextFile(path, DefaultContents, attributes: FileAttributes.ReadOnly)
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Open(path, FileMode.CreateNew);
+            Action action = () => fileSystem.File.Open(path, FileMode.Append);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"The file 'C:\some\sheet.xls' already exists.");
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -193,14 +639,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(@"C:\some\FILE.txt", "ABC")
+                .IncludingTextFile(@"C:\some\FILE.txt", DefaultContents)
                 .Build();
 
             // Act
             using (IFileStream stream = fileSystem.File.Open(@"c:\SOME\file.TXT", FileMode.Open))
             {
                 // Assert
-                stream.Length.Should().Be(3);
+                stream.Length.Should().Be(DefaultContents.Length);
             }
         }
 
@@ -209,14 +655,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(@"C:\some\file.txt", "ABC")
+                .IncludingTextFile(@"C:\some\file.txt", DefaultContents)
                 .Build();
 
             // Act
             using (IFileStream stream = fileSystem.File.Open(@"C:\some\file.txt  ", FileMode.Open))
             {
                 // Assert
-                stream.Length.Should().Be(3);
+                stream.Length.Should().Be(DefaultContents.Length);
             }
         }
 
@@ -225,7 +671,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(@"C:\some\FILE.txt", "ABC")
+                .IncludingTextFile(@"C:\some\FILE.txt", DefaultContents)
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
@@ -234,7 +680,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Open("file.txt", FileMode.Open))
             {
                 // Assert
-                stream.Length.Should().Be(3);
+                stream.Length.Should().Be(DefaultContents.Length);
             }
         }
 
@@ -264,7 +710,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some")
                 .IncludingDirectory(@"D:\other")
-                .IncludingTextFile(@"D:\child.txt", "ABC")
+                .IncludingTextFile(@"D:\child.txt", DefaultContents)
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"D:\other");
@@ -274,7 +720,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Open("D:child.txt", FileMode.Open))
             {
                 // Assert
-                stream.Length.Should().Be(3);
+                stream.Length.Should().Be(DefaultContents.Length);
             }
         }
 
@@ -283,7 +729,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(@"D:\other\child.txt", "ABC")
+                .IncludingTextFile(@"D:\other\child.txt", DefaultContents)
                 .Build();
 
             fileSystem.Directory.SetCurrentDirectory(@"D:\other");
@@ -292,7 +738,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Open("D:child.txt", FileMode.Open))
             {
                 // Assert
-                stream.Length.Should().Be(3);
+                stream.Length.Should().Be(DefaultContents.Length);
             }
         }
 
@@ -364,22 +810,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_opening_local_file_in_CreateNew_mode_below_existing_file_it_must_fail()
-        {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"c:\some\file.txt")
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Open(@"c:\some\file.txt\nested.txt", FileMode.CreateNew);
-
-            // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
-        }
-
-        [Fact]
         private void When_opening_local_file_for_missing_parent_directory_it_must_fail()
         {
             // Arrange
@@ -430,14 +860,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"\\server\share\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(path, "ABC")
+                .IncludingTextFile(path, DefaultContents)
                 .Build();
 
             // Act
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
             {
                 // Assert
-                stream.Length.Should().Be(3);
+                stream.Length.Should().Be(DefaultContents.Length);
             }
         }
 
@@ -460,14 +890,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(@"C:\folder\file.txt", "ABC")
+                .IncludingTextFile(@"C:\folder\file.txt", DefaultContents)
                 .Build();
 
             // Act
             using (IFileStream stream = fileSystem.File.Open(@"\\?\C:\folder\file.txt", FileMode.Open))
             {
                 // Assert
-                stream.Length.Should().Be(3);
+                stream.Length.Should().Be(DefaultContents.Length);
             }
         }
     }

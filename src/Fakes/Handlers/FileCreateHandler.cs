@@ -8,6 +8,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileCreateHandler : FakeOperationHandler<FileCreateArguments, IFileStream>
     {
+        private const FileAttributes HiddenReadOnlyMask = FileAttributes.Hidden | FileAttributes.ReadOnly;
+
         public FileCreateHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
@@ -19,16 +21,19 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertValidCreationOptions(arguments);
 
             var resolver = new FileResolver(Root);
-            (DirectoryEntry containingDirectory, FileEntry _, string fileName) = resolver.TryResolveFile(arguments.Path);
+            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) =
+                resolver.TryResolveFile(arguments.Path);
 
-            FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);
+            AssertIsNotHiddenOrReadOnly(existingFileOrNull, arguments.Path);
+
+            FileEntry file = existingFileOrNull ?? containingDirectory.CreateFile(fileName);
 
             if ((arguments.Options & FileOptions.DeleteOnClose) != 0)
             {
-                newFile.EnableDeleteOnClose();
+                file.EnableDeleteOnClose();
             }
 
-            return newFile.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path);
+            return file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path);
         }
 
         [AssertionMethod]
@@ -37,6 +42,15 @@ namespace TestableFileSystem.Fakes.Handlers
             if (arguments.Options.HasFlag(FileOptions.Encrypted))
             {
                 throw ErrorFactory.System.UnauthorizedAccess(arguments.Path.GetText());
+            }
+        }
+
+        [AssertionMethod]
+        private void AssertIsNotHiddenOrReadOnly([CanBeNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        {
+            if (fileEntry != null && (fileEntry.Attributes & HiddenReadOnlyMask) != 0)
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
         }
     }

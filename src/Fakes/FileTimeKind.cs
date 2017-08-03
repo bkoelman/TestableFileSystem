@@ -4,6 +4,6 @@ namespace TestableFileSystem.Fakes
     {
         CreationTime,
         LastAccessTime,
-        LastWriteTime,
+        LastWriteTime
     }
 }

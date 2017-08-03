@@ -84,11 +84,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_creating_local_file_it_must_succeed()
         {
             // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => creationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"C:\some")
                 .Build();
-
-            const string path = @"C:\some\file.txt";
 
             // Act
             using (IFileStream stream = fileSystem.File.Create(path))
@@ -97,7 +104,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
 
             // Assert
-            fileSystem.File.Exists(path).Should().BeTrue();
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(creationTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
         }
 
         [Fact]
@@ -155,9 +167,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            DateTime initialCreationTimeUtc = 9.September(2016);
+
+            var clock = new SystemClock
+            {
+                UtcNow = () => initialCreationTimeUtc
+            };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingTextFile(path, "existing data")
                 .Build();
+
+            DateTime overwriteTimeUtc = 12.September(2016);
+            clock.UtcNow = () => overwriteTimeUtc;
 
             // Act
             using (IFileStream stream = fileSystem.File.Create(path))
@@ -166,7 +188,48 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(0);
             }
 
-            fileSystem.File.Exists(@"C:\some\file.txt").Should().BeTrue();
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.Exists.Should().BeTrue();
+
+            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.LastAccessTimeUtc.Should().Be(overwriteTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(overwriteTimeUtc);
+        }
+
+        [Fact]
+        private void When_creating_file_that_overwrites_existing_local_hidden_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path, FileAttributes.Hidden)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Create(path);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>()
+                .WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+        }
+
+        [Fact]
+        private void When_creating_file_that_overwrites_existing_local_readonly_file_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path, FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Create(path);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>()
+                .WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]

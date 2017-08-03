@@ -18,33 +18,89 @@ namespace TestableFileSystem.Fakes.Handlers
             Guard.NotNull(arguments, nameof(arguments));
 
             FileAccess fileAccess = DetectFileAccess(arguments);
+            AssertValidCombinationOfModeWithAccess(arguments.Mode, fileAccess);
 
             var resolver = new FileResolver(Root);
             (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) =
                 resolver.TryResolveFile(arguments.Path);
 
-            if (existingFileOrNull != null)
-            {
-                if (arguments.Mode == FileMode.CreateNew)
-                {
-                    throw ErrorFactory.System.FileAlreadyExists(arguments.Path.GetText());
-                }
-
-                return existingFileOrNull.Open(arguments.Mode, fileAccess, arguments.Path);
-            }
-
-            if (arguments.Mode == FileMode.Open || arguments.Mode == FileMode.Truncate)
-            {
-                throw ErrorFactory.System.FileNotFound(arguments.Path.GetText());
-            }
-
-            FileEntry newFile = containingDirectory.GetOrCreateFile(fileName);
-            return newFile.Open(arguments.Mode, fileAccess, arguments.Path);
+            return existingFileOrNull != null
+                ? HandleExistingFile(existingFileOrNull, fileAccess, arguments)
+                : HandleNewFile(fileName, containingDirectory, fileAccess, arguments);
         }
 
         private static FileAccess DetectFileAccess([NotNull] FileOpenArguments arguments)
         {
             return arguments.Access ?? (arguments.Mode == FileMode.Append ? FileAccess.Write : FileAccess.ReadWrite);
+        }
+
+        [AssertionMethod]
+        private void AssertValidCombinationOfModeWithAccess(FileMode mode, FileAccess access)
+        {
+            if (access == FileAccess.Read)
+            {
+                switch (mode)
+                {
+                    case FileMode.CreateNew:
+                    case FileMode.Create:
+                    case FileMode.Truncate:
+                    case FileMode.Append:
+                        throw ErrorFactory.System.InvalidOpenCombination(mode, access);
+                }
+            }
+        }
+
+        [NotNull]
+        private IFileStream HandleExistingFile([NotNull] FileEntry file, FileAccess fileAccess,
+            [NotNull] FileOpenArguments arguments)
+        {
+            if (arguments.Mode == FileMode.CreateNew)
+            {
+                throw ErrorFactory.System.FileAlreadyExists(arguments.Path.GetText());
+            }
+
+            if (fileAccess != FileAccess.Read)
+            {
+                AssertIsNotReadOnly(file, arguments.Path);
+
+                if (arguments.Mode == FileMode.Create)
+                {
+                    AssertIsNotHidden(file, arguments.Path);
+                }
+            }
+
+            return file.Open(arguments.Mode, fileAccess, arguments.Path);
+        }
+
+        [AssertionMethod]
+        private void AssertIsNotHidden([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        {
+            if (fileEntry.Attributes.HasFlag(FileAttributes.Hidden))
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
+            }
+        }
+
+        [AssertionMethod]
+        private void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        {
+            if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
+            }
+        }
+
+        [NotNull]
+        private static IFileStream HandleNewFile([NotNull] string fileName, [NotNull] DirectoryEntry containingDirectory,
+            FileAccess fileAccess, [NotNull] FileOpenArguments arguments)
+        {
+            if (arguments.Mode == FileMode.Open || arguments.Mode == FileMode.Truncate)
+            {
+                throw ErrorFactory.System.FileNotFound(arguments.Path.GetText());
+            }
+
+            FileEntry file = containingDirectory.CreateFile(fileName);
+            return file.Open(arguments.Mode, fileAccess, arguments.Path);
         }
     }
 }

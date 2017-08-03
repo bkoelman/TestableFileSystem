@@ -72,7 +72,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [CanBeNull]
-        public DirectoryEntry TryGetEntryAsDirectory([NotNull] string name, bool throwIfExistsAsFile = true)
+        private DirectoryEntry TryGetEntryAsDirectory([NotNull] string name, bool throwIfExistsAsFile = true)
         {
             Guard.NotNull(name, nameof(name));
 
@@ -143,6 +143,25 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(name, nameof(name));
 
             entries.Remove(name);
+        }
+
+        public bool Contains([NotNull] string name)
+        {
+            Guard.NotNull(name, nameof(name));
+            return entries.ContainsKey(name);
+        }
+
+        [AssertionMethod]
+        public void AssertEntryDoesNotExist([NotNull] string name)
+        {
+            Guard.NotNull(name, nameof(name));
+
+            if (entries.ContainsKey(name))
+            {
+                throw entries[name] is DirectoryEntry
+                    ? ErrorFactory.Internal.UnknownError($"Expected not to find an existing directory named '{name}'.")
+                    : ErrorFactory.Internal.UnknownError($"Expected not to find an existing file named '{name}'.");
+            }
         }
 
         public override string ToString()

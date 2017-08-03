@@ -120,7 +120,7 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception IllegalCharactersInPath([NotNull] [InvokerParameterName] string paramName)
             {
-                throw new ArgumentException("Illegal characters in path.", paramName);
+                return new ArgumentException("Illegal characters in path.", paramName);
             }
 
             [NotNull]
@@ -171,8 +171,14 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception FileTimeOutOfRange([NotNull] [InvokerParameterName] string paramName)
             {
-                throw new ArgumentOutOfRangeException(paramName,
+                return new ArgumentOutOfRangeException(paramName,
                     "The UTC time represented when the offset is applied must be between year 0 and 10,000.");
+            }
+
+            [NotNull]
+            public static Exception InvalidOpenCombination(FileMode mode, FileAccess access)
+            {
+                return new ArgumentException($"Combining FileMode: {mode} with FileAccess: {access} is invalid.", nameof(access));
             }
         }
 

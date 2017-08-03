@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
-using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Fakes.HandlerArguments;
+using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 

@@ -802,19 +802,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             destinationInfo.LastAccessTimeUtc.Should().Be(destinationCreationTimeUtc);
             destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
 
-            DateTime destinationCompletedTime = 10.January(2017).At(11, 27, 36);
-            clock.UtcNow = () => destinationCompletedTime;
+            DateTime destinationCompletedTimeUtc = 10.January(2017).At(11, 27, 36);
+            clock.UtcNow = () => destinationCompletedTimeUtc;
 
             copyWaitIndicator.SetCompleted();
             copyThread.Join();
 
             destinationInfo.CreationTimeUtc.Should().Be(destinationCreationTimeUtc);
-            destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTime);
+            destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
             destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
 
             IFileInfo sourceInfo = fileSystem.ConstructFileInfo(sourcePath);
             sourceInfo.CreationTimeUtc.Should().Be(sourceCreationTime);
-            sourceInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTime);
+            sourceInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
             sourceInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
         }
     }

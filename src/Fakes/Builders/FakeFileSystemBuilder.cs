@@ -3,8 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Fakes.HandlerArguments;
+using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Builders

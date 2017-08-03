@@ -120,6 +120,18 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
+        public FileEntry CreateFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+
+            contents.AssertEntryDoesNotExist(fileName);
+
+            var fileEntry = new FileEntry(fileName, this);
+            contents.Add(fileEntry);
+            return fileEntry;
+        }
+
+        [NotNull]
         public FileEntry GetOrCreateFile([NotNull] string fileName)
         {
             Guard.NotNull(fileName, nameof(fileName));
