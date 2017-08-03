@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
@@ -256,11 +257,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            DateTime initialCreationTimeUtc = 9.September(2016);
+            DateTime creationTimeUtc = 9.September(2016);
 
             var clock = new SystemClock
             {
-                UtcNow = () => initialCreationTimeUtc
+                UtcNow = () => creationTimeUtc
             };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
@@ -282,9 +283,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             IFileInfo info = fileSystem.ConstructFileInfo(path);
             info.Exists.Should().BeTrue();
 
-            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
             info.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            info.LastWriteTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
         }
 
         [Fact]
@@ -343,11 +344,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            DateTime initialCreationTimeUtc = 9.September(2016);
+            DateTime creationTimeUtc = 9.September(2016);
 
             var clock = new SystemClock
             {
-                UtcNow = () => initialCreationTimeUtc
+                UtcNow = () => creationTimeUtc
             };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
@@ -369,9 +370,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             IFileInfo info = fileSystem.ConstructFileInfo(path);
             info.Exists.Should().BeTrue();
 
-            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
             info.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            info.LastWriteTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
         }
 
         [Fact]
@@ -480,11 +481,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            DateTime initialCreationTimeUtc = 9.September(2016);
+            DateTime creationTimeUtc = 9.September(2016);
 
             var clock = new SystemClock
             {
-                UtcNow = () => initialCreationTimeUtc
+                UtcNow = () => creationTimeUtc
             };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
@@ -505,7 +506,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Exists.Should().BeTrue();
             info.Length.Should().Be(1);
 
-            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
             info.LastAccessTimeUtc.Should().Be(lastWriteTimeUtc);
             info.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
@@ -584,11 +585,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            DateTime initialCreationTimeUtc = 9.September(2016);
+            DateTime creationTimeUtc = 9.September(2016);
 
             var clock = new SystemClock
             {
-                UtcNow = () => initialCreationTimeUtc
+                UtcNow = () => creationTimeUtc
             };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
@@ -610,7 +611,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Exists.Should().BeTrue();
             info.Length.Should().Be(DefaultContents.Length + 3);
 
-            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
+            info.CreationTimeUtc.Should().Be(creationTimeUtc);
             info.LastAccessTimeUtc.Should().Be(lastWriteTimeUtc);
             info.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
@@ -899,6 +900,140 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 // Assert
                 stream.Length.Should().Be(DefaultContents.Length);
             }
+        }
+
+        [Fact]
+        private void When_writing_to_existing_file_it_must_update_properties_only_after_closing()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            DateTime createTimeUtc = 2.January(2017).At(22, 14);
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(path)
+                .Build();
+
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
+
+            DateTime writeTimeUtc = 3.January(2017).At(23, 11);
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                clock.UtcNow = () => writeTimeUtc;
+
+                stream.WriteByte(0x20);
+
+                // Assert
+                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+                fileInfo.Length.Should().Be(0);
+            }
+
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(writeTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(writeTimeUtc);
+            fileInfo.Length.Should().Be(1);
+        }
+
+        [Fact]
+        private void When_reading_from_existing_file_it_must_update_properties_only_after_closing()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            DateTime createTimeUtc = 4.January(2017).At(22, 14);
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, "X")
+                .Build();
+
+            DateTime accessTimeUtc = 5.January(2017).At(23, 11);
+            clock.UtcNow = () => accessTimeUtc;
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                stream.ReadByte();
+
+                // Assert
+                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+            }
+
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
+        }
+
+        [Fact]
+        private void When_opening_existing_file_it_must_not_update_timings_after_closing()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            DateTime createTimeUtc = 4.January(2017).At(22, 14);
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, "X")
+                .Build();
+
+            DateTime accessTimeUtc = 5.January(2017).At(23, 11);
+            clock.UtcNow = () => accessTimeUtc;
+
+            // Act
+            using (fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+            }
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+        }
+
+        [Fact]
+        private void When_updating_existing_file_on_background_thread_its_property_changes_must_be_observable_from_main_thread()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            DateTime createTimeUtc = 31.January(2017).At(22, 14);
+            var clock = new SystemClock { UtcNow = () => createTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(path)
+                .Build();
+
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
+
+            DateTime accessTimeUtcBefore = fileSystem.File.GetLastAccessTimeUtc(path);
+            DateTime writeTimeUtcBefore = fileSystem.File.GetLastWriteTimeUtc(path);
+            long sizeBefore = fileInfo.Length;
+
+            // Act
+            Task.Factory.StartNew(() =>
+            {
+                clock.UtcNow = () => createTimeUtc.AddSeconds(1);
+                fileSystem.File.WriteAllText(path, "Y");
+            }).Wait();
+
+            clock.UtcNow = () => createTimeUtc.AddSeconds(2);
+
+            DateTime accessTimeUtcAfter = fileSystem.File.GetLastAccessTimeUtc(path);
+            DateTime writeTimeUtcAfter = fileSystem.File.GetLastWriteTimeUtc(path);
+            long sizeAfter = fileInfo.Length;
+
+            // Assert
+            accessTimeUtcAfter.Should().BeAfter(accessTimeUtcBefore);
+            writeTimeUtcAfter.Should().BeAfter(writeTimeUtcBefore);
+            sizeAfter.Should().BeGreaterThan(sizeBefore);
         }
     }
 }
