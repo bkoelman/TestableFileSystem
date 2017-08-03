@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
@@ -10,74 +9,10 @@ namespace TestableFileSystem.Fakes
     internal sealed class DirectoryContents
     {
         [NotNull]
-        private readonly DirectoryEntry owner;
-
-        [NotNull]
         private readonly IDictionary<string, BaseEntry> entries =
             new Dictionary<string, BaseEntry>(StringComparer.OrdinalIgnoreCase);
 
         public bool IsEmpty => !entries.Any();
-
-        public DirectoryContents([NotNull] DirectoryEntry owner)
-        {
-            Guard.NotNull(owner, nameof(owner));
-            this.owner = owner;
-        }
-
-        [NotNull]
-        public DirectoryEntry GetEntryAsDirectory([NotNull] string name)
-        {
-            DirectoryEntry directory = TryGetEntryAsDirectory(name);
-            if (directory == null)
-            {
-                throw ErrorFactory.Internal.UnknownError($"Directory '{name}' not found.");
-            }
-
-            return directory;
-        }
-
-        [CanBeNull]
-        private DirectoryEntry TryGetEntryAsDirectory([NotNull] string name, bool throwIfExistsAsFile = true)
-        {
-            Guard.NotNull(name, nameof(name));
-
-            if (entries.ContainsKey(name))
-            {
-                var directory = entries[name] as DirectoryEntry;
-                if (directory != null)
-                {
-                    return directory;
-                }
-
-                if (throwIfExistsAsFile)
-                {
-                    string pathUpToHere = Path.Combine(owner.GetAbsolutePath(), name);
-                    throw ErrorFactory.System.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere);
-                }
-            }
-
-            return null;
-        }
-
-        [NotNull]
-        [ItemNotNull]
-        public IEnumerable<DirectoryEntry> GetDirectoryEntries()
-        {
-            foreach (DirectoryEntry entry in entries.Values.OfType<DirectoryEntry>())
-            {
-                yield return entry;
-            }
-        }
-
-        [NotNull]
-        [ItemNotNull]
-        public IEnumerable<FileEntry> GetFileEntries()
-        {
-            foreach (FileEntry entry in entries.Values.OfType<FileEntry>())
-            {
-                yield return entry;
-            }
-        }
 
         [NotNull]
         [ItemNotNull]
@@ -96,22 +31,18 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public void Add([NotNull] BaseEntry entry)
+        [NotNull]
+        public T Add<T>([NotNull] T entry) where T : BaseEntry
         {
             Guard.NotNull(entry, nameof(entry));
+            AssertEntryDoesNotExist(entry.Name);
 
             entries[entry.Name] = entry;
-        }
-
-        public void Remove([NotNull] string name)
-        {
-            Guard.NotNull(name, nameof(name));
-
-            entries.Remove(name);
+            return entry;
         }
 
         [AssertionMethod]
-        public void AssertEntryDoesNotExist([NotNull] string name)
+        private void AssertEntryDoesNotExist([NotNull] string name)
         {
             Guard.NotNull(name, nameof(name));
 
@@ -120,6 +51,44 @@ namespace TestableFileSystem.Fakes
                 throw entries[name] is DirectoryEntry
                     ? ErrorFactory.Internal.UnknownError($"Expected not to find an existing directory named '{name}'.")
                     : ErrorFactory.Internal.UnknownError($"Expected not to find an existing file named '{name}'.");
+            }
+        }
+
+        public void RemoveDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNull(directoryName, nameof(directoryName));
+            AssertDirectoryExists(directoryName);
+
+            entries.Remove(directoryName);
+        }
+
+        [AssertionMethod]
+        private void AssertDirectoryExists([NotNull] string directoryName)
+        {
+            Guard.NotNull(directoryName, nameof(directoryName));
+
+            if (!entries.ContainsKey(directoryName))
+            {
+                throw ErrorFactory.Internal.UnknownError($"Expected to find an existing directory named '{directoryName}'.");
+            }
+        }
+
+        public void RemoveFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+            AssertFileExists(fileName);
+
+            entries.Remove(fileName);
+        }
+
+        [AssertionMethod]
+        private void AssertFileExists([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+
+            if (!entries.ContainsKey(fileName))
+            {
+                throw ErrorFactory.Internal.UnknownError($"Expected to find an existing file named '{fileName}'.");
             }
         }
 

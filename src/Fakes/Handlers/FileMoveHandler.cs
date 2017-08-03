@@ -86,9 +86,9 @@ namespace TestableFileSystem.Fakes.Handlers
         private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
             [NotNull] string newFileName)
         {
-            sourceFile.Parent.Detach(sourceFile);
+            sourceFile.Parent.DeleteFile(sourceFile.Name);
             sourceFile.MoveTo(newFileName, destinationDirectory);
-            destinationDirectory.Attach(sourceFile);
+            destinationDirectory.AttachFile(sourceFile);
         }
     }
 }

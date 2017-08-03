@@ -20,17 +20,17 @@ namespace TestableFileSystem.Fakes
         internal readonly SystemClock SystemClock;
 
         [NotNull]
-        private readonly DirectoryContents contents;
+        private readonly DirectoryContents contents = new DirectoryContents();
 
         // TODO: Refactor to prevent making copies.
         [NotNull]
-        public IReadOnlyDictionary<string, FileEntry> Files => contents.GetFileEntries()
+        public IReadOnlyDictionary<string, FileEntry> Files => contents.GetEntries(EnumerationFilter.Files).Cast<FileEntry>()
             .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
         // TODO: Refactor to prevent making copies.
         [NotNull]
-        public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.GetDirectoryEntries()
-            .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.GetEntries(EnumerationFilter.Directories)
+            .Cast<DirectoryEntry>().ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
         [CanBeNull]
         public DirectoryEntry Parent { get; }
@@ -78,73 +78,7 @@ namespace TestableFileSystem.Fakes
         {
             Parent = parent;
             Attributes = IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
-            contents = new DirectoryContents(this);
             SystemClock = systemClock;
-        }
-
-        [NotNull]
-        public static DirectoryEntry CreateRoot([NotNull] SystemClock systemClock)
-        {
-            Guard.NotNull(systemClock, nameof(systemClock));
-
-            return new DirectoryEntry("My Computer", null, systemClock);
-        }
-
-        [NotNull]
-        [ItemNotNull]
-        public IEnumerable<BaseEntry> GetEntries(EnumerationFilter filter) => contents.GetEntries(filter);
-
-        [NotNull]
-        [ItemNotNull]
-        public ICollection<DirectoryEntry> FilterDrives()
-        {
-            return contents.GetDirectoryEntries().Where(x => x.Name.IndexOf(Path.VolumeSeparatorChar) != -1).ToArray();
-        }
-
-        [NotNull]
-        public string GetAbsolutePath()
-        {
-            // TODO: Get rid of this method, as it is unable to account for extended paths or preserve original casing.
-
-            if (Parent == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            if (Parent.Parent == null)
-            {
-                return IsDriveLetter(Name) ? Name + Path.DirectorySeparatorChar : Name;
-            }
-
-            return Path.Combine(Parent.GetAbsolutePath(), Name);
-        }
-
-        [NotNull]
-        public FileEntry CreateFile([NotNull] string fileName)
-        {
-            Guard.NotNull(fileName, nameof(fileName));
-
-            contents.AssertEntryDoesNotExist(fileName);
-
-            var fileEntry = new FileEntry(fileName, this);
-            contents.Add(fileEntry);
-            return fileEntry;
-        }
-
-        internal void DeleteFile([NotNull] FileEntry fileEntry)
-        {
-            Guard.NotNull(fileEntry, nameof(fileEntry));
-
-            contents.Remove(fileEntry.Name);
-        }
-
-        [NotNull]
-        public DirectoryEntry CreateSingleDirectory([NotNull] string name)
-        {
-            Guard.NotNull(name, nameof(name));
-
-            contents.Add(new DirectoryEntry(name, this, SystemClock));
-            return contents.GetEntryAsDirectory(name);
         }
 
         private static bool IsDriveLetter([NotNull] string name)
@@ -161,25 +95,62 @@ namespace TestableFileSystem.Fakes
             return false;
         }
 
-        public void DeleteDirectory([NotNull] string directoryName)
+        [NotNull]
+        public static DirectoryEntry CreateRoot([NotNull] SystemClock systemClock)
         {
-            Guard.NotNull(directoryName, nameof(directoryName));
+            Guard.NotNull(systemClock, nameof(systemClock));
 
-            contents.Remove(directoryName);
+            return new DirectoryEntry("My Computer", null, systemClock);
         }
 
-        public void Attach([NotNull] FileEntry file)
+        [NotNull]
+        [ItemNotNull]
+        public IEnumerable<BaseEntry> EnumerateEntries(EnumerationFilter filter) => contents.GetEntries(filter);
+
+        [NotNull]
+        [ItemNotNull]
+        public ICollection<DirectoryEntry> FilterDrives()
+        {
+            return Directories.Where(x => x.Key.IndexOf(Path.VolumeSeparatorChar) != -1).Select(x => x.Value).ToArray();
+        }
+
+        public void AttachFile([NotNull] FileEntry file)
         {
             Guard.NotNull(file, nameof(file));
 
             contents.Add(file);
         }
 
-        public void Detach([NotNull] FileEntry file)
+        [NotNull]
+        public FileEntry CreateFile([NotNull] string fileName)
         {
-            Guard.NotNull(file, nameof(file));
+            Guard.NotNull(fileName, nameof(fileName));
 
-            contents.Remove(file.Name);
+            var fileEntry = new FileEntry(fileName, this);
+            return contents.Add(fileEntry);
+        }
+
+        public void DeleteFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+
+            contents.RemoveFile(fileName);
+        }
+
+        [NotNull]
+        public DirectoryEntry CreateSingleDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNull(directoryName, nameof(directoryName));
+
+            var directoryEntry = new DirectoryEntry(directoryName, this, SystemClock);
+            return contents.Add(directoryEntry);
+        }
+
+        public void DeleteDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNull(directoryName, nameof(directoryName));
+
+            contents.RemoveDirectory(directoryName);
         }
 
         public override string ToString()

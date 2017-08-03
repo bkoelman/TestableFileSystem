@@ -216,7 +216,7 @@ namespace TestableFileSystem.Fakes
 
                 if (deleteOnClose && !IsOpen())
                 {
-                    Parent.DeleteFile(this);
+                    Parent.DeleteFile(Name);
                 }
             }
         }

@@ -24,13 +24,19 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (existingFileOrNull != null)
             {
-                AssertIsNotReadOnly(existingFileOrNull, arguments.Path);
-                AssertHasExclusiveAccess(existingFileOrNull, arguments.Path);
-
-                containingDirectory.DeleteFile(existingFileOrNull);
+                DeleteFile(existingFileOrNull, containingDirectory, arguments);
             }
 
             return Missing.Value;
+        }
+
+        private void DeleteFile([NotNull] FileEntry existingFile, [NotNull] DirectoryEntry containingDirectory,
+            [NotNull] FileDeleteArguments arguments)
+        {
+            AssertIsNotReadOnly(existingFile, arguments.Path);
+            AssertHasExclusiveAccess(existingFile, arguments.Path);
+
+            containingDirectory.DeleteFile(existingFile.Name);
         }
 
         [AssertionMethod]
