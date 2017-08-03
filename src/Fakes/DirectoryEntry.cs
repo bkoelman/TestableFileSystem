@@ -22,15 +22,11 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly DirectoryContents contents = new DirectoryContents();
 
-        // TODO: Refactor to prevent making copies.
         [NotNull]
-        public IReadOnlyDictionary<string, FileEntry> Files => contents.GetEntries(EnumerationFilter.Files).Cast<FileEntry>()
-            .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        public IReadOnlyDictionary<string, FileEntry> Files => contents.Files;
 
-        // TODO: Refactor to prevent making copies.
         [NotNull]
-        public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.GetEntries(EnumerationFilter.Directories)
-            .Cast<DirectoryEntry>().ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.Directories;
 
         [CanBeNull]
         public DirectoryEntry Parent { get; }

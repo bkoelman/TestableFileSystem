@@ -14,6 +14,42 @@ namespace TestableFileSystem.Fakes
 
         public bool IsEmpty => !entries.Any();
 
+        [CanBeNull]
+        private IReadOnlyDictionary<string, FileEntry> fileMapCached;
+
+        [CanBeNull]
+        private IReadOnlyDictionary<string, DirectoryEntry> directoryMapCached;
+
+        [NotNull]
+        public IReadOnlyDictionary<string, FileEntry> Files
+        {
+            get
+            {
+                if (fileMapCached != null)
+                {
+                    return fileMapCached;
+                }
+
+                return fileMapCached = GetEntries(EnumerationFilter.Files).Cast<FileEntry>()
+                    .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+            }
+        }
+
+        [NotNull]
+        public IReadOnlyDictionary<string, DirectoryEntry> Directories
+        {
+            get
+            {
+                if (directoryMapCached != null)
+                {
+                    return directoryMapCached;
+                }
+
+                return directoryMapCached = GetEntries(EnumerationFilter.Directories).Cast<DirectoryEntry>()
+                    .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+            }
+        }
+
         [NotNull]
         [ItemNotNull]
         public IEnumerable<BaseEntry> GetEntries(EnumerationFilter filter)
@@ -32,12 +68,15 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public T Add<T>([NotNull] T entry) where T : BaseEntry
+        public T Add<T>([NotNull] T entry)
+            where T : BaseEntry
         {
             Guard.NotNull(entry, nameof(entry));
             AssertEntryDoesNotExist(entry.Name);
 
             entries[entry.Name] = entry;
+
+            InvalidateCache();
             return entry;
         }
 
@@ -60,6 +99,8 @@ namespace TestableFileSystem.Fakes
             AssertDirectoryExists(directoryName);
 
             entries.Remove(directoryName);
+
+            InvalidateCache();
         }
 
         [AssertionMethod]
@@ -79,6 +120,8 @@ namespace TestableFileSystem.Fakes
             AssertFileExists(fileName);
 
             entries.Remove(fileName);
+
+            InvalidateCache();
         }
 
         [AssertionMethod]
@@ -90,6 +133,12 @@ namespace TestableFileSystem.Fakes
             {
                 throw ErrorFactory.Internal.UnknownError($"Expected to find an existing file named '{fileName}'.");
             }
+        }
+
+        private void InvalidateCache()
+        {
+            fileMapCached = null;
+            directoryMapCached = null;
         }
 
         public override string ToString()
