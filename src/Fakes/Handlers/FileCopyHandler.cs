@@ -11,6 +11,8 @@ namespace TestableFileSystem.Fakes.Handlers
         : FakeOperationHandler<FileCopyArguments, (FileEntry sourceFile, Stream sourceStream, FileEntry destinationFile, Stream
             destinationStream)>
     {
+        private const FileAttributes HiddenReadOnlyMask = FileAttributes.Hidden | FileAttributes.ReadOnly;
+
         public FileCopyHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
@@ -74,7 +76,7 @@ namespace TestableFileSystem.Fakes.Handlers
             if (destinationFileOrNull != null)
             {
                 AssertCanOverwriteFile(overwrite, destinationPath);
-                AssertIsNotReadOnly(destinationFileOrNull, destinationPath);
+                AssertIsNotHiddenOrReadOnly(destinationFileOrNull, destinationPath);
 
                 destinationFile = destinationDirectory.Files[fileName];
             }
@@ -97,11 +99,6 @@ namespace TestableFileSystem.Fakes.Handlers
             return destinationFile;
         }
 
-        private void InitializeDestinationFile([NotNull] FileEntry destinationFile, [NotNull] AbsolutePath destinationPath,
-            DateTime sourceLastWriteTimeUtc, long sourceLength, FileAttributes sourceFileAttributes)
-        {
-        }
-
         private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
         {
             if (file.IsOpen())
@@ -120,11 +117,11 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private void AssertIsNotReadOnly([NotNull] FileEntry file, [NotNull] AbsolutePath path)
+        private void AssertIsNotHiddenOrReadOnly([CanBeNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
         {
-            if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
+            if (fileEntry != null && (fileEntry.Attributes & HiddenReadOnlyMask) != 0)
             {
-                throw ErrorFactory.System.UnauthorizedAccess(path.GetText());
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
         }
     }

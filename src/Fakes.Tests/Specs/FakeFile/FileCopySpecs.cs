@@ -301,6 +301,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_copying_file_to_overwrite_hidden_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"C:\some\copy.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .IncludingEmptyFile(destinationPath, FileAttributes.Hidden)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Copy(sourcePath, destinationPath, true);
+
+            // Assert
+            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\copy.txt' is denied.");
+        }
+
+        [Fact]
         private void When_copying_file_to_overwrite_readonly_file_it_must_fail()
         {
             // Arrange
