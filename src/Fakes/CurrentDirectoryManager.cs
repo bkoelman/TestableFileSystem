@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -9,26 +10,21 @@ namespace TestableFileSystem.Fakes
     internal sealed class CurrentDirectoryManager
     {
         [NotNull]
-        private DirectoryEntry directory;
+        private readonly DirectoryEntry root;
 
-        public CurrentDirectoryManager([NotNull] DirectoryEntry rootEntry)
+        [NotNull]
+        private AbsolutePath path;
+
+        public CurrentDirectoryManager([NotNull] DirectoryEntry root)
         {
-            Guard.NotNull(rootEntry, nameof(rootEntry));
-            AssertIsTopLevel(rootEntry);
+            Guard.NotNull(root, nameof(root));
+            this.root = root;
 
-            ICollection<DirectoryEntry> drives = rootEntry.FilterDrives();
+            ICollection<DirectoryEntry> drives = root.FilterDrives();
             AssertFileSystemContainsDrives(drives);
 
-            directory = drives.First();
-        }
-
-        [AssertionMethod]
-        private void AssertIsTopLevel([NotNull] DirectoryEntry rootEntry)
-        {
-            if (rootEntry.Parent != null)
-            {
-                throw new ArgumentException("Expected root of filesystem.", nameof(rootEntry));
-            }
+            DirectoryEntry drive = drives.First();
+            path = new AbsolutePath(drive.Name);
         }
 
         [AssertionMethod]
@@ -41,30 +37,33 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public DirectoryEntry GetValue()
+        public AbsolutePath GetValue()
         {
-            return directory;
+            return path;
         }
 
-        public void SetValue([NotNull] DirectoryEntry entry)
+        public void SetValue([NotNull] AbsolutePath directoryPath)
         {
-            Guard.NotNull(entry, nameof(entry));
+            Guard.NotNull(directoryPath, nameof(directoryPath));
 
-            directory = entry;
+            path = directoryPath;
         }
 
-        public bool IsAtOrAboveCurrentDirectory([NotNull] DirectoryEntry entry)
+        public bool IsAtOrAboveCurrentDirectory([NotNull] DirectoryEntry directory)
         {
-            DirectoryEntry current = directory;
-            while (current != null)
+            var resolver = new DirectoryResolver(root);
+            DirectoryEntry current = resolver.ResolveDirectory(path);
+
+            do
             {
-                if (current == entry)
+                if (directory == current)
                 {
                     return true;
                 }
 
                 current = current.Parent;
             }
+            while (current != null);
 
             return false;
         }

@@ -169,7 +169,7 @@ namespace TestableFileSystem.Fakes
 
         public string GetCurrentDirectory()
         {
-            return owner.CurrentDirectory.GetValue().GetAbsolutePath();
+            return owner.CurrentDirectory.GetValue().GetText();
         }
 
         public void SetCurrentDirectory(string path)
@@ -183,9 +183,9 @@ namespace TestableFileSystem.Fakes
             {
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNameIsInvalid()
             };
-            DirectoryEntry directory = resolver.ResolveDirectory(absolutePath);
+            resolver.ResolveDirectory(absolutePath);
 
-            owner.CurrentDirectory.SetValue(directory);
+            owner.CurrentDirectory.SetValue(absolutePath);
         }
 
         public DateTime GetCreationTime(string path)

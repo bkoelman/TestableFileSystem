@@ -104,10 +104,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+            fileSystem.Directory.SetCurrentDirectory(@"c:\some");
 
             // Assert
-            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\some");
+            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"c:\some");
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"C:\some")
+                .IncludingDirectory(@"c:\some")
                 .Build();
 
             // Act
@@ -163,13 +163,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingDirectory(@"C:\some\folder")
                 .Build();
 
-            fileSystem.Directory.SetCurrentDirectory(@"C:\some\");
+            fileSystem.Directory.SetCurrentDirectory(@"c:\some\");
 
             // Act
             fileSystem.Directory.SetCurrentDirectory(@".\folder");
 
             // Assert
-            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\some\folder");
+            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"c:\some\folder");
         }
 
         [Fact]
@@ -184,7 +184,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.SetCurrentDirectory(@"C:\some\FOLDER");
 
             // Assert
-            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\SOME\folder");
+            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\some\FOLDER");
         }
 
         [Fact]
@@ -277,7 +277,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.SetCurrentDirectory(@"\\?\C:\some\folder");
 
             // Assert
-            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\some\folder");
+            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"\\?\C:\some\folder");
         }
     }
 }

@@ -30,13 +30,13 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal WaitIndicator CopyWaitIndicator { get; }
 
-        internal FakeFileSystem([NotNull] DirectoryEntry rootEntry, [NotNull] WaitIndicator copyWaitIndicator)
+        internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] WaitIndicator copyWaitIndicator)
         {
-            Guard.NotNull(rootEntry, nameof(rootEntry));
+            Guard.NotNull(root, nameof(root));
 
-            CurrentDirectory = new CurrentDirectoryManager(rootEntry);
-            Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(rootEntry, this));
-            File = new FileOperationLocker<FakeFile>(this, new FakeFile(rootEntry, this));
+            CurrentDirectory = new CurrentDirectoryManager(root);
+            Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
+            File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
             CopyWaitIndicator = copyWaitIndicator;
         }
 
@@ -66,8 +66,7 @@ namespace TestableFileSystem.Fakes
                 throw ErrorFactory.System.PathIsNotLegal(nameof(path));
             }
 
-            DirectoryEntry baseDirectory = CurrentDirectory.GetValue();
-            string basePath = baseDirectory.GetAbsolutePath();
+            string basePath = CurrentDirectory.GetValue().GetText();
 
             path = CompensatePathForRelativeDriveReference(path, basePath);
 
