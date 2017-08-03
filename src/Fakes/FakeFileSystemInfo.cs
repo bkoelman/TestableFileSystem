@@ -78,5 +78,10 @@ namespace TestableFileSystem.Fakes
         {
             Owner.File.Delete(FullName);
         }
+
+        public override string ToString()
+        {
+            return FullName;
+        }
     }
 }

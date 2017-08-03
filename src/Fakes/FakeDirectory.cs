@@ -28,7 +28,21 @@ namespace TestableFileSystem.Fakes
 
         public IDirectoryInfo GetParent(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+            AssertPathIsNotWhiteSpace(path);
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            AbsolutePath parentPath = absolutePath.TryGetParentPath();
+            return parentPath == null ? null : owner.ConstructDirectoryInfo(parentPath.GetText());
+        }
+
+        private static void AssertPathIsNotWhiteSpace([NotNull] string path)
+        {
+            if (path.Length == 0)
+            {
+                throw ErrorFactory.System.PathCannotBeEmptyOrWhitespace(nameof(path));
+            }
         }
 
         public string GetDirectoryRoot(string path)
@@ -140,14 +154,6 @@ namespace TestableFileSystem.Fakes
 
             handler.Handle(arguments);
             return owner.ConstructDirectoryInfo(path);
-        }
-
-        private static void AssertPathIsNotWhiteSpace([NotNull] string path)
-        {
-            if (path.Length == 0)
-            {
-                throw ErrorFactory.System.PathCannotBeEmptyOrWhitespace(nameof(path));
-            }
         }
 
         public void Delete(string path, bool recursive = false)
