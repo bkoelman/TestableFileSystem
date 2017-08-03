@@ -793,29 +793,100 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             copyWaitIndicator.WaitForStart();
 
-            IFileInfo destinationInfo = fileSystem.ConstructFileInfo(destinationPath);
+            try
+            {
+                // Assert
+                IFileInfo destinationInfo = fileSystem.ConstructFileInfo(destinationPath);
+                destinationInfo.Exists.Should().BeTrue();
+                destinationInfo.Length.Should().Be(5);
+                destinationInfo.CreationTimeUtc.Should().Be(destinationCreationTimeUtc);
+                destinationInfo.LastAccessTimeUtc.Should().Be(destinationCreationTimeUtc);
+                destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
 
-            // Assert
-            destinationInfo.Exists.Should().BeTrue();
-            destinationInfo.Length.Should().Be(5);
-            destinationInfo.CreationTimeUtc.Should().Be(destinationCreationTimeUtc);
-            destinationInfo.LastAccessTimeUtc.Should().Be(destinationCreationTimeUtc);
-            destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+                DateTime destinationCompletedTimeUtc = 10.January(2017).At(11, 27, 36);
+                clock.UtcNow = () => destinationCompletedTimeUtc;
 
-            DateTime destinationCompletedTimeUtc = 10.January(2017).At(11, 27, 36);
-            clock.UtcNow = () => destinationCompletedTimeUtc;
+                copyWaitIndicator.SetCompleted();
+                copyThread.Join();
 
-            copyWaitIndicator.SetCompleted();
-            copyThread.Join();
+                destinationInfo.CreationTimeUtc.Should().Be(destinationCreationTimeUtc);
+                destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
+                destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
 
-            destinationInfo.CreationTimeUtc.Should().Be(destinationCreationTimeUtc);
-            destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
-            destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+                IFileInfo sourceInfo = fileSystem.ConstructFileInfo(sourcePath);
+                sourceInfo.CreationTimeUtc.Should().Be(sourceCreationTime);
+                sourceInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
+                sourceInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+            }
+            finally
+            {
+                copyWaitIndicator.SetCompleted();
+                copyThread.Join();
+            }
+        }
 
-            IFileInfo sourceInfo = fileSystem.ConstructFileInfo(sourcePath);
-            sourceInfo.CreationTimeUtc.Should().Be(sourceCreationTime);
-            sourceInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
-            sourceInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+        [Fact]
+        private void When_copying_file_to_overwrite_it_must_allocate_initial_size_and_update_timings()
+        {
+            // Arrange
+            const string sourcePath = @"c:\file.txt";
+            const string destinationPath = @"c:\copy.txt";
+
+            var copyWaitIndicator = new WaitIndicator();
+
+            DateTime creationTimeUtc = 4.January(2017).At(7, 52, 01);
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .WithCopyWaitIndicator(copyWaitIndicator)
+                .IncludingEmptyFile(sourcePath)
+                .IncludingEmptyFile(destinationPath)
+                .Build();
+
+            DateTime sourceLastWriteTimeUtc = 10.January(2017).At(3, 12, 34);
+            clock.UtcNow = () => sourceLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(sourcePath, "ABCDE");
+
+            DateTime destinationLastWriteTimeUtc = 12.January(2017).At(11, 23, 45);
+            clock.UtcNow = () => destinationLastWriteTimeUtc;
+
+            // Act
+            var copyThread = new Thread(() => { fileSystem.File.Copy(sourcePath, destinationPath, true); });
+            copyThread.Start();
+
+            copyWaitIndicator.WaitForStart();
+
+            try
+            {
+                // Assert
+                IFileInfo destinationInfo = fileSystem.ConstructFileInfo(destinationPath);
+                destinationInfo.Exists.Should().BeTrue();
+                destinationInfo.Length.Should().Be(5);
+                destinationInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+                destinationInfo.LastAccessTimeUtc.Should().Be(destinationLastWriteTimeUtc);
+                destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+
+                DateTime destinationCompletedTimeUtc = 10.January(2017).At(11, 27, 36);
+                clock.UtcNow = () => destinationCompletedTimeUtc;
+
+                copyWaitIndicator.SetCompleted();
+                copyThread.Join();
+
+                destinationInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+                destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
+                destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+
+                IFileInfo sourceInfo = fileSystem.ConstructFileInfo(sourcePath);
+                sourceInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+                sourceInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
+                sourceInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
+            }
+            finally
+            {
+                copyWaitIndicator.SetCompleted();
+                copyThread.Join();
+            }
         }
     }
 }

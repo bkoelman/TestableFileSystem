@@ -24,10 +24,7 @@ namespace TestableFileSystem.Fakes.Handlers
             FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath);
             AssertHasExclusiveAccess(sourceFile);
 
-            FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath, arguments.Overwrite);
-
-            InitializeDestinationFile(destinationFile, arguments.DestinationPath, sourceFile.LastWriteTimeUtc, sourceFile.Size,
-                sourceFile.Attributes);
+            FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath, arguments.Overwrite, sourceFile);
 
             IFileStream sourceStream = null;
             IFileStream destinationStream = null;
@@ -60,7 +57,8 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [NotNull]
-        private FileEntry ResolveDestinationFile([NotNull] AbsolutePath destinationPath, bool overwrite)
+        private FileEntry ResolveDestinationFile([NotNull] AbsolutePath destinationPath, bool overwrite,
+            [NotNull] FileEntry sourceFile)
         {
             var destinationResolver = new FileResolver(Root)
             {
@@ -70,31 +68,38 @@ namespace TestableFileSystem.Fakes.Handlers
             (DirectoryEntry destinationDirectory, FileEntry destinationFileOrNull, string fileName) =
                 destinationResolver.TryResolveFile(destinationPath);
 
+            DateTime now = Root.SystemClock.UtcNow();
+
+            FileEntry destinationFile;
             if (destinationFileOrNull != null)
             {
                 AssertCanOverwriteFile(overwrite, destinationPath);
                 AssertIsNotReadOnly(destinationFileOrNull, destinationPath);
 
-                return destinationDirectory.Files[fileName];
+                destinationFile = destinationDirectory.Files[fileName];
+            }
+            else
+            {
+                destinationFile = destinationDirectory.CreateFile(fileName);
+                destinationFile.CreationTimeUtc = now;
             }
 
-            return destinationDirectory.CreateFile(fileName);
+            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath))
+            {
+                createStream.SetLength(sourceFile.Size);
+            }
+
+            destinationFile.Attributes = sourceFile.Attributes;
+
+            destinationFile.LastAccessTimeUtc = now;
+            destinationFile.LastWriteTimeUtc = sourceFile.LastWriteTimeUtc;
+
+            return destinationFile;
         }
 
         private void InitializeDestinationFile([NotNull] FileEntry destinationFile, [NotNull] AbsolutePath destinationPath,
             DateTime sourceLastWriteTimeUtc, long sourceLength, FileAttributes sourceFileAttributes)
         {
-            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath))
-            {
-                createStream.SetLength(sourceLength);
-            }
-
-            destinationFile.Attributes = sourceFileAttributes;
-
-            DateTime now = Root.SystemClock.UtcNow();
-            destinationFile.CreationTimeUtc = now;
-            destinationFile.LastAccessTimeUtc = now;
-            destinationFile.LastWriteTimeUtc = sourceLastWriteTimeUtc;
         }
 
         private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
