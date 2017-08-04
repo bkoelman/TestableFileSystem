@@ -151,10 +151,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        // TODO: Add additional specs.
-
         [Fact]
         private void When_moving_directory_to_same_location_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"c:\existing-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Source and destination path must be different.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_same_location_with_different_casing_it_must_fail()
         {
             // Arrange
             const string sourcePath = @"c:\existing-folder";
@@ -172,18 +188,242 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_moving_directory_from_missing_directory_it_must_fail()
+        private void When_moving_directory_to_different_name_in_same_directory_it_must_rename()
         {
             // Arrange
+            const string sourcePath = @"c:\some\existing-folder";
+            const string destinationPath = @"c:\some\new-folder";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.Move(@"c:\missing-folder", @"c:\new-folder");
+            fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\missing-folder'.");
+            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_that_contains_subtree_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\sourceFolder";
+            const string destinationPath = @"c:\destinationFolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath + @"\file.txt")
+                .IncludingEmptyFile(sourcePath + @"\nested\other.txt")
+                .IncludingDirectory(sourcePath + @"\more\deeper")
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+            fileSystem.File.Exists(destinationPath + @"\file.txt").Should().BeTrue();
+            fileSystem.File.Exists(destinationPath + @"\nested\other.txt").Should().BeTrue();
+            fileSystem.Directory.Exists(destinationPath + @"\more\deeper").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_with_trailing_whitespace_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"c:\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(sourcePath + "  ", destinationPath + "  ");
+
+            // Assert
+            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_from_relative_path_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\some\folder";
+            const string destinationPath = @"c:\other\folder\newname";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .IncludingDirectory(@"c:\other\folder")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"c:\");
+
+            // Act
+            fileSystem.Directory.Move(@"some\folder", destinationPath);
+
+            // Assert
+            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_to_relative_path_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"d:\some\folder";
+            const string destinationPath = @"D:\other\node\newname";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .IncludingDirectory(@"D:\other\node")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+
+            // Act
+            fileSystem.Directory.Move(sourcePath, @"node\newname");
+
+            // Assert
+            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_relative_directory_on_different_drive_in_root_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\")
+                .IncludingDirectory(@"D:\source")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\");
+
+            // Act
+            fileSystem.Directory.Move("D:source", "D:destination");
+
+            // Assert
+            fileSystem.Directory.Exists(@"D:\destination").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_relative_directory_on_same_drive_in_subdirectory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"D:\other\source")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"D:\other");
+
+            // Act
+            fileSystem.Directory.Move("D:source", "D:destination");
+
+            // Assert
+            fileSystem.Directory.Exists(@"d:\other\destination").Should().BeTrue();
+        }
+
+        [Fact(Skip = "TODO: Allow moving files.")]
+        private void When_moving_directory_from_directory_that_exists_as_file_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(sourcePath, @"c:\newname");
+
+            // Assert
+            fileSystem.File.Exists(@"c:\newname").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_to_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string sourceDirectory = @"C:\some\folder";
+            const string destinationFile = @"C:\other\file";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourceDirectory)
+                .IncludingEmptyFile(destinationFile)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourceDirectory, destinationFile);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"C:\some\file.txt\other", "newname.doc");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some\folder")
+                .IncludingEmptyFile(@"C:\some\newname.doc")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"C:\some\folder", @"C:\some\newname.doc\other");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("The parameter is incorrect");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\some\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"C:\some\file.txt\other.txt\missing", @"c:\newname");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some\folder")
+                .IncludingEmptyFile(@"C:\some\newname.doc")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"C:\some\folder", @"C:\some\newname.doc\other.doc\more");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
         [Fact]
@@ -206,15 +446,62 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_moving_directory_to_existing_file_it_must_fail()
+        private void When_moving_directory_from_missing_parent_directory_it_must_fail()
         {
             // Arrange
-            const string sourcePath = @"c:\existing-folder";
-            const string destinationPath = @"c:\new-name";
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"c:\source\missing-folder", @"c:\new-folder");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\source\missing-folder'.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_missing_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\folder";
+            const string destinationPath = @"C:\missing\newname";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(sourcePath)
-                .IncludingEmptyFile(destinationPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_moving_missing_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"C:\some")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"C:\some\folder", @"c:\newname");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_parent_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\level\folder";
+            const string destinationPath = @"C:\some\level";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
                 .Build();
 
             // Act
@@ -225,7 +512,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_moving_directory_accross_volumes_it_must_fail()
+        private void When_moving_directory_to_subdirectory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\folder";
+            const string destinationPath = @"C:\some\folder\nested";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+            action.ShouldThrow<IOException>()
+                .WithMessage("The process cannot access the file because it is being used by another process.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_different_drive_it_must_fail()
         {
             // Arrange
             const string sourcePath = @"c:\existing-folder";
@@ -244,27 +548,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_moving_directory_that_contains_single_readonly_file_it_must_succeed()
-        {
-            // Arrange
-            const string sourcePath = @"c:\existing-folder";
-            const string destinationPath = @"c:\new-folder";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(sourcePath + @"\file.txt", FileAttributes.ReadOnly)
-                .Build();
-
-            // Act
-            fileSystem.Directory.Move(sourcePath, destinationPath);
-
-            // Assert
-            fileSystem.Directory.Exists(sourcePath).Should().Be(false);
-            fileSystem.Directory.Exists(destinationPath).Should().Be(true);
-            fileSystem.File.Exists(destinationPath + @"\file.txt").Should().BeTrue();
-        }
-
-        [Fact]
-        private void When_moving_directory_from_drive_it_must_fail()
+        private void When_moving_directory_that_is_root_of_drive_it_must_fail()
         {
             // Arrange
             const string sourcePath = @"e:\";
@@ -281,7 +565,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_moving_directory_to_drive_it_must_fail()
+        private void When_moving_directory_to_root_of_drive_it_must_fail()
         {
             // Arrange
             const string sourcePath = @"c:\existing-folder";
@@ -295,27 +579,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.ShouldThrow<IOException>().WithMessage(@"The filename, directory name, or volume label syntax is incorrect");
-        }
-
-        [Fact]
-        private void When_moving_directory_from_existing_directory_that_contains_open_file_it_must_fail()
-        {
-            // Arrange
-            const string sourceDirectory = @"c:\existing-folder";
-            const string sourceFile = @"c:\existing-folder\sub\file.txt";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(sourceFile)
-                .Build();
-
-            using (fileSystem.File.OpenRead(sourceFile))
-            {
-                // Act
-                Action action = () => fileSystem.Directory.Move(sourceDirectory, @"c:\new-folder");
-
-                // Assert
-                action.ShouldThrow<IOException>().WithMessage(@"Access to the path 'c:\existing-folder' is denied.");
-            }
         }
 
         [Fact]
@@ -421,6 +684,129 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             action.ShouldThrow<IOException>()
                 .WithMessage(@"The process cannot access the file because it is being used by another process.");
+        }
+
+        [Fact]
+        private void When_moving_directory_with_readonly_file_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"c:\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath + @"\file.txt", FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(sourcePath.ToUpperInvariant(), destinationPath);
+
+            // Assert
+            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+            fileSystem.File.Exists(destinationPath + @"\file.txt").Should().BeTrue();
+            fileSystem.File.GetAttributes(destinationPath + @"\file.txt").Should().Be(FileAttributes.ReadOnly);
+        }
+
+        [Fact]
+        private void When_moving_directory_that_contains_open_file_it_must_fail()
+        {
+            // Arrange
+            const string sourceDirectory = @"c:\existing-folder";
+            const string sourceFile = @"c:\existing-folder\sub\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourceFile)
+                .Build();
+
+            using (fileSystem.File.OpenRead(sourceFile))
+            {
+                // Act
+                Action action = () => fileSystem.Directory.Move(sourceDirectory, @"c:\new-folder");
+
+                // Assert
+                action.ShouldThrow<IOException>().WithMessage(@"Access to the path 'c:\existing-folder' is denied.");
+            }
+        }
+
+        [Fact]
+        private void When_moving_directory_on_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"\\teamserver\documents\folder";
+            const string destinationPath = @"\\teamserver\documents\moved";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+        }
+
+        [Fact]
+        private void When_moving_directory_on_existing_network_share_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"\\teamserver\documents\folder";
+            const string destinationPath = @"\\teamserver\documents\moved";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .IncludingDirectory(@"\\teamserver\documents")
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_from_reserved_name_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move("com1", @"c:\moved");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_reserved_name_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"c:\src", "com1");
+
+            // Assert
+            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_extended_path_to_extended_path_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\source")
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(@"\\?\c:\source", @"\\?\c:\destination");
+
+            // Assert
+            fileSystem.Directory.Exists(@"c:\source").Should().BeFalse();
+            fileSystem.Directory.Exists(@"c:\destination").Should().BeTrue();
         }
     }
 }

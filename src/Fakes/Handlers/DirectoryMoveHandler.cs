@@ -32,6 +32,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertDirectoryContainsNoOpenFiles(sourceDirectory, arguments.SourcePath);
 
             DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
+            AssertDestinationIsNotDescendantOfSource(destinationDirectory, sourceDirectory);
 
             string newDirectoryName = arguments.DestinationPath.Components.Last();
             MoveDirectory(sourceDirectory, destinationDirectory, newDirectoryName);
@@ -65,7 +66,8 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private DirectoryEntry ResolveSourceDirectory([NotNull] AbsolutePath path)
         {
-            var resolver = new DirectoryResolver(Root);
+            var resolver =
+                new DirectoryResolver(Root) { ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound() };
             return resolver.ResolveDirectory(path);
         }
 
@@ -93,7 +95,12 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             AbsolutePath parentPath = AssertDestinationIsNotVolumeRoot(path);
 
-            var resolver = new DirectoryResolver(Root);
+            var resolver = new DirectoryResolver(Root)
+            {
+                ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
+                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.ParameterIsIncorrect(),
+                ErrorDirectoryNotFound = _ => ErrorFactory.System.DirectoryNotFound()
+            };
             DirectoryEntry parentDirectory = resolver.ResolveDirectory(parentPath);
 
             string directoryName = path.Components.Last();
@@ -121,6 +128,23 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 throw ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists();
             }
+        }
+
+        private void AssertDestinationIsNotDescendantOfSource([NotNull] DirectoryEntry destinationDirectory,
+            [NotNull] DirectoryEntry sourceDirectory)
+        {
+            DirectoryEntry current = destinationDirectory;
+
+            do
+            {
+                if (current == sourceDirectory)
+                {
+                    throw ErrorFactory.System.FileIsInUse();
+                }
+
+                current = current.Parent;
+            }
+            while (current != null);
         }
 
         private static void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
