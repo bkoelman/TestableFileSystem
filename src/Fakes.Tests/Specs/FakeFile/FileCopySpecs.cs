@@ -419,7 +419,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_copying_relative_file_on_same_drive_in_subfolder_it_must_succeed()
+        private void When_copying_relative_file_on_same_drive_in_subdirectory_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

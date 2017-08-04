@@ -286,7 +286,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_moving_relative_file_on_same_drive_in_subfolder_it_must_succeed()
+        private void When_moving_relative_file_on_same_drive_in_subdirectory_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -306,12 +306,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_moving_file_from_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
+            const string sourcePath = @"C:\some\subfolder";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"C:\some\subfolder")
+                .IncludingDirectory(sourcePath)
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Move(@"C:\some\subfolder", "newname.doc");
+            Action action = () => fileSystem.File.Move(sourcePath, "newname.doc");
 
             // Assert
             action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\subfolder'.");

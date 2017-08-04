@@ -158,7 +158,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
         [Fact]
         private void
-            When_getting_file_existence_for_existing_relative_local_file_on_different_drive_in_subfolder_it_must_succeed()
+            When_getting_file_existence_for_existing_relative_local_file_on_different_drive_in_subdirectory_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -197,7 +197,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_existence_for_existing_relative_local_file_on_same_drive_in_subfolder_it_must_succeed()
+        private void When_getting_file_existence_for_existing_relative_local_file_on_same_drive_in_subdirectory_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
