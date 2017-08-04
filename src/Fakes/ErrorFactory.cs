@@ -186,6 +186,13 @@ namespace TestableFileSystem.Fakes
             {
                 return new ArgumentException("Path must not be a drive.", paramName);
             }
+
+            [NotNull]
+            public static Exception RootsMustBeIdentical()
+            {
+                return new IOException(
+                    "Source and destination path must have identical roots. Move will not work across volumes.");
+            }
         }
 
         public static class Internal

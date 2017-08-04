@@ -18,6 +18,7 @@ namespace TestableFileSystem.Fakes.Handlers
         public override object Handle(DirectoryOrFileMoveArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
+            AssertMovingOnSameVolume(arguments);
 
             DirectoryEntry sourceDirectory = ResolveSourceDirectory(arguments.SourcePath);
 
@@ -29,47 +30,71 @@ namespace TestableFileSystem.Fakes.Handlers
             return Missing.Value;
         }
 
+        private void AssertMovingOnSameVolume([NotNull] DirectoryOrFileMoveArguments arguments)
+        {
+            if (!string.Equals(arguments.SourcePath.GetRootName(), arguments.DestinationPath.GetRootName(),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                throw ErrorFactory.System.RootsMustBeIdentical();
+            }
+        }
+
         [NotNull]
         private DirectoryEntry ResolveSourceDirectory([NotNull] AbsolutePath path)
         {
+            AssertSourceIsNotVolumeRoot(path);
+
             var resolver = new DirectoryResolver(Root);
             return resolver.ResolveDirectory(path);
+        }
+
+        private static void AssertSourceIsNotVolumeRoot([NotNull] AbsolutePath path)
+        {
+            if (path.IsVolumeRoot)
+            {
+                throw ErrorFactory.System.AccessDenied(path.GetText());
+            }
         }
 
         [NotNull]
         private DirectoryEntry ResolveDestinationDirectory([NotNull] AbsolutePath path)
         {
-            AbsolutePath parentPath = path.TryGetParentPath();
-            if (parentPath == null)
-            {
-                throw new Exception("TODO: Parent of destination not found. Trying to move to volume root?");
-            }
+            AbsolutePath parentPath = AssertDestinationIsNotVolumeRoot(path);
 
             var resolver = new DirectoryResolver(Root);
             DirectoryEntry parentDirectory = resolver.ResolveDirectory(parentPath);
 
-            if (parentDirectory.Directories.ContainsKey(path.Components.Last()))
+            string directoryName = path.Components.Last();
+            AssertDestinationDoesNotExist(directoryName, parentDirectory);
+
+            return parentDirectory;
+        }
+
+        [NotNull]
+        private static AbsolutePath AssertDestinationIsNotVolumeRoot([NotNull] AbsolutePath path)
+        {
+            AbsolutePath parentPath = path.TryGetParentPath();
+            if (parentPath == null)
+            {
+                throw ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect();
+            }
+
+            return parentPath;
+        }
+
+        private static void AssertDestinationDoesNotExist([NotNull] string directoryName,
+            [NotNull] DirectoryEntry parentDirectory)
+        {
+            if (parentDirectory.Directories.ContainsKey(directoryName) || parentDirectory.Files.ContainsKey(directoryName))
             {
                 throw ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists();
             }
-
-            if (parentDirectory.Files.ContainsKey(path.Components.Last()))
-            {
-                throw new Exception("TODO: Directory already exists as file.");
-            }
-
-            return parentDirectory;
         }
 
         private static void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
             [NotNull] string newDirectoryName)
         {
-            if (sourceDirectory.Parent == null)
-            {
-                throw new Exception("TODO: Parent of source not found. Trying to move from volume root?");
-            }
-
-            sourceDirectory.Parent.DeleteDirectory(sourceDirectory.Name);
+            sourceDirectory.Parent?.DeleteDirectory(sourceDirectory.Name);
             destinationDirectory.MoveDirectoryToHere(sourceDirectory, newDirectoryName);
         }
     }

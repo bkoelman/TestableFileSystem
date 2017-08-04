@@ -188,6 +188,43 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_moving_directory_to_existing_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"c:\new-name";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .IncludingEmptyFile(destinationPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Cannot create a file when that file already exists");
+        }
+
+        [Fact]
+        private void When_moving_directory_accross_volumes_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"e:\new-name";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Source and destination path must have identical roots. Move will not work across volumes.");
+        }
+
+        [Fact]
         private void When_moving_directory_that_contains_single_file_it_must_succeed()
         {
             // Arrange
@@ -205,6 +242,40 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(sourcePath).Should().Be(false);
             fileSystem.Directory.Exists(destinationPath).Should().Be(true);
             fileSystem.File.Exists(destinationPath + @"\file.txt").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_from_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"e:\";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, @"e:\new-folder");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Access to the path 'e:\' is denied.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, @"c:\");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"The filename, directory name, or volume label syntax is incorrect");
         }
     }
 }
