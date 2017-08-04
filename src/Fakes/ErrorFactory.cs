@@ -193,6 +193,12 @@ namespace TestableFileSystem.Fakes
                 return new IOException(
                     "Source and destination path must have identical roots. Move will not work across volumes.");
             }
+
+            [NotNull]
+            public static Exception DestinationMustBeDifferentFromSource()
+            {
+                return new IOException("Source and destination path must be different.");
+            }
         }
 
         public static class Internal

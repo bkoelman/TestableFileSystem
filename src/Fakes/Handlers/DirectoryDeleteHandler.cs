@@ -1,5 +1,4 @@
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
@@ -119,35 +118,11 @@ namespace TestableFileSystem.Fakes.Handlers
         [AssertionMethod]
         private static void AssertDirectoryContainsNoOpenFiles([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
         {
-            AbsolutePath openFilePath = TryGetFirstOpenFilePath(directory, path);
+            AbsolutePath openFilePath = directory.TryGetPathOfFirstOpenFile(path);
             if (openFilePath != null)
             {
                 throw ErrorFactory.System.FileIsInUse(openFilePath.GetText());
             }
-        }
-
-        [CanBeNull]
-        private static AbsolutePath TryGetFirstOpenFilePath([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
-        {
-            FileEntry file = directory.Files.Values.FirstOrDefault(x => x.IsOpen());
-
-            if (file != null)
-            {
-                return path.Append(file.Name);
-            }
-
-            foreach (DirectoryEntry subdirectory in directory.Directories.Values)
-            {
-                AbsolutePath subdirectoryPath = path.Append(subdirectory.Name);
-
-                AbsolutePath openFilePath = TryGetFirstOpenFilePath(subdirectory, subdirectoryPath);
-                if (openFilePath != null)
-                {
-                    return openFilePath;
-                }
-            }
-
-            return null;
         }
     }
 }

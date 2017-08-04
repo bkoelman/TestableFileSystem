@@ -154,6 +154,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         // TODO: Add additional specs.
 
         [Fact]
+        private void When_moving_directory_to_same_location_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"c:\existing-FOLDER";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Source and destination path must be different.");
+        }
+
+        [Fact]
         private void When_moving_directory_from_missing_directory_it_must_fail()
         {
             // Arrange
@@ -221,18 +239,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"Source and destination path must have identical roots. Move will not work across volumes.");
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"Source and destination path must have identical roots. Move will not work across volumes.");
         }
 
         [Fact]
-        private void When_moving_directory_that_contains_single_file_it_must_succeed()
+        private void When_moving_directory_that_contains_single_readonly_file_it_must_succeed()
         {
             // Arrange
             const string sourcePath = @"c:\existing-folder";
             const string destinationPath = @"c:\new-folder";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(sourcePath + @"\file.txt")
+                .IncludingEmptyFile(sourcePath + @"\file.txt", FileAttributes.ReadOnly)
                 .Build();
 
             // Act
@@ -276,6 +295,132 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.ShouldThrow<IOException>().WithMessage(@"The filename, directory name, or volume label syntax is incorrect");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_existing_directory_that_contains_open_file_it_must_fail()
+        {
+            // Arrange
+            const string sourceDirectory = @"c:\existing-folder";
+            const string sourceFile = @"c:\existing-folder\sub\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourceFile)
+                .Build();
+
+            using (fileSystem.File.OpenRead(sourceFile))
+            {
+                // Act
+                Action action = () => fileSystem.Directory.Move(sourceDirectory, @"c:\new-folder");
+
+                // Assert
+                action.ShouldThrow<IOException>().WithMessage(@"Access to the path 'c:\existing-folder' is denied.");
+            }
+        }
+
+        [Fact]
+        private void When_moving_directory_from_below_current_directory_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\store\current\folder";
+            const string destinationPath = @"c:\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\store\current");
+
+            // Act
+            fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_from_current_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\store\current\folder";
+            const string destinationPath = @"c:\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(sourcePath);
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"The process cannot access the file because it is being used by another process.");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_remote_current_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"\\server\share\documents\teamA";
+            const string destinationPath = @"\\server\share\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(sourcePath);
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"The process cannot access the file because it is being used by another process.");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_above_current_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\store\current\folder";
+            const string destinationPath = @"c:\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(sourcePath);
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"c:\store\current", destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"The process cannot access the file because it is being used by another process.");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_above_remote_current_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"\\server\share\documents\teamA";
+            const string destinationPath = @"\\server\share\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(sourcePath);
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"\\server\share\documents", destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>()
+                .WithMessage(@"The process cannot access the file because it is being used by another process.");
         }
     }
 }

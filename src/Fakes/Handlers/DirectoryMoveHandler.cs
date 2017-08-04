@@ -10,17 +10,26 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class DirectoryMoveHandler : FakeOperationHandler<DirectoryOrFileMoveArguments, object>
     {
-        public DirectoryMoveHandler([NotNull] DirectoryEntry root)
+        [NotNull]
+        private readonly CurrentDirectoryManager currentDirectoryManager;
+
+        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager)
             : base(root)
         {
+            Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
+
+            this.currentDirectoryManager = currentDirectoryManager;
         }
 
         public override object Handle(DirectoryOrFileMoveArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
-            AssertMovingOnSameVolume(arguments);
+            AssertMovingToDifferentDirectoryOnSameVolume(arguments);
+            AssertSourceIsNotVolumeRoot(arguments.SourcePath);
 
             DirectoryEntry sourceDirectory = ResolveSourceDirectory(arguments.SourcePath);
+            AssertNoConflictWithCurrentDirectory(sourceDirectory);
+            AssertDirectoryContainsNoOpenFiles(sourceDirectory, arguments.SourcePath);
 
             DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
 
@@ -30,8 +39,14 @@ namespace TestableFileSystem.Fakes.Handlers
             return Missing.Value;
         }
 
-        private void AssertMovingOnSameVolume([NotNull] DirectoryOrFileMoveArguments arguments)
+        private void AssertMovingToDifferentDirectoryOnSameVolume([NotNull] DirectoryOrFileMoveArguments arguments)
         {
+            if (string.Equals(arguments.SourcePath.GetText(), arguments.DestinationPath.GetText(),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                throw ErrorFactory.System.DestinationMustBeDifferentFromSource();
+            }
+
             if (!string.Equals(arguments.SourcePath.GetRootName(), arguments.DestinationPath.GetRootName(),
                 StringComparison.OrdinalIgnoreCase))
             {
@@ -39,18 +54,35 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
+        private static void AssertSourceIsNotVolumeRoot([NotNull] AbsolutePath path)
+        {
+            if (path.IsVolumeRoot)
+            {
+                throw ErrorFactory.System.AccessDenied(path.GetText());
+            }
+        }
+
         [NotNull]
         private DirectoryEntry ResolveSourceDirectory([NotNull] AbsolutePath path)
         {
-            AssertSourceIsNotVolumeRoot(path);
-
             var resolver = new DirectoryResolver(Root);
             return resolver.ResolveDirectory(path);
         }
 
-        private static void AssertSourceIsNotVolumeRoot([NotNull] AbsolutePath path)
+        [AssertionMethod]
+        private void AssertNoConflictWithCurrentDirectory([NotNull] DirectoryEntry directory)
         {
-            if (path.IsVolumeRoot)
+            if (currentDirectoryManager.IsAtOrAboveCurrentDirectory(directory))
+            {
+                throw ErrorFactory.System.FileIsInUse();
+            }
+        }
+
+        [AssertionMethod]
+        private static void AssertDirectoryContainsNoOpenFiles([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
+        {
+            AbsolutePath openFilePath = directory.TryGetPathOfFirstOpenFile(path);
+            if (openFilePath != null)
             {
                 throw ErrorFactory.System.AccessDenied(path.GetText());
             }
