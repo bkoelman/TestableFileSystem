@@ -11,6 +11,9 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileSystem : IFileSystem
     {
+        // TODO: Add specs for paths like "\folder\file.txt" (current drive)
+        // https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+
         [NotNull]
         public FileOperationLocker<FakeFile> File { get; }
 

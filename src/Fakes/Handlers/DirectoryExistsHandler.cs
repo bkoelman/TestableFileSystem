@@ -5,14 +5,14 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class DirectoryExistsHandler : FakeOperationHandler<DirectoryExistsArguments, bool>
+    internal sealed class DirectoryExistsHandler : FakeOperationHandler<DirectoryOrFileExistsArguments, bool>
     {
         public DirectoryExistsHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
         }
 
-        public override bool Handle(DirectoryExistsArguments arguments)
+        public override bool Handle(DirectoryOrFileExistsArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 

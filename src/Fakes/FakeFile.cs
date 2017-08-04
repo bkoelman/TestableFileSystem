@@ -32,7 +32,7 @@ namespace TestableFileSystem.Fakes
                 AbsolutePath absolutePath = string.IsNullOrWhiteSpace(path) ? null : owner.ToAbsolutePath(path);
 
                 var handler = new FileExistsHandler(root);
-                var arguments = new FileExistsArguments(absolutePath);
+                var arguments = new DirectoryOrFileExistsArguments(absolutePath);
 
                 return handler.Handle(arguments);
             }
@@ -135,7 +135,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
 
             var handler = new FileMoveHandler(root);
-            var arguments = new FileMoveArguments(sourcePath, destinationPath);
+            var arguments = new DirectoryOrFileMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);
         }
