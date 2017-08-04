@@ -152,5 +152,59 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         // TODO: Add additional specs.
+
+        [Fact]
+        private void When_moving_directory_from_missing_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(@"c:\missing-folder", @"c:\new-folder");
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\missing-folder'.");
+        }
+
+        [Fact]
+        private void When_moving_directory_to_existing_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"c:\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .IncludingDirectory(destinationPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage(@"Cannot create a file when that file already exists");
+        }
+
+        [Fact]
+        private void When_moving_directory_that_contains_single_file_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"c:\new-folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath + @"\file.txt")
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            fileSystem.Directory.Exists(sourcePath).Should().Be(false);
+            fileSystem.Directory.Exists(destinationPath).Should().Be(true);
+            fileSystem.File.Exists(destinationPath + @"\file.txt").Should().BeTrue();
+        }
     }
 }

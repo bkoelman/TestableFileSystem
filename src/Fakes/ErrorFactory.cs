@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception CannotCreateFileBecauseFileAlreadyExists()
             {
-                return new IOException("Cannot create a file when that file already exists.");
+                return new IOException("Cannot create a file when that file already exists");
             }
 
             [NotNull]

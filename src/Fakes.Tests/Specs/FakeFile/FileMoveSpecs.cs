@@ -333,7 +333,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(sourcePath, destinationDirectory);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists.");
+            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists");
         }
 
         [Fact]
@@ -415,7 +415,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists.");
+            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists");
         }
 
         [Fact]

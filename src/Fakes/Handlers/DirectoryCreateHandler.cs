@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 if (!directory.Directories.ContainsKey(component.Name))
                 {
                     string name = GetDirectoryName(component);
-                    directory = directory.CreateSingleDirectory(name);
+                    directory = directory.CreateDirectory(name);
                 }
                 else
                 {

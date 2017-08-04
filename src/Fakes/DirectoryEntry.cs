@@ -29,7 +29,7 @@ namespace TestableFileSystem.Fakes
         public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.Directories;
 
         [CanBeNull]
-        public DirectoryEntry Parent { get; }
+        public DirectoryEntry Parent { get; private set; }
 
         public bool IsEmpty => contents.IsEmpty;
 
@@ -116,13 +116,6 @@ namespace TestableFileSystem.Fakes
             return Directories.Where(x => x.Key.IndexOf(Path.VolumeSeparatorChar) != -1).Select(x => x.Value).ToArray();
         }
 
-        public void AttachFile([NotNull] FileEntry file)
-        {
-            Guard.NotNull(file, nameof(file));
-
-            contents.Add(file);
-        }
-
         [NotNull]
         public FileEntry CreateFile([NotNull] string fileName)
         {
@@ -139,8 +132,17 @@ namespace TestableFileSystem.Fakes
             contents.RemoveFile(fileName);
         }
 
+        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName)
+        {
+            Guard.NotNull(file, nameof(file));
+            Guard.NotNullNorWhiteSpace(newFileName, nameof(newFileName));
+
+            file.MoveTo(newFileName, this);
+            contents.Add(file);
+        }
+
         [NotNull]
-        public DirectoryEntry CreateSingleDirectory([NotNull] string directoryName)
+        public DirectoryEntry CreateDirectory([NotNull] string directoryName)
         {
             Guard.NotNull(directoryName, nameof(directoryName));
 
@@ -153,6 +155,17 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(directoryName, nameof(directoryName));
 
             contents.RemoveDirectory(directoryName);
+        }
+
+        public void MoveDirectoryToHere([NotNull] DirectoryEntry directory, [NotNull] string newDirectoryName)
+        {
+            Guard.NotNull(directory, nameof(directory));
+            Guard.NotNullNorWhiteSpace(newDirectoryName, nameof(newDirectoryName));
+
+            directory.Name = newDirectoryName;
+            directory.Parent = this;
+
+            contents.Add(directory);
         }
 
         public override string ToString()
