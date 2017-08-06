@@ -172,9 +172,9 @@ namespace TestableFileSystem.Fakes
         public void Move(string sourceDirName, string destDirName)
         {
             Guard.NotNull(sourceDirName, nameof(sourceDirName));
-            Guard.NotNull(destDirName, nameof(destDirName));
-
             AssertFileNameIsNotEmpty(sourceDirName);
+
+            Guard.NotNull(destDirName, nameof(destDirName));
             AssertFileNameIsNotEmpty(destDirName);
 
             AbsolutePath sourcePath = owner.ToAbsolutePath(sourceDirName);
