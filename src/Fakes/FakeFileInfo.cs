@@ -34,10 +34,10 @@ namespace TestableFileSystem.Fakes
 
         public string DirectoryName => Path.GetDirectoryName(FullName);
 
-        public IDirectoryInfo Directory => new FakeDirectoryInfo(Owner, DirectoryName);
+        public IDirectoryInfo Directory => Owner.ConstructDirectoryInfo(DirectoryName);
 
-        internal FakeFileInfo([NotNull] FakeFileSystem owner, [NotNull] string fileName)
-            : base(owner, fileName)
+        internal FakeFileInfo([NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
+            : base(owner, path)
         {
         }
 
@@ -54,7 +54,7 @@ namespace TestableFileSystem.Fakes
         public IFileInfo CopyTo(string destFileName, bool overwrite = false)
         {
             Owner.File.Copy(FullName, destFileName, overwrite);
-            return new FakeFileInfo(Owner, destFileName);
+            return Owner.ConstructFileInfo(destFileName);
         }
 
         public void MoveTo(string destFileName)

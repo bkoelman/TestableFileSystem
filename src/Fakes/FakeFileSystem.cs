@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -45,8 +46,10 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public FakeFileInfo ConstructFileInfo([NotNull] string fileName)
         {
+            Guard.NotNull(fileName, nameof(fileName));
+
             AbsolutePath absolutePath = ToAbsolutePath(fileName);
-            return new FakeFileInfo(this, absolutePath.GetText());
+            return new FakeFileInfo(this, absolutePath);
         }
 
         IFileInfo IFileSystem.ConstructFileInfo(string fileName) => ConstructFileInfo(fileName);
@@ -54,8 +57,18 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public FakeDirectoryInfo ConstructDirectoryInfo([NotNull] string path)
         {
+            Guard.NotNull(path, nameof(path));
+
             AbsolutePath absolutePath = ToAbsolutePath(path);
-            return new FakeDirectoryInfo(this, absolutePath.GetText());
+            return ConstructDirectoryInfo(absolutePath);
+        }
+
+        [NotNull]
+        internal FakeDirectoryInfo ConstructDirectoryInfo([NotNull] AbsolutePath directoryPath)
+        {
+            Guard.NotNull(directoryPath, nameof(directoryPath));
+
+            return new FakeDirectoryInfo(this, directoryPath);
         }
 
         IDirectoryInfo IFileSystem.ConstructDirectoryInfo(string path) => ConstructDirectoryInfo(path);

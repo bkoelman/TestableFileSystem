@@ -13,7 +13,9 @@ namespace TestableFileSystem.Fakes
         protected FakeFileSystem Owner { get; }
 
         public abstract string Name { get; }
+
         public string Extension { get; }
+
         public string FullName { get; }
 
         public FileAttributes Attributes
@@ -60,14 +62,15 @@ namespace TestableFileSystem.Fakes
 
         public bool Exists => Owner.File.Exists(FullName);
 
-        protected FakeFileSystemInfo([NotNull] FakeFileSystem owner, [NotNull] string path)
+        internal FakeFileSystemInfo([NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
         {
-            Owner = owner;
             Guard.NotNull(owner, nameof(owner));
             Guard.NotNull(path, nameof(path));
 
-            FullName = path;
-            Extension = Path.GetExtension(path);
+            Owner = owner;
+
+            FullName = path.GetText();
+            Extension = Path.GetExtension(FullName);
         }
 
         public void Refresh()

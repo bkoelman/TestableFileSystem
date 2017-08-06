@@ -26,11 +26,11 @@ namespace TestableFileSystem.Fakes
             get
             {
                 string root = Owner.Directory.GetDirectoryRoot(FullName);
-                return new FakeDirectoryInfo(Owner, root);
+                return Owner.ConstructDirectoryInfo(root);
             }
         }
 
-        internal FakeDirectoryInfo([NotNull] FakeFileSystem owner, [NotNull] string path)
+        internal FakeDirectoryInfo([NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
             : base(owner, path)
         {
         }
@@ -45,7 +45,7 @@ namespace TestableFileSystem.Fakes
         {
             foreach (string path in Owner.Directory.EnumerateFiles(FullName, searchPattern, searchOption))
             {
-                yield return new FakeFileInfo(Owner, path);
+                yield return Owner.ConstructFileInfo(path);
             }
         }
 
@@ -60,7 +60,7 @@ namespace TestableFileSystem.Fakes
         {
             foreach (string path in Owner.Directory.EnumerateDirectories(FullName, searchPattern, searchOption))
             {
-                yield return new FakeDirectoryInfo(Owner, path);
+                yield return Owner.ConstructDirectoryInfo(path);
             }
         }
 
@@ -76,8 +76,8 @@ namespace TestableFileSystem.Fakes
             foreach (string path in Owner.Directory.EnumerateFileSystemEntries(FullName, searchPattern, searchOption))
             {
                 yield return Owner.File.Exists(path)
-                    ? (IFileSystemInfo)new FakeFileInfo(Owner, path)
-                    : new FakeDirectoryInfo(Owner, path);
+                    ? (IFileSystemInfo)Owner.ConstructFileInfo(path)
+                    : Owner.ConstructDirectoryInfo(path);
             }
         }
 

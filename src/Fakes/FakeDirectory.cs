@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             AbsolutePath parentPath = absolutePath.TryGetParentPath();
-            return parentPath == null ? null : owner.ConstructDirectoryInfo(parentPath.GetText());
+            return parentPath == null ? null : owner.ConstructDirectoryInfo(parentPath);
         }
 
         private static void AssertPathIsNotWhiteSpace([NotNull] string path)
@@ -153,7 +153,8 @@ namespace TestableFileSystem.Fakes
             var arguments = new DirectoryCreateArguments(absolutePath, false);
 
             handler.Handle(arguments);
-            return owner.ConstructDirectoryInfo(path);
+
+            return owner.ConstructDirectoryInfo(absolutePath);
         }
 
         public void Delete(string path, bool recursive = false)
