@@ -250,6 +250,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_moving_directory_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingDirectory(@"C:\source")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            fileSystem.Directory.Move(@"\source", @"\moved");
+
+            // Assert
+            fileSystem.Directory.Exists(@"C:\source").Should().BeFalse();
+            fileSystem.Directory.Exists(@"C:\moved").Should().BeTrue();
+        }
+
+        [Fact]
         private void When_moving_directory_from_relative_path_it_must_succeed()
         {
             // Arrange

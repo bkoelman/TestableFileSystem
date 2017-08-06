@@ -162,7 +162,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryDeleteHandler(root, owner.CurrentDirectory);
+            var handler = new DirectoryDeleteHandler(root, owner.CurrentDirectoryManager);
             var arguments = new DirectoryDeleteArguments(absolutePath, recursive);
 
             handler.Handle(arguments);
@@ -179,7 +179,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath sourcePath = owner.ToAbsolutePath(sourceDirName);
             AbsolutePath destinationPath = owner.ToAbsolutePath(destDirName);
 
-            var handler = new DirectoryMoveHandler(root, owner.CurrentDirectory);
+            var handler = new DirectoryMoveHandler(root, owner.CurrentDirectoryManager);
             var arguments = new DirectoryOrFileMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);
@@ -195,7 +195,7 @@ namespace TestableFileSystem.Fakes
 
         public string GetCurrentDirectory()
         {
-            return owner.CurrentDirectory.GetValue().GetText();
+            return owner.CurrentDirectoryManager.GetValue().GetText();
         }
 
         public void SetCurrentDirectory(string path)
@@ -211,7 +211,7 @@ namespace TestableFileSystem.Fakes
             };
             resolver.ResolveDirectory(absolutePath);
 
-            owner.CurrentDirectory.SetValue(absolutePath);
+            owner.CurrentDirectoryManager.SetValue(absolutePath);
         }
 
         public DateTime GetCreationTime(string path)

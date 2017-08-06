@@ -127,7 +127,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_last_access_time_in_UTC__for_invalid_characters_it_must_fail()
+        private void When_getting_last_access_time_in_UTC_for_invalid_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -337,6 +337,46 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("Path must not be a drive.*");
+        }
+
+        [Fact]
+        private void When_getting_last_access_time_in_UTC_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            DateTime time = fileSystem.File.GetLastAccessTimeUtc(@"\file.txt");
+
+            // Assert
+            time.Should().Be(DefaultTimeUtc);
+        }
+
+        [Fact]
+        private void When_setting_last_access_time_in_UTC_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            fileSystem.File.SetLastAccessTimeUtc(@"\file.txt", DefaultTimeUtc);
+
+            // Assert
+            fileSystem.File.GetLastAccessTimeUtc(@"c:\file.txt").Should().Be(DefaultTimeUtc);
         }
 
         [Fact]

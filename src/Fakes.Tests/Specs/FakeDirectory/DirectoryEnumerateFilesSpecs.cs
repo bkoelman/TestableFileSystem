@@ -681,6 +681,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_enumerating_files_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some\other")
+                .IncludingEmptyFile(@"c:\some\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some\other");
+
+            // Act
+            IEnumerable<string> directories = fileSystem.Directory.EnumerateFiles(@"\some");
+
+            // Assert
+            directories.Should().ContainSingle(x => x == @"\some\file.txt");
+        }
+
+        [Fact]
         private void When_enumerating_files_for_relative_directory_it_must_succeed()
         {
             // Arrange

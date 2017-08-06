@@ -156,6 +156,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_setting_current_directory_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingDirectory(@"c:\other")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"c:\some");
+
+            // Act
+            fileSystem.Directory.SetCurrentDirectory(@"\other");
+
+            // Assert
+            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"c:\other");
+        }
+
+        [Fact]
         private void When_setting_current_directory_to_relative_subdirectory_it_must_succeed()
         {
             // Arrange

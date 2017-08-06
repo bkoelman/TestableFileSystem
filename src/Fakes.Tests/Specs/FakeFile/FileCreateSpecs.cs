@@ -268,6 +268,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_creating_file_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            using (fileSystem.File.Create(@"\file.txt"))
+            {
+            }
+
+            // Assert
+            fileSystem.File.Exists(@"C:\file.txt").Should().BeTrue();
+        }
+
+        [Fact]
         private void When_creating_relative_local_file_it_must_succeed()
         {
             // Arrange

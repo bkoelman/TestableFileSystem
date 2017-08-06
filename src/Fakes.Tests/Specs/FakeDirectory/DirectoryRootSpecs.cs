@@ -122,6 +122,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_getting_directory_root_for_directory_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingDirectory(@"C:\folder")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"c:\some");
+
+            // Act
+            string root = fileSystem.Directory.GetDirectoryRoot(@"\folder");
+
+            // Assert
+            root.Should().Be(@"c:\");
+        }
+
+        [Fact]
         private void When_getting_directory_root_for_relative_local_path_it_must_succeed()
         {
             // Arrange

@@ -140,6 +140,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_getting_directory_existence_for_directory_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingDirectory(@"C:\folder")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            bool found = fileSystem.Directory.Exists(@"\folder");
+
+            // Assert
+            found.Should().BeTrue();
+        }
+
+        [Fact]
         private void When_getting_directory_existence_for_existing_relative_local_directory_it_must_succeed()
         {
             // Arrange

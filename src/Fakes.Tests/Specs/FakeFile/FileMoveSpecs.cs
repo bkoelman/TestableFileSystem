@@ -223,6 +223,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_moving_file_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            fileSystem.File.Move(@"\file.txt", @"\copied.txt");
+
+            // Assert
+            fileSystem.File.Exists(@"C:\file.txt").Should().BeFalse();
+            fileSystem.File.Exists(@"C:\copied.txt").Should().BeTrue();
+        }
+
+        [Fact]
         private void When_moving_file_from_relative_path_it_must_succeed()
         {
             // Arrange
@@ -494,7 +513,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string sourcePath = @"C:\some\file.txt";
             const string destinationPath = @"C:\some\sub\newname.txt";
 
-            var creationTimeUtc = 7.October(2015);
+            DateTime creationTimeUtc = 7.October(2015);
             var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
@@ -502,7 +521,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .IncludingDirectory(@"c:\some\sub")
                 .Build();
 
-            var lastWriteTimeUtc = 8.October(2015);
+            DateTime lastWriteTimeUtc = 8.October(2015);
             clock.UtcNow = () => lastWriteTimeUtc;
 
             fileSystem.File.WriteAllText(sourcePath, "ABC");
@@ -514,7 +533,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(sourcePath).Should().BeFalse();
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
 
-            var destinationInfo = fileSystem.ConstructFileInfo(destinationPath);
+            IFileInfo destinationInfo = fileSystem.ConstructFileInfo(destinationPath);
             destinationInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
             destinationInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
             destinationInfo.LastAccessTimeUtc.Should().Be(lastWriteTimeUtc);

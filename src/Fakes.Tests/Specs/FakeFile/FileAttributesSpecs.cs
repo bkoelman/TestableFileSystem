@@ -444,6 +444,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_getting_attributes_for_file_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt", FileAttributes.Archive)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            FileAttributes attributes = fileSystem.File.GetAttributes(@"\file.txt");
+
+            // Assert
+            attributes.Should().Be(FileAttributes.Archive);
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_file_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            fileSystem.File.SetAttributes(@"\file.txt", FileAttributes.Hidden);
+
+            // Assert
+            fileSystem.File.GetAttributes(@"C:\file.txt").Should().Be(FileAttributes.Hidden);
+        }
+
+        [Fact]
         private void When_getting_attributes_for_exising_relative_local_file_it_must_succeed()
         {
             // Arrange

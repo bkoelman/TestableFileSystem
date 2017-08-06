@@ -355,6 +355,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_copying_file_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            fileSystem.File.Copy(@"\file.txt", @"\copied.txt");
+
+            // Assert
+            fileSystem.File.Exists(@"C:\file.txt").Should().BeTrue();
+            fileSystem.File.Exists(@"C:\copied.txt").Should().BeTrue();
+        }
+
+        [Fact]
         private void When_copying_file_from_relative_path_it_must_succeed()
         {
             // Arrange

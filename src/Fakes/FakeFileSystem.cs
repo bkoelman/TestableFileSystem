@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -11,9 +9,6 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileSystem : IFileSystem
     {
-        // TODO: Add specs for paths like "\folder\file.txt" (current drive)
-        // https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
-
         [NotNull]
         public FileOperationLocker<FakeFile> File { get; }
 
@@ -28,7 +23,10 @@ namespace TestableFileSystem.Fakes
         internal readonly object TreeLock = new object();
 
         [NotNull]
-        internal CurrentDirectoryManager CurrentDirectory { get; }
+        internal CurrentDirectoryManager CurrentDirectoryManager { get; }
+
+        [NotNull]
+        private readonly RelativePathConverter relativePathConverter;
 
         [NotNull]
         internal WaitIndicator CopyWaitIndicator { get; }
@@ -37,9 +35,10 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(root, nameof(root));
 
-            CurrentDirectory = new CurrentDirectoryManager(root);
-            Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
             File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
+            Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
+            CurrentDirectoryManager = new CurrentDirectoryManager(root);
+            relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
             CopyWaitIndicator = copyWaitIndicator;
         }
 
@@ -64,39 +63,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal AbsolutePath ToAbsolutePath([NotNull] string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                throw ErrorFactory.System.PathIsNotLegal(nameof(path));
-            }
-
-            string basePath = CurrentDirectory.GetValue().GetText();
-
-            path = CompensatePathForRelativeDriveReference(path, basePath);
-
-            string rooted = Path.Combine(basePath, path);
-            return new AbsolutePath(rooted);
-        }
-
-        [NotNull]
-        private static string CompensatePathForRelativeDriveReference([NotNull] string path, [NotNull] string basePath)
-        {
-            bool hasRelativeDriveReference = path.Length >= 3 && path[1] == ':' && !IsPathSeparator(path[2]);
-            if (!hasRelativeDriveReference)
-            {
-                return path;
-            }
-
-            char pathDriveLetter = path[0];
-            char baseDriveLetter = basePath[0];
-
-            return pathDriveLetter == baseDriveLetter
-                ? path.Substring(2)
-                : path.Substring(0, 2) + Path.DirectorySeparatorChar + path.Substring(2);
-        }
-
-        private static bool IsPathSeparator(char ch)
-        {
-            return PathFacts.DirectorySeparatorChars.Contains(ch);
+            return relativePathConverter.ToAbsolutePath(path);
         }
 
         internal long GetFileSize([NotNull] string path)

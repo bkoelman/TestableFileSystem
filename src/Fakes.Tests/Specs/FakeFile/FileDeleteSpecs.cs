@@ -190,6 +190,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_deleting_file_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            fileSystem.File.Delete(@"\file.txt");
+
+            // Assert
+            fileSystem.File.Exists(@"C:\file.txt").Should().BeFalse();
+        }
+
+        [Fact]
         private void When_deleting_local_relative_file_it_must_succeed()
         {
             // Arrange

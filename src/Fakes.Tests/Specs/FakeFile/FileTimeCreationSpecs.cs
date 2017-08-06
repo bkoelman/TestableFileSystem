@@ -128,7 +128,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_creation_time_in_local_zone__for_invalid_characters_it_must_fail()
+        private void When_getting_creation_time_in_local_zone_for_invalid_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -338,6 +338,46 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage("Path must not be a drive.*");
+        }
+
+        [Fact]
+        private void When_getting_creation_time_in_local_zone_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            DateTime time = fileSystem.File.GetCreationTime(@"\file.txt");
+
+            // Assert
+            time.Should().Be(DefaultTime);
+        }
+
+        [Fact]
+        private void When_setting_creation_time_in_local_zone_using_absolute_path_without_drive_letter_it_must_succeed()
+        {
+            // Arrange
+            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingDirectory(@"c:\some")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"C:\some");
+
+            // Act
+            fileSystem.File.SetCreationTime(@"\file.txt", DefaultTime);
+
+            // Assert
+            fileSystem.File.GetCreationTime(@"c:\file.txt").Should().Be(DefaultTime);
         }
 
         [Fact]
