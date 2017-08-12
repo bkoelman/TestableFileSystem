@@ -82,7 +82,7 @@ namespace TestableFileSystem.Fakes
             AssertParentIsValid(parent);
 
             Parent = parent;
-            Attributes = FileAttributes.Normal;
+            Attributes = FileAttributes.Archive;
 
             CreationTimeUtc = parent.SystemClock.UtcNow();
             HandleFileChanged();

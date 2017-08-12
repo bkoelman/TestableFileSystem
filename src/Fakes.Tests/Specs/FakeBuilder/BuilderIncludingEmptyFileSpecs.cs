@@ -90,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Assert
             fileSystem.File.Exists(path).Should().BeTrue();
-            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Normal);
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Archive);
         }
 
         [Fact]
@@ -308,7 +308,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Assert
             fileSystem.File.Exists(@"D:\path\to\folder\readme.txt").Should().BeTrue();
-            fileSystem.File.GetAttributes(@"D:\path\to\folder\readme.txt").Should().Be(FileAttributes.Normal);
+            fileSystem.File.GetAttributes(@"D:\path\to\folder\readme.txt").Should().Be(FileAttributes.Archive);
         }
     }
 }

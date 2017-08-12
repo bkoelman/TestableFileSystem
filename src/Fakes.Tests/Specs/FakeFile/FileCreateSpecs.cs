@@ -110,6 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.CreationTimeUtc.Should().Be(creationTimeUtc);
             info.LastAccessTimeUtc.Should().Be(creationTimeUtc);
             info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
+            info.Attributes.Should().Be(FileAttributes.Archive);
         }
 
         [Fact]
@@ -194,6 +195,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
             info.LastAccessTimeUtc.Should().Be(overwriteTimeUtc);
             info.LastWriteTimeUtc.Should().Be(overwriteTimeUtc);
+            info.Attributes.Should().Be(FileAttributes.Archive);
         }
 
         [Fact]
