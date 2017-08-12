@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -10,15 +9,8 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileSystem : IFileSystem
     {
-        [NotNull]
-        public FileOperationLocker<FakeFile> File { get; }
-
-        IFile IFileSystem.File => File;
-
-        [NotNull]
-        public DirectoryOperationLocker<FakeDirectory> Directory { get; }
-
-        IDirectory IFileSystem.Directory => Directory;
+        public IFile File { get; }
+        public IDirectory Directory { get; }
 
         [NotNull]
         internal readonly object TreeLock = new object();
@@ -81,7 +73,9 @@ namespace TestableFileSystem.Fakes
 
         internal long GetFileSize([NotNull] string path)
         {
-            return File.ExecuteOnFile(f => f.GetSize(path));
+            // TODO: Remove this cast.
+            var fileInLock = (FileOperationLocker<FakeFile>)File;
+            return fileInLock.ExecuteOnFile(f => f.GetSize(path));
         }
     }
 }

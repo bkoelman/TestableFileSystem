@@ -4,7 +4,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public abstract class OperationLocker
+    internal abstract class OperationLocker
     {
         [NotNull]
         private readonly FakeFileSystem owner;

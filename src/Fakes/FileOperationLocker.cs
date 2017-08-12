@@ -5,13 +5,13 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FileOperationLocker<TFile> : OperationLocker, IFile
+    internal sealed class FileOperationLocker<TFile> : OperationLocker, IFile
         where TFile : class, IFile
     {
         [NotNull]
         private readonly TFile target;
 
-        internal FileOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TFile target)
+        public FileOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TFile target)
             : base(owner)
         {
             Guard.NotNull(target, nameof(target));
