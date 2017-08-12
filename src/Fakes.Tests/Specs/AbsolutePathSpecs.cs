@@ -61,8 +61,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_only_server_part_of_network_share_it_must_fail()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"\\teamserver\");
+            Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath(@"\\teamserver\"));
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
@@ -98,8 +97,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_network_share_has_invalid_name_it_must_fail()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"\\team*server");
+            Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath(@"\\team*server"));
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");
@@ -109,8 +107,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_directory_has_invalid_name_it_must_fail()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"c:\games\try?me");
+            Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath(@"c:\games\try?me"));
 
             // Assert
             action.ShouldThrow<ArgumentException>().WithMessage(@"Illegal characters in path.*");
@@ -120,8 +117,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_relative_path_it_must_fail()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"docs\work");
+            Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath(@"docs\work"));
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.*");
@@ -187,8 +183,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_using_win32_device_namespace_it_must_fail()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"\\.\COM56");
+            Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath(@"\\.\COM56"));
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
@@ -198,8 +193,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_using_NT_namespace_it_must_fail()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"\\?\GLOBALROOT");
+            Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath(@"\\?\GLOBALROOT"));
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
@@ -209,8 +203,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_using_reserved_name_in_directory_it_must_fail()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath(@"c:\nul\documents");
+            Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath(@"c:\nul\documents"));
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
@@ -220,8 +213,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_using_reserved_name_in_file_it_must_fail()
         {
             // Act
-            // ReSharper disable once ObjectCreationAsStatement
-            Action action = () => new AbsolutePath("com1");
+            Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath("com1"));
 
             // Assert
             action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
