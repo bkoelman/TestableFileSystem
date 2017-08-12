@@ -10,6 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     public sealed class FileTimeCreationUtcSpecs
     {
         private static readonly DateTime DefaultTimeUtc = 1.February(2034).At(12, 34, 56).AsUtc();
+        private static readonly DateTime HighTimeUtc = DateTime.MaxValue.AddDays(-1).AsUtc();
         private static readonly DateTime ZeroFileTimeUtc = 1.January(1601).AsUtc();
 
         [Fact]
@@ -297,10 +298,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            fileSystem.File.SetCreationTimeUtc(path, DateTime.MaxValue);
+            fileSystem.File.SetCreationTimeUtc(path, HighTimeUtc);
 
             // Assert
-            fileSystem.File.GetCreationTimeUtc(path).Should().Be(DateTime.MaxValue);
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(HighTimeUtc);
         }
 
         [Fact]

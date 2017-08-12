@@ -11,6 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     {
         private static readonly DateTime DefaultTimeUtc = 1.February(2034).At(12, 34, 56).AsUtc();
         private static readonly DateTime DefaultTime = DefaultTimeUtc.ToLocalTime();
+        private static readonly DateTime HighTime = DateTime.MaxValue.AddDays(-1).ToLocalTime();
         private static readonly DateTime ZeroFileTime = 1.January(1601).AsUtc().ToLocalTime();
 
         [Fact]
@@ -298,10 +299,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            fileSystem.File.SetLastAccessTime(path, DateTime.MaxValue);
+            fileSystem.File.SetLastAccessTime(path, HighTime);
 
             // Assert
-            fileSystem.File.GetLastAccessTime(path).Should().Be(DateTime.MaxValue);
+            fileSystem.File.GetLastAccessTime(path).Should().Be(HighTime);
         }
 
         [Fact(Skip = "TODO: Implement timings for directories.")]
