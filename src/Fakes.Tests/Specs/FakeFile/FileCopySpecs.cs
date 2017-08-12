@@ -847,6 +847,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 copyWaitIndicator.SetCompleted();
                 copyThread.Join();
 
+                destinationInfo.Refresh();
                 destinationInfo.CreationTimeUtc.Should().Be(destinationCreationTimeUtc);
                 destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
                 destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);
@@ -911,6 +912,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 copyWaitIndicator.SetCompleted();
                 copyThread.Join();
 
+                destinationInfo.Refresh();
                 destinationInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
                 destinationInfo.LastAccessTimeUtc.Should().Be(destinationCompletedTimeUtc);
                 destinationInfo.LastWriteTimeUtc.Should().Be(sourceLastWriteTimeUtc);

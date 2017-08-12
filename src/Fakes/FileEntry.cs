@@ -51,18 +51,6 @@ namespace TestableFileSystem.Fakes
             set => creationTimeStampUtc = value.ToFileTimeUtc();
         }
 
-        public override DateTime LastWriteTime
-        {
-            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
-            set => lastWriteTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime LastWriteTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
-            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
-        }
-
         public override DateTime LastAccessTime
         {
             get => DateTime.FromFileTime(lastAccessTimeStampUtc);
@@ -73,6 +61,18 @@ namespace TestableFileSystem.Fakes
         {
             get => DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
             set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
+        }
+
+        public override DateTime LastWriteTime
+        {
+            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTime();
+        }
+
+        public override DateTime LastWriteTimeUtc
+        {
+            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
         }
 
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)

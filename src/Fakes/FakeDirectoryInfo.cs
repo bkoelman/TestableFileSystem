@@ -8,30 +8,30 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeDirectoryInfo : FakeFileSystemInfo, IDirectoryInfo
     {
-        // TODO: Review this naive implementation against MSDN and the actual filesystem.
+        public override string Name => AbsolutePath.IsVolumeRoot ? FullName : AbsolutePath.Components.Last();
 
-        public override string Name
+        public override bool Exists => Properties.Exists && Properties.Attributes.HasFlag(FileAttributes.Directory);
+
+        public IDirectoryInfo Parent
         {
             get
             {
-                string name = Path.GetFileName(FullName);
-                return string.IsNullOrEmpty(name) ? FullName : name;
+                AbsolutePath parentPath = AbsolutePath.TryGetParentPath();
+                return parentPath == null ? null : Owner.ConstructDirectoryInfo(parentPath);
             }
         }
-
-        public IDirectoryInfo Parent => Owner.Directory.GetParent(FullName);
 
         public IDirectoryInfo Root
         {
             get
             {
-                string root = Owner.Directory.GetDirectoryRoot(FullName);
-                return Owner.ConstructDirectoryInfo(root);
+                AbsolutePath rootPath = AbsolutePath.GetAncestorPath(0);
+                return rootPath == AbsolutePath ? this : Owner.ConstructDirectoryInfo(rootPath);
             }
         }
 
-        internal FakeDirectoryInfo([NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
-            : base(owner, path)
+        internal FakeDirectoryInfo([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
+            : base(root, owner, path)
         {
         }
 
@@ -88,8 +88,10 @@ namespace TestableFileSystem.Fakes
 
         public IDirectoryInfo CreateSubdirectory(string path)
         {
-            string absolutePath = Path.Combine(FullName, path);
-            return Owner.Directory.CreateDirectory(absolutePath);
+            // TODO: Review what kinds of path are allowed here.
+
+            AbsolutePath subPath = AbsolutePath.Append(path);
+            return Owner.Directory.CreateDirectory(subPath.GetText());
         }
 
         public void Delete(bool recursive)
@@ -100,6 +102,9 @@ namespace TestableFileSystem.Fakes
         public void MoveTo(string destDirName)
         {
             Owner.Directory.Move(FullName, destDirName);
+
+            AbsolutePath destinationPath = Owner.ToAbsolutePath(destDirName);
+            ChangePath(destinationPath);
         }
     }
 }

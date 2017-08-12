@@ -50,7 +50,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-            return absolutePath.GetRootName();
+            return absolutePath.GetAncestorPath(0).GetText();
         }
 
         public string[] GetFiles(string path, string searchPattern = "*",

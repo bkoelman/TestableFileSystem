@@ -1,5 +1,5 @@
 ﻿General concerns for writing tests:
-- Have tests for null/empty/whilespace and auto-trimming on public API surface
+- Have tests for null/empty/whitespace and auto-trimming on public API surface
 - Have tests for directory/file missing
 - Have tests for file in use (or directory is the current directory)
 - Verify type of exception and message text

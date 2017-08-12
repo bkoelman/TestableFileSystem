@@ -20,10 +20,10 @@ namespace TestableFileSystem.Fakes
 
         public abstract DateTime CreationTime { get; set; }
         public abstract DateTime CreationTimeUtc { get; set; }
-        public abstract DateTime LastWriteTime { get; set; }
-        public abstract DateTime LastWriteTimeUtc { get; set; }
         public abstract DateTime LastAccessTime { get; set; }
         public abstract DateTime LastAccessTimeUtc { get; set; }
+        public abstract DateTime LastWriteTime { get; set; }
+        public abstract DateTime LastWriteTimeUtc { get; set; }
 
         protected BaseEntry([NotNull] string name)
         {

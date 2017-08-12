@@ -26,7 +26,7 @@ namespace TestableFileSystem.Wrappers
 
         public string DirectoryName => source.DirectoryName;
 
-        public IDirectoryInfo Directory => new DirectoryInfoWrapper(source.Directory);
+        public IDirectoryInfo Directory => Utilities.WrapOrNull(source.Directory, x => new DirectoryInfoWrapper(x));
 
         public IFileStream Create()
         {

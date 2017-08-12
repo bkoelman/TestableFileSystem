@@ -118,13 +118,5 @@ namespace TestableFileSystem.Fakes
         {
             ExecuteInLock(() => target.SetLastWriteTimeUtc(path, lastWriteTimeUtc));
         }
-
-        [NotNull]
-        internal TResult ExecuteOnFile<TResult>([NotNull] Func<TFile, TResult> operation)
-        {
-            Guard.NotNull(operation, nameof(operation));
-
-            return ExecuteInLock(() => operation(target));
-        }
     }
 }

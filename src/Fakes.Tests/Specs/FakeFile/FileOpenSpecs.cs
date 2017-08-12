@@ -957,6 +957,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
             fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(writeTimeUtc);
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(writeTimeUtc);
+
+            fileInfo.Refresh();
             fileInfo.Length.Should().Be(1);
         }
 
@@ -1049,6 +1051,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             DateTime accessTimeUtcAfter = fileSystem.File.GetLastAccessTimeUtc(path);
             DateTime writeTimeUtcAfter = fileSystem.File.GetLastWriteTimeUtc(path);
+
+            fileInfo.Refresh();
             long sizeAfter = fileInfo.Length;
 
             // Assert

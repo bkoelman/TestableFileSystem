@@ -23,6 +23,9 @@ namespace TestableFileSystem.Fakes
 
         public bool IsVolumeRoot => Components.Count == 1;
 
+        [NotNull]
+        public string TrailingWhiteSpace { get; }
+
         public AbsolutePath([NotNull] string path)
         {
             Guard.NotNull(path, nameof(path));
@@ -31,12 +34,20 @@ namespace TestableFileSystem.Fakes
 
             Components = parser.GetComponents();
             isExtended = parser.IsExtended;
+            TrailingWhiteSpace = parser.TrailingWhiteSpace;
         }
 
         private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, bool isExtended)
         {
             Components = components;
             this.isExtended = isExtended;
+            TrailingWhiteSpace = string.Empty;
+        }
+
+        [CanBeNull]
+        public AbsolutePath TryGetParentPath()
+        {
+            return Components.Count == 1 ? null : GetAncestorPath(Components.Count - 2);
         }
 
         [NotNull]
@@ -53,61 +64,6 @@ namespace TestableFileSystem.Fakes
             return new AbsolutePath(newComponents, isExtended);
         }
 
-        [CanBeNull]
-        public AbsolutePath TryGetParentPath()
-        {
-            if (Components.Count == 1)
-            {
-                return null;
-            }
-
-            List<string> newComponents = Components.ToList();
-            newComponents.RemoveAt(newComponents.Count - 1);
-
-            return new AbsolutePath(newComponents, isExtended);
-        }
-
-        [NotNull]
-        public string GetRootName()
-        {
-            var textBuilder = new StringBuilder();
-
-            if (IsOnLocalDrive)
-            {
-                WriteDriveLetter(textBuilder);
-            }
-            else
-            {
-                WriteFileShare(textBuilder);
-            }
-
-            return textBuilder.ToString();
-        }
-
-        private void WriteDriveLetter([NotNull] StringBuilder textBuilder)
-        {
-            if (isExtended)
-            {
-                textBuilder.Append(@"\\?\");
-            }
-
-            textBuilder.Append(Components[0]);
-            textBuilder.Append(Path.DirectorySeparatorChar);
-        }
-
-        private void WriteFileShare([NotNull] StringBuilder textBuilder)
-        {
-            if (isExtended)
-            {
-                textBuilder.Append(@"\\?\UNC\");
-                textBuilder.Append(Components[0].Substring(2));
-            }
-            else
-            {
-                textBuilder.Append(Components[0]);
-            }
-        }
-
         [NotNull]
         [ItemNotNull]
         public IEnumerable<AbsolutePathComponent> EnumerateComponents()
@@ -122,7 +78,7 @@ namespace TestableFileSystem.Fakes
         public string GetText()
         {
             var builder = new StringBuilder();
-            builder.Append(GetRootName());
+            WriteVolumeRoot(builder);
 
             if (!IsOnLocalDrive && Components.Count > 1)
             {
@@ -133,6 +89,42 @@ namespace TestableFileSystem.Fakes
             builder.Append(string.Join(Path.DirectorySeparatorChar.ToString(), components));
 
             return builder.ToString();
+        }
+
+        private void WriteVolumeRoot([NotNull] StringBuilder builder)
+        {
+            if (IsOnLocalDrive)
+            {
+                WriteDriveLetter(builder);
+            }
+            else
+            {
+                WriteFileShare(builder);
+            }
+        }
+
+        private void WriteDriveLetter([NotNull] StringBuilder builder)
+        {
+            if (isExtended)
+            {
+                builder.Append(@"\\?\");
+            }
+
+            builder.Append(Components[0]);
+            builder.Append(Path.DirectorySeparatorChar);
+        }
+
+        private void WriteFileShare([NotNull] StringBuilder builder)
+        {
+            if (isExtended)
+            {
+                builder.Append(@"\\?\UNC\");
+                builder.Append(Components[0].Substring(2));
+            }
+            else
+            {
+                builder.Append(Components[0]);
+            }
         }
 
         public override string ToString()
@@ -180,10 +172,14 @@ namespace TestableFileSystem.Fakes
 
             public bool IsExtended { get; }
 
+            [NotNull]
+            public string TrailingWhiteSpace { get; }
+
             public Parser([NotNull] string path)
             {
                 this.path = NormalizePath(path);
                 IsExtended = HasPrefixForExtendedLength(path);
+                TrailingWhiteSpace = path.Substring(path.TrimEnd().Length);
             }
 
             [NotNull]

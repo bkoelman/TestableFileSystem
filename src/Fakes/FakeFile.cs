@@ -3,7 +3,6 @@ using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Handlers;
-using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -318,18 +317,6 @@ namespace TestableFileSystem.Fakes
             var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, true, lastWriteTimeUtc);
 
             handler.Handle(arguments);
-        }
-
-        internal long GetSize([NotNull] string path)
-        {
-            Guard.NotNull(path, nameof(path));
-
-            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
-
-            var resolver = new FileResolver(root);
-            FileEntry file = resolver.ResolveExistingFile(absolutePath);
-
-            return file.Size;
         }
 
         private static void AssertPathIsNotEmpty([NotNull] string path)

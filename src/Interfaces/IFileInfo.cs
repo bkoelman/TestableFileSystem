@@ -9,10 +9,10 @@ namespace TestableFileSystem.Interfaces
 
         bool IsReadOnly { get; set; }
 
-        [NotNull]
+        [CanBeNull]
         string DirectoryName { get; }
 
-        [NotNull]
+        [CanBeNull]
         IDirectoryInfo Directory { get; }
 
         [NotNull]

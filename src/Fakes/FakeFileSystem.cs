@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileSystem : IFileSystem
     {
-        public IFile File { get; }
-        public IDirectory Directory { get; }
+        [NotNull]
+        private readonly DirectoryEntry root;
 
         [NotNull]
         internal readonly object TreeLock = new object();
@@ -24,9 +24,13 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal WaitIndicator CopyWaitIndicator { get; }
 
+        public IFile File { get; }
+        public IDirectory Directory { get; }
+
         internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] WaitIndicator copyWaitIndicator)
         {
             Guard.NotNull(root, nameof(root));
+            this.root = root;
 
             File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
             Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
@@ -41,7 +45,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(fileName, nameof(fileName));
 
             AbsolutePath absolutePath = ToAbsolutePath(fileName);
-            return new FakeFileInfo(this, absolutePath);
+            return new FakeFileInfo(root, this, absolutePath);
         }
 
         IFileInfo IFileSystem.ConstructFileInfo(string fileName) => ConstructFileInfo(fileName);
@@ -60,7 +64,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(directoryPath, nameof(directoryPath));
 
-            return new FakeDirectoryInfo(this, directoryPath);
+            return new FakeDirectoryInfo(root, this, directoryPath);
         }
 
         IDirectoryInfo IFileSystem.ConstructDirectoryInfo(string path) => ConstructDirectoryInfo(path);
@@ -69,13 +73,6 @@ namespace TestableFileSystem.Fakes
         internal AbsolutePath ToAbsolutePath([NotNull] string path)
         {
             return relativePathConverter.ToAbsolutePath(path);
-        }
-
-        internal long GetFileSize([NotNull] string path)
-        {
-            // TODO: Remove this cast.
-            var fileInLock = (FileOperationLocker<FakeFile>)File;
-            return fileInLock.ExecuteOnFile(f => f.GetSize(path));
         }
     }
 }

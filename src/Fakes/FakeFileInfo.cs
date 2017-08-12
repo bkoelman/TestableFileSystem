@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -6,38 +7,54 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
     {
-        // TODO: Review this naive implementation against MSDN and the actual filesystem.
+        public override string Name => AbsolutePath.IsVolumeRoot
+            ? string.Empty
+            : AbsolutePath.Components.Last() + AbsolutePath.TrailingWhiteSpace;
 
-        public override string Name => Path.GetFileName(FullName);
+        public override bool Exists => Properties.Exists && !Properties.Attributes.HasFlag(FileAttributes.Directory);
 
-        public long Length => Owner.GetFileSize(FullName);
-
-        public bool IsReadOnly
+        public long Length
         {
-            get => (Owner.File.GetAttributes(FullName) & FileAttributes.ReadOnly) != 0;
-            set
+            get
             {
-                FileAttributes attributes = Owner.File.GetAttributes(FullName);
-
-                if (value)
-                {
-                    attributes |= FileAttributes.ReadOnly;
-                }
-                else
-                {
-                    attributes &= ~FileAttributes.ReadOnly;
-                }
-
-                Owner.File.SetAttributes(FullName, attributes);
+                AssertIsExistingFile();
+                return Properties.FileSize;
             }
         }
 
-        public string DirectoryName => Path.GetDirectoryName(FullName);
+        public bool IsReadOnly
+        {
+            get
+            {
+                Properties.AssertNoError();
+                return Properties.Attributes.HasFlag(FileAttributes.ReadOnly);
+            }
+            set
+            {
+                if (value)
+                {
+                    Attributes |= FileAttributes.ReadOnly;
+                }
+                else
+                {
+                    Attributes &= ~FileAttributes.ReadOnly;
+                }
+            }
+        }
 
-        public IDirectoryInfo Directory => Owner.ConstructDirectoryInfo(DirectoryName);
+        public string DirectoryName => AbsolutePath.TryGetParentPath()?.GetText();
 
-        internal FakeFileInfo([NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
-            : base(owner, path)
+        public IDirectoryInfo Directory
+        {
+            get
+            {
+                AbsolutePath parentPath = AbsolutePath.TryGetParentPath();
+                return parentPath == null ? null : Owner.ConstructDirectoryInfo(parentPath);
+            }
+        }
+
+        internal FakeFileInfo([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
+            : base(root, owner, path)
         {
         }
 
@@ -60,6 +77,19 @@ namespace TestableFileSystem.Fakes
         public void MoveTo(string destFileName)
         {
             Owner.File.Move(FullName, destFileName);
+
+            AbsolutePath destinationPath = Owner.ToAbsolutePath(destFileName);
+            ChangePath(destinationPath);
+        }
+
+        private void AssertIsExistingFile()
+        {
+            Properties.AssertNoError();
+
+            if (Attributes.HasFlag(FileAttributes.Directory))
+            {
+                throw ErrorFactory.System.FileNotFound(FullName);
+            }
         }
     }
 }

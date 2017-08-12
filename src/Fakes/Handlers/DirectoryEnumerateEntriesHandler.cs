@@ -50,7 +50,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (subPattern == null)
             {
-                foreach (BaseEntry entry in directory.EnumerateEntries(filter).Where(x => pattern.IsMatch(x.Name)).OrderBy(x => x.Name))
+                foreach (BaseEntry entry in directory.EnumerateEntries(filter).Where(x => pattern.IsMatch(x.Name))
+                    .OrderBy(x => x.Name))
                 {
                     string basePath = directoryPath.GetText();
                     yield return Path.Combine(basePath, entry.Name);
