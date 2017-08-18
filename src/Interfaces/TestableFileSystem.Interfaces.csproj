@@ -23,13 +23,13 @@
     <DefineConstants>TRACE;RELEASE;JETBRAINS_ANNOTATIONS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="jetbrains.annotations" Version="10.4.0" PrivateAssets="all" />
+    <PackageReference Include="jetbrains.annotations" Version="11.0.0" PrivateAssets="all" />
     <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
-    <PackageReference Include="jetbrains.externalannotations" Version="10.2.24" PrivateAssets="all" />
+    <PackageReference Include="jetbrains.externalannotations" Version="10.2.29" PrivateAssets="all" />
   </ItemGroup>
   <Target Name="CopyExternalAnnotations" BeforeTargets="BeforeBuild" Condition="'$(BuildingInsideVisualStudio)' != 'true'">
     <PropertyGroup>
-      <ExternalAnnotationsVersion>10.2.24</ExternalAnnotationsVersion>
+      <ExternalAnnotationsVersion>10.2.29</ExternalAnnotationsVersion>
       <ExternalAnnotationsSourceDir>"$(USERPROFILE)\.nuget\packages\JetBrains.ExternalAnnotations\$(ExternalAnnotationsVersion)\DotFiles\ExternalAnnotations\*.xml"</ExternalAnnotationsSourceDir>
       <ExternalAnnotationsTargetDir>"$(LOCALAPPDATA)\JetBrains\Installations\ReSharperPlatformVs15\ExternalAnnotations"</ExternalAnnotationsTargetDir>
     </PropertyGroup>
