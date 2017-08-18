@@ -3,6 +3,7 @@
     <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup>
     <Version>0.1.0</Version>
