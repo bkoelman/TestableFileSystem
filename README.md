@@ -1,6 +1,7 @@
 # Testable FileSystem
 
 [![Build status](https://ci.appveyor.com/api/projects/status/wiekgd62kq1o27kw?svg=true)](https://ci.appveyor.com/project/bkoelman/testablefilesystem/branch/master)
+[![codecov](https://codecov.io/gh/bkoelman/TestableFileSystem/branch/master/graph/badge.svg)](https://codecov.io/gh/bkoelman/TestableFileSystem)
 
 Provides abstractions for `System.IO.*` including in-memory fakes, intended for unit-testing.
 Requires at least [NetStandard](https://github.com/dotnet/standard/blob/master/docs/versions.md) 1.3 or .NET Framework 4.5.
