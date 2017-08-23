@@ -9,9 +9,8 @@ namespace TestableFileSystem.Fakes
 {
     internal sealed class DirectoryEntry : BaseEntry
     {
-        private const FileAttributes DirectoryAttributesToDiscard =
-            FileAttributes.Device | FileAttributes.Normal | FileAttributes.SparseFile | FileAttributes.Compressed |
-            FileAttributes.Encrypted | FileAttributes.IntegrityStream;
+        private const FileAttributes DirectoryAttributesToDiscard = FileAttributes.Device | FileAttributes.Normal |
+            FileAttributes.SparseFile | FileAttributes.Compressed | FileAttributes.Encrypted | FileAttributes.IntegrityStream;
 
         private const FileAttributes MinimumDriveAttributes =
             FileAttributes.Directory | FileAttributes.System | FileAttributes.Hidden;

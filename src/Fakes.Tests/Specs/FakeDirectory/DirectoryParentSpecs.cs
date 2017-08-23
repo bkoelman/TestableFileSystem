@@ -104,7 +104,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"d:\some\folder\path");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"d:\some\folder");
         }
 
@@ -119,7 +119,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"f:\some\folder\file.txt  ");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"f:\some\folder");
         }
 
@@ -138,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\folder");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"c:\");
         }
 
@@ -156,7 +156,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent("file.txt");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"x:\folder\to");
         }
 
@@ -174,7 +174,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(path);
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"C:\some");
         }
 
@@ -190,7 +190,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"C:\some\file.txt\deeper");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"C:\some\file.txt");
         }
 
@@ -206,7 +206,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"C:\some\file.txt\deeper\more");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"C:\some\file.txt\deeper");
         }
 
@@ -221,7 +221,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\server\share\file.txt");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"\\server\share");
         }
 
@@ -237,7 +237,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\server\share\file.txt");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"\\server\share");
         }
 
@@ -253,7 +253,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\server\share\file.txt");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"\\server\share");
         }
 
@@ -283,7 +283,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\?\C:\folder\file.txt");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"\\?\C:\folder");
         }
 
@@ -298,7 +298,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\?\UNC\server\share\folder\file.txt");
 
             // Assert
-            var parentNotNull = parent.ShouldNotBeNull();
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"\\?\UNC\server\share\folder");
         }
     }
