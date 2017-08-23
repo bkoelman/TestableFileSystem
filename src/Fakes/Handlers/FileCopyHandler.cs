@@ -52,7 +52,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var sourceResolver = new FileResolver(Root)
             {
-                ErrorPathIsVolumeRoot = incomingPath => ErrorFactory.System.DirectoryNotFound(incomingPath)
+                ErrorPathIsVolumeRoot = ErrorFactory.System.DirectoryNotFound
             };
 
             return sourceResolver.ResolveExistingFile(sourcePath);
@@ -64,7 +64,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var destinationResolver = new FileResolver(Root)
             {
-                ErrorFileFoundAsDirectory = incomingPath => ErrorFactory.System.TargetIsNotFile(incomingPath)
+                ErrorFileFoundAsDirectory = ErrorFactory.System.TargetIsNotFile
             };
 
             (DirectoryEntry destinationDirectory, FileEntry destinationFileOrNull, string fileName) =

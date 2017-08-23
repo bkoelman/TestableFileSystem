@@ -36,12 +36,12 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var sourceResolver = new FileResolver(Root)
             {
-                ErrorFileFoundAsDirectory = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
-                ErrorDirectoryFoundAsFile = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
-                ErrorLastDirectoryFoundAsFile = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
-                ErrorDirectoryNotFound = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
-                ErrorPathIsVolumeRoot = incomingPath => ErrorFactory.System.FileNotFound(incomingPath),
-                ErrorNetworkShareNotFound = incomingPath => ErrorFactory.System.FileNotFound(incomingPath)
+                ErrorFileFoundAsDirectory = ErrorFactory.System.FileNotFound,
+                ErrorDirectoryFoundAsFile = ErrorFactory.System.FileNotFound,
+                ErrorLastDirectoryFoundAsFile = ErrorFactory.System.FileNotFound,
+                ErrorDirectoryNotFound = ErrorFactory.System.FileNotFound,
+                ErrorPathIsVolumeRoot = ErrorFactory.System.FileNotFound,
+                ErrorNetworkShareNotFound = ErrorFactory.System.FileNotFound
             };
 
             return sourceResolver.ResolveExistingFile(sourcePath);
