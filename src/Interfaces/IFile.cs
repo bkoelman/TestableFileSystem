@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Interfaces
 {
+    [PublicAPI]
     public interface IFile
     {
         bool Exists([CanBeNull] string path);

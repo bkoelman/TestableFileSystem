@@ -268,8 +268,8 @@ namespace TestableFileSystem.Fakes
                         throw ErrorFactory.System.UncPathIsInvalid();
                     }
 
-                    AssertDirectoryNameOrFileNameIsValid(components[2], path);
-                    AssertDirectoryNameOrFileNameIsValid(components[3], path);
+                    AssertDirectoryNameOrFileNameIsValid(components[2]);
+                    AssertDirectoryNameOrFileNameIsValid(components[3]);
 
                     components[3] = TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar + components[3];
                     components.RemoveRange(0, 3);
@@ -281,14 +281,14 @@ namespace TestableFileSystem.Fakes
             }
 
             [AssertionMethod]
-            public static void AssertDirectoryNameOrFileNameIsValid([NotNull] string name, [NotNull] string path)
+            public static void AssertDirectoryNameOrFileNameIsValid([NotNull] string path)
             {
-                if (string.IsNullOrWhiteSpace(name))
+                if (string.IsNullOrWhiteSpace(path))
                 {
                     throw ErrorFactory.System.IllegalCharactersInPath(nameof(path));
                 }
 
-                foreach (char ch in name)
+                foreach (char ch in path)
                 {
                     if (FileNameCharsInvalid.Contains(ch))
                     {
@@ -296,7 +296,7 @@ namespace TestableFileSystem.Fakes
                     }
                 }
 
-                AssertIsNotReservedComponentName(name);
+                AssertIsNotReservedComponentName(path);
             }
 
             [AssertionMethod]
@@ -335,7 +335,7 @@ namespace TestableFileSystem.Fakes
                     }
                     else
                     {
-                        AssertDirectoryNameOrFileNameIsValid(component, path);
+                        AssertDirectoryNameOrFileNameIsValid(component);
                     }
                 }
             }
@@ -356,7 +356,7 @@ namespace TestableFileSystem.Fakes
         public AbsolutePath Append([NotNull] string name)
         {
             Guard.NotNullNorWhiteSpace(name, nameof(name));
-            Parser.AssertDirectoryNameOrFileNameIsValid(name, nameof(name));
+            Parser.AssertDirectoryNameOrFileNameIsValid(name);
 
             List<string> newComponents = Components.ToList();
             newComponents.Add(name);

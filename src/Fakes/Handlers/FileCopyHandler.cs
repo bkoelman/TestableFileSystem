@@ -50,10 +50,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath)
         {
-            var sourceResolver = new FileResolver(Root)
-            {
-                ErrorPathIsVolumeRoot = ErrorFactory.System.DirectoryNotFound
-            };
+            var sourceResolver = new FileResolver(Root) { ErrorPathIsVolumeRoot = ErrorFactory.System.DirectoryNotFound };
 
             return sourceResolver.ResolveExistingFile(sourcePath);
         }
@@ -62,10 +59,7 @@ namespace TestableFileSystem.Fakes.Handlers
         private FileEntry ResolveDestinationFile([NotNull] AbsolutePath destinationPath, bool overwrite,
             [NotNull] FileEntry sourceFile)
         {
-            var destinationResolver = new FileResolver(Root)
-            {
-                ErrorFileFoundAsDirectory = ErrorFactory.System.TargetIsNotFile
-            };
+            var destinationResolver = new FileResolver(Root) { ErrorFileFoundAsDirectory = ErrorFactory.System.TargetIsNotFile };
 
             (DirectoryEntry destinationDirectory, FileEntry destinationFileOrNull, string fileName) =
                 destinationResolver.TryResolveFile(destinationPath);

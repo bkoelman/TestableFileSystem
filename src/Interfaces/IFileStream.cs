@@ -7,6 +7,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace TestableFileSystem.Interfaces
 {
+    [PublicAPI]
     public interface IFileStream : IDisposable
     {
         bool CanRead { get; }

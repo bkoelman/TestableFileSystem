@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Interfaces
 {
+    [PublicAPI]
     public interface IFileSystem
     {
         [NotNull]

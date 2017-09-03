@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Interfaces
 {
+    [PublicAPI]
     public static class FileInfoExtensions
     {
         [NotNull]

@@ -15,14 +15,12 @@ namespace TestableFileSystem.Wrappers
                 return null;
             }
 
-            var directoryInfo = source as DirectoryInfo;
-            if (directoryInfo != null)
+            if (source is DirectoryInfo directoryInfo)
             {
                 return new DirectoryInfoWrapper(directoryInfo);
             }
 
-            var fileInfo = source as FileInfo;
-            if (fileInfo != null)
+            if (source is FileInfo fileInfo)
             {
                 return new FileInfoWrapper(fileInfo);
             }

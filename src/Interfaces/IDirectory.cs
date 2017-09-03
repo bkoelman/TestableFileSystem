@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Interfaces
 {
+    [PublicAPI]
     public interface IDirectory
     {
         [CanBeNull]

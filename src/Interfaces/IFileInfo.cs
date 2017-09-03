@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Interfaces
 {
+    [PublicAPI]
     public interface IFileInfo : IFileSystemInfo
     {
         long Length { get; }
