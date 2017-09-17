@@ -16,6 +16,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Fakes.Tests", "Fakes.Tests\TestableFileSystem.Fakes.Tests.csproj", "{FAA3BF66-58F0-47A8-A148-50F92E090A8E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Analyzer", "Analyzer\TestableFileSystem.Analyzer.csproj", "{2D407EBC-268E-4979-9138-06B874A71A9D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{26B6C4FC-5D42-44C3-A3E5-4090B6736966} = {26B6C4FC-5D42-44C3-A3E5-4090B6736966}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Analyzer.Tests", "Analyzer.Tests\TestableFileSystem.Analyzer.Tests.csproj", "{D661BCFD-5C33-41E1-8704-77F4771E0243}"
 EndProject
