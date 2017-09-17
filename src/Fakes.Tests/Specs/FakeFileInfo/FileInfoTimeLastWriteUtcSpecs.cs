@@ -12,7 +12,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private static readonly DateTime AlternateTimeUtc = 2.February(2034).At(12, 34, 56).AsUtc();
 
         [Fact]
-        private void When_getting_last_write_time_in_UTC_it_must_lazy_load()
+        private void When_getting_file_last_write_time_in_UTC_it_must_lazy_load()
         {
             // Arrange
             const string path = @"c:\some\file.txt";
@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         }
 
         [Fact]
-        private void When_getting_last_write_time_in_UTC_it_must_cache()
+        private void When_getting_file_last_write_time_in_UTC_it_must_cache()
         {
             // Arrange
             const string path = @"c:\some\file.txt";
@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         }
 
         [Fact]
-        private void When_getting_last_write_time_in_UTC_after_external_change_it_must_update_cache_on_refresh()
+        private void When_getting_file_last_write_time_in_UTC_after_external_change_it_must_update_cache_on_refresh()
         {
             // Arrange
             const string path = @"c:\some\file.txt";
@@ -89,7 +89,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         }
 
         [Fact]
-        private void When_changing_last_write_time_in_UTC_it_must_refresh_automatically()
+        private void When_changing_file_last_write_time_in_UTC_it_must_refresh_automatically()
         {
             // Arrange
             const string path = @"c:\some\file.txt";

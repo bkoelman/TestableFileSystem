@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private const string AlternateContents = "ABC...XYZ";
 
         [Fact]
-        private void When_getting_length_it_must_lazy_load()
+        private void When_getting_file_length_it_must_lazy_load()
         {
             // Arrange
             const string path = @"c:\some\file.txt";
@@ -32,7 +32,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         }
 
         [Fact]
-        private void When_getting_length_it_must_cache()
+        private void When_getting_file_length_it_must_cache()
         {
             // Arrange
             const string path = @"c:\some\file.txt";
@@ -56,7 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         }
 
         [Fact]
-        private void When_getting_length_after_external_change_it_must_update_cache_on_refresh()
+        private void When_getting_file_length_after_external_change_it_must_update_cache_on_refresh()
         {
             // Arrange
             const string path = @"c:\some\file.txt";
@@ -82,7 +82,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         }
 
         [Fact]
-        private void When_changing_length_it_must_not_refresh_automatically()
+        private void When_changing_file_length_it_must_not_refresh_automatically()
         {
             // Arrange
             const string path = @"c:\some\file.txt";
