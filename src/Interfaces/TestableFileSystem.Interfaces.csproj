@@ -28,16 +28,8 @@
     <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
     <PackageReference Include="jetbrains.externalannotations" Version="10.2.29" PrivateAssets="all" />
   </ItemGroup>
-  <Target Name="CopyExternalAnnotations" BeforeTargets="BeforeBuild" Condition="'$(BuildingInsideVisualStudio)' != 'true'">
-    <PropertyGroup>
-      <ExternalAnnotationsVersion>10.2.29</ExternalAnnotationsVersion>
-      <ExternalAnnotationsSourceDir>"$(USERPROFILE)\.nuget\packages\JetBrains.ExternalAnnotations\$(ExternalAnnotationsVersion)\DotFiles\ExternalAnnotations\*.xml"</ExternalAnnotationsSourceDir>
-      <ExternalAnnotationsTargetDir>"$(LOCALAPPDATA)\JetBrains\Installations\ReSharperPlatformVs15\ExternalAnnotations"</ExternalAnnotationsTargetDir>
-    </PropertyGroup>
-
-    <Message Importance="High" Text="Copying External Annotations from: $(ExternalAnnotationsSourceDir) to: $(ExternalAnnotationsTargetDir)" />
-    <Exec Command="xcopy $(ExternalAnnotationsSourceDir) $(ExternalAnnotationsTargetDir) /s /i /r /y /q /d" LogStandardErrorAsError="true" ConsoleToMSBuild="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
-    </Exec>
-  </Target>
+  <ItemGroup>
+  	<None Include="$(OutputPath)\..\..\..\Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
+    <None Include="$(OutputPath)\..\..\..\Analyzer\bin\$(Configuration)\net45\TestableFileSystem.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
 </Project>
