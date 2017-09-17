@@ -8,9 +8,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Demo", "Demo\TestableFileSystem.Demo.csproj", "{8D77A089-CEFA-4E5A-A853-56E35FD0817A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Interfaces", "Interfaces\TestableFileSystem.Interfaces.csproj", "{26B6C4FC-5D42-44C3-A3E5-4090B6736966}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2D407EBC-268E-4979-9138-06B874A71A9D} = {2D407EBC-268E-4979-9138-06B874A71A9D}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Wrappers", "Wrappers\TestableFileSystem.Wrappers.csproj", "{4FBEC372-35C1-4E3A-B3E5-C0AE5EDD69CB}"
 EndProject
