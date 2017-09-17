@@ -1,17 +1,23 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestableFileSystem.Demo", "Demo\TestableFileSystem.Demo.csproj", "{8D77A089-CEFA-4E5A-A853-56E35FD0817A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestableFileSystem.Analyzer.Vsix", "Analyzer.Vsix\TestableFileSystem.Analyzer.Vsix.csproj", "{3B498FFB-024D-4BB1-8D55-165FF10FCEA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestableFileSystem.Interfaces", "Interfaces\TestableFileSystem.Interfaces.csproj", "{26B6C4FC-5D42-44C3-A3E5-4090B6736966}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Demo", "Demo\TestableFileSystem.Demo.csproj", "{8D77A089-CEFA-4E5A-A853-56E35FD0817A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestableFileSystem.Wrappers", "Wrappers\TestableFileSystem.Wrappers.csproj", "{4FBEC372-35C1-4E3A-B3E5-C0AE5EDD69CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Interfaces", "Interfaces\TestableFileSystem.Interfaces.csproj", "{26B6C4FC-5D42-44C3-A3E5-4090B6736966}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestableFileSystem.Fakes", "Fakes\TestableFileSystem.Fakes.csproj", "{AB7D721B-97B8-4912-8E00-34260477840A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Wrappers", "Wrappers\TestableFileSystem.Wrappers.csproj", "{4FBEC372-35C1-4E3A-B3E5-C0AE5EDD69CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Fakes", "Fakes\TestableFileSystem.Fakes.csproj", "{AB7D721B-97B8-4912-8E00-34260477840A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Fakes.Tests", "Fakes.Tests\TestableFileSystem.Fakes.Tests.csproj", "{FAA3BF66-58F0-47A8-A148-50F92E090A8E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Analyzer", "Analyzer\TestableFileSystem.Analyzer.csproj", "{2D407EBC-268E-4979-9138-06B874A71A9D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestableFileSystem.Analyzer.Tests", "Analyzer.Tests\TestableFileSystem.Analyzer.Tests.csproj", "{D661BCFD-5C33-41E1-8704-77F4771E0243}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +25,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B498FFB-024D-4BB1-8D55-165FF10FCEA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B498FFB-024D-4BB1-8D55-165FF10FCEA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B498FFB-024D-4BB1-8D55-165FF10FCEA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B498FFB-024D-4BB1-8D55-165FF10FCEA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D77A089-CEFA-4E5A-A853-56E35FD0817A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D77A089-CEFA-4E5A-A853-56E35FD0817A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D77A089-CEFA-4E5A-A853-56E35FD0817A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D77A089-CEFA-4E5A-A853-56E35FD0817A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{26B6C4FC-5D42-44C3-A3E5-4090B6736966}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{26B6C4FC-5D42-44C3-A3E5-4090B6736966}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26B6C4FC-5D42-44C3-A3E5-4090B6736966}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -35,12 +49,19 @@ Global
 		{FAA3BF66-58F0-47A8-A148-50F92E090A8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAA3BF66-58F0-47A8-A148-50F92E090A8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAA3BF66-58F0-47A8-A148-50F92E090A8E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D77A089-CEFA-4E5A-A853-56E35FD0817A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D77A089-CEFA-4E5A-A853-56E35FD0817A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D77A089-CEFA-4E5A-A853-56E35FD0817A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D77A089-CEFA-4E5A-A853-56E35FD0817A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D407EBC-268E-4979-9138-06B874A71A9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D407EBC-268E-4979-9138-06B874A71A9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D407EBC-268E-4979-9138-06B874A71A9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D407EBC-268E-4979-9138-06B874A71A9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D661BCFD-5C33-41E1-8704-77F4771E0243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D661BCFD-5C33-41E1-8704-77F4771E0243}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D661BCFD-5C33-41E1-8704-77F4771E0243}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D661BCFD-5C33-41E1-8704-77F4771E0243}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CAA1614B-728D-4771-AC1F-F8846B79081D}
 	EndGlobalSection
 EndGlobal

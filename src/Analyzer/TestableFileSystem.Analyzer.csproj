@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net45</TargetFramework>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>TestableFileSystem.Analyzer</PackageId>
+    <Title>Code Analyzer for Testable File System</Title>
+    <Version>0.1.0</Version>
+    <Authors>Bart Koelman</Authors>
+    <Company />
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/bkoelman/TestableFileSystem</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Code Analyzer for Testable File System</Description>
+    <PackageReleaseNotes>Initial version.</PackageReleaseNotes>
+    <Copyright>Apache License, Version 2.0</Copyright>
+    <PackageTags>code analyzer testable file system</PackageTags>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <DevelopmentDependency>true</DevelopmentDependency>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="11.0.0" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.ExternalAnnotations" Version="10.2.29" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="1.0.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="1.1.0" PrivateAssets="all" />
+    <PackageReference Include="ResharperCodeContractNullability" Version="1.0.8" />
+  </ItemGroup>
+  <!--
+    To bypass the NuGet cache during install/uninstall debugging, uncomment the target below.
+
+  <Target Name="SetPackageVersionFromCurrentTime" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <PackageVersion>$([System.DateTime]::Now.ToString(`yyMM`)).$([System.DateTime]::Now.ToString(`ddHH`)).$([System.DateTime]::Now.ToString(`mmss`))-pre</PackageVersion>
+    </PropertyGroup>
+    <Message Importance="High" Text="Setting PackageVersion to $(PackageVersion)" />
+  </Target>
+  -->
+</Project>
