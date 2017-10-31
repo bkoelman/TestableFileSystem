@@ -27,15 +27,28 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertMovingToDifferentDirectoryOnSameVolume(arguments);
             AssertSourceIsNotVolumeRoot(arguments.SourcePath);
 
-            DirectoryEntry sourceDirectory = ResolveSourceDirectory(arguments.SourcePath);
-            AssertNoConflictWithCurrentDirectory(sourceDirectory);
-            AssertDirectoryContainsNoOpenFiles(sourceDirectory, arguments.SourcePath);
+            BaseEntry sourceFileOrDirectory = ResolveSourceFileOrDirectory(arguments.SourcePath);
 
-            DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
-            AssertDestinationIsNotDescendantOfSource(destinationDirectory, sourceDirectory);
+            if (sourceFileOrDirectory is DirectoryEntry sourceDirectory)
+            {
+                AssertNoConflictWithCurrentDirectory(sourceDirectory);
+                AssertDirectoryContainsNoOpenFiles(sourceDirectory, arguments.SourcePath);
 
-            string newDirectoryName = arguments.DestinationPath.Components.Last();
-            MoveDirectory(sourceDirectory, destinationDirectory, newDirectoryName);
+                DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
+                AssertDestinationIsNotDescendantOfSource(destinationDirectory, sourceDirectory);
+
+                string newDirectoryName = arguments.DestinationPath.Components.Last();
+                MoveDirectory(sourceDirectory, destinationDirectory, newDirectoryName);
+            }
+            else if (sourceFileOrDirectory is FileEntry sourceFile)
+            {
+                AssertHasExclusiveAccess(sourceFile);
+
+                DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
+
+                string newFileName = arguments.DestinationPath.Components.Last();
+                MoveFile(sourceFile, destinationDirectory, newFileName);
+            }
 
             return Missing.Value;
         }
@@ -72,11 +85,28 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [NotNull]
-        private DirectoryEntry ResolveSourceDirectory([NotNull] AbsolutePath path)
+        private BaseEntry ResolveSourceFileOrDirectory([NotNull] AbsolutePath path)
         {
-            var resolver =
-                new DirectoryResolver(Root) { ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound() };
-            return resolver.ResolveDirectory(path);
+            var resolver = new DirectoryResolver(Root)
+            {
+                ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
+                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound()
+            };
+            DirectoryEntry parentDirectory = resolver.ResolveDirectory(path.TryGetParentPath(), path.GetText());
+
+            string fileOrDirectoryName = path.Components.Last();
+
+            if (parentDirectory.Directories.ContainsKey(fileOrDirectoryName))
+            {
+                return parentDirectory.Directories[fileOrDirectoryName];
+            }
+
+            if (parentDirectory.Files.ContainsKey(fileOrDirectoryName))
+            {
+                return parentDirectory.Files[fileOrDirectoryName];
+            }
+
+            throw ErrorFactory.System.DirectoryNotFound(path.GetText());
         }
 
         [AssertionMethod]
@@ -155,11 +185,26 @@ namespace TestableFileSystem.Fakes.Handlers
             while (current != null);
         }
 
+        private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
+        {
+            if (file.IsOpen())
+            {
+                throw ErrorFactory.System.FileIsInUse();
+            }
+        }
+
         private static void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
             [NotNull] string newDirectoryName)
         {
             sourceDirectory.Parent?.DeleteDirectory(sourceDirectory.Name);
             destinationDirectory.MoveDirectoryToHere(sourceDirectory, newDirectoryName);
+        }
+
+        private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
+            [NotNull] string newFileName)
+        {
+            sourceFile.Parent.DeleteFile(sourceFile.Name);
+            destinationDirectory.MoveFileToHere(sourceFile, newFileName);
         }
     }
 }

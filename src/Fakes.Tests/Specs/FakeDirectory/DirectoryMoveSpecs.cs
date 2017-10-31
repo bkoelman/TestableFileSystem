@@ -347,8 +347,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"d:\other\destination").Should().BeTrue();
         }
 
-        [Fact(Skip = "TODO: Allow moving files.")]
-        private void When_moving_directory_from_directory_that_exists_as_file_it_must_succeed()
+        [Fact]
+        private void When_moving_directory_from_directory_that_exists_as_file_to_same_location_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(path, @"C:\SOME\FILE.TXT");
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("Source and destination path must be different.");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_directory_that_exists_as_file_to_same_directory_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(sourcePath, @"c:\some\newname");
+
+            // Assert
+            fileSystem.File.Exists(@"c:\some\newname").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_from_directory_that_exists_as_file_to_other_directory_it_must_succeed()
         {
             // Arrange
             const string sourcePath = @"C:\some\file.txt";
@@ -362,6 +396,65 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             fileSystem.File.Exists(@"c:\newname").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_directory_from_directory_that_exists_as_file_to_existing_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"C:\other.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .IncludingEmptyFile(destinationPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<IOException>().WithMessage("Cannot create a file when that file already exists");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_directory_that_exists_as_file_to_missing_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"C:\other\document.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+            // Assert
+            action.ShouldThrow<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_moving_directory_from_directory_that_exists_as_open_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"C:\some\other.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            using (fileSystem.File.Open(sourcePath, FileMode.Open, FileAccess.Read))
+            {
+                // Act
+                Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+
+                // Assert
+                action.ShouldThrow<IOException>()
+                    .WithMessage("The process cannot access the file because it is being used by another process.");
+            }
         }
 
         [Fact]
