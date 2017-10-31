@@ -15,15 +15,15 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
-    <PackageReference Include="JetBrains.Annotations" Version="11.0.0" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="OpenCover" Version="4.6.519" />
-    <PackageReference Include="ReportGenerator" Version="3.0.0" />
+    <PackageReference Include="ReportGenerator" Version="3.0.2" />
     <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
     <PackageReference Include="system.valuetuple" Version="4.3.1" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.console" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.console" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fakes\TestableFileSystem.Fakes.csproj" />
