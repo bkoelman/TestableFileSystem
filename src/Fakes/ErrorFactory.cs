@@ -176,6 +176,12 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
+            public static Exception FileTimeNotValid([NotNull] [InvokerParameterName] string paramName)
+            {
+                return new ArgumentOutOfRangeException(paramName, "Not a valid Win32 FileTime.");
+            }
+
+            [NotNull]
             public static Exception InvalidOpenCombination(FileMode mode, FileAccess access)
             {
                 return new ArgumentException($"Combining FileMode: {mode} with FileAccess: {access} is invalid.", nameof(access));

@@ -11,6 +11,11 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeDirectory : IDirectory
     {
+        // TODO: Implement events that change directory timings
+        // https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
+        // https://stackoverflow.com/questions/1025187/rules-for-date-modified-of-folders-in-windows-explorer
+        // https://msdn.microsoft.com/nl-nl/library/windows/desktop/ms724290(v=vs.85).aspx
+
         [NotNull]
         private readonly DirectoryEntry root;
 
@@ -231,17 +236,26 @@ namespace TestableFileSystem.Fakes
 
         public void SetCreationTime(string path, DateTime creationTime)
         {
-            // TODO: Implement events that change directory timings
-            // https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
-            // https://stackoverflow.com/questions/1025187/rules-for-date-modified-of-folders-in-windows-explorer
-            // https://msdn.microsoft.com/nl-nl/library/windows/desktop/ms724290(v=vs.85).aspx
+            Guard.NotNull(path, nameof(path));
 
-            throw new NotImplementedException();
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectorySetTimeHandler(root);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.CreationTime, false, creationTime);
+
+            handler.Handle(arguments);
         }
 
         public void SetCreationTimeUtc(string path, DateTime creationTimeUtc)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectorySetTimeHandler(root);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.CreationTime, true, creationTimeUtc);
+
+            handler.Handle(arguments);
         }
 
         public DateTime GetLastAccessTime(string path)
@@ -260,12 +274,26 @@ namespace TestableFileSystem.Fakes
 
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectorySetTimeHandler(root);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, false, lastAccessTime);
+
+            handler.Handle(arguments);
         }
 
         public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectorySetTimeHandler(root);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, true, lastAccessTimeUtc);
+
+            handler.Handle(arguments);
         }
 
         public DateTime GetLastWriteTime(string path)
@@ -284,12 +312,26 @@ namespace TestableFileSystem.Fakes
 
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectorySetTimeHandler(root);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, false, lastWriteTime);
+
+            handler.Handle(arguments);
         }
 
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new DirectorySetTimeHandler(root);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, true, lastWriteTimeUtc);
+
+            handler.Handle(arguments);
         }
     }
 }
