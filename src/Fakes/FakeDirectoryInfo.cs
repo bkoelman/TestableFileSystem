@@ -88,9 +88,7 @@ namespace TestableFileSystem.Fakes
 
         public IDirectoryInfo CreateSubdirectory(string path)
         {
-            // TODO: Review what kinds of path are allowed here.
-
-            AbsolutePath subPath = AbsolutePath.Append(path);
+            AbsolutePath subPath = RelativePathConverter.Combine(AbsolutePath, path);
             return Owner.Directory.CreateDirectory(subPath.GetText());
         }
 
