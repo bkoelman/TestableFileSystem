@@ -31,7 +31,7 @@ namespace TestableFileSystem.Fakes
                 AbsolutePath absolutePath = string.IsNullOrWhiteSpace(path) ? null : owner.ToAbsolutePath(path);
 
                 var handler = new FileExistsHandler(root);
-                var arguments = new DirectoryOrFileExistsArguments(absolutePath);
+                var arguments = new EntryExistsArguments(absolutePath);
 
                 return handler.Handle(arguments);
             }
@@ -134,7 +134,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
 
             var handler = new FileMoveHandler(root);
-            var arguments = new DirectoryOrFileMoveArguments(sourcePath, destinationPath);
+            var arguments = new EntryMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);
         }
@@ -206,7 +206,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new FileSetTimeHandler(root);
-            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.CreationTime, false, creationTime);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.CreationTime, false, creationTime);
 
             handler.Handle(arguments);
         }
@@ -218,7 +218,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new FileSetTimeHandler(root);
-            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.CreationTime, true, creationTimeUtc);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.CreationTime, true, creationTimeUtc);
 
             handler.Handle(arguments);
         }
@@ -254,7 +254,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new FileSetTimeHandler(root);
-            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, false, lastAccessTime);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, false, lastAccessTime);
 
             handler.Handle(arguments);
         }
@@ -266,7 +266,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new FileSetTimeHandler(root);
-            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, true, lastAccessTimeUtc);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, true, lastAccessTimeUtc);
 
             handler.Handle(arguments);
         }
@@ -302,7 +302,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new FileSetTimeHandler(root);
-            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, false, lastWriteTime);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, false, lastWriteTime);
 
             handler.Handle(arguments);
         }
@@ -314,7 +314,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new FileSetTimeHandler(root);
-            var arguments = new FileSetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, true, lastWriteTimeUtc);
+            var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, true, lastWriteTimeUtc);
 
             handler.Handle(arguments);
         }

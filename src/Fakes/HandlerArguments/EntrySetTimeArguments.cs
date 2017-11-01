@@ -4,7 +4,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.HandlerArguments
 {
-    internal sealed class FileSetTimeArguments
+    internal sealed class EntrySetTimeArguments
     {
         [NotNull]
         public AbsolutePath Path { get; }
@@ -13,7 +13,7 @@ namespace TestableFileSystem.Fakes.HandlerArguments
         public bool IsInUtc { get; }
         public DateTime TimeValue { get; }
 
-        public FileSetTimeArguments([NotNull] AbsolutePath path, FileTimeKind kind, bool isInUtc, DateTime timeValue)
+        public EntrySetTimeArguments([NotNull] AbsolutePath path, FileTimeKind kind, bool isInUtc, DateTime timeValue)
         {
             Guard.NotNull(path, nameof(path));
 

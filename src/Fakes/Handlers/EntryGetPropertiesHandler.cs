@@ -7,14 +7,14 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class GetEntryPropertiesHandler : FakeOperationHandler<GetEntryPropertiesArguments, EntryProperties>
+    internal sealed class EntryGetPropertiesHandler : FakeOperationHandler<EntryGetPropertiesArguments, EntryProperties>
     {
-        public GetEntryPropertiesHandler([NotNull] DirectoryEntry root)
+        public EntryGetPropertiesHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
         }
 
-        public override EntryProperties Handle(GetEntryPropertiesArguments arguments)
+        public override EntryProperties Handle(EntryGetPropertiesArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 

@@ -8,14 +8,14 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileSetTimeHandler : FakeOperationHandler<FileSetTimeArguments, object>
+    internal sealed class FileSetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, object>
     {
         public FileSetTimeHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
         }
 
-        public override object Handle(FileSetTimeArguments arguments)
+        public override object Handle(EntrySetTimeArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
             AssertTimeValueIsInRange(arguments);
@@ -67,7 +67,7 @@ namespace TestableFileSystem.Fakes.Handlers
             return Missing.Value;
         }
 
-        private static void AssertTimeValueIsInRange([NotNull] FileSetTimeArguments arguments)
+        private static void AssertTimeValueIsInRange([NotNull] EntrySetTimeArguments arguments)
         {
             DateTime minTime = arguments.IsInUtc ? PathFacts.ZeroFileTimeUtc : PathFacts.ZeroFileTime;
 

@@ -129,8 +129,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private EntryProperties RetrieveEntryProperties()
         {
-            var handler = new GetEntryPropertiesHandler(root);
-            var arguments = new GetEntryPropertiesArguments(AbsolutePath);
+            var handler = new EntryGetPropertiesHandler(root);
+            var arguments = new EntryGetPropertiesArguments(AbsolutePath);
 
             lock (Owner.TreeLock)
             {

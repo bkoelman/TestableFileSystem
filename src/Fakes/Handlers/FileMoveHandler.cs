@@ -8,14 +8,14 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileMoveHandler : FakeOperationHandler<DirectoryOrFileMoveArguments, object>
+    internal sealed class FileMoveHandler : FakeOperationHandler<EntryMoveArguments, object>
     {
         public FileMoveHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
         }
 
-        public override object Handle(DirectoryOrFileMoveArguments arguments)
+        public override object Handle(EntryMoveArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 

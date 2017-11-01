@@ -3,12 +3,12 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.HandlerArguments
 {
-    internal sealed class GetEntryPropertiesArguments
+    internal sealed class EntryGetPropertiesArguments
     {
         [NotNull]
         public AbsolutePath Path { get; }
 
-        public GetEntryPropertiesArguments([NotNull] AbsolutePath path)
+        public EntryGetPropertiesArguments([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
 

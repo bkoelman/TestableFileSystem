@@ -3,7 +3,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.HandlerArguments
 {
-    internal sealed class DirectoryOrFileMoveArguments
+    internal sealed class EntryMoveArguments
     {
         [NotNull]
         public AbsolutePath SourcePath { get; }
@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.HandlerArguments
         [NotNull]
         public AbsolutePath DestinationPath { get; }
 
-        public DirectoryOrFileMoveArguments([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath)
+        public EntryMoveArguments([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath)
         {
             Guard.NotNull(sourcePath, nameof(sourcePath));
             Guard.NotNull(destinationPath, nameof(destinationPath));

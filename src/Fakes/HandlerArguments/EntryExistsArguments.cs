@@ -2,12 +2,12 @@
 
 namespace TestableFileSystem.Fakes.HandlerArguments
 {
-    internal sealed class DirectoryOrFileExistsArguments
+    internal sealed class EntryExistsArguments
     {
         [CanBeNull]
         public AbsolutePath Path { get; }
 
-        public DirectoryOrFileExistsArguments([CanBeNull] AbsolutePath path)
+        public EntryExistsArguments([CanBeNull] AbsolutePath path)
         {
             Path = path;
         }
