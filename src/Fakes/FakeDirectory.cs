@@ -217,16 +217,25 @@ namespace TestableFileSystem.Fakes
 
         public DateTime GetCreationTime(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            return owner.File.GetCreationTime(path);
         }
 
         public DateTime GetCreationTimeUtc(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            return owner.File.GetCreationTimeUtc(path);
         }
 
         public void SetCreationTime(string path, DateTime creationTime)
         {
+            // TODO: Implement events that change directory timings
+            // https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
+            // https://stackoverflow.com/questions/1025187/rules-for-date-modified-of-folders-in-windows-explorer
+            // https://msdn.microsoft.com/nl-nl/library/windows/desktop/ms724290(v=vs.85).aspx
+
             throw new NotImplementedException();
         }
 
@@ -237,12 +246,16 @@ namespace TestableFileSystem.Fakes
 
         public DateTime GetLastAccessTime(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            return owner.File.GetLastAccessTime(path);
         }
 
         public DateTime GetLastAccessTimeUtc(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            return owner.File.GetLastAccessTimeUtc(path);
         }
 
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
@@ -257,12 +270,16 @@ namespace TestableFileSystem.Fakes
 
         public DateTime GetLastWriteTime(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            return owner.File.GetLastWriteTime(path);
         }
 
         public DateTime GetLastWriteTimeUtc(string path)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(path, nameof(path));
+
+            return owner.File.GetLastWriteTimeUtc(path);
         }
 
         public void SetLastWriteTime(string path, DateTime lastWriteTime)

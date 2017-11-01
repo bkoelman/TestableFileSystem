@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
@@ -80,6 +81,24 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath destinationPath = Owner.ToAbsolutePath(destFileName);
             ChangePath(destinationPath);
+        }
+
+        internal override void SetTimeUtc(FileTimeKind kind, DateTime value)
+        {
+            switch (kind)
+            {
+                case FileTimeKind.CreationTime:
+                    Owner.File.SetCreationTimeUtc(FullName, value);
+                    break;
+                case FileTimeKind.LastAccessTime:
+                    Owner.File.SetLastAccessTimeUtc(FullName, value);
+                    break;
+                case FileTimeKind.LastWriteTime:
+                    Owner.File.SetLastWriteTimeUtc(FullName, value);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported kind of file time '{kind}'.");
+            }
         }
 
         private void AssertIsExistingFile()

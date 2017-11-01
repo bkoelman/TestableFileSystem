@@ -39,6 +39,7 @@ namespace TestableFileSystem.Fakes
             }
             set
             {
+                // TODO: Should this be Directory?
                 Owner.File.SetAttributes(FullName, value);
                 Invalidate();
             }
@@ -59,7 +60,7 @@ namespace TestableFileSystem.Fakes
             }
             set
             {
-                Owner.File.SetCreationTimeUtc(FullName, value);
+                SetTimeUtc(FileTimeKind.CreationTime, value);
                 Invalidate();
             }
         }
@@ -79,7 +80,7 @@ namespace TestableFileSystem.Fakes
             }
             set
             {
-                Owner.File.SetLastAccessTimeUtc(FullName, value);
+                SetTimeUtc(FileTimeKind.LastAccessTime, value);
                 Invalidate();
             }
         }
@@ -99,7 +100,7 @@ namespace TestableFileSystem.Fakes
             }
             set
             {
-                Owner.File.SetLastWriteTimeUtc(FullName, value);
+                SetTimeUtc(FileTimeKind.LastWriteTime, value);
                 Invalidate();
             }
         }
@@ -144,6 +145,7 @@ namespace TestableFileSystem.Fakes
 
         public void Delete()
         {
+            // TODO: Should this be Directory?
             Owner.File.Delete(FullName);
         }
 
@@ -157,6 +159,8 @@ namespace TestableFileSystem.Fakes
 
             Invalidate();
         }
+
+        internal abstract void SetTimeUtc(FileTimeKind kind, DateTime value);
 
         public override string ToString()
         {

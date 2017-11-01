@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
@@ -103,6 +104,24 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath destinationPath = Owner.ToAbsolutePath(destDirName);
             ChangePath(destinationPath);
+        }
+
+        internal override void SetTimeUtc(FileTimeKind kind, DateTime value)
+        {
+            switch (kind)
+            {
+                case FileTimeKind.CreationTime:
+                    Owner.Directory.SetCreationTimeUtc(FullName, value);
+                    break;
+                case FileTimeKind.LastAccessTime:
+                    Owner.Directory.SetLastAccessTimeUtc(FullName, value);
+                    break;
+                case FileTimeKind.LastWriteTime:
+                    Owner.Directory.SetLastWriteTimeUtc(FullName, value);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported kind of file time '{kind}'.");
+            }
         }
     }
 }
