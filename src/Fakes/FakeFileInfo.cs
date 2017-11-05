@@ -83,6 +83,11 @@ namespace TestableFileSystem.Fakes
             ChangePath(destinationPath);
         }
 
+        public override void Delete()
+        {
+            Owner.File.Delete(FullName);
+        }
+
         internal override void SetTimeUtc(FileTimeKind kind, DateTime value)
         {
             switch (kind)

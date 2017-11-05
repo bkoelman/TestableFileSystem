@@ -39,7 +39,6 @@ namespace TestableFileSystem.Fakes
             }
             set
             {
-                // TODO: Should this be Directory?
                 Owner.File.SetAttributes(FullName, value);
                 Invalidate();
             }
@@ -143,11 +142,7 @@ namespace TestableFileSystem.Fakes
             propertiesSnapshot = null;
         }
 
-        public void Delete()
-        {
-            // TODO: Should this be Directory?
-            Owner.File.Delete(FullName);
-        }
+        public abstract void Delete();
 
         internal void ChangePath([NotNull] AbsolutePath path)
         {
