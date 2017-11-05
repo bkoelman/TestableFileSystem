@@ -554,7 +554,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             // Assert
             fileInfo.Name.Should().Be("file.txt");
             fileInfo.Extension.Should().Be(".txt");
-            fileInfo.FullName.Should().Be(@"\\server\share\file.txt");
+            fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"\\server\share");
             fileInfo.Exists.Should().BeFalse();
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
@@ -597,7 +597,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             // Assert
             fileInfo.Name.Should().Be("file.txt");
             fileInfo.Extension.Should().Be(".txt");
-            fileInfo.FullName.Should().Be(@"\\server\share\file.txt");
+            fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"\\server\share");
             fileInfo.Exists.Should().BeFalse();
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
@@ -645,7 +645,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             // Assert
             fileInfo.Name.Should().Be("file.txt");
             fileInfo.Extension.Should().Be(".txt");
-            fileInfo.FullName.Should().Be(@"\\server\share\file.txt");
+            fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"\\server\share");
             fileInfo.Exists.Should().BeTrue();
             fileInfo.Length.Should().Be(DefaultContents.Length);
