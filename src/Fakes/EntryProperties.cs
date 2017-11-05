@@ -7,12 +7,12 @@ namespace TestableFileSystem.Fakes
 {
     internal sealed class EntryProperties
     {
-        private const FileAttributes MissingFileAttributes = (FileAttributes)(-1);
+        private const FileAttributes MissingEntryAttributes = (FileAttributes)(-1);
 
         [CanBeNull]
         private readonly Exception lastError;
 
-        public bool Exists => lastError == null;
+        public bool Exists => lastError == null && Attributes != MissingEntryAttributes;
 
         public FileAttributes Attributes { get; }
 
@@ -26,7 +26,7 @@ namespace TestableFileSystem.Fakes
         public static readonly EntryProperties Default = new EntryProperties(null);
 
         private EntryProperties([CanBeNull] Exception error)
-            : this(MissingFileAttributes, PathFacts.ZeroFileTimeUtc, PathFacts.ZeroFileTimeUtc, PathFacts.ZeroFileTimeUtc, -1,
+            : this(MissingEntryAttributes, PathFacts.ZeroFileTimeUtc, PathFacts.ZeroFileTimeUtc, PathFacts.ZeroFileTimeUtc, -1,
                 error)
         {
         }

@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
     public sealed class FileInfoConstructSpecs
     {
         private const string DefaultContents = "ABC";
-        private const FileAttributes MissingFileAttributes = (FileAttributes)(-1);
+        private const FileAttributes MissingEntryAttributes = (FileAttributes)(-1);
         private static readonly DateTime ZeroFileTimeUtc = 1.January(1601).AsUtc();
 
         [Fact]
@@ -106,7 +106,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
                 .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'c:\some\file.txt'.");
             fileInfo.IsReadOnly.Should().BeTrue();
-            fileInfo.Attributes.Should().Be(MissingFileAttributes);
+            fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
             fileInfo.CreationTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.CreationTimeUtc.Should().Be(ZeroFileTimeUtc);
@@ -456,7 +456,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
                 .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt\nested.html'.");
             fileInfo.IsReadOnly.Should().BeTrue();
-            fileInfo.Attributes.Should().Be(MissingFileAttributes);
+            fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
             fileInfo.CreationTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.CreationTimeUtc.Should().Be(ZeroFileTimeUtc);
@@ -492,7 +492,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
                 .ShouldThrow<FileNotFoundException>()
                 .WithMessage(@"Could not find file 'C:\some\file.txt\nested.html\more.docx'.");
             fileInfo.IsReadOnly.Should().BeTrue();
-            fileInfo.Attributes.Should().Be(MissingFileAttributes);
+            fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
             fileInfo.CreationTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.CreationTimeUtc.Should().Be(ZeroFileTimeUtc);
@@ -526,7 +526,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
                 .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
             fileInfo.IsReadOnly.Should().BeTrue();
-            fileInfo.Attributes.Should().Be(MissingFileAttributes);
+            fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
             fileInfo.CreationTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.CreationTimeUtc.Should().Be(ZeroFileTimeUtc);
@@ -603,7 +603,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
                 .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\file.txt'.");
             fileInfo.IsReadOnly.Should().BeTrue();
-            fileInfo.Attributes.Should().Be(MissingFileAttributes);
+            fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
             fileInfo.CreationTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.CreationTimeUtc.Should().Be(ZeroFileTimeUtc);
