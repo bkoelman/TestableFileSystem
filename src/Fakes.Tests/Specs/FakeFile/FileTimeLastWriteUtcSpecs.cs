@@ -304,7 +304,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(HighTimeUtc);
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories.")]
+        [Fact]
         private void When_getting_last_write_time_in_UTC_for_drive_it_must_succeed()
         {
             // Arrange
@@ -477,7 +477,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories.")]
+        [Fact]
         private void When_getting_last_write_time_in_UTC_for_existing_directory_it_must_succeed()
         {
             // Arrange
@@ -608,7 +608,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.ShouldThrow<IOException>().WithMessage("The network path was not found");
         }
 
-        [Fact(Skip = "TODO: Implement timings for directories.")]
+        [Fact]
         private void When_getting_last_write_time_in_UTC_for_existing_network_share_it_must_succeed()
         {
             // Arrange
