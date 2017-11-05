@@ -79,10 +79,21 @@ namespace TestableFileSystem.Fakes
             Attributes = IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
             SystemClock = systemClock;
 
-            DateTime now = systemClock.UtcNow();
-            CreationTimeUtc = now;
-            LastAccessTimeUtc = now;
-            LastWriteTimeUtc = now;
+            CreationTimeUtc = systemClock.UtcNow();
+            HandleDirectoryChanged();
+        }
+
+        private void HandleDirectoryChanged()
+        {
+            // TODO: Review additional locations from where to call into here.
+
+            HandleDirectoryAccessed();
+            LastWriteTimeUtc = LastAccessTimeUtc;
+        }
+
+        private void HandleDirectoryAccessed()
+        {
+            LastAccessTimeUtc = SystemClock.UtcNow();
         }
 
         private static bool IsDriveLetter([NotNull] string name)
@@ -109,7 +120,12 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        public IEnumerable<BaseEntry> EnumerateEntries(EnumerationFilter filter) => contents.GetEntries(filter);
+        public IEnumerable<BaseEntry> EnumerateEntries(EnumerationFilter filter)
+        {
+            HandleDirectoryAccessed();
+
+            return contents.GetEntries(filter);
+        }
 
         [NotNull]
         [ItemNotNull]
@@ -123,6 +139,8 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(fileName, nameof(fileName));
 
+            HandleDirectoryChanged();
+
             var fileEntry = new FileEntry(fileName, this);
             return contents.Add(fileEntry);
         }
@@ -130,6 +148,8 @@ namespace TestableFileSystem.Fakes
         public void DeleteFile([NotNull] string fileName)
         {
             Guard.NotNull(fileName, nameof(fileName));
+
+            HandleDirectoryChanged();
 
             contents.RemoveFile(fileName);
         }

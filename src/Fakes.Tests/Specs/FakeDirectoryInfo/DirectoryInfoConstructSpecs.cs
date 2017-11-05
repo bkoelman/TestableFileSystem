@@ -123,18 +123,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             // Arrange
             const string path = @"c:\some\folder";
 
-            //var creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            //var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
-            //var lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastWriteTimeUtc;
 
-            //var lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastAccessTimeUtc;
+            fileSystem.File.WriteAllText(path + @"\file.txt", "X");
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            fileSystem.Directory.GetFiles(path);
 
             // Act
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
@@ -146,13 +150,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Exists.Should().BeTrue();
             dirInfo.Attributes.Should().Be(FileAttributes.Directory);
 
-            // TODO: Add specs for directory timings
-            //dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
-            //dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
-            //dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
-            //dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            //dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
-            //dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+            dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
+            dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
+            dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
+            dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"c:\some");
@@ -167,18 +170,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             // Arrange
             const string path = @"c:\SOME\folDER";
 
-            //var creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            //var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"C:\some\FOLder", FileAttributes.Hidden)
                 .Build();
 
-            //var lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastWriteTimeUtc;
 
-            //var lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastAccessTimeUtc;
+            fileSystem.File.WriteAllText(path + @"\file.txt", "X");
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            fileSystem.Directory.GetFiles(path);
 
             // Act
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
@@ -190,13 +197,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Exists.Should().BeTrue();
             dirInfo.Attributes.Should().Be(FileAttributes.Directory | FileAttributes.Hidden);
 
-            // TODO: Add specs for directory timings
-            //dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
-            //dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
-            //dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
-            //dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            //dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
-            //dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+            dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
+            dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
+            dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
+            dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"c:\SOME");
@@ -211,18 +217,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             // Arrange
             const string path = @"c:\some\folder  ";
 
-            //var creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            //var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
-            //var lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastWriteTimeUtc;
 
-            //var lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastAccessTimeUtc;
+            fileSystem.File.WriteAllText(@"c:\some\folder\file.txt", "X");
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            fileSystem.Directory.GetFiles(path);
 
             // Act
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
@@ -234,13 +244,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Exists.Should().BeTrue();
             dirInfo.Attributes.Should().Be(FileAttributes.Directory);
 
-            // TODO: Add specs for directory timings
-            //dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
-            //dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
-            //dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
-            //dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            //dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
-            //dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+            dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
+            dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
+            dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
+            dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"c:\some");
@@ -289,19 +298,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             // Arrange
             const string path = @"c:\some\folder";
 
-            //var creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            //var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\other")
                 .IncludingDirectory(path)
                 .Build();
 
-            //var lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastWriteTimeUtc;
 
-            //var lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastAccessTimeUtc;
+            fileSystem.File.WriteAllText(path + @"\file.txt", "X");
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            fileSystem.Directory.GetFiles(path);
 
             fileSystem.Directory.SetCurrentDirectory(@"C:\other");
 
@@ -315,13 +328,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Exists.Should().BeTrue();
             dirInfo.Attributes.Should().Be(FileAttributes.Directory);
 
-            // TODO: Add specs for directory timings
-            //dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
-            //dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
-            //dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
-            //dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            //dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
-            //dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+            dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
+            dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
+            dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
+            dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"C:\some");
@@ -336,18 +348,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             // Arrange
             const string path = @"c:\some\folder";
 
-            //var creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            //var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
-            //var lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastWriteTimeUtc;
 
-            //var lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastAccessTimeUtc;
+            fileSystem.File.WriteAllText(path + @"\file.txt", "X");
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            fileSystem.Directory.GetFiles(path);
 
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
 
@@ -361,13 +377,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Exists.Should().BeTrue();
             dirInfo.Attributes.Should().Be(FileAttributes.Directory);
 
-            // TODO: Add specs for directory timings
-            //dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
-            //dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
-            //dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
-            //dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            //dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
-            //dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+            dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
+            dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
+            dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
+            dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"C:\some");
@@ -594,18 +609,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             // Arrange
             const string path = @"\\server\share\folder";
 
-            //var creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            //var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
-            //var lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastWriteTimeUtc;
 
-            //var lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastAccessTimeUtc;
+            fileSystem.File.WriteAllText(path + @"\file.txt", "X");
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            fileSystem.Directory.GetFiles(path);
 
             // Act
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
@@ -617,13 +636,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Exists.Should().BeTrue();
             dirInfo.Attributes.Should().Be(FileAttributes.Directory);
 
-            // TODO: Add specs for directory timings
-            //dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
-            //dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
-            //dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
-            //dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            //dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
-            //dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+            dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
+            dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
+            dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
+            dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"\\server\share");
@@ -652,18 +670,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             // Arrange
             const string path = @"c:\some\folder";
 
-            //var creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            //var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
                 .Build();
 
-            //var lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastWriteTimeUtc;
 
-            //var lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
-            //clock.UtcNow = () => lastAccessTimeUtc;
+            fileSystem.File.WriteAllText(path + @"\file.txt", "X");
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            fileSystem.Directory.GetFiles(path);
 
             // Act
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(@"\\?\c:\some\folder");
@@ -675,13 +697,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Exists.Should().BeTrue();
             dirInfo.Attributes.Should().Be(FileAttributes.Directory);
 
-            // TODO: Add specs for directory timings
-            //dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
-            //dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
-            //dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
-            //dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
-            //dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
-            //dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+            dirInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
+            dirInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            dirInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
+            dirInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            dirInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
+            dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"\\?\c:\some");
