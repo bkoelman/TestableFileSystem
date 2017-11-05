@@ -9,6 +9,8 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
+    // TODO: Update existing tests with directory timings.
+
     public sealed class DirectoryEnumerateEntriesSpecs
     {
         [Fact]

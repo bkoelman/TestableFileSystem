@@ -11,6 +11,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryEnumerateFilesSpecs
     {
+        // TODO: Update existing tests with directory timings.
+
         [Fact]
         private void When_enumerating_files_for_null_path_it_must_fail()
         {
