@@ -480,7 +480,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_attributes_for_exising_relative_local_file_it_must_succeed()
+        private void When_getting_attributes_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -497,7 +497,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_attributes_for_exising_relative_local_file_it_must_succeed()
+        private void When_setting_attributes_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

@@ -381,7 +381,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_last_access_time_in_UTC_for_exising_relative_local_file_it_must_succeed()
+        private void When_getting_last_access_time_in_UTC_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
             var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
@@ -400,7 +400,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_last_access_time_in_UTC_for_exising_relative_local_file_it_must_succeed()
+        private void When_setting_last_access_time_in_UTC_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
