@@ -22,8 +22,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingDirectory(path)
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.SetAttributes(path, FileAttributes.Directory | FileAttributes.Hidden);
@@ -47,16 +47,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingDirectory(path)
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.WriteAllText(@"c:\folder\file.txt", "X");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -73,16 +73,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.Delete(@"c:\folder\file.txt");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -99,16 +99,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.Move(@"c:\folder\file.txt", @"c:\folder\newname.doc");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -125,16 +125,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\other\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.Copy(@"c:\other\file.txt", @"c:\folder\file.txt");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -151,16 +151,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\other\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.Move(@"c:\other\file.txt", @"c:\folder\file.txt");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -177,16 +177,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.Move(@"c:\folder\file.txt", @"c:\file.txt");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -202,8 +202,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.AppendAllText(@"c:\folder\file.txt", "X");
@@ -227,11 +227,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.File.SetCreationTimeUtc(@"c:\folder\file.txt", lastWriteTimeUtc);
+            fileSystem.File.SetCreationTimeUtc(@"c:\folder\file.txt", updateTimeUtc);
             fileSystem.File.SetAttributes(@"c:\folder\file.txt", FileAttributes.ReadOnly);
 
             // Assert
@@ -253,16 +253,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingDirectory(path)
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.Directory.CreateDirectory(@"c:\folder\sub");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -278,16 +278,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingDirectory(@"c:\folder\sub")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.Directory.Delete(@"c:\folder\sub");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -303,16 +303,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingDirectory(@"c:\folder\sub")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.Directory.Move(@"c:\folder\sub", @"c:\folder\newname");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -329,16 +329,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\other\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.Directory.Move(@"c:\other", @"c:\folder\other");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -354,16 +354,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\sub\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.Directory.Move(@"c:\folder\sub", @"c:\newname");
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(lastWriteTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -379,12 +379,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingDirectory(@"c:\folder\sub")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.SetAttributes(@"c:\folder\sub", FileAttributes.Directory | FileAttributes.ReadOnly);
-            fileSystem.Directory.SetCreationTimeUtc(@"c:\folder\sub", lastWriteTimeUtc);
+            fileSystem.Directory.SetCreationTimeUtc(@"c:\folder\sub", updateTimeUtc);
 
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
@@ -405,8 +405,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\sub\file.txt")
                 .Build();
 
-            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastWriteTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.File.Delete(@"c:\folder\sub\file.txt");
@@ -433,8 +433,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\sub\file.txt")
                 .Build();
 
-            DateTime lastAccessTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastAccessTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.Directory.GetFileSystemEntries(path);
@@ -442,7 +442,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
             fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastAccessTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
 
             fileSystem.Directory.GetCreationTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
             fileSystem.Directory.GetLastWriteTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
@@ -462,8 +462,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\sub\file.txt")
                 .Build();
 
-            DateTime lastAccessTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
-            clock.UtcNow = () => lastAccessTimeUtc;
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
 
             // Act
             fileSystem.Directory.GetFileSystemEntries(path, searchOption: SearchOption.AllDirectories);
@@ -471,11 +471,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
             fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(lastAccessTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
 
             fileSystem.Directory.GetCreationTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
             fileSystem.Directory.GetLastWriteTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(@"c:\folder\sub").Should().Be(lastAccessTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(@"c:\folder\sub").Should().Be(updateTimeUtc);
         }
     }
 }

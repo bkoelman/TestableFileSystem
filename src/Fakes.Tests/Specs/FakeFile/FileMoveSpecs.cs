@@ -513,16 +513,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string sourcePath = @"C:\some\file.txt";
             const string destinationPath = @"C:\some\sub\newname.txt";
 
-            DateTime creationTimeUtc = 7.October(2015);
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(sourcePath)
                 .IncludingDirectory(@"c:\some\sub")
                 .Build();
-
-            DateTime lastWriteTimeUtc = 8.October(2015);
-            clock.UtcNow = () => lastWriteTimeUtc;
 
             fileSystem.File.WriteAllText(sourcePath, "ABC");
 
@@ -532,11 +526,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             fileSystem.File.Exists(sourcePath).Should().BeFalse();
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
-
-            IFileInfo destinationInfo = fileSystem.ConstructFileInfo(destinationPath);
-            destinationInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
-            destinationInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
-            destinationInfo.LastAccessTimeUtc.Should().Be(lastWriteTimeUtc);
         }
 
         [Fact]

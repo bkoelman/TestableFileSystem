@@ -86,14 +86,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            DateTime creationTimeUtc = 9.September(2016);
-
-            var clock = new SystemClock
-            {
-                UtcNow = () => creationTimeUtc
-            };
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"C:\some")
                 .Build();
 
@@ -106,10 +99,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Assert
             IFileInfo info = fileSystem.ConstructFileInfo(path);
             info.Exists.Should().BeTrue();
-
-            info.CreationTimeUtc.Should().Be(creationTimeUtc);
-            info.LastAccessTimeUtc.Should().Be(creationTimeUtc);
-            info.LastWriteTimeUtc.Should().Be(creationTimeUtc);
             info.Attributes.Should().Be(FileAttributes.Archive);
         }
 
@@ -168,19 +157,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            DateTime initialCreationTimeUtc = 9.September(2016);
-
-            var clock = new SystemClock
-            {
-                UtcNow = () => initialCreationTimeUtc
-            };
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(path, "existing data")
                 .Build();
-
-            DateTime overwriteTimeUtc = 12.September(2016);
-            clock.UtcNow = () => overwriteTimeUtc;
 
             // Act
             using (IFileStream stream = fileSystem.File.Create(path))
@@ -191,10 +170,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             IFileInfo info = fileSystem.ConstructFileInfo(path);
             info.Exists.Should().BeTrue();
-
-            info.CreationTimeUtc.Should().Be(initialCreationTimeUtc);
-            info.LastAccessTimeUtc.Should().Be(overwriteTimeUtc);
-            info.LastWriteTimeUtc.Should().Be(overwriteTimeUtc);
             info.Attributes.Should().Be(FileAttributes.Archive);
         }
 
