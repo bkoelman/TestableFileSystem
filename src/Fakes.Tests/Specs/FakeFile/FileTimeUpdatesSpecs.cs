@@ -32,9 +32,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.SetAttributes(path, FileAttributes.Directory | FileAttributes.Hidden);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
         }
 
         [Fact]
@@ -64,7 +64,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
         }
 
-
         [Fact]
         private void When_reading_from_existing_file_it_must_update_file_timings()
         {
@@ -82,7 +81,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             clock.UtcNow = () => changeTimeUtc;
 
             // Act
-            fileSystem.File.ReadAllText(path);
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                stream.ReadByte();
+            }
 
             // Assert
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
@@ -133,6 +135,33 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Act
             fileSystem.File.AppendAllText(path, DefaultContents);
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(changeTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
+        }
+
+        [Fact]
+        private void When_truncating_existing_file_it_must_update_file_timings()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            DateTime changeTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => changeTimeUtc;
+
+            // Act
+            using (fileSystem.File.Open(path, FileMode.Truncate))
+            {
+            }
 
             // Assert
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
