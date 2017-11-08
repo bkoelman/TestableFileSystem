@@ -11,11 +11,6 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeDirectory : IDirectory
     {
-        // TODO: Implement events that change directory timings
-        // https://support.microsoft.com/en-us/help/299648/description-of-ntfs-date-and-time-stamps-for-files-and-folders
-        // https://stackoverflow.com/questions/1025187/rules-for-date-modified-of-folders-in-windows-explorer
-        // https://msdn.microsoft.com/nl-nl/library/windows/desktop/ms724290(v=vs.85).aspx
-
         [NotNull]
         private readonly DirectoryEntry root;
 

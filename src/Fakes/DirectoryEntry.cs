@@ -85,8 +85,6 @@ namespace TestableFileSystem.Fakes
 
         private void HandleDirectoryChanged()
         {
-            // TODO: Review additional locations from where to call into here.
-
             HandleDirectoryAccessed();
             LastWriteTimeUtc = LastAccessTimeUtc;
         }
@@ -139,19 +137,21 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(fileName, nameof(fileName));
 
+            var fileEntry = new FileEntry(fileName, this);
+            contents.Add(fileEntry);
+
             HandleDirectoryChanged();
 
-            var fileEntry = new FileEntry(fileName, this);
-            return contents.Add(fileEntry);
+            return fileEntry;
         }
 
         public void DeleteFile([NotNull] string fileName)
         {
             Guard.NotNull(fileName, nameof(fileName));
 
-            HandleDirectoryChanged();
-
             contents.RemoveFile(fileName);
+
+            HandleDirectoryChanged();
         }
 
         public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName)
@@ -161,6 +161,8 @@ namespace TestableFileSystem.Fakes
 
             file.MoveTo(newFileName, this);
             contents.Add(file);
+
+            HandleDirectoryChanged();
         }
 
         [NotNull]
@@ -169,7 +171,11 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(directoryName, nameof(directoryName));
 
             var directoryEntry = new DirectoryEntry(directoryName, this, SystemClock);
-            return contents.Add(directoryEntry);
+            contents.Add(directoryEntry);
+
+            HandleDirectoryChanged();
+
+            return directoryEntry;
         }
 
         public void DeleteDirectory([NotNull] string directoryName)
@@ -177,6 +183,8 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(directoryName, nameof(directoryName));
 
             contents.RemoveDirectory(directoryName);
+
+            HandleDirectoryChanged();
         }
 
         public void MoveDirectoryToHere([NotNull] DirectoryEntry directory, [NotNull] string newDirectoryName)
@@ -188,6 +196,8 @@ namespace TestableFileSystem.Fakes
             directory.Parent = this;
 
             contents.Add(directory);
+
+            HandleDirectoryChanged();
         }
 
         public override string ToString()

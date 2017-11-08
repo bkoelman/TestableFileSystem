@@ -9,8 +9,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryMoveSpecs
     {
-        // TODO: Update existing tests with directory timings.
-
         [Fact]
         private void When_moving_directory_for_null_source_it_must_fail()
         {
