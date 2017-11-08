@@ -661,7 +661,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => fileSystem.ConstructDirectoryInfo("COM1");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

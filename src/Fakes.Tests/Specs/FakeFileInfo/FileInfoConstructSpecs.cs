@@ -674,7 +674,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             Action action = () => fileSystem.ConstructFileInfo("COM1");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

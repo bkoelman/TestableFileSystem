@@ -206,7 +206,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath(@"c:\nul\documents"));
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -216,7 +216,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = ActionFactory.IgnoreReturnValue(() => new AbsolutePath("com1"));
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
     }
 }

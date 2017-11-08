@@ -340,7 +340,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingDirectory(@"c:\some\COM1\folder");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

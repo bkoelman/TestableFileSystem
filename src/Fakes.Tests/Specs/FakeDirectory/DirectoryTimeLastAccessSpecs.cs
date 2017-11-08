@@ -415,7 +415,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
+        private void
+            When_getting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
             var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
@@ -432,7 +433,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_setting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
+        private void
+            When_setting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -703,7 +705,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastAccessTime("COM1");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -717,7 +719,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastAccessTime("COM1", DefaultTime);
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

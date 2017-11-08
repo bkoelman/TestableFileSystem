@@ -330,7 +330,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingBinaryFile("COM1", DefaultContents);
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

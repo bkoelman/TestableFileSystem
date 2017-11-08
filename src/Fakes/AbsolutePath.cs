@@ -304,7 +304,7 @@ namespace TestableFileSystem.Fakes
             {
                 if (ReservedComponentNames.Contains(name))
                 {
-                    throw new NotSupportedException("Reserved names are not supported.");
+                    throw new PlatformNotSupportedException("Reserved names are not supported.");
                 }
             }
 
