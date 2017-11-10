@@ -1,7 +1,34 @@
-﻿namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
+﻿using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
+using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Interfaces;
+using Xunit;
+
+namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
 {
     public sealed class DirectoryInfoEnumerateEntriesSpecs
     {
-        // TODO: Add specs
+        [Fact]
+        private void When_enumerating_entries_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\some\folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(@"c:\some\folder\sub")
+                .IncludingEmptyFile(@"c:\some\folder\file.txt")
+                .Build();
+
+            IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
+
+            // Act
+            IEnumerable<IFileSystemInfo> infos = dirInfo.EnumerateFileSystemInfos();
+
+            // Assert
+            IFileSystemInfo[] array = infos.Should().HaveCount(2).And.Subject.ToArray();
+            array[0].FullName.Should().Be(@"c:\some\folder\file.txt");
+            array[1].FullName.Should().Be(@"c:\some\folder\sub");
+        }
     }
 }
