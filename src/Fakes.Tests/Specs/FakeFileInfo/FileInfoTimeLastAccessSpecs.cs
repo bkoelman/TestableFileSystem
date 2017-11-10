@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             // Arrange
             const string path = @"c:\some\file.txt";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTime };
+            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -43,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             // Arrange
             const string path = @"c:\some\file.txt";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTime };
+            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -69,7 +69,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             // Arrange
             const string path = @"c:\some\file.txt";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTime };
+            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -97,7 +97,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             // Arrange
             const string path = @"c:\some\file.txt";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTime };
+            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)

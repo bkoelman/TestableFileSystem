@@ -301,20 +301,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             var copyWaitIndicator = new WaitIndicator();
 
-            DateTime sourceCreationTime = 4.January(2017).At(7, 52, 01);
-            var clock = new SystemClock { UtcNow = () => sourceCreationTime };
+            DateTime sourceCreationTimeUtc = 4.January(2017).At(7, 52, 01).AsUtc();
+            var clock = new SystemClock { UtcNow = () => sourceCreationTimeUtc };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .WithCopyWaitIndicator(copyWaitIndicator)
                 .IncludingEmptyFile(sourcePath)
                 .Build();
 
-            DateTime sourceLastWriteTimeUtc = 10.January(2017).At(3, 12, 34);
+            DateTime sourceLastWriteTimeUtc = 10.January(2017).At(3, 12, 34).AsUtc();
             clock.UtcNow = () => sourceLastWriteTimeUtc;
 
             fileSystem.File.WriteAllText(sourcePath, DefaultContents);
 
-            DateTime destinationCreationTimeUtc = 12.January(2017).At(11, 23, 45);
+            DateTime destinationCreationTimeUtc = 12.January(2017).At(11, 23, 45).AsUtc();
             clock.UtcNow = () => destinationCreationTimeUtc;
 
             // Act
@@ -330,7 +330,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationCreationTimeUtc);
                 fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(sourceLastWriteTimeUtc);
 
-                DateTime destinationCompletedTimeUtc = 12.January(2017).At(11, 27, 36);
+                DateTime destinationCompletedTimeUtc = 12.January(2017).At(11, 27, 36).AsUtc();
                 clock.UtcNow = () => destinationCompletedTimeUtc;
 
                 copyWaitIndicator.SetCompleted();
@@ -341,7 +341,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationCompletedTimeUtc);
                 fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(sourceLastWriteTimeUtc);
 
-                fileSystem.File.GetCreationTimeUtc(sourcePath).Should().Be(sourceCreationTime);
+                fileSystem.File.GetCreationTimeUtc(sourcePath).Should().Be(sourceCreationTimeUtc);
                 fileSystem.File.GetLastAccessTimeUtc(sourcePath).Should().Be(destinationCompletedTimeUtc);
                 fileSystem.File.GetLastWriteTimeUtc(sourcePath).Should().Be(sourceLastWriteTimeUtc);
             }
@@ -361,7 +361,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             var copyWaitIndicator = new WaitIndicator();
 
-            DateTime creationTimeUtc = 4.January(2017).At(7, 52, 01);
+            DateTime creationTimeUtc = 4.January(2017).At(7, 52, 01).AsUtc();
             var clock = new SystemClock { UtcNow = () => creationTimeUtc };
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
@@ -370,12 +370,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .IncludingEmptyFile(destinationPath)
                 .Build();
 
-            DateTime sourceLastWriteTimeUtc = 10.January(2017).At(3, 12, 34);
+            DateTime sourceLastWriteTimeUtc = 10.January(2017).At(3, 12, 34).AsUtc();
             clock.UtcNow = () => sourceLastWriteTimeUtc;
 
             fileSystem.File.WriteAllText(sourcePath, DefaultContents);
 
-            DateTime destinationLastWriteTimeUtc = 12.January(2017).At(11, 23, 45);
+            DateTime destinationLastWriteTimeUtc = 12.January(2017).At(11, 23, 45).AsUtc();
             clock.UtcNow = () => destinationLastWriteTimeUtc;
 
             // Act
@@ -391,7 +391,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
                 fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(sourceLastWriteTimeUtc);
 
-                DateTime destinationCompletedTimeUtc = 12.January(2017).At(11, 27, 36);
+                DateTime destinationCompletedTimeUtc = 12.January(2017).At(11, 27, 36).AsUtc();
                 clock.UtcNow = () => destinationCompletedTimeUtc;
 
                 copyWaitIndicator.SetCompleted();

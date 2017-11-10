@@ -59,7 +59,7 @@ namespace TestableFileSystem.Fakes.Handlers
             var destinationResolver = new FileResolver(Root) { ErrorFileFoundAsDirectory = ErrorFactory.System.TargetIsNotFile };
             FileResolveResult resolveResult = destinationResolver.TryResolveFile(destinationPath);
 
-            DateTime now = Root.SystemClock.UtcNow();
+            DateTime utcNow = Root.SystemClock.UtcNow();
 
             FileEntry destinationFile;
             if (resolveResult.ExistingFileOrNull != null)
@@ -72,7 +72,7 @@ namespace TestableFileSystem.Fakes.Handlers
             else
             {
                 destinationFile = resolveResult.ContainingDirectory.CreateFile(resolveResult.FileName);
-                destinationFile.CreationTimeUtc = now;
+                destinationFile.CreationTimeUtc = utcNow;
             }
 
             using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath))
@@ -82,7 +82,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             destinationFile.Attributes = sourceFile.Attributes;
 
-            destinationFile.LastAccessTimeUtc = now;
+            destinationFile.LastAccessTimeUtc = utcNow;
             destinationFile.LastWriteTimeUtc = sourceFile.LastWriteTimeUtc;
 
             return destinationFile;
