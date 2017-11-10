@@ -19,12 +19,11 @@ namespace TestableFileSystem.Fakes.Handlers
             Guard.NotNull(arguments, nameof(arguments));
 
             var resolver = new FileResolver(Root);
-            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string _) =
-                resolver.TryResolveFile(arguments.Path);
+            FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
-            if (existingFileOrNull != null)
+            if (resolveResult.ExistingFileOrNull != null)
             {
-                DeleteFile(existingFileOrNull, containingDirectory, arguments);
+                DeleteFile(resolveResult.ExistingFileOrNull, resolveResult.ContainingDirectory, arguments);
             }
 
             return Missing.Value;

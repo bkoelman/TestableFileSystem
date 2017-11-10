@@ -21,12 +21,12 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertValidCreationOptions(arguments);
 
             var resolver = new FileResolver(Root);
-            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) =
-                resolver.TryResolveFile(arguments.Path);
+            FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
-            AssertIsNotHiddenOrReadOnly(existingFileOrNull, arguments.Path);
+            AssertIsNotHiddenOrReadOnly(resolveResult.ExistingFileOrNull, arguments.Path);
 
-            FileEntry file = existingFileOrNull ?? containingDirectory.CreateFile(fileName);
+            FileEntry file = resolveResult.ExistingFileOrNull ??
+                resolveResult.ContainingDirectory.CreateFile(resolveResult.FileName);
 
             if ((arguments.Options & FileOptions.DeleteOnClose) != 0)
             {

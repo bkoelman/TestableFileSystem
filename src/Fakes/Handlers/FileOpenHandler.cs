@@ -21,12 +21,11 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertValidCombinationOfModeWithAccess(arguments.Mode, fileAccess);
 
             var resolver = new FileResolver(Root);
-            (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) =
-                resolver.TryResolveFile(arguments.Path);
+            FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
-            return existingFileOrNull != null
-                ? HandleExistingFile(existingFileOrNull, fileAccess, arguments)
-                : HandleNewFile(fileName, containingDirectory, fileAccess, arguments);
+            return resolveResult.ExistingFileOrNull != null
+                ? HandleExistingFile(resolveResult.ExistingFileOrNull, fileAccess, arguments)
+                : HandleNewFile(resolveResult.FileName, resolveResult.ContainingDirectory, fileAccess, arguments);
         }
 
         private static FileAccess DetectFileAccess([NotNull] FileOpenArguments arguments)

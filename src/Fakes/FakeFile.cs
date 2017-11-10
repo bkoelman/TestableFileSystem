@@ -81,11 +81,7 @@ namespace TestableFileSystem.Fakes
             AssertFileNameIsNotEmpty(sourceFileName);
             AssertFileNameIsNotEmpty(destFileName);
 
-            FileEntry sourceFile;
-            FileEntry destinationFile;
-
-            Stream sourceStream = null;
-            Stream destinationStream = null;
+            FileCopyResult copyResult = null;
 
             try
             {
@@ -97,22 +93,22 @@ namespace TestableFileSystem.Fakes
                     var handler = new FileCopyHandler(root);
                     var arguments = new FileCopyArguments(sourcePath, destinationPath, overwrite);
 
-                    (sourceFile, sourceStream, destinationFile, destinationStream) = handler.Handle(arguments);
+                    copyResult = handler.Handle(arguments);
                 }
 
                 WaitOnIndicator(owner.CopyWaitIndicator);
 
-                sourceStream.CopyTo(destinationStream);
+                copyResult.SourceStream.CopyTo(copyResult.DestinationStream);
             }
             finally
             {
-                destinationStream?.Dispose();
-                sourceStream?.Dispose();
+                copyResult?.DestinationStream.Dispose();
+                copyResult?.SourceStream.Dispose();
             }
 
             lock (owner.TreeLock)
             {
-                destinationFile.LastWriteTimeUtc = sourceFile.LastWriteTimeUtc;
+                copyResult.DestinationFile.LastWriteTimeUtc = copyResult.SourceFile.LastWriteTimeUtc;
             }
         }
 

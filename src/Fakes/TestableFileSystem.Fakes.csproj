@@ -26,7 +26,6 @@
   <ItemGroup>
     <PackageReference Include="jetbrains.annotations" Version="11.1.0" PrivateAssets="all" />
     <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
-    <PackageReference Include="system.valuetuple" Version="4.3.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Interfaces\TestableFileSystem.Interfaces.csproj" />

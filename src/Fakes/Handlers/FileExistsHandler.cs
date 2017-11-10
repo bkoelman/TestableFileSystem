@@ -22,9 +22,9 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             var resolver = new FileResolver(Root);
-            (DirectoryEntry _, FileEntry existingFileOrNull, string _) = resolver.TryResolveFile(arguments.Path);
+            FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
-            return existingFileOrNull != null;
+            return resolveResult.ExistingFileOrNull != null;
         }
     }
 }

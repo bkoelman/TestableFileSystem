@@ -7,9 +7,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileCopyHandler
-        : FakeOperationHandler<FileCopyArguments, (FileEntry sourceFile, Stream sourceStream, FileEntry destinationFile, Stream
-            destinationStream)>
+    internal sealed class FileCopyHandler : FakeOperationHandler<FileCopyArguments, FileCopyResult>
     {
         private const FileAttributes HiddenReadOnlyMask = FileAttributes.Hidden | FileAttributes.ReadOnly;
 
@@ -18,8 +16,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
         }
 
-        public override (FileEntry sourceFile, Stream sourceStream, FileEntry destinationFile, Stream destinationStream) Handle(
-            FileCopyArguments arguments)
+        public override FileCopyResult Handle(FileCopyArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 
@@ -36,7 +33,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite, arguments.SourcePath);
                 destinationStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, arguments.DestinationPath);
 
-                return (sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream());
+                return new FileCopyResult(sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream());
             }
             catch (Exception)
             {
@@ -60,23 +57,21 @@ namespace TestableFileSystem.Fakes.Handlers
             [NotNull] FileEntry sourceFile)
         {
             var destinationResolver = new FileResolver(Root) { ErrorFileFoundAsDirectory = ErrorFactory.System.TargetIsNotFile };
-
-            (DirectoryEntry destinationDirectory, FileEntry destinationFileOrNull, string fileName) =
-                destinationResolver.TryResolveFile(destinationPath);
+            FileResolveResult resolveResult = destinationResolver.TryResolveFile(destinationPath);
 
             DateTime now = Root.SystemClock.UtcNow();
 
             FileEntry destinationFile;
-            if (destinationFileOrNull != null)
+            if (resolveResult.ExistingFileOrNull != null)
             {
                 AssertCanOverwriteFile(overwrite, destinationPath);
-                AssertIsNotHiddenOrReadOnly(destinationFileOrNull, destinationPath);
+                AssertIsNotHiddenOrReadOnly(resolveResult.ExistingFileOrNull, destinationPath);
 
-                destinationFile = destinationDirectory.Files[fileName];
+                destinationFile = resolveResult.ContainingDirectory.Files[resolveResult.FileName];
             }
             else
             {
-                destinationFile = destinationDirectory.CreateFile(fileName);
+                destinationFile = resolveResult.ContainingDirectory.CreateFile(resolveResult.FileName);
                 destinationFile.CreationTimeUtc = now;
             }
 

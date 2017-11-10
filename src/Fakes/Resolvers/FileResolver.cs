@@ -93,8 +93,8 @@ namespace TestableFileSystem.Fakes.Resolvers
             return directory;
         }
 
-        public (DirectoryEntry containingDirectory, FileEntry existingFileOrNull, string fileName) TryResolveFile(
-            [NotNull] AbsolutePath path)
+        [NotNull]
+        public FileResolveResult TryResolveFile([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
 
@@ -106,7 +106,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             AssertIsNotDirectory(fileName, directory, path);
 
             FileEntry fileEntry = !directory.Files.ContainsKey(fileName) ? null : directory.Files[fileName];
-            return (directory, fileEntry, fileName);
+            return new FileResolveResult(directory, fileEntry, fileName);
         }
 
         [NotNull]
