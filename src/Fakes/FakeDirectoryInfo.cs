@@ -89,8 +89,54 @@ namespace TestableFileSystem.Fakes
 
         public IDirectoryInfo CreateSubdirectory(string path)
         {
-            AbsolutePath subPath = RelativePathConverter.Combine(AbsolutePath, path);
-            return Owner.Directory.CreateDirectory(subPath.GetText());
+            Guard.NotNull(path, nameof(path));
+
+            AssertPathIsNotEmpty(path);
+            AssertPathIsRelative(path);
+
+            AbsolutePath completePath =
+                path.Trim().Length == 0 ? AbsolutePath : RelativePathConverter.Combine(AbsolutePath, path);
+
+            if (!PathStartsWith(completePath, AbsolutePath))
+            {
+                throw ErrorFactory.System.DirectoryIsNotASubdirectory(path, AbsolutePath.GetText());
+            }
+
+            return Owner.Directory.CreateDirectory(completePath.GetText());
+        }
+
+        private static void AssertPathIsNotEmpty([NotNull] string path)
+        {
+            if (path.Length == 0)
+            {
+                throw ErrorFactory.System.PathCannotBeEmptyOrWhitespace(nameof(path));
+            }
+        }
+
+        private static void AssertPathIsRelative([NotNull] string path)
+        {
+            if (PathFacts.DirectorySeparatorChars.Contains(path[0]) || path.Contains(":"))
+            {
+                throw ErrorFactory.System.PathFragmentMustNotBeDriveOrUncName(nameof(path));
+            }
+        }
+
+        private bool PathStartsWith([NotNull] AbsolutePath longPath, [NotNull] AbsolutePath shortPath)
+        {
+            if (longPath.Components.Count < shortPath.Components.Count)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < shortPath.Components.Count; index++)
+            {
+                if (!string.Equals(shortPath.Components[index], longPath.Components[index], StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public void Delete(bool recursive)

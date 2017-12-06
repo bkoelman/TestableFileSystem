@@ -94,12 +94,22 @@ namespace TestableFileSystem.Fakes
         public static AbsolutePath Combine([NotNull] AbsolutePath basePath, [NotNull] string relativePath)
         {
             Guard.NotNull(basePath, nameof(basePath));
-            AssertNotNullNorWhiteSpace(relativePath);
+            Guard.NotNull(relativePath, nameof(relativePath));
 
-            // TODO: Throw when relativePath is an absolute path. System.ArgumentException: 'Second path fragment must not be a drive or UNC name.'
-            // TODO: Allow for paths that contain multiple components, like: "some\nested\tree"
+            return CombinePathComponents(basePath, relativePath);
+        }
 
-            return basePath.Append(relativePath);
+        [NotNull]
+        private static AbsolutePath CombinePathComponents([NotNull] AbsolutePath basePath, [NotNull] string relativePath)
+        {
+            AbsolutePath resultPath = basePath;
+
+            foreach (string component in relativePath.Split(PathFacts.DirectorySeparatorChars))
+            {
+                resultPath = resultPath.Append(component);
+            }
+
+            return resultPath;
         }
     }
 }

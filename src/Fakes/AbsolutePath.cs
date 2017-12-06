@@ -356,6 +356,18 @@ namespace TestableFileSystem.Fakes
         public AbsolutePath Append([NotNull] string name)
         {
             Guard.NotNullNorWhiteSpace(name, nameof(name));
+
+            if (name == ".")
+            {
+                return this;
+            }
+
+            if (name == "..")
+            {
+                // Silently ignore moving to above root.
+                return TryGetParentPath() ?? this;
+            }
+
             Parser.AssertDirectoryNameOrFileNameIsValid(name);
 
             List<string> newComponents = Components.ToList();

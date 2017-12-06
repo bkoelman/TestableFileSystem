@@ -205,6 +205,19 @@ namespace TestableFileSystem.Fakes
             {
                 return new IOException("Source and destination path must be different.");
             }
+
+            [NotNull]
+            public static Exception PathFragmentMustNotBeDriveOrUncName([NotNull] [InvokerParameterName] string paramName)
+            {
+                return new ArgumentException("Second path fragment must not be a drive or UNC name.", paramName);
+            }
+
+            [NotNull]
+            public static Exception DirectoryIsNotASubdirectory([NotNull] string path, [NotNull] string absolutePath)
+            {
+                throw new ArgumentException($@"The directory specified, '{path}', is not a subdirectory of '{absolutePath}'.",
+                    nameof(path));
+            }
         }
 
         public static class Internal
