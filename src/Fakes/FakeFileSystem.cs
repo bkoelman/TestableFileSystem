@@ -1,9 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
-
-// TODO: Remove this after converting all specs.
-[assembly: InternalsVisibleTo("TestableFileSystem.Fakes.Tests")]
 
 namespace TestableFileSystem.Fakes
 {
