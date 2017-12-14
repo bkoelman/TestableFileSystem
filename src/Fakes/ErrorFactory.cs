@@ -230,7 +230,8 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
-            public static Exception EnumValueUnsupported<TEnum>(TEnum value) where TEnum : struct
+            public static Exception EnumValueUnsupported<TEnum>(TEnum value)
+                where TEnum : struct
             {
                 throw new NotSupportedException($"Unsupported value '{value}' for {typeof(TEnum).Name}.");
             }
