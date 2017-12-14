@@ -236,6 +236,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
         }
 
         [Fact]
+        private void When_creating_subdirectory_for_path_with_self_reference_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"d:\some";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
+
+            // Act
+            IDirectoryInfo subdirInfo = dirInfo.CreateSubdirectory(@".\other");
+
+            // Assert
+            subdirInfo.FullName.Should().Be(@"d:\some\other");
+        }
+
+        [Fact]
         private void When_creating_subdirectory_for_parent_path_it_must_fail()
         {
             // Arrange

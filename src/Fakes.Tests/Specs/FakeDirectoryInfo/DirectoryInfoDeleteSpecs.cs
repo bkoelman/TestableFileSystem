@@ -28,6 +28,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
         }
 
         [Fact]
+        private void When_deleting_directory_recursively_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\some\folder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
+
+            // Act
+            dirInfo.Delete(true);
+
+            // Assert
+            fileSystem.Directory.Exists(path).Should().BeFalse();
+        }
+
+        [Fact]
         private void When_deleting_directory_it_must_update_cache_on_refresh()
         {
             // Arrange

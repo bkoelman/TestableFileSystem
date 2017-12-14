@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes
                 case EnumerationFilter.All:
                     return entries.Values;
                 default:
-                    throw new NotSupportedException($"Unsupported filter '{filter}'.");
+                    throw ErrorFactory.Internal.EnumValueUnsupported(filter);
             }
         }
 

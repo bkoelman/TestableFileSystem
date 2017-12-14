@@ -40,6 +40,7 @@ namespace TestableFileSystem.Fakes.Builders
                 IncludingDirectory("C:");
             }
 
+            copyWaitIndicator.Reset();
             return new FakeFileSystem(root, copyWaitIndicator);
         }
 

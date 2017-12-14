@@ -232,10 +232,10 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            private static bool HasPrefixForExtendedLength([CanBeNull] string path)
+            private static bool HasPrefixForExtendedLength([NotNull] string path)
             {
-                return path?.StartsWith(@"\\?\", StringComparison.Ordinal) == true ||
-                    path?.StartsWith(@"\\?\UNC\", StringComparison.Ordinal) == true;
+                return path.StartsWith(@"\\?\", StringComparison.Ordinal) ||
+                    path.StartsWith(@"\\?\UNC\", StringComparison.Ordinal);
             }
 
             [NotNull]
@@ -341,7 +341,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private static bool IsDriveLetter([NotNull] string name)
+        internal static bool IsDriveLetter([NotNull] string name)
         {
             if (name.Length == 2 && name[1] == Path.VolumeSeparatorChar)
             {

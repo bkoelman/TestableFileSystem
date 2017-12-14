@@ -102,5 +102,45 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             beforeAttributes.Should().Be(FileAttributes.Hidden);
             afterAttributes.Should().Be(FileAttributes.ReadOnly);
         }
+
+        [Fact]
+        private void When_setting_file_to_readonly_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path, FileAttributes.Hidden)
+                .Build();
+
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
+
+            // Act
+            fileInfo.IsReadOnly = true;
+
+            // Assert
+            fileInfo.IsReadOnly.Should().Be(true);
+            fileInfo.Attributes.Should().Be(FileAttributes.Hidden | FileAttributes.ReadOnly);
+        }
+
+        [Fact]
+        private void When_setting_file_to_non_readonly_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path, FileAttributes.Hidden | FileAttributes.ReadOnly)
+                .Build();
+
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
+
+            // Act
+            fileInfo.IsReadOnly = false;
+
+            // Assert
+            fileInfo.IsReadOnly.Should().Be(false);
+            fileInfo.Attributes.Should().Be(FileAttributes.Hidden);
+        }
     }
 }

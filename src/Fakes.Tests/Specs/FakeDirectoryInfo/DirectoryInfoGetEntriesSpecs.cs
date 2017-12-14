@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
@@ -7,10 +6,10 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
 {
-    public sealed class DirectoryInfoEnumerateEntriesSpecs
+    public sealed class DirectoryInfoGetEntriesSpecs
     {
         [Fact]
-        private void When_enumerating_entries_it_must_succeed()
+        private void When_getting_entries_it_must_succeed()
         {
             // Arrange
             const string path = @"c:\some\folder";
@@ -23,7 +22,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
             // Act
-            IEnumerable<IFileSystemInfo> infos = dirInfo.EnumerateFileSystemInfos();
+            IFileSystemInfo[] infos = dirInfo.GetFileSystemInfos();
 
             // Assert
             IFileSystemInfo[] array = infos.Should().HaveCount(2).And.Subject.ToArray();

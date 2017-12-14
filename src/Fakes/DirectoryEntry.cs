@@ -76,7 +76,7 @@ namespace TestableFileSystem.Fakes
             : base(name)
         {
             Parent = parent;
-            Attributes = IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
+            Attributes = AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
             SystemClock = systemClock;
 
             CreationTimeUtc = systemClock.UtcNow();
@@ -92,20 +92,6 @@ namespace TestableFileSystem.Fakes
         private void HandleDirectoryAccessed()
         {
             LastAccessTimeUtc = SystemClock.UtcNow();
-        }
-
-        private static bool IsDriveLetter([NotNull] string name)
-        {
-            if (name.Length == 2 && name[1] == Path.VolumeSeparatorChar)
-            {
-                char driveLetter = char.ToUpperInvariant(name[0]);
-                if (driveLetter >= 'A' && driveLetter <= 'Z')
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         [NotNull]

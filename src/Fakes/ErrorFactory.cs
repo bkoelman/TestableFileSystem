@@ -225,8 +225,14 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception UnknownError([NotNull] string message)
             {
-                throw new Exception($"Unexpected Internal Error: {message}\r\n\r\n" +
+                return new Exception($"Unexpected Internal Error: {message}\r\n\r\n" +
                     "Please notify the author by creating an issue at 'https://github.com/bkoelman/TestableFileSystem'.");
+            }
+
+            [NotNull]
+            public static Exception EnumValueUnsupported<TEnum>(TEnum value) where TEnum : struct
+            {
+                throw new NotSupportedException($"Unsupported value '{value}' for {typeof(TEnum).Name}.");
             }
         }
     }

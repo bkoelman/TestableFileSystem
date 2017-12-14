@@ -102,7 +102,7 @@ namespace TestableFileSystem.Fakes
                     Owner.File.SetLastWriteTimeUtc(FullName, value);
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported kind of file time '{kind}'.");
+                    throw ErrorFactory.Internal.EnumValueUnsupported(kind);
             }
         }
 

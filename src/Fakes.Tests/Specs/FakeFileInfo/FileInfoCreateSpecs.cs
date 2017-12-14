@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             // Act
-            using (fileInfo.CreateText())
+            using (fileInfo.Create())
             {
             }
 

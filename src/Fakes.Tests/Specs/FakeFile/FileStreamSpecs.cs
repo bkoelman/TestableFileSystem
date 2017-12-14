@@ -111,6 +111,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_writing_empty_buffer_to_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Create(path))
+            {
+                // Act
+                stream.Write(new byte[] { 0xAA }, 0, 0);
+
+                // Assert
+                stream.Length.Should().Be(0);
+                stream.Position.Should().Be(0);
+            }
+        }
+
+        [Fact]
         private void When_writing_small_buffer_to_file_it_must_succeed()
         {
             // Arrange
@@ -431,6 +451,28 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_setting_position_to_negative_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Position = -1;
+
+                // Assert
+                action.ShouldThrow<ArgumentOutOfRangeException>()
+                    .WithMessage("Specified argument was out of the range of valid values.*");
+            }
+        }
+
+        [Fact]
         private void When_reducing_length_it_must_succeed()
         {
             // Arrange
@@ -442,11 +484,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
             {
+                stream.Position = 5;
+
                 // Act
                 stream.SetLength(3);
 
                 // Assert
                 stream.Length.Should().Be(3);
+                stream.Position.Should().Be(3);
             }
 
             string contents = fileSystem.File.ReadAllText(path);

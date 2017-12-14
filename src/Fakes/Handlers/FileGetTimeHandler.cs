@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 case FileTimeKind.LastAccessTime:
                     return arguments.IsInUtc ? entry.LastAccessTimeUtc : entry.LastAccessTime;
                 default:
-                    throw new NotSupportedException($"Unsupported kind of file time '{arguments.Kind}'.");
+                    throw ErrorFactory.Internal.EnumValueUnsupported(arguments.Kind);
             }
         }
     }

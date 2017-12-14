@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes.Handlers
                     }
                     break;
                 default:
-                    throw new NotSupportedException($"Unsupported kind of file time '{arguments.Kind}'.");
+                    throw ErrorFactory.Internal.EnumValueUnsupported(arguments.Kind);
             }
 
             return Missing.Value;

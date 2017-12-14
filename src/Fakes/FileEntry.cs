@@ -93,7 +93,7 @@ namespace TestableFileSystem.Fakes
         {
             if (parent.Parent == null)
             {
-                throw new ArgumentException("File cannot exist at the root of the filesystem.", nameof(parent));
+                throw new InvalidOperationException("File cannot exist at the root of the filesystem.");
             }
         }
 
@@ -328,7 +328,7 @@ namespace TestableFileSystem.Fakes
                         Position = Length + offset;
                         break;
                     default:
-                        throw new NotSupportedException($"Unsupported origin '{origin}'.");
+                        throw ErrorFactory.Internal.EnumValueUnsupported(origin);
                 }
 
                 return Position;

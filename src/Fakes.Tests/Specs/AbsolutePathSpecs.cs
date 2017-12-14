@@ -147,6 +147,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
+        private void When_creating_path_with_whitespace_directory_it_must_fail()
+        {
+            // Arrange
+            var fileSystemBuilder = new FakeFileSystemBuilder();
+
+            // Act
+            Action action = () => fileSystemBuilder.IncludingEmptyFile(@"c:\some\  \other");
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().WithMessage(@"Illegal characters in path.*");
+        }
+
+        [Fact]
         private void When_creating_relative_path_it_must_fail()
         {
             // Arrange
@@ -209,7 +222,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs/in/sub\folder");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs/in/sub\folder/");
 
             // Assert
             info.FullName.Should().Be(@"C:\docs\in\sub\folder");
