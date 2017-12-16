@@ -16,5 +16,10 @@ namespace TestableFileSystem.Interfaces
 
         [NotNull]
         IDirectoryInfo ConstructDirectoryInfo([NotNull] string path);
+
+#if !NETSTANDARD1_3
+        [NotNull]
+        IFileSystemWatcher ConstructFileSystemWatcher([NotNull] string path = "", [NotNull] string filter = "*.*");
+#endif
     }
 }

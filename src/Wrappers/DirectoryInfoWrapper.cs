@@ -11,16 +11,16 @@ namespace TestableFileSystem.Wrappers
         [NotNull]
         private readonly DirectoryInfo source;
 
+        public IDirectoryInfo Parent => Utilities.WrapOrNull(source.Parent, x => new DirectoryInfoWrapper(x));
+
+        public IDirectoryInfo Root => new DirectoryInfoWrapper(source.Root);
+
         public DirectoryInfoWrapper([NotNull] DirectoryInfo source)
             : base(source)
         {
             Guard.NotNull(source, nameof(source));
             this.source = source;
         }
-
-        public IDirectoryInfo Parent => Utilities.WrapOrNull(source.Parent, x => new DirectoryInfoWrapper(x));
-
-        public IDirectoryInfo Root => new DirectoryInfoWrapper(source.Root);
 
         public IFileInfo[] GetFiles(string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {

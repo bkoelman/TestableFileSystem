@@ -29,8 +29,25 @@ namespace TestableFileSystem.Fakes
 
             string currentDirectoryPath = currentDirectoryManager.GetValue().GetText();
 
-            string rooted = Path.Combine(currentDirectoryPath, path);
+            string rooted = CombinePaths(currentDirectoryPath, path);
             return new AbsolutePath(rooted);
+        }
+
+        [NotNull]
+        private static string CombinePaths([NotNull] string path1, [NotNull] string path2)
+        {
+            // NETCORE20 contains a bugfix for incorrect detection of rooted paths. The fix causes a different exception
+            // to be thrown at a later time when path2 contains "::". To preserve our existing behavior, we check for
+            // the fixed scenario here.
+
+            if (path2.Length >= 2 && path2[1] == Path.VolumeSeparatorChar && !AbsolutePath.IsDriveLetter(path2.Substring(0, 2)))
+            {
+                // NETCORE20 combines both paths because it considers path2 non-rooted. That may be more correct, however
+                // it is not the behavior we used to get (and came to rely on).
+                return path2;
+            }
+
+            return Path.Combine(path1, path2);
         }
 
         [AssertionMethod]

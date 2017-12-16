@@ -70,5 +70,19 @@ namespace TestableFileSystem.Fakes
         {
             return relativePathConverter.ToAbsolutePath(path);
         }
+
+#if !NETSTANDARD1_3
+        [NotNull]
+        public FakeFileSystemWatcher ConstructFileSystemWatcher([NotNull] string path = "", [NotNull] string filter = "*.*")
+        {
+            Guard.NotNull(filter, nameof(filter));
+            Guard.NotNull(path, nameof(path));
+
+            return new FakeFileSystemWatcher(this, path, filter);
+        }
+
+        IFileSystemWatcher IFileSystem.ConstructFileSystemWatcher(string path, string filter) =>
+            ConstructFileSystemWatcher(path, filter);
+#endif
     }
 }

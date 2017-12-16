@@ -23,6 +23,13 @@ namespace TestableFileSystem.Wrappers
             return new DirectoryInfoWrapper(new DirectoryInfo(path));
         }
 
+#if !NETSTANDARD1_3
+        public IFileSystemWatcher ConstructFileSystemWatcher(string path = "", string filter = "*.*")
+        {
+            return new FileSystemWatcherWrapper(new FileSystemWatcher(path, filter));
+        }
+#endif
+
         private FileSystemWrapper()
         {
         }

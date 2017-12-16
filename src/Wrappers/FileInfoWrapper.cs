@@ -9,13 +9,6 @@ namespace TestableFileSystem.Wrappers
         [NotNull]
         private readonly FileInfo source;
 
-        public FileInfoWrapper([NotNull] FileInfo source)
-            : base(source)
-        {
-            Guard.NotNull(source, nameof(source));
-            this.source = source;
-        }
-
         public long Length => source.Length;
 
         public bool IsReadOnly
@@ -27,6 +20,13 @@ namespace TestableFileSystem.Wrappers
         public string DirectoryName => source.DirectoryName;
 
         public IDirectoryInfo Directory => Utilities.WrapOrNull(source.Directory, x => new DirectoryInfoWrapper(x));
+
+        public FileInfoWrapper([NotNull] FileInfo source)
+            : base(source)
+        {
+            Guard.NotNull(source, nameof(source));
+            this.source = source;
+        }
 
         public IFileStream Create()
         {
