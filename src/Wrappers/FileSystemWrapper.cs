@@ -26,7 +26,8 @@ namespace TestableFileSystem.Wrappers
 #if !NETSTANDARD1_3
         public IFileSystemWatcher ConstructFileSystemWatcher(string path = "", string filter = "*.*")
         {
-            return new FileSystemWatcherWrapper(new FileSystemWatcher(path, filter));
+            FileSystemWatcher watcher = path == string.Empty ? new FileSystemWatcher() : new FileSystemWatcher(path, filter);
+            return new FileSystemWatcherWrapper(watcher);
         }
 #endif
 

@@ -16,6 +16,7 @@ namespace TestableFileSystem.Interfaces
         NotifyFilters NotifyFilter { get; set; }
         bool IncludeSubdirectories { get; set; }
         bool EnableRaisingEvents { get; set; }
+        int InternalBufferSize { get; set; }
 
         event FileSystemEventHandler Deleted;
         event FileSystemEventHandler Created;

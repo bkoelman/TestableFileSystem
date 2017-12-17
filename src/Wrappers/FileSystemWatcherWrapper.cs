@@ -40,6 +40,12 @@ namespace TestableFileSystem.Wrappers
             set => source.EnableRaisingEvents = value;
         }
 
+        public int InternalBufferSize
+        {
+            get => source.InternalBufferSize;
+            set => source.InternalBufferSize = value;
+        }
+
         public event FileSystemEventHandler Deleted
         {
             add => source.Deleted += value;
