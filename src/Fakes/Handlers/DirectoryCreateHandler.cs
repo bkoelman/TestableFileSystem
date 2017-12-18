@@ -7,8 +7,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class DirectoryCreateHandler : FakeOperationHandler<DirectoryCreateArguments, DirectoryEntry>
     {
-        public DirectoryCreateHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public DirectoryCreateHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+            : base(root, changeTracker)
         {
         }
 

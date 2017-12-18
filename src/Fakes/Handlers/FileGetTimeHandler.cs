@@ -8,8 +8,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileGetTimeHandler : FakeOperationHandler<FileGetTimeArguments, DateTime>
     {
-        public FileGetTimeHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileGetTimeHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+            : base(root, changeTracker)
         {
         }
 

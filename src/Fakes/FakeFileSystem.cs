@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -24,9 +23,8 @@ namespace TestableFileSystem.Fakes
         public IFile File { get; }
         public IDirectory Directory { get; }
 
-#if !NETSTANDARD1_3
-        internal event EventHandler<SystemChangeEventArgs> FileSystemChanged;
-#endif
+        [NotNull]
+        internal FileSystemChangeTracker ChangeTracker { get; } = new FileSystemChangeTracker();
 
         internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] WaitIndicator copyWaitIndicator)
         {
@@ -84,18 +82,11 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = path.Length > 0 ? ToAbsolutePath(path) : null;
-            return new FakeFileSystemWatcher(this, absolutePath, filter);
+            return new FakeFileSystemWatcher(ChangeTracker, absolutePath, filter);
         }
 
         IFileSystemWatcher IFileSystem.ConstructFileSystemWatcher(string path, string filter) =>
             ConstructFileSystemWatcher(path, filter);
-
-        internal void NotifyFileSystemChange([NotNull] SystemChangeEventArgs args)
-        {
-            Guard.NotNull(args, nameof(args));
-
-            FileSystemChanged?.Invoke(this, args);
-        }
 #endif
     }
 }

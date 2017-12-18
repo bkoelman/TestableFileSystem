@@ -39,7 +39,7 @@ namespace TestableFileSystem.Fakes
         // 3. [main] joins consumer thread (as part of disposal process) and disposes queue
 
         [NotNull]
-        private readonly FakeFileSystem owner;
+        private readonly FileSystemChangeTracker changeTracker;
 
         [NotNull]
         [ItemNotNull]
@@ -84,7 +84,7 @@ namespace TestableFileSystem.Fakes
 
                     if (status.State == WatcherState.Suspended)
                     {
-                        owner.FileSystemChanged += HandleFileSystemChange;
+                        changeTracker.FileSystemChanged += HandleFileSystemChange;
                         status.State = WatcherState.Active;
                     }
                 }
@@ -92,7 +92,7 @@ namespace TestableFileSystem.Fakes
                 {
                     if (status.State == WatcherState.Active)
                     {
-                        owner.FileSystemChanged -= HandleFileSystemChange;
+                        changeTracker.FileSystemChanged -= HandleFileSystemChange;
                         status.State = WatcherState.Suspended;
                     }
                 }
@@ -107,13 +107,13 @@ namespace TestableFileSystem.Fakes
         public event RenamedEventHandler Renamed;
         public event ErrorEventHandler Error;
 
-        internal FakeFileSystemWatcher([NotNull] FakeFileSystem fileSystem, [CanBeNull] AbsolutePath path,
+        internal FakeFileSystemWatcher([NotNull] FileSystemChangeTracker changeTracker, [CanBeNull] AbsolutePath path,
             [NotNull] string filter)
         {
-            Guard.NotNull(fileSystem, nameof(fileSystem));
+            Guard.NotNull(changeTracker, nameof(changeTracker));
             Guard.NotNull(filter, nameof(filter));
 
-            owner = fileSystem;
+            this.changeTracker = changeTracker;
 
             CancellationToken cancellationToken = consumerCancellationTokenSource.Token;
             consumerTask = Task.Run(() => ConsumerLoop(cancellationToken));

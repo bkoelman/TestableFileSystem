@@ -13,8 +13,9 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly CurrentDirectoryManager currentDirectoryManager;
 
-        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager)
-            : base(root)
+        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker,
+            [NotNull] CurrentDirectoryManager currentDirectoryManager)
+            : base(root, changeTracker)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
 

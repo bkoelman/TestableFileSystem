@@ -10,8 +10,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileSetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, object>
     {
-        public FileSetTimeHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileSetTimeHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+            : base(root, changeTracker)
         {
         }
 

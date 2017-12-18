@@ -8,11 +8,16 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         protected DirectoryEntry Root { get; }
 
-        protected FakeOperationHandler([NotNull] DirectoryEntry root)
+        [NotNull]
+        protected FileSystemChangeTracker ChangeTracker { get; }
+
+        protected FakeOperationHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
         {
             Guard.NotNull(root, nameof(root));
+            Guard.NotNull(changeTracker, nameof(changeTracker));
 
             Root = root;
+            ChangeTracker = changeTracker;
         }
 
         [NotNull]

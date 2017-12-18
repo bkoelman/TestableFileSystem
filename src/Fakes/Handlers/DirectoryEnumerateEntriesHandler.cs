@@ -10,8 +10,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class DirectoryEnumerateEntriesHandler : FakeOperationHandler<DirectoryEnumerateEntriesArguments, string[]>
     {
-        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+            : base(root, changeTracker)
         {
         }
 
