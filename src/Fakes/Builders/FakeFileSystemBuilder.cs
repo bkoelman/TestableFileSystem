@@ -69,7 +69,7 @@ namespace TestableFileSystem.Fakes.Builders
         private DirectoryEntry CreateDirectories([NotNull] AbsolutePath absolutePath)
         {
             var arguments = new DirectoryCreateArguments(absolutePath, true);
-            var handler = new DirectoryCreateHandler(root, new FileSystemChangeTracker());
+            var handler = new DirectoryCreateHandler(root, new FakeFileSystemChangeTracker());
 
             return handler.Handle(arguments);
         }

@@ -5,7 +5,7 @@ using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
-namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileSystemWatcher
+namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
 {
     // TODO: Add specs for various features:
     // - Assert on initial defaults after construction
@@ -23,7 +23,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileSystemWatcher
     // - When restarting with different settings, make sure old events from queue do not come through
     // - Works for root of drive/UNC path?
 
-    public sealed class FileSystemWatcherConstructSpecs
+    public sealed class ConstructSpecs
     {
         [Fact]
         private void When_constructing_watcher_it_must_succeed()

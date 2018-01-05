@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileMoveHandler : FakeOperationHandler<EntryMoveArguments, object>
     {
-        public FileMoveHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+        public FileMoveHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root, changeTracker)
         {
         }

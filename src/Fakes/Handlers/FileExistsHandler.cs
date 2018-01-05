@@ -7,7 +7,7 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileExistsHandler : FakeOperationHandler<EntryExistsArguments, bool>
     {
-        public FileExistsHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+        public FileExistsHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root, changeTracker)
         {
         }

@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes.Handlers
     {
         private const FileAttributes HiddenReadOnlyMask = FileAttributes.Hidden | FileAttributes.ReadOnly;
 
-        public FileCreateHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+        public FileCreateHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root, changeTracker)
         {
         }

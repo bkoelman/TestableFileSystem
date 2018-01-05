@@ -9,9 +9,9 @@ namespace TestableFileSystem.Fakes
         protected DirectoryEntry Root { get; }
 
         [NotNull]
-        protected FileSystemChangeTracker ChangeTracker { get; }
+        protected FakeFileSystemChangeTracker ChangeTracker { get; }
 
-        protected FakeOperationHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+        protected FakeOperationHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
         {
             Guard.NotNull(root, nameof(root));
             Guard.NotNull(changeTracker, nameof(changeTracker));

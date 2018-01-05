@@ -8,7 +8,7 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileSetAttributesHandler : FakeOperationHandler<FileSetAttributesArguments, object>
     {
-        public FileSetAttributesHandler([NotNull] DirectoryEntry root, [NotNull] FileSystemChangeTracker changeTracker)
+        public FileSetAttributesHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root, changeTracker)
         {
         }

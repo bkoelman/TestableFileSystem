@@ -5,7 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    internal sealed partial class FileSystemChangeTracker
+    internal sealed partial class FakeFileSystemChangeTracker
     {
         public void NotifyFileCreated([NotNull] AbsolutePath path)
         {
@@ -22,16 +22,16 @@ namespace TestableFileSystem.Fakes
         partial void ProcessFileDeleted([NotNull] AbsolutePath path);
     }
 
-    internal sealed partial class FileSystemChangeTracker
+    internal sealed partial class FakeFileSystemChangeTracker
     {
 #if !NETSTANDARD1_3
-        public event EventHandler<SystemChangeEventArgs> FileSystemChanged;
+        public event EventHandler<FakeSystemChangeEventArgs> FileSystemChanged;
 
         partial void ProcessFileCreated(AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
 
-            var args = new SystemChangeEventArgs(WatcherChangeTypes.Created, path, null);
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Created, path, null);
             OnFileSystemChanged(args);
         }
 
@@ -39,11 +39,11 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            var args = new SystemChangeEventArgs(WatcherChangeTypes.Deleted, path, null);
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Deleted, path, null);
             OnFileSystemChanged(args);
         }
 
-        private void OnFileSystemChanged([NotNull] SystemChangeEventArgs args)
+        private void OnFileSystemChanged([NotNull] FakeSystemChangeEventArgs args)
         {
             FileSystemChanged?.Invoke(this, args);
         }

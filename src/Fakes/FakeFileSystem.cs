@@ -24,7 +24,7 @@ namespace TestableFileSystem.Fakes
         public IDirectory Directory { get; }
 
         [NotNull]
-        internal FileSystemChangeTracker ChangeTracker { get; } = new FileSystemChangeTracker();
+        internal FakeFileSystemChangeTracker ChangeTracker { get; } = new FakeFileSystemChangeTracker();
 
         internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] WaitIndicator copyWaitIndicator)
         {

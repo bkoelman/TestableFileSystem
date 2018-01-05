@@ -15,6 +15,7 @@ namespace TestableFileSystem.Fakes
         // How FSW works:
         // - Events may be raised from different threads (likely from the ThreadPool)
         // - Multiple events do not execute concurrently
+        // - Exceptions raised from event handlers (on background thread) crash the process
 
         // Flow control on pause + resume:
         // 1. [main] requests Pause: set state to IsSuspended and increment version
@@ -22,7 +23,7 @@ namespace TestableFileSystem.Fakes
         // 3. [consumer] finishes event handler and flushes outdated queue entries
         // 4. [consumer] starts blocking for new work in queue
         // 5. [main] requests Resume: set state to Active
-        // 6. [main] enqueues new work in queue because state is Active
+        // 6. [main] enqueues new work because state is Active
 
         // Flow control scenario on buffer overflow
         // 1. [main] detects that maximum queue length threshold is being exceeded
@@ -36,15 +37,15 @@ namespace TestableFileSystem.Fakes
         // Flow control scenario on disposal
         // 1. [main] requests Dispose: set state to IsDisposed, unsubscribe from FS, signal CancellationToken
         // 2. [consumer] finishes event handler, then catches OperationCanceledException and terminates
-        // 3. [main] joins consumer thread (as part of disposal process) and disposes queue
+        // 3. [main] joins consumer thread and disposes queue
 
         [NotNull]
-        private readonly FileSystemChangeTracker changeTracker;
+        private readonly FakeFileSystemChangeTracker changeTracker;
 
         [NotNull]
         [ItemNotNull]
-        private readonly BlockingCollection<VersionedSystemChange> producerConsumerQueue =
-            new BlockingCollection<VersionedSystemChange>();
+        private readonly BlockingCollection<FakeFileSystemVersionedChange> producerConsumerQueue =
+            new BlockingCollection<FakeFileSystemVersionedChange>();
 
         [NotNull]
         private readonly CancellationTokenSource consumerCancellationTokenSource = new CancellationTokenSource();
@@ -53,17 +54,38 @@ namespace TestableFileSystem.Fakes
         private readonly Task consumerTask;
 
         [NotNull]
-        private readonly WatcherStatus status = new WatcherStatus();
+        private readonly object lockObject = new object();
+
+        private WatcherState state;
+        private int version;
+        private bool hasBufferUnderflow;
+        private bool hasBufferOverflow;
+        private bool consumerIsFlushingBuffer;
 
         [CanBeNull]
         private readonly AbsolutePath targetPath;
 
         public string Path
         {
-            get => targetPath?.GetText() ?? string.Empty;
-            // TODO: What happens when changing path on running instance? Restart if it was running.
-            set => throw new NotImplementedException();
+            get
+            {
+                lock (lockObject)
+                {
+                    return targetPath?.GetText() ?? string.Empty;
+                }
+            }
+            set
+            {
+                // TODO: Restart when changing path on running instance.
+
+                lock (lockObject)
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
+
+        // TODO: What happens when changing these properties on running instance?
 
         public string Filter { get; set; }
         public NotifyFilters NotifyFilter { get; set; }
@@ -71,29 +93,41 @@ namespace TestableFileSystem.Fakes
 
         public bool EnableRaisingEvents
         {
-            get => status.State == WatcherState.Active;
+            get
+            {
+                lock (lockObject)
+                {
+                    return state == WatcherState.Active;
+                }
+            }
             set
             {
                 // TODO: Precondition checks
-                if (value)
-                {
-                    if (status.State == WatcherState.Disposed)
-                    {
-                        throw new ObjectDisposedException(GetType().FullName);
-                    }
 
-                    if (status.State == WatcherState.Suspended)
-                    {
-                        changeTracker.FileSystemChanged += HandleFileSystemChange;
-                        status.State = WatcherState.Active;
-                    }
-                }
-                else
+                lock (lockObject)
                 {
-                    if (status.State == WatcherState.Active)
+                    if (value)
                     {
-                        changeTracker.FileSystemChanged -= HandleFileSystemChange;
-                        status.State = WatcherState.Suspended;
+                        if (state == WatcherState.Disposed)
+                        {
+                            throw new ObjectDisposedException(GetType().FullName);
+                        }
+
+                        if (state == WatcherState.Suspended)
+                        {
+                            changeTracker.FileSystemChanged += HandleFileSystemChange;
+
+                            version++;
+                            state = WatcherState.Active;
+                        }
+                    }
+                    else
+                    {
+                        if (state == WatcherState.Active)
+                        {
+                            changeTracker.FileSystemChanged -= HandleFileSystemChange;
+                            state = WatcherState.Suspended;
+                        }
                     }
                 }
             }
@@ -107,7 +141,7 @@ namespace TestableFileSystem.Fakes
         public event RenamedEventHandler Renamed;
         public event ErrorEventHandler Error;
 
-        internal FakeFileSystemWatcher([NotNull] FileSystemChangeTracker changeTracker, [CanBeNull] AbsolutePath path,
+        internal FakeFileSystemWatcher([NotNull] FakeFileSystemChangeTracker changeTracker, [CanBeNull] AbsolutePath path,
             [NotNull] string filter)
         {
             Guard.NotNull(changeTracker, nameof(changeTracker));
@@ -120,38 +154,40 @@ namespace TestableFileSystem.Fakes
 
             // TODO: Throw when non-null path does not exist.
 
-            // Satisfy the compiler, for the moment.
-            Error?.Invoke(null, null);
-
             targetPath = path;
             Filter = filter;
         }
 
-        private void HandleFileSystemChange([CanBeNull] object sender, [NotNull] SystemChangeEventArgs args)
+        private void HandleFileSystemChange([CanBeNull] object sender, [NotNull] FakeSystemChangeEventArgs args)
         {
             Guard.NotNull(args, nameof(args));
 
-            if (status.State == WatcherState.Active && !status.HasBufferOverflow)
+            lock (lockObject)
             {
-                // TODO: How does InternalBufferSize relate to queue size?
-                if (producerConsumerQueue.Count >= InternalBufferSize)
+                if (state == WatcherState.Active && !hasBufferOverflow)
                 {
-                    status.HasBufferOverflow = true;
-                    status.IncrementVersion();
-                }
-                else
-                {
-                    if (MatchesFilters(args))
+                    // TODO: How does InternalBufferSize relate to queue size?
+
+                    if (producerConsumerQueue.Count >= InternalBufferSize)
                     {
-                        producerConsumerQueue.Add(new VersionedSystemChange(args, status.Version));
+                        hasBufferOverflow = true;
+                        version++;
+                    }
+                    else
+                    {
+                        if (MatchesFilters(args))
+                        {
+                            producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, version));
+                        }
                     }
                 }
             }
         }
 
-        private bool MatchesFilters([NotNull] SystemChangeEventArgs args)
+        private bool MatchesFilters([NotNull] FakeSystemChangeEventArgs args)
         {
             // TODO: Match against change type, path and file mask.
+
             return true;
         }
 
@@ -159,16 +195,50 @@ namespace TestableFileSystem.Fakes
         {
             try
             {
-                foreach (VersionedSystemChange change in producerConsumerQueue.GetConsumingEnumerable(cancellationToken))
+                foreach (FakeFileSystemVersionedChange change in producerConsumerQueue.GetConsumingEnumerable(cancellationToken))
                 {
-                    if (producerConsumerQueue.Count == 0 && status.HasBufferOverflow)
+                    bool doRaiseBufferOverflowEvent = false;
+                    bool doRaiseChangeEvent = false;
+
+                    lock (lockObject)
                     {
-                        status.HasBufferOverflow = false;
+                        hasBufferUnderflow = false;
+
+                        if (hasBufferOverflow && !consumerIsFlushingBuffer)
+                        {
+                            doRaiseBufferOverflowEvent = true;
+                            consumerIsFlushingBuffer = true;
+                        }
+
+                        if (change.Version == version)
+                        {
+                            doRaiseChangeEvent = true;
+                        }
                     }
 
-                    if (change.Version == status.Version)
+                    try
                     {
-                        RaiseEventForChange(change);
+                        if (doRaiseBufferOverflowEvent)
+                        {
+                            RaiseEventForBufferOverflow();
+                        }
+
+                        if (doRaiseChangeEvent)
+                        {
+                            RaiseEventForChange(change);
+                        }
+                    }
+                    finally
+                    {
+                        lock (lockObject)
+                        {
+                            if (!producerConsumerQueue.Any())
+                            {
+                                hasBufferUnderflow = true;
+                                hasBufferOverflow = false;
+                                consumerIsFlushingBuffer = false;
+                            }
+                        }
                     }
                 }
             }
@@ -177,63 +247,99 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private void RaiseEventForChange([NotNull] VersionedSystemChange change)
+        private void RaiseEventForBufferOverflow()
         {
-            // TODO: Raise event for buffer overflow.
+            Error?.Invoke(this, new ErrorEventArgs(new Exception("TODO: Buffer overflow")));
+        }
 
-            AbsolutePath parentPath = change.Path.TryGetParentPath();
+        private void RaiseEventForChange([NotNull] FakeFileSystemVersionedChange change)
+        {
+            string rootDirectory = change.Path.TryGetParentPath()?.GetText() ?? change.Path.GetText();
+
             switch (change.ChangeType)
             {
                 case WatcherChangeTypes.Created:
+                {
                     Created?.Invoke(this,
-                        new FileSystemEventArgs(change.ChangeType, parentPath.GetText(), change.Path.Components.Last()));
+                        new FileSystemEventArgs(change.ChangeType, rootDirectory, change.Path.Components.Last()));
                     break;
+                }
                 case WatcherChangeTypes.Deleted:
+                {
                     Deleted?.Invoke(this,
-                        new FileSystemEventArgs(change.ChangeType, parentPath.GetText(), change.Path.Components.Last()));
+                        new FileSystemEventArgs(change.ChangeType, rootDirectory, change.Path.Components.Last()));
                     break;
+                }
                 case WatcherChangeTypes.Changed:
+                {
                     Changed?.Invoke(this,
-                        new FileSystemEventArgs(change.ChangeType, parentPath.GetText(), change.Path.Components.Last()));
+                        new FileSystemEventArgs(change.ChangeType, rootDirectory, change.Path.Components.Last()));
                     break;
+                }
                 case WatcherChangeTypes.Renamed:
-                    Renamed?.Invoke(this,
-                        new RenamedEventArgs(change.ChangeType, parentPath.GetText(), change.Path.Components.Last(),
-                            change.PreviousPathInRename.Components.Last()));
+                {
+                    Renamed?.Invoke(this, new RenamedEventArgs(change.ChangeType, rootDirectory, change.Path.Components.Last(),
+                        // ReSharper disable once PossibleNullReferenceException
+                        change.PreviousPathInRename.Components.Last()));
                     break;
+                }
             }
         }
 
-        public WaitForChangedResult WaitForChanged(WatcherChangeTypes changeType, int timeout = -1)
+        public void WaitForEventDispatcherIdle(int timeout = Timeout.Infinite)
+        {
+            DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
+
+            while (DateTime.UtcNow < endTimeUtc)
+            {
+                lock (lockObject)
+                {
+                    if (hasBufferUnderflow || state != WatcherState.Active)
+                    {
+                        return;
+                    }
+                }
+
+                Thread.Sleep(0);
+            }
+        }
+
+        public WaitForChangedResult WaitForChanged(WatcherChangeTypes changeType, int timeout = Timeout.Infinite)
         {
             // TODO: Temporarily subscribe to our own events, then wait and see what happens...
+
             throw new NotImplementedException();
         }
 
         public void Dispose()
         {
-            if (status.State != WatcherState.Disposed)
+            bool doCleanup = false;
+
+            lock (lockObject)
             {
-                status.State = WatcherState.Disposed;
+                if (state != WatcherState.Disposed)
+                {
+                    EnableRaisingEvents = false;
+                    state = WatcherState.Disposed;
+                    doCleanup = true;
+                }
+            }
 
-                EnableRaisingEvents = false;
-
+            if (doCleanup)
+            {
                 consumerCancellationTokenSource.Cancel();
-                consumerCancellationTokenSource.Dispose();
-
                 consumerTask.Wait();
-                consumerTask.Dispose();
 
+                consumerTask.Dispose();
+                consumerCancellationTokenSource.Dispose();
                 producerConsumerQueue.Dispose();
             }
         }
 
-        private sealed class VersionedSystemChange
+        private sealed class FakeFileSystemVersionedChange
         {
-            // TODO: Review for thread safety and race conditions.
-
             [NotNull]
-            private readonly SystemChangeEventArgs args;
+            private readonly FakeSystemChangeEventArgs args;
 
             public WatcherChangeTypes ChangeType => args.ChangeType;
 
@@ -245,38 +351,12 @@ namespace TestableFileSystem.Fakes
 
             public int Version { get; }
 
-            public VersionedSystemChange([NotNull] SystemChangeEventArgs args, int version)
+            public FakeFileSystemVersionedChange([NotNull] FakeSystemChangeEventArgs args, int version)
             {
                 Guard.NotNull(args, nameof(args));
 
                 this.args = args;
                 Version = version;
-            }
-        }
-
-        private sealed class WatcherStatus
-        {
-            private int state;
-            private int hasBufferOverflow;
-            private int version;
-
-            public WatcherState State
-            {
-                get => (WatcherState)Interlocked.CompareExchange(ref state, 0xFF, 0xFF);
-                set => Interlocked.Exchange(ref state, (int)value);
-            }
-
-            public int Version => Interlocked.CompareExchange(ref hasBufferOverflow, -1, -1);
-
-            public bool HasBufferOverflow
-            {
-                get => Interlocked.CompareExchange(ref hasBufferOverflow, 0xFF, 0xFF) == 1;
-                set => Interlocked.Exchange(ref hasBufferOverflow, value ? 0 : 1);
-            }
-
-            public void IncrementVersion()
-            {
-                Interlocked.Increment(ref version);
             }
         }
 

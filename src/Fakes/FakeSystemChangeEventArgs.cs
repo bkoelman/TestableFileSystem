@@ -6,7 +6,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    internal sealed class SystemChangeEventArgs : EventArgs
+    internal sealed class FakeSystemChangeEventArgs : EventArgs
     {
         public WatcherChangeTypes ChangeType { get; }
 
@@ -16,7 +16,7 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         public AbsolutePath PreviousPathInRename { get; }
 
-        public SystemChangeEventArgs(WatcherChangeTypes changeType, [NotNull] AbsolutePath path,
+        public FakeSystemChangeEventArgs(WatcherChangeTypes changeType, [NotNull] AbsolutePath path,
             [CanBeNull] AbsolutePath previousPathInRename)
         {
             Guard.NotNull(path, nameof(path));
