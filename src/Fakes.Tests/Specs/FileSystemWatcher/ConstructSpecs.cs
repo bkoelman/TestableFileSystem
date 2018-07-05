@@ -7,21 +7,29 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
 {
-    // TODO: Add specs for various features:
+    // TODO: Add specs for various features...
+    //
+    // File/Directory operation specs:
+    // - Test for the various events (.NotifyFilter)
+    //      - Test for single file, directory or directory subtree
+    //      - Test for various wildcards (.Filter)
+    //      - Test for hidden files?
+    //      - Works for root of drive/UNC path?
+    //      - Test blocking for incoming changes (with timeout or infinite)
+    //
+    // Construction specs:
+    // - Construct with invalid path characters, different casing, trailing whitespace etc.
+    // - Construct with extended path => use extended path in event.FullPath
     // - Assert on initial defaults after construction
     // - Start watching without proper setup
-    // - Automatic restart on property change if we were already running
     // - Convert incoming empty filter (via property or ctor) into *.*
+    //
+    // Miscellaneous specs:
+    // - Automatic restart on property change if we were already running
     // - Multiple watchers attached to the same file system
-    // - Test for various wildcards (Filter)
-    // - Test for the various events (NotifyFilter)
-    // - Test for single file, directory or directory subtree
-    // - Test blocking for incoming changes (with timeout or infinite)
-    // - Test for buffer overflow: "If the buffer overflows, the entire contents of the buffer is discarded"
-    // - Test for hidden files
+    // - Test for buffer overflow: Raises Error event; "If the buffer overflows, the entire contents of the buffer is discarded"
     // - Throw when calling properties/methods in disposed state
-    // - When restarting with different settings, make sure old events from queue do not come through
-    // - Works for root of drive/UNC path?
+    // - When restarting with different settings, make sure old events from queue are discarded
 
     public sealed class ConstructSpecs
     {
