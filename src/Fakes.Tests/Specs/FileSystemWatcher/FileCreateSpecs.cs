@@ -10,12 +10,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
 {
     public sealed class FileCreateSpecs
     {
-        private const NotifyFilters NotifyFilterAll = NotifyFilters.FileName | NotifyFilters.DirectoryName |
-            NotifyFilters.Attributes | NotifyFilters.Size | NotifyFilters.LastAccess | NotifyFilters.LastWrite |
-            NotifyFilters.CreationTime;
-
         [CanBeNull]
-        private const int NotifyWaitTimeoutMilliseconds = 3000;
+        private const int NotifyWaitTimeoutMilliseconds = 500;
 
         [Fact]
         private void When_creating_file_it_must_raise_event()
@@ -30,7 +26,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directory))
             {
-                watcher.NotifyFilter = NotifyFilterAll;
+                watcher.NotifyFilter = TestNotifyFilters.All;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -67,7 +63,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directory))
             {
-                watcher.NotifyFilter = NotifyFilterAll;
+                watcher.NotifyFilter = TestNotifyFilters.All;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
