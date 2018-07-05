@@ -80,6 +80,8 @@ namespace TestableFileSystem.Fakes.Tests
             this.watcher = watcher;
 
             AttachEventHandlers();
+
+            watcher.EnableRaisingEvents = true;
         }
 
         private void AttachEventHandlers()

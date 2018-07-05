@@ -30,8 +30,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    watcher.EnableRaisingEvents = true;
-
                     // Act
                     using (fileSystem.File.Create(path))
                     {
@@ -67,8 +65,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    watcher.EnableRaisingEvents = true;
-
                     // Act
                     using (fileSystem.File.Create(path))
                     {
