@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            action.Should().Throw<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent("::");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -268,7 +268,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent("COM1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

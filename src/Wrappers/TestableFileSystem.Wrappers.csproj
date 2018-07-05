@@ -27,7 +27,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="jetbrains.annotations" Version="11.1.0" PrivateAssets="all" />
-    <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
+    <PackageReference Include="resharpercodecontractnullability" Version="1.0.9" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Interfaces\TestableFileSystem.Interfaces.csproj" />

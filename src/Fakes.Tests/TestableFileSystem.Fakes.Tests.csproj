@@ -14,12 +14,12 @@
     <None Remove="TestableFileSystem.Fakes.Tests.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="4.19.4" />
+    <PackageReference Include="FluentAssertions" Version="5.4.1" />
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
     <PackageReference Include="OpenCover" Version="4.6.519" />
-    <PackageReference Include="ReportGenerator" Version="3.1.0" />
-    <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
+    <PackageReference Include="ReportGenerator" Version="3.1.2" />
+    <PackageReference Include="resharpercodecontractnullability" Version="1.0.9" PrivateAssets="all" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.console" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />

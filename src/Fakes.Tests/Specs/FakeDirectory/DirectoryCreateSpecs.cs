@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            action.Should().Throw<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory("::");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -180,7 +180,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(drive);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\'.");
+            action.Should().Throw<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\'.");
         }
 
         [Fact]
@@ -196,7 +196,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(drive);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\folder'.");
+            action.Should().Throw<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\folder'.");
         }
 
         [Fact]
@@ -336,7 +336,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<IOException>()
+            action.Should().Throw<IOException>()
                 .WithMessage(@"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
@@ -352,7 +352,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"C:\some\file.txt\sub");
 
             // Assert
-            action.ShouldThrow<IOException>()
+            action.Should().Throw<IOException>()
                 .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
@@ -368,7 +368,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"C:\some\file.txt\sub\deeper");
 
             // Assert
-            action.ShouldThrow<IOException>()
+            action.Should().Throw<IOException>()
                 .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
@@ -385,7 +385,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
+            action.Should().Throw<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
         [Fact]
@@ -401,7 +401,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
+            action.Should().Throw<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path '\\fileserver\documents'.");
         }
 
@@ -416,7 +416,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"\\server\share\team");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"The network path was not found");
+            action.Should().Throw<IOException>().WithMessage(@"The network path was not found");
         }
 
         [Fact]

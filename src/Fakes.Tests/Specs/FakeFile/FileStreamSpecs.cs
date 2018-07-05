@@ -284,7 +284,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-1, SeekOrigin.Begin);
 
                 // Assert
-                action.ShouldThrow<ArgumentOutOfRangeException>();
+                action.Should().Throw<ArgumentOutOfRangeException>();
             }
         }
 
@@ -307,7 +307,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-3, SeekOrigin.Current);
 
                 // Assert
-                action.ShouldThrow<ArgumentOutOfRangeException>();
+                action.Should().Throw<ArgumentOutOfRangeException>();
             }
         }
 
@@ -328,7 +328,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-4, SeekOrigin.End);
 
                 // Assert
-                action.ShouldThrow<ArgumentOutOfRangeException>();
+                action.Should().Throw<ArgumentOutOfRangeException>();
             }
         }
 
@@ -423,7 +423,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(10, SeekOrigin.End);
 
                 // Assert
-                action.ShouldThrow<NotSupportedException>();
+                action.Should().Throw<NotSupportedException>();
             }
         }
 
@@ -444,7 +444,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-1, SeekOrigin.Current);
 
                 // Assert
-                action.ShouldThrow<IOException>()
+                action.Should().Throw<IOException>()
                     .WithMessage(
                         "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
             }
@@ -467,7 +467,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Position = -1;
 
                 // Assert
-                action.ShouldThrow<ArgumentOutOfRangeException>()
+                action.Should().Throw<ArgumentOutOfRangeException>()
                     .WithMessage("Specified argument was out of the range of valid values.*");
             }
         }
@@ -517,7 +517,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(0, SeekOrigin.Begin);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -540,7 +540,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.SetLength(2);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -565,7 +565,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Read(buffer, 0, buffer.Length);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -588,7 +588,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Write(new byte[] { 0xFF }, 0, 1);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -609,7 +609,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Write(new byte[] { 0xFF }, 0, 1);
 
                 // Assert
-                action.ShouldThrow<NotSupportedException>().WithMessage("Stream does not support writing.");
+                action.Should().Throw<NotSupportedException>().WithMessage("Stream does not support writing.");
             }
         }
 
@@ -630,7 +630,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.ReadByte();
 
                 // Assert
-                action.ShouldThrow<NotSupportedException>().WithMessage("Stream does not support reading.");
+                action.Should().Throw<NotSupportedException>().WithMessage("Stream does not support reading.");
             }
         }
 
@@ -650,7 +650,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Read);
 
                 // Assert
-                action.ShouldThrow<IOException>().WithMessage(
+                action.Should().Throw<IOException>().WithMessage(
                     @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
             }
         }
@@ -673,7 +673,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Write);
 
                     // Assert
-                    action.ShouldThrow<IOException>().WithMessage(
+                    action.Should().Throw<IOException>().WithMessage(
                         @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
                 }
             }

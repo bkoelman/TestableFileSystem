@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -25,7 +26,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             Action action = () => fileSystem.ConstructFileInfo(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -39,7 +40,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             Action action = () => fileSystem.ConstructFileInfo(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -53,7 +54,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             Action action = () => fileSystem.ConstructFileInfo(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -67,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             Action action = () => fileSystem.ConstructFileInfo("::");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -81,7 +82,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             Action action = () => fileSystem.ConstructFileInfo("some?.txt");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -103,8 +104,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"c:\some");
             fileInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
-                .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'c:\some\file.txt'.");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<FileNotFoundException>()
+                .WithMessage(@"Could not find file 'c:\some\file.txt'.");
             fileInfo.IsReadOnly.Should().BeTrue();
             fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
@@ -282,8 +283,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().BeNull();
             fileInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
-                .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'c:\'.");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<FileNotFoundException>()
+                .WithMessage(@"Could not find file 'c:\'.");
             fileInfo.IsReadOnly.Should().BeFalse();
             fileInfo.Attributes.Should().Be(FileAttributes.Hidden | FileAttributes.System | FileAttributes.Directory);
 
@@ -418,8 +419,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"c:\some");
             fileInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
-                .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'c:\some\folder'.");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<FileNotFoundException>()
+                .WithMessage(@"Could not find file 'c:\some\folder'.");
             fileInfo.IsReadOnly.Should().BeFalse();
             fileInfo.Attributes.Should().Be(FileAttributes.Directory);
 
@@ -453,8 +454,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"C:\some\file.txt");
             fileInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
-                .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt\nested.html'.");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<FileNotFoundException>()
+                .WithMessage(@"Could not find file 'C:\some\file.txt\nested.html'.");
             fileInfo.IsReadOnly.Should().BeTrue();
             fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
@@ -488,8 +489,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"C:\some\file.txt\nested.html");
             fileInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
-                .ShouldThrow<FileNotFoundException>()
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<FileNotFoundException>()
                 .WithMessage(@"Could not find file 'C:\some\file.txt\nested.html\more.docx'.");
             fileInfo.IsReadOnly.Should().BeTrue();
             fileInfo.Attributes.Should().Be(MissingEntryAttributes);
@@ -523,8 +523,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"C:\some");
             fileInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
-                .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<FileNotFoundException>()
+                .WithMessage(@"Could not find file 'C:\some\file.txt'.");
             fileInfo.IsReadOnly.Should().BeTrue();
             fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
@@ -557,25 +557,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"\\server\share");
             fileInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
-            ActionFactory.IgnoreReturnValue(() => fileInfo.IsReadOnly)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Attributes)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.IsReadOnly).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Attributes).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
 
-            ActionFactory.IgnoreReturnValue(() => fileInfo.CreationTime)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
-            ActionFactory.IgnoreReturnValue(() => fileInfo.CreationTimeUtc)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
-            ActionFactory.IgnoreReturnValue(() => fileInfo.LastAccessTime)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
-            ActionFactory.IgnoreReturnValue(() => fileInfo.LastAccessTimeUtc)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
-            ActionFactory.IgnoreReturnValue(() => fileInfo.LastWriteTime)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
-            ActionFactory.IgnoreReturnValue(() => fileInfo.LastWriteTimeUtc)
-                .ShouldThrow<IOException>().WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.CreationTime).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.CreationTimeUtc).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.LastAccessTime).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.LastAccessTimeUtc).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.LastWriteTime).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.LastWriteTimeUtc).Should().Throw<IOException>()
+                .WithMessage("The network path was not found");
 
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
             directoryInfo.FullName.Should().Be(@"\\server\share");
@@ -600,8 +600,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"\\server\share");
             fileInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => fileInfo.Length)
-                .ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\file.txt'.");
+            ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<FileNotFoundException>()
+                .WithMessage(@"Could not find file '\\server\share\file.txt'.");
             fileInfo.IsReadOnly.Should().BeTrue();
             fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
@@ -674,7 +674,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             Action action = () => fileSystem.ConstructFileInfo("COM1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

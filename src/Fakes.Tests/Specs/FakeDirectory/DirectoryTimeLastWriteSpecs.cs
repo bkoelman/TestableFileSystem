@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -26,7 +27,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastWriteTime(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -41,7 +42,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(null, DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -55,7 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastWriteTime(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -69,7 +70,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(string.Empty, DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -83,7 +84,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastWriteTime(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -97,7 +98,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(" ", DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -111,7 +112,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastWriteTime("::");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -125,7 +126,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime("::", DefaultTime);
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -139,7 +140,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastWriteTime(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -153,7 +154,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(@"c:\dir?i", DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -183,7 +184,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(@"C:\some\nested", DefaultTime);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\nested'.");
+            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\nested'.");
         }
 
         [Fact]
@@ -282,7 +283,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(path, DateTime.MinValue);
 
             // Assert
-            action.ShouldThrow<ArgumentOutOfRangeException>().WithMessage("Not a valid Win32 FileTime.*");
+            action.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Not a valid Win32 FileTime.*");
         }
 
         [Fact]
@@ -335,7 +336,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path must not be a drive.*");
+            action.Should().Throw<ArgumentException>().WithMessage("Path must not be a drive.*");
         }
 
         [Fact]
@@ -473,7 +474,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(@"C:\some\folder", DefaultTime);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
+            action.Should().Throw<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
         }
 
@@ -540,7 +541,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(@"c:\some\file.txt\nested", DefaultTime);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
+            action.Should().Throw<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested'.");
         }
 
@@ -571,7 +572,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(@"c:\some\file.txt\nested\more", DefaultTime);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
+            action.Should().Throw<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested\more'.");
         }
 
@@ -588,7 +589,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastWriteTime(path);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found");
         }
 
         [Fact]
@@ -604,7 +605,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found");
         }
 
         [Fact]
@@ -674,7 +675,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing'.");
+            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing'.");
         }
 
         [Fact]
@@ -705,7 +706,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastWriteTime("COM1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -719,7 +720,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime("COM1", DefaultTime);
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -749,7 +750,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastWriteTime(@"\\?\C:\some\missing", DefaultTime);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing'.");
+            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing'.");
         }
 
         [Fact]

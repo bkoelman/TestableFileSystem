@@ -51,7 +51,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
             Action action = () => fileSystem.ConstructFileSystemWatcher(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
             // ReSharper restore AssignNullToNotNullAttribute
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().Throw<ArgumentNullException>();
         }
     }
 }
