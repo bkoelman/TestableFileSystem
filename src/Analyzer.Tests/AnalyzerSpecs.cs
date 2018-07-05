@@ -11,16 +11,10 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_missing_assembly_reference_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        void M()
-                        {
-                            var stream = File.Create(null);
-                        }
-                    }
+                .InDefaultMethod(@"
+                    var stream = File.Create(null);
                 ")
                 .Build();
 
@@ -32,18 +26,12 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_invoking_non_fakeable_static_member_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        void M()
-                        {
-                            File.Encrypt(null);
-                            Directory.GetAccessControl(null);
-                        }
-                    }
+                .InDefaultMethod(@"
+                    File.Encrypt(null);
+                    Directory.GetAccessControl(null);
                 ")
                 .Build();
 
@@ -55,18 +43,12 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_invoking_fakeable_static_member_it_must_be_reported()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        void M()
-                        {
-                            var stream = [|File.Create|](null);
-                            var files = [|Directory.GetFiles|](null);
-                        }
-                    }
+                .InDefaultMethod(@"
+                    var stream = [|File.Create|](null);
+                    var files = [|Directory.GetFiles|](null);
                 ")
                 .Build();
 
@@ -80,21 +62,15 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_invoking_non_fakeable_instance_member_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        void M()
-                        {
-                            FileInfo fileInfo = null;
-                            fileInfo.Encrypt();
+                .InDefaultMethod(@"
+                    FileInfo fileInfo = null;
+                    fileInfo.Encrypt();
 
-                            DirectoryInfo directoryInfo = null;
-                            directoryInfo.GetAccessControl();
-                        }
-                    }
+                    DirectoryInfo directoryInfo = null;
+                    directoryInfo.GetAccessControl();
                 ")
                 .Build();
 
@@ -106,29 +82,26 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_invoking_fakeable_instance_member_it_must_be_reported()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
+                .InDefaultClass(@"
+                    void M1()
                     {
-                        void M1()
-                        {
-                            FileInfo fileInfo = null;
+                        FileInfo fileInfo = null;
 
-                            var name = [|fileInfo.Name|];
-                            var directory = [|fileInfo.Directory|];
-                            var text = [|fileInfo.ToString|]();
-                        }
+                        var name = [|fileInfo.Name|];
+                        var directory = [|fileInfo.Directory|];
+                        var text = [|fileInfo.ToString|]();
+                    }
 
-                        void M2()
-                        {
-                            DirectoryInfo directoryInfo = null;
+                    void M2()
+                    {
+                        DirectoryInfo directoryInfo = null;
 
-                            var name = [|directoryInfo.Name|];
-                            [|directoryInfo.Delete|](false);
-                            var text = [|directoryInfo.ToString|]();
-                        }
+                        var name = [|directoryInfo.Name|];
+                        [|directoryInfo.Delete|](false);
+                        var text = [|directoryInfo.ToString|]();
                     }
                 ")
                 .Build();
@@ -147,18 +120,12 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_invoking_non_fakeable_constructor_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        void M()
-                        {
-                            var time = new DateTime(2000, 1, 1);
-                            var text = new string('X', 100);
-                        }
-                    }
+                .InDefaultMethod(@"
+                    var time = new DateTime(2000, 1, 1);
+                    var text = new string('X', 100);
                 ")
                 .Build();
 
@@ -170,19 +137,13 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_invoking_fakeable_constructor_it_must_be_reported()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        void M()
-                        {
-                            var fileInfo = new [|FileInfo|](null);
-                            var directoryInfo = new [|DirectoryInfo|](null);
-                            var stream = new [|FileStream|](null, FileMode.Create);
-                        }
-                    }
+                .InDefaultMethod(@"
+                    var fileInfo = new [|FileInfo|](null);
+                    var directoryInfo = new [|DirectoryInfo|](null);
+                    var stream = new [|FileStream|](null, FileMode.Create);
                 ")
                 .Build();
 
@@ -197,15 +158,12 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_declaring_parameter_of_non_fakeable_type_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
+                .InDefaultClass(@"
+                    void M(MemoryStream ms, BinaryReader br, IOException ex)
                     {
-                        void M(MemoryStream ms, BinaryReader br, IOException ex)
-                        {
-                        }
                     }
                 ")
                 .Build();
@@ -218,15 +176,12 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_declaring_parameter_of_fakeable_type_it_must_be_reported()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
+                .InDefaultClass(@"
+                    void M(FileInfo [|fi|], DirectoryInfo [|di|], FileSystemInfo [|fsi|], FileStream [|fs|])
                     {
-                        void M(FileInfo [|fi|], DirectoryInfo [|di|], FileSystemInfo [|fsi|], FileStream [|fs|])
-                        {
-                        }
                     }
                 ")
                 .Build();
@@ -243,16 +198,13 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_declaring_field_of_non_fakeable_type_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        private MemoryStream ms;
-                        public BinaryReader br;
-                        internal IOException ex;
-                    }
+                .InDefaultClass(@"
+                    private MemoryStream ms;
+                    public BinaryReader br;
+                    internal IOException ex;
                 ")
                 .Build();
 
@@ -264,17 +216,14 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_declaring_field_of_fakeable_type_it_must_be_reported()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        private FileInfo [|fi|];
-                        public DirectoryInfo [|di|];
-                        internal FileSystemInfo [|fsi|];
-                        protected FileStream [|fs|];
-                    }
+                .InDefaultClass(@"
+                    private FileInfo [|fi|];
+                    public DirectoryInfo [|di|];
+                    internal FileSystemInfo [|fsi|];
+                    protected FileStream [|fs|];
                 ")
                 .Build();
 
@@ -290,16 +239,13 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_declaring_property_of_non_fakeable_type_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        private MemoryStream ms { get; set; }
-                        public BinaryReader br { get; set; }
-                        internal IOException ex { get; set; }
-                    }
+                .InDefaultClass(@"
+                    private MemoryStream ms { get; set; }
+                    public BinaryReader br { get; set; }
+                    internal IOException ex { get; set; }
                 ")
                 .Build();
 
@@ -311,17 +257,14 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_declaring_property_of_fakeable_type_it_must_be_reported()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        private FileInfo [|fi|] { get; set; }
-                        public DirectoryInfo [|di|] { get; set; }
-                        internal FileSystemInfo [|fsi|] { get; set; }
-                        protected FileStream [|fs|] { get; set; }
-                    }
+                .InDefaultClass(@"
+                    private FileInfo [|fi|] { get; set; }
+                    public DirectoryInfo [|di|] { get; set; }
+                    internal FileSystemInfo [|fsi|] { get; set; }
+                    protected FileStream [|fs|] { get; set; }
                 ")
                 .Build();
 
@@ -337,16 +280,13 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_declaring_method_return_value_of_non_fakeable_type_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        private MemoryStream ms() { throw new System.NotImplementedException(); }
-                        public BinaryReader br() { throw new System.NotImplementedException(); }
-                        internal IOException ex() { throw new System.NotImplementedException(); }
-                    }
+                .InDefaultClass(@"
+                    private MemoryStream ms() { throw new System.NotImplementedException(); }
+                    public BinaryReader br() { throw new System.NotImplementedException(); }
+                    internal IOException ex() { throw new System.NotImplementedException(); }
                 ")
                 .Build();
 
@@ -358,17 +298,14 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_declaring_method_return_value_of_fakeable_type_it_must_be_reported()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new MemberSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        private FileInfo [|fi|]() { throw new System.NotImplementedException(); }
-                        public DirectoryInfo [|di|]() { throw new System.NotImplementedException(); }
-                        internal FileSystemInfo [|fsi|]() { throw new System.NotImplementedException(); }
-                        protected FileStream [|fs|]() { throw new System.NotImplementedException(); }
-                    }
+                .InDefaultClass(@"
+                    private FileInfo [|fi|]() { throw new System.NotImplementedException(); }
+                    public DirectoryInfo [|di|]() { throw new System.NotImplementedException(); }
+                    internal FileSystemInfo [|fsi|]() { throw new System.NotImplementedException(); }
+                    protected FileStream [|fs|]() { throw new System.NotImplementedException(); }
                 ")
                 .Build();
 
@@ -425,20 +362,14 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_invoking_fakeable_extension_method_it_must_be_reported()
         {
             // Arrange
-            ParsedSourceCode source = new TypeSourceCodeBuilder()
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InGlobalScope(@"
-                    class C
-                    {
-                        void M()
-                        {
-                            var stream1 = [|File.OpenRead|](null);
+                .InDefaultMethod(@"
+                    var stream1 = [|File.OpenRead|](null);
 
-                            FileInfo info = null;
-                            var stream2 = [|info.OpenRead|]();
-                        }
-                    }
+                    FileInfo info = null;
+                    var stream2 = [|info.OpenRead|]();
                 ")
                 .Build();
 

@@ -14,7 +14,7 @@ namespace TestableFileSystem.Analyzer.Tests
             return new FileSystemUsageAnalyzer();
         }
 
-        protected void VerifyFileSystemDiagnostic([NotNull] ParsedSourceCode source,
+        private protected void VerifyFileSystemDiagnostic([NotNull] ParsedSourceCode source,
             [NotNull] [ItemNotNull] params string[] messages)
         {
             Guard.NotNull(source, nameof(source));

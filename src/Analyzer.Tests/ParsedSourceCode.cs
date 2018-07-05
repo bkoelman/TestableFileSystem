@@ -4,7 +4,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Analyzer.Tests
 {
-    public sealed class ParsedSourceCode
+    internal sealed class ParsedSourceCode
     {
         [NotNull]
         public AnalyzerTestContext TestContext { get; }
