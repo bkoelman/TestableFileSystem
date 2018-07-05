@@ -2,8 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard1.3;net45</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>TestableFileSystem.Interfaces</PackageId>
