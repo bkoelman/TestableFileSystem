@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
-using RoslynTestFramework;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
@@ -24,30 +23,6 @@ namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
         }
 
         [NotNull]
-        public static TBuilder InFileNamed<TBuilder>([NotNull] this TBuilder source, [NotNull] string fileName)
-            where TBuilder : SourceCodeBuilder
-        {
-            Guard.NotNull(source, nameof(source));
-            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
-
-            source.Editor.UpdateTestContext(context => context.InFileNamed(fileName));
-
-            return source;
-        }
-
-        [NotNull]
-        public static TBuilder InAssemblyNamed<TBuilder>([NotNull] this TBuilder source, [NotNull] string assemblyName)
-            where TBuilder : SourceCodeBuilder
-        {
-            Guard.NotNull(source, nameof(source));
-            Guard.NotNullNorWhiteSpace(assemblyName, nameof(assemblyName));
-
-            source.Editor.UpdateTestContext(context => context.InAssemblyNamed(assemblyName));
-
-            return source;
-        }
-
-        [NotNull]
         public static TBuilder WithReference<TBuilder>([NotNull] this TBuilder source, [NotNull] Assembly assembly)
             where TBuilder : SourceCodeBuilder
         {
@@ -57,39 +32,6 @@ namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
             PortableExecutableReference reference = MetadataReference.CreateFromFile(assembly.Location);
 
             source.Editor.UpdateTestContext(context => context.WithReferences(context.References.Add(reference)));
-
-            return source;
-        }
-
-        [NotNull]
-        public static TBuilder WithDocumentationComments<TBuilder>([NotNull] this TBuilder source)
-            where TBuilder : SourceCodeBuilder
-        {
-            Guard.NotNull(source, nameof(source));
-
-            source.Editor.UpdateTestContext(context => context.WithDocumentationMode(DocumentationMode.Diagnose));
-
-            return source;
-        }
-
-        [NotNull]
-        public static TBuilder CompileAtWarningLevel<TBuilder>([NotNull] this TBuilder source, int warningLevel)
-            where TBuilder : SourceCodeBuilder
-        {
-            Guard.NotNull(source, nameof(source));
-
-            source.Editor.UpdateTestContext(context => context.CompileAtWarningLevel(warningLevel));
-
-            return source;
-        }
-
-        [NotNull]
-        public static TBuilder AllowingCompileErrors<TBuilder>([NotNull] this TBuilder source)
-            where TBuilder : SourceCodeBuilder
-        {
-            Guard.NotNull(source, nameof(source));
-
-            source.Editor.UpdateTestContext(context => context.InValidationMode(TestValidationMode.AllowCompileErrors));
 
             return source;
         }

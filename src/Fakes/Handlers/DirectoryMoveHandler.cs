@@ -160,6 +160,7 @@ namespace TestableFileSystem.Fakes.Handlers
             return parentPath;
         }
 
+        [AssertionMethod]
         private static void AssertDestinationDoesNotExist([NotNull] string directoryName,
             [NotNull] DirectoryEntry parentDirectory)
         {
