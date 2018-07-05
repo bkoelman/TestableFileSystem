@@ -12,6 +12,11 @@ namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
         [ItemNotNull]
         private readonly List<string> types = new List<string>();
 
+        public TypeSourceCodeBuilder()
+            : base(DefaultNamespaceImports)
+        {
+        }
+
         protected override string GetSourceCode()
         {
             var builder = new StringBuilder();
@@ -23,17 +28,8 @@ namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
 
         private void AppendTypes([NotNull] StringBuilder builder)
         {
-            int index = 0;
-            foreach (string type in types)
-            {
-                if (index > 0)
-                {
-                    builder.AppendLine();
-                }
-
-                builder.AppendLine(type.Trim());
-                index++;
-            }
+            string code = GetLinesOfCode(types);
+            builder.AppendLine(code);
         }
 
         [NotNull]

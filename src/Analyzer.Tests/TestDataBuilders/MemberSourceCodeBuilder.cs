@@ -12,6 +12,11 @@ namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
         [ItemNotNull]
         private readonly List<string> members = new List<string>();
 
+        public MemberSourceCodeBuilder()
+            : base(DefaultNamespaceImports)
+        {
+        }
+
         protected override string GetSourceCode()
         {
             var builder = new StringBuilder();
@@ -31,17 +36,8 @@ namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
 
         private void AppendClassMembers([NotNull] StringBuilder builder)
         {
-            int index = 0;
-            foreach (string member in members)
-            {
-                if (index > 0)
-                {
-                    builder.AppendLine();
-                }
-
-                builder.AppendLine(member.Trim());
-                index++;
-            }
+            string code = GetLinesOfCode(members);
+            builder.AppendLine(code);
         }
 
         private static void AppendClassEnd([NotNull] StringBuilder builder)

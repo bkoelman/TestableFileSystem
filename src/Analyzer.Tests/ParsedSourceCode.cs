@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using TestableFileSystem.Analyzer.Tests.RoslynTestFramework;
+using RoslynTestFramework;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Analyzer.Tests
@@ -9,11 +9,13 @@ namespace TestableFileSystem.Analyzer.Tests
         [NotNull]
         public AnalyzerTestContext TestContext { get; }
 
-        public ParsedSourceCode([NotNull] AnalyzerTestContext testContext)
+        public ParsedSourceCode([NotNull] string sourceText, [NotNull] AnalyzerTestContext testContext)
         {
+            Guard.NotNull(sourceText, nameof(sourceText));
             Guard.NotNull(testContext, nameof(testContext));
 
-            TestContext = testContext;
+            var document = new FixableDocument(sourceText);
+            TestContext = testContext.WithCode(document.SourceText, document.SourceSpans);
         }
     }
 }

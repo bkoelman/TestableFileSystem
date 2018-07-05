@@ -1,8 +1,6 @@
-﻿using System;
-using JetBrains.Annotations;
-using Microsoft.CodeAnalysis.CodeFixes;
+﻿using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.Diagnostics;
-using TestableFileSystem.Analyzer.Tests.RoslynTestFramework;
+using RoslynTestFramework;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Analyzer.Tests
@@ -14,11 +12,6 @@ namespace TestableFileSystem.Analyzer.Tests
         protected override DiagnosticAnalyzer CreateAnalyzer()
         {
             return new FileSystemUsageAnalyzer();
-        }
-
-        protected override CodeFixProvider CreateFixProvider()
-        {
-            throw new NotSupportedException();
         }
 
         protected void VerifyFileSystemDiagnostic([NotNull] ParsedSourceCode source,

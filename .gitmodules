@@ -1,0 +1,3 @@
+[submodule "src/Analyzer.Tests/RoslynTestFramework"]
+	path = src/Analyzer.Tests/RoslynTestFramework
+	url = https://github.com/bkoelman/RoslynTestFramework
