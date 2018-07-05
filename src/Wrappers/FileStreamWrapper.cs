@@ -95,7 +95,7 @@ namespace TestableFileSystem.Wrappers
             doFlush(flushToDisk);
         }
 
-        public Task FlushAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task FlushAsync(CancellationToken cancellationToken = default)
         {
             return innerStream.FlushAsync(cancellationToken);
         }
@@ -110,8 +110,7 @@ namespace TestableFileSystem.Wrappers
             return innerStream.Read(array, offset, count);
         }
 
-        public Task<int> ReadAsync(byte[] buffer, int offset, int count,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
             return innerStream.ReadAsync(buffer, offset, count, cancellationToken);
         }
@@ -126,8 +125,7 @@ namespace TestableFileSystem.Wrappers
             innerStream.Write(array, offset, count);
         }
 
-        public Task WriteAsync(byte[] buffer, int offset, int count,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
             return innerStream.WriteAsync(buffer, offset, count, cancellationToken);
         }

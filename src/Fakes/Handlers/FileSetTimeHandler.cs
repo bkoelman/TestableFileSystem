@@ -31,6 +31,7 @@ namespace TestableFileSystem.Fakes.Handlers
             switch (arguments.Kind)
             {
                 case FileTimeKind.CreationTime:
+                {
                     if (arguments.IsInUtc)
                     {
                         entry.CreationTimeUtc = arguments.TimeValue;
@@ -39,8 +40,11 @@ namespace TestableFileSystem.Fakes.Handlers
                     {
                         entry.CreationTime = arguments.TimeValue;
                     }
+
                     break;
+                }
                 case FileTimeKind.LastWriteTime:
+                {
                     if (arguments.IsInUtc)
                     {
                         entry.LastWriteTimeUtc = arguments.TimeValue;
@@ -49,8 +53,11 @@ namespace TestableFileSystem.Fakes.Handlers
                     {
                         entry.LastWriteTime = arguments.TimeValue;
                     }
+
                     break;
+                }
                 case FileTimeKind.LastAccessTime:
+                {
                     if (arguments.IsInUtc)
                     {
                         entry.LastAccessTimeUtc = arguments.TimeValue;
@@ -59,9 +66,13 @@ namespace TestableFileSystem.Fakes.Handlers
                     {
                         entry.LastAccessTime = arguments.TimeValue;
                     }
+
                     break;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(arguments.Kind);
+                }
             }
 
             return Missing.Value;

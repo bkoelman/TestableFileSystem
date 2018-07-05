@@ -28,13 +28,21 @@ namespace TestableFileSystem.Fakes.Handlers
             switch (arguments.Kind)
             {
                 case FileTimeKind.CreationTime:
+                {
                     return arguments.IsInUtc ? entry.CreationTimeUtc : entry.CreationTime;
+                }
                 case FileTimeKind.LastWriteTime:
+                {
                     return arguments.IsInUtc ? entry.LastWriteTimeUtc : entry.LastWriteTime;
+                }
                 case FileTimeKind.LastAccessTime:
+                {
                     return arguments.IsInUtc ? entry.LastAccessTimeUtc : entry.LastAccessTime;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(arguments.Kind);
+                }
             }
         }
     }

@@ -467,7 +467,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(@"C:\some\subfolder", "newname.doc");
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+            action.Should().Throw<UnauthorizedAccessException>()
+                .WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
         }
 
         [Fact]

@@ -44,7 +44,9 @@ namespace TestableFileSystem.Fakes.Handlers
                     case FileMode.Create:
                     case FileMode.Truncate:
                     case FileMode.Append:
+                    {
                         throw ErrorFactory.System.InvalidOpenCombination(mode, access);
+                    }
                 }
             }
         }

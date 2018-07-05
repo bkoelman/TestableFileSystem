@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Builders
         private WaitIndicator copyWaitIndicator = WaitIndicator.None;
 
         public FakeFileSystemBuilder()
-            : this(new SystemClock())
+            : this(SystemClock.Default)
         {
         }
 

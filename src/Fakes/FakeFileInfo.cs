@@ -8,9 +8,8 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
     {
-        public override string Name => AbsolutePath.IsVolumeRoot
-            ? string.Empty
-            : AbsolutePath.Components.Last() + AbsolutePath.TrailingWhiteSpace;
+        public override string Name =>
+            AbsolutePath.IsVolumeRoot ? string.Empty : AbsolutePath.Components.Last() + AbsolutePath.TrailingWhiteSpace;
 
         public override bool Exists => Properties.Exists && !Properties.Attributes.HasFlag(FileAttributes.Directory);
 
@@ -93,16 +92,24 @@ namespace TestableFileSystem.Fakes
             switch (kind)
             {
                 case FileTimeKind.CreationTime:
+                {
                     Owner.File.SetCreationTimeUtc(FullName, value);
                     break;
+                }
                 case FileTimeKind.LastAccessTime:
+                {
                     Owner.File.SetLastAccessTimeUtc(FullName, value);
                     break;
+                }
                 case FileTimeKind.LastWriteTime:
+                {
                     Owner.File.SetLastWriteTimeUtc(FullName, value);
                     break;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(kind);
+                }
             }
         }
 

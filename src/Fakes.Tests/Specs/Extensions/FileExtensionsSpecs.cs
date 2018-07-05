@@ -172,7 +172,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
                 .Build();
 
             // Act
-            fileSystem.File.WriteAllBytes(path, new[] { fileContents });
+            fileSystem.File.WriteAllBytes(path, new[]
+            {
+                fileContents
+            });
 
             // Assert
             fileSystem.File.ReadAllBytes(path).First().Should().Be(fileContents);
@@ -189,7 +192,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
                 .Build();
 
             // Act
-            fileSystem.File.WriteAllLines(path, new[] { DefaultContents, DefaultContents });
+            fileSystem.File.WriteAllLines(path, new[]
+            {
+                DefaultContents,
+                DefaultContents
+            });
 
             // Assert
             fileSystem.File.ReadAllLines(path).Should().HaveCount(2);
@@ -223,7 +230,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
                 .Build();
 
             // Act
-            fileSystem.File.AppendAllLines(path, new[] { DefaultContents, DefaultContents });
+            fileSystem.File.AppendAllLines(path, new[]
+            {
+                DefaultContents,
+                DefaultContents
+            });
 
             // Assert
             fileSystem.File.ReadAllLines(path).Should().HaveCount(3);

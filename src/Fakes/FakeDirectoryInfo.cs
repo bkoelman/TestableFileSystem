@@ -162,16 +162,24 @@ namespace TestableFileSystem.Fakes
             switch (kind)
             {
                 case FileTimeKind.CreationTime:
+                {
                     Owner.Directory.SetCreationTimeUtc(FullName, value);
                     break;
+                }
                 case FileTimeKind.LastAccessTime:
+                {
                     Owner.Directory.SetLastAccessTimeUtc(FullName, value);
                     break;
+                }
                 case FileTimeKind.LastWriteTime:
+                {
                     Owner.Directory.SetLastWriteTimeUtc(FullName, value);
                     break;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(kind);
+                }
             }
         }
     }

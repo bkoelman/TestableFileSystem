@@ -135,13 +135,17 @@ namespace TestableFileSystem.Fakes
                 case FileMode.CreateNew:
                 case FileMode.Create:
                 case FileMode.Truncate:
+                {
                     truncate = true;
                     isReaderOnly = false;
                     break;
+                }
                 case FileMode.Append:
+                {
                     seekToEnd = true;
                     isReaderOnly = false;
                     break;
+                }
             }
 
             FakeFileStream stream;
@@ -302,6 +306,7 @@ namespace TestableFileSystem.Fakes
                 switch (origin)
                 {
                     case SeekOrigin.Begin:
+                    {
                         if (offset < 0)
                         {
                             throw new ArgumentOutOfRangeException(nameof(offset));
@@ -309,8 +314,9 @@ namespace TestableFileSystem.Fakes
 
                         Position = offset;
                         break;
-
+                    }
                     case SeekOrigin.Current:
+                    {
                         if (Position + offset < 0)
                         {
                             throw new ArgumentOutOfRangeException(nameof(offset));
@@ -318,8 +324,9 @@ namespace TestableFileSystem.Fakes
 
                         Position += offset;
                         break;
-
+                    }
                     case SeekOrigin.End:
+                    {
                         if (Length + offset < 0)
                         {
                             throw new ArgumentOutOfRangeException(nameof(offset));
@@ -327,8 +334,11 @@ namespace TestableFileSystem.Fakes
 
                         Position = Length + offset;
                         break;
+                    }
                     default:
+                    {
                         throw ErrorFactory.Internal.EnumValueUnsupported(origin);
+                    }
                 }
 
                 return Position;

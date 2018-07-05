@@ -57,13 +57,21 @@ namespace TestableFileSystem.Fakes
             switch (filter)
             {
                 case EnumerationFilter.Files:
+                {
                     return entries.Values.OfType<FileEntry>();
+                }
                 case EnumerationFilter.Directories:
+                {
                     return entries.Values.OfType<DirectoryEntry>();
+                }
                 case EnumerationFilter.All:
+                {
                     return entries.Values;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(filter);
+                }
             }
         }
 

@@ -122,7 +122,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Create(path))
             {
                 // Act
-                stream.Write(new byte[] { 0xAA }, 0, 0);
+                stream.Write(new byte[]
+                {
+                    0xAA
+                }, 0, 0);
 
                 // Assert
                 stream.Length.Should().Be(0);
@@ -585,7 +588,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
-                Action action = () => stream.Write(new byte[] { 0xFF }, 0, 1);
+                Action action = () => stream.Write(new byte[]
+                {
+                    0xFF
+                }, 0, 1);
 
                 // Assert
                 action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
@@ -606,7 +612,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             {
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
-                Action action = () => stream.Write(new byte[] { 0xFF }, 0, 1);
+                Action action = () => stream.Write(new byte[]
+                {
+                    0xFF
+                }, 0, 1);
 
                 // Assert
                 action.Should().Throw<NotSupportedException>().WithMessage("Stream does not support writing.");

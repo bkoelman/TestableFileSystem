@@ -125,7 +125,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"c:\some\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -172,7 +172,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"c:\SOME\folDER";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"C:\some\FOLder", FileAttributes.Hidden)
@@ -219,7 +219,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"c:\some\folder  ";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -266,7 +266,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"c:\";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -300,7 +300,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"c:\some\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\other")
@@ -350,7 +350,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"c:\some\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -399,7 +399,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"c:\some\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -611,7 +611,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"\\server\share\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -672,7 +672,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             const string path = @"c:\some\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)

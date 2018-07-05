@@ -154,7 +154,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Create, FileAccess.Read);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage(@"Combining FileMode: Create with FileAccess: Read is invalid.*");
+            action.Should().Throw<ArgumentException>()
+                .WithMessage(@"Combining FileMode: Create with FileAccess: Read is invalid.*");
         }
 
         [Fact]
@@ -471,7 +472,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Append, FileAccess.Read);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage(@"Combining FileMode: Append with FileAccess: Read is invalid.*");
+            action.Should().Throw<ArgumentException>()
+                .WithMessage(@"Combining FileMode: Append with FileAccess: Read is invalid.*");
         }
 
         [Fact]
@@ -509,7 +511,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Append))
             {
-                byte[] buffer = { (byte)'X', (byte)'Y', (byte)'Z' };
+                byte[] buffer =
+                {
+                    (byte)'X',
+                    (byte)'Y',
+                    (byte)'Z'
+                };
                 stream.Write(buffer, 0, buffer.Length);
             }
 
@@ -697,7 +704,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Open);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+            action.Should().Throw<UnauthorizedAccessException>()
+                .WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
         }
 
         [Fact]
@@ -830,8 +838,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\file.txt";
 
-            DateTime createTimeUtc = 2.January(2017).At(22, 14).AsUtc();
-            var clock = new SystemClock { UtcNow = () => createTimeUtc };
+            DateTime creationTimeUtc = 2.January(2017).At(22, 14).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -849,13 +857,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.WriteByte(0x20);
 
                 // Assert
-                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
                 fileInfo.Length.Should().Be(0);
             }
 
-            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
             fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(writeTimeUtc);
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(writeTimeUtc);
 
@@ -869,8 +877,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\file.txt";
 
-            DateTime createTimeUtc = 4.January(2017).At(22, 14).AsUtc();
-            var clock = new SystemClock { UtcNow = () => createTimeUtc };
+            DateTime creationTimeUtc = 4.January(2017).At(22, 14).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingTextFile(path, "X")
@@ -885,13 +893,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.ReadByte();
 
                 // Assert
-                fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(createTimeUtc);
+                fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
             }
 
-            fileSystem.File.GetCreationTimeUtc(path).Should().Be(createTimeUtc);
-            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(createTimeUtc);
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
         }
 
@@ -901,8 +909,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\file.txt";
 
-            DateTime createTimeUtc = 31.January(2017).At(22, 14).AsUtc();
-            var clock = new SystemClock { UtcNow = () => createTimeUtc };
+            DateTime creationTimeUtc = 31.January(2017).At(22, 14).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -917,11 +925,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             Task.Factory.StartNew(() =>
             {
-                clock.UtcNow = () => createTimeUtc.AddSeconds(1);
+                clock.UtcNow = () => creationTimeUtc.AddSeconds(1);
                 fileSystem.File.WriteAllText(path, "Y");
             }).Wait();
 
-            clock.UtcNow = () => createTimeUtc.AddSeconds(2);
+            clock.UtcNow = () => creationTimeUtc.AddSeconds(2);
 
             DateTime accessTimeUtcAfter = fileSystem.File.GetLastAccessTimeUtc(path);
             DateTime writeTimeUtcAfter = fileSystem.File.GetLastWriteTimeUtc(path);

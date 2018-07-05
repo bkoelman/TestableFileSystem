@@ -36,27 +36,24 @@ namespace TestableFileSystem.Interfaces
         void Flush(bool flushToDisk = false);
 
         [NotNull]
-        Task FlushAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task FlushAsync(CancellationToken cancellationToken = default);
 
         int ReadByte();
         int Read([NotNull] byte[] array, int offset, int count);
 
         [NotNull]
-        Task<int> ReadAsync([NotNull] byte[] buffer, int offset, int count,
-            CancellationToken cancellationToken = default(CancellationToken));
+        Task<int> ReadAsync([NotNull] byte[] buffer, int offset, int count, CancellationToken cancellationToken = default);
 
         void WriteByte(byte value);
         void Write([NotNull] byte[] array, int offset, int count);
 
         [NotNull]
-        Task WriteAsync([NotNull] byte[] buffer, int offset, int count,
-            CancellationToken cancellationToken = default(CancellationToken));
+        Task WriteAsync([NotNull] byte[] buffer, int offset, int count, CancellationToken cancellationToken = default);
 
         void CopyTo([NotNull] Stream destination, int bufferSize = 81920);
 
         [NotNull]
-        Task CopyToAsync([NotNull] Stream destination, int bufferSize = 81920,
-            CancellationToken cancellationToken = default(CancellationToken));
+        Task CopyToAsync([NotNull] Stream destination, int bufferSize = 81920, CancellationToken cancellationToken = default);
 
         [NotNull]
         Stream AsStream();

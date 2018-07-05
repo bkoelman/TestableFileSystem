@@ -91,7 +91,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"C:\some\folder");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
+            action.Should().Throw<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
         }
 
         [Fact]

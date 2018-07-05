@@ -602,7 +602,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"C:\some\folder", @"c:\newname");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
+            action.Should().Throw<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
         }
 
         [Fact]
@@ -690,7 +691,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, @"c:\");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"The filename, directory name, or volume label syntax is incorrect");
+            action.Should().Throw<IOException>()
+                .WithMessage(@"The filename, directory name, or volume label syntax is incorrect");
         }
 
         [Fact]

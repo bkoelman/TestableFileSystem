@@ -311,7 +311,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -345,7 +345,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_getting_creation_time_in_UTC_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\some")
@@ -365,7 +365,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_setting_creation_time_in_UTC_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\some")
@@ -385,7 +385,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_getting_creation_time_in_UTC_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(@"C:\folder\some.txt")
@@ -421,7 +421,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_getting_creation_time_in_UTC_for_existing_local_file_with_different_casing_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(@"C:\FOLDER\some.TXT")
@@ -484,7 +484,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"C:\some\subfolder";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -615,7 +615,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string path = @"\\server\share";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)

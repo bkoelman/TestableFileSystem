@@ -308,7 +308,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Arrange
             const string path = @"C:\";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -342,7 +342,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_last_access_time_in_UTC_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\some")
@@ -362,7 +362,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_last_access_time_in_UTC_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\some")
@@ -382,7 +382,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_last_access_time_in_UTC_for_existing_relative_local_directory_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"C:\folder\some")
@@ -418,7 +418,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_last_access_time_in_UTC_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"C:\FOLDER\some")
@@ -481,7 +481,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -611,7 +611,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Arrange
             const string path = @"\\server\share";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)

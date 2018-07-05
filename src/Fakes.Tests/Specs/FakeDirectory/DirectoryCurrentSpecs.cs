@@ -92,7 +92,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(@"C:\other\folder");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\other\folder'.");
+            action.Should().Throw<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'C:\other\folder'.");
         }
 
         [Fact]

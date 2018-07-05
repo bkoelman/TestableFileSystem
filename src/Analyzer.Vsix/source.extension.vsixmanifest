@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011"
+  xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="TestableFileSystemAnalyzer.95be3141-a70d-4fd5-a24c-48713dc8e2bf" Version="|%CurrentProject%;GetVsixPackageVersion|" Language="en-US" Publisher="Bart Koelman" />
+    <Identity Id="TestableFileSystemAnalyzer.95be3141-a70d-4fd5-a24c-48713dc8e2bf"
+      Version="|%CurrentProject%;GetVsixPackageVersion|" Language="en-US" Publisher="Bart Koelman" />
     <DisplayName>Testable File System Analyzer</DisplayName>
     <Description xml:space="preserve">Testable File System Analyzer</Description>
     <MoreInfo>https://github.com/bkoelman/TestableFileSystem</MoreInfo>
@@ -14,11 +16,14 @@
     <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5.2,)" />
   </Dependencies>
   <Assets>
-    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="TestableFileSystem.Analyzer" Path="|TestableFileSystem.Analyzer|" />
-    <Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="TestableFileSystem.Analyzer" Path="|TestableFileSystem.Analyzer|" />
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="TestableFileSystem.Analyzer"
+      Path="|TestableFileSystem.Analyzer|" />
+    <Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="TestableFileSystem.Analyzer"
+      Path="|TestableFileSystem.Analyzer|" />
   </Assets>
   <Prerequisites>
     <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" DisplayName="Visual Studio core editor" />
-    <Prerequisite Id="Microsoft.VisualStudio.Component.Roslyn.LanguageServices" Version="[15.0,16.0)" DisplayName="Roslyn Language Services" />
+    <Prerequisite Id="Microsoft.VisualStudio.Component.Roslyn.LanguageServices" Version="[15.0,16.0)"
+      DisplayName="Roslyn Language Services" />
   </Prerequisites>
 </PackageManifest>

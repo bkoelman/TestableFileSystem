@@ -15,7 +15,7 @@ namespace TestableFileSystem.Interfaces
         public static void NotNull<T>([CanBeNull] [NoEnumeration] T value, [NotNull] [InvokerParameterName] string name)
             where T : class
         {
-            if (ReferenceEquals(value, null))
+            if (value is null)
             {
                 throw new ArgumentNullException(name);
             }
@@ -61,6 +61,7 @@ namespace TestableFileSystem.Interfaces
                 {
                     throw new ArgumentOutOfRangeException(name, value, $"{name} must be {minValue}.");
                 }
+
                 throw new ArgumentOutOfRangeException(name, value, $"{name} must be in range [{minValue}-{maxValue}].");
             }
         }

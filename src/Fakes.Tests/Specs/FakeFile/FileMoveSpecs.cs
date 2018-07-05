@@ -664,7 +664,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file '\\teamserver\documents\for-all.txt'.");
+            action.Should().Throw<FileNotFoundException>()
+                .WithMessage(@"Could not find file '\\teamserver\documents\for-all.txt'.");
         }
 
         [Fact]

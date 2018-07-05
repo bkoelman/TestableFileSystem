@@ -127,7 +127,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"c:\some\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -174,7 +174,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"c:\SOME\file.TXT";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(@"C:\some\FILE.txt", FileAttributes.Hidden)
@@ -221,7 +221,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"c:\some\file.txt  ";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -268,7 +268,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"c:\";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -305,7 +305,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"c:\some\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\other")
@@ -355,7 +355,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"c:\some\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -404,7 +404,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"c:\some\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -623,7 +623,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"\\server\share\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -684,7 +684,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             const string path = @"c:\some\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
-            var clock = new SystemClock { UtcNow = () => creationTimeUtc };
+            var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)

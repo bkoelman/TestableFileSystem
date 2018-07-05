@@ -10,6 +10,10 @@ namespace TestableFileSystem.Fakes
         public static readonly DateTime ZeroFileTimeUtc = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         [NotNull]
-        public static readonly char[] DirectorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        public static readonly char[] DirectorySeparatorChars =
+        {
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar
+        };
     }
 }
