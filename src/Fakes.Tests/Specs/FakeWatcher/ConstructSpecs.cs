@@ -5,7 +5,7 @@ using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
-namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
+namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     // TODO: Add specs for various features...
     //

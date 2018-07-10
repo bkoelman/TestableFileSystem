@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
-namespace TestableFileSystem.Fakes.Tests.Specs.FileSystemWatcher
+namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class FileCreateSpecs
     {
