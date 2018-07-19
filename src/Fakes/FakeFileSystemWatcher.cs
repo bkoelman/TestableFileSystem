@@ -186,9 +186,28 @@ namespace TestableFileSystem.Fakes
 
         private bool MatchesFilters([NotNull] FakeSystemChangeEventArgs args)
         {
-            // TODO: Match against change type, path and file mask.
+            if (!MatchesNotifyFilter(args))
+            {
+                return false;
+            }
+
+            // TODO: Match against path and file mask.
 
             return true;
+        }
+
+        private bool MatchesNotifyFilter([NotNull] FakeSystemChangeEventArgs args)
+        {
+            switch (args.ChangeType)
+            {
+                case WatcherChangeTypes.Created:
+                case WatcherChangeTypes.Deleted:
+                {
+                    return NotifyFilter.HasFlag(NotifyFilters.FileName);
+                }
+            }
+
+            return false;
         }
 
         private void ConsumerLoop(CancellationToken cancellationToken)
