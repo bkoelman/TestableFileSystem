@@ -37,7 +37,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (resolveResult.ExistingFileOrNull == null)
             {
-                ChangeTracker.NotifyFileCreated(arguments.Path);
+                ChangeTracker.NotifyFileCreated(arguments.Path.Formatter);
             }
 
             return stream;

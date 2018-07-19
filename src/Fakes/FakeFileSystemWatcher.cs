@@ -177,7 +177,7 @@ namespace TestableFileSystem.Fakes
                     {
                         if (MatchesFilters(args))
                         {
-                            producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, version));
+                            producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, targetPath, version));
                         }
                     }
                 }
@@ -204,6 +204,11 @@ namespace TestableFileSystem.Fakes
                 case WatcherChangeTypes.Deleted:
                 {
                     return NotifyFilter.HasFlag(NotifyFilters.FileName);
+                }
+                case WatcherChangeTypes.Changed:
+                {
+                    const NotifyFilters matchingFlags = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size;
+                    return (NotifyFilter & matchingFlags) != 0;
                 }
             }
 
@@ -297,9 +302,11 @@ namespace TestableFileSystem.Fakes
                 }
                 case WatcherChangeTypes.Renamed:
                 {
-                    Renamed?.Invoke(this, new RenamedEventArgs(change.ChangeType, rootDirectory, change.Path.Components.Last(),
-                        // ReSharper disable once PossibleNullReferenceException
-                        change.PreviousPathInRename.Components.Last()));
+                    // ReSharper disable once PossibleNullReferenceException
+                    string previousFileName = change.PreviousPathInRename.Components.Last();
+
+                    Renamed?.Invoke(this,
+                        new RenamedEventArgs(change.ChangeType, rootDirectory, change.Path.Components.Last(), previousFileName));
                     break;
                 }
             }
@@ -363,19 +370,31 @@ namespace TestableFileSystem.Fakes
             public WatcherChangeTypes ChangeType => args.ChangeType;
 
             [NotNull]
-            public AbsolutePath Path => args.Path;
+            public AbsolutePath Path { get; }
 
             [CanBeNull]
-            public AbsolutePath PreviousPathInRename => args.PreviousPathInRename;
+            public AbsolutePath PreviousPathInRename { get; }
 
             public int Version { get; }
 
-            public FakeFileSystemVersionedChange([NotNull] FakeSystemChangeEventArgs args, int version)
+            public FakeFileSystemVersionedChange([NotNull] FakeSystemChangeEventArgs args, [CanBeNull] AbsolutePath basePath,
+                int version)
             {
                 Guard.NotNull(args, nameof(args));
 
                 this.args = args;
                 Version = version;
+                Path = GetPathRebased(args.PathFormatter, basePath);
+                PreviousPathInRename = args.PreviousPathInRenameFormatter == null
+                    ? null
+                    : GetPathRebased(args.PreviousPathInRenameFormatter, basePath);
+            }
+
+            [NotNull]
+            private static AbsolutePath GetPathRebased([NotNull] IPathFormatter pathFormatter, [CanBeNull] AbsolutePath basePath)
+            {
+                AbsolutePath path = pathFormatter.GetPath();
+                return basePath == null ? path : path.RebaseFrom(basePath);
             }
         }
 

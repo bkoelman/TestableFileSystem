@@ -72,8 +72,9 @@ namespace TestableFileSystem.Fakes
             set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
         }
 
-        private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent, [NotNull] SystemClock systemClock)
-            : base(name)
+        private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent,
+            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock)
+            : base(name, changeTracker)
         {
             Parent = parent;
             Attributes = AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
@@ -95,11 +96,13 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public static DirectoryEntry CreateRoot([NotNull] SystemClock systemClock)
+        public static DirectoryEntry CreateRoot([NotNull] FakeFileSystemChangeTracker changeTracker,
+            [NotNull] SystemClock systemClock)
         {
+            Guard.NotNull(changeTracker, nameof(changeTracker));
             Guard.NotNull(systemClock, nameof(systemClock));
 
-            return new DirectoryEntry("My Computer", null, systemClock);
+            return new DirectoryEntry("My Computer", null, changeTracker, systemClock);
         }
 
         [NotNull]
@@ -123,7 +126,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(fileName, nameof(fileName));
 
-            var fileEntry = new FileEntry(fileName, this);
+            var fileEntry = new FileEntry(fileName, this, ChangeTracker);
             contents.Add(fileEntry);
 
             HandleDirectoryChanged();
@@ -156,7 +159,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(directoryName, nameof(directoryName));
 
-            var directoryEntry = new DirectoryEntry(directoryName, this, SystemClock);
+            var directoryEntry = new DirectoryEntry(directoryName, this, ChangeTracker, SystemClock);
             contents.Add(directoryEntry);
 
             HandleDirectoryChanged();

@@ -12,6 +12,9 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string Name { get; protected set; }
 
+        [NotNull]
+        protected FakeFileSystemChangeTracker ChangeTracker { get; }
+
         public FileAttributes Attributes
         {
             get => attributes;
@@ -25,10 +28,13 @@ namespace TestableFileSystem.Fakes
         public abstract DateTime LastWriteTime { get; set; }
         public abstract DateTime LastWriteTimeUtc { get; set; }
 
-        protected BaseEntry([NotNull] string name)
+        protected BaseEntry([NotNull] string name, [NotNull] FakeFileSystemChangeTracker changeTracker)
         {
             Guard.NotNullNorWhiteSpace(name, nameof(name));
+            Guard.NotNull(changeTracker, nameof(changeTracker));
+
             Name = name;
+            ChangeTracker = changeTracker;
         }
 
         protected abstract FileAttributes FilterAttributes(FileAttributes attributes);

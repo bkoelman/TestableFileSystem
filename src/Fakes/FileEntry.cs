@@ -36,6 +36,9 @@ namespace TestableFileSystem.Fakes
         private long lastWriteTimeStampUtc;
         private long lastAccessTimeStampUtc;
 
+        [CanBeNull]
+        private readonly IPathFormatter pathFormatter;
+
         [NotNull]
         public DirectoryEntry Parent { get; private set; }
 
@@ -75,8 +78,9 @@ namespace TestableFileSystem.Fakes
             set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
         }
 
-        public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)
-            : base(name)
+        public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent,
+            [NotNull] FakeFileSystemChangeTracker changeTracker)
+            : base(name, changeTracker)
         {
             Guard.NotNull(parent, nameof(parent));
             AssertParentIsValid(parent);
@@ -86,6 +90,8 @@ namespace TestableFileSystem.Fakes
 
             CreationTimeUtc = parent.SystemClock.UtcNow();
             HandleFileChanged();
+
+            pathFormatter = new FileEntryPathFormatter(this);
         }
 
         [AssertionMethod]
@@ -100,7 +106,13 @@ namespace TestableFileSystem.Fakes
         private void HandleFileChanged()
         {
             HandleFileAccessed();
+
             LastWriteTimeUtc = LastAccessTimeUtc;
+
+            if (pathFormatter != null)
+            {
+                ChangeTracker.NotifyFileChanged(pathFormatter);
+            }
         }
 
         private void HandleFileAccessed()
@@ -501,6 +513,41 @@ namespace TestableFileSystem.Fakes
                 {
                     throw new NotSupportedException("Stream does not support writing.");
                 }
+            }
+        }
+
+        private sealed class FileEntryPathFormatter : IPathFormatter
+        {
+            [NotNull]
+            private readonly FileEntry fileEntry;
+
+            public FileEntryPathFormatter([NotNull] FileEntry fileEntry)
+            {
+                Guard.NotNull(fileEntry, nameof(fileEntry));
+                this.fileEntry = fileEntry;
+            }
+
+            public AbsolutePath GetPath()
+            {
+                string text = GetText();
+                return new AbsolutePath(text);
+            }
+
+            [NotNull]
+            private string GetText()
+            {
+                var componentStack = new Stack<string>();
+                componentStack.Push(fileEntry.Name);
+
+                DirectoryEntry directory = fileEntry.Parent;
+                while (directory.Parent != null)
+                {
+                    componentStack.Push(directory.Name);
+
+                    directory = directory.Parent;
+                }
+
+                return string.Join("\\", componentStack);
             }
         }
     }

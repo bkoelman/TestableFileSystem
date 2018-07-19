@@ -24,18 +24,23 @@ namespace TestableFileSystem.Fakes
         public IDirectory Directory { get; }
 
         [NotNull]
-        internal FakeFileSystemChangeTracker ChangeTracker { get; } = new FakeFileSystemChangeTracker();
+        internal FakeFileSystemChangeTracker ChangeTracker { get; }
 
-        internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] WaitIndicator copyWaitIndicator)
+        internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker,
+            [NotNull] WaitIndicator copyWaitIndicator)
         {
             Guard.NotNull(root, nameof(root));
+            Guard.NotNull(changeTracker, nameof(changeTracker));
+            Guard.NotNull(copyWaitIndicator, nameof(copyWaitIndicator));
+
             this.root = root;
+            ChangeTracker = changeTracker;
+            CopyWaitIndicator = copyWaitIndicator;
 
             File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
             Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
             CurrentDirectoryManager = new CurrentDirectoryManager(root);
             relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
-            CopyWaitIndicator = copyWaitIndicator;
         }
 
         [NotNull]

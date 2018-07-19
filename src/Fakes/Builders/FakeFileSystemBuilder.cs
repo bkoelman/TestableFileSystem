@@ -17,6 +17,9 @@ namespace TestableFileSystem.Fakes.Builders
         private readonly DirectoryEntry root;
 
         [NotNull]
+        private readonly FakeFileSystemChangeTracker changeTracker = new FakeFileSystemChangeTracker();
+
+        [NotNull]
         private WaitIndicator copyWaitIndicator = WaitIndicator.None;
 
         public FakeFileSystemBuilder()
@@ -28,7 +31,7 @@ namespace TestableFileSystem.Fakes.Builders
         {
             Guard.NotNull(systemClock, nameof(systemClock));
 
-            root = DirectoryEntry.CreateRoot(systemClock);
+            root = DirectoryEntry.CreateRoot(changeTracker, systemClock);
         }
 
         public FakeFileSystem Build()
@@ -39,7 +42,7 @@ namespace TestableFileSystem.Fakes.Builders
             }
 
             copyWaitIndicator.Reset();
-            return new FakeFileSystem(root, copyWaitIndicator);
+            return new FakeFileSystem(root, changeTracker, copyWaitIndicator);
         }
 
         [NotNull]
@@ -69,7 +72,7 @@ namespace TestableFileSystem.Fakes.Builders
         private DirectoryEntry CreateDirectories([NotNull] AbsolutePath absolutePath)
         {
             var arguments = new DirectoryCreateArguments(absolutePath, true);
-            var handler = new DirectoryCreateHandler(root, new FakeFileSystemChangeTracker());
+            var handler = new DirectoryCreateHandler(root, changeTracker);
 
             return handler.Handle(arguments);
         }

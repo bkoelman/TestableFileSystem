@@ -37,7 +37,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             containingDirectory.DeleteFile(existingFile.Name);
 
-            ChangeTracker.NotifyFileDeleted(arguments.Path);
+            ChangeTracker.NotifyFileDeleted(arguments.Path.Formatter);
         }
 
         [AssertionMethod]
