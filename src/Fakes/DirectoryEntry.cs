@@ -129,6 +129,8 @@ namespace TestableFileSystem.Fakes
             var fileEntry = new FileEntry(fileName, this, ChangeTracker);
             contents.Add(fileEntry);
 
+            ChangeTracker.NotifyFileCreated(fileEntry.PathFormatter);
+
             HandleDirectoryChanged();
 
             return fileEntry;
@@ -138,7 +140,9 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(fileName, nameof(fileName));
 
-            contents.RemoveFile(fileName);
+            FileEntry fileEntry = contents.RemoveFile(fileName);
+
+            ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
 
             HandleDirectoryChanged();
         }

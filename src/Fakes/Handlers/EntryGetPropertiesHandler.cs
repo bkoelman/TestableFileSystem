@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class EntryGetPropertiesHandler : FakeOperationHandler<EntryGetPropertiesArguments, EntryProperties>
     {
-        public EntryGetPropertiesHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root, changeTracker)
+        public EntryGetPropertiesHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 

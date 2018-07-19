@@ -10,8 +10,8 @@ namespace TestableFileSystem.Fakes.Handlers
     {
         private const FileAttributes HiddenReadOnlyMask = FileAttributes.Hidden | FileAttributes.ReadOnly;
 
-        public FileCreateHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root, changeTracker)
+        public FileCreateHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
@@ -33,14 +33,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 file.EnableDeleteOnClose();
             }
 
-            IFileStream stream = file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path);
-
-            if (resolveResult.ExistingFileOrNull == null)
-            {
-                ChangeTracker.NotifyFileCreated(arguments.Path.Formatter);
-            }
-
-            return stream;
+            return file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path);
         }
 
         [AssertionMethod]

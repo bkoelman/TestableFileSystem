@@ -8,8 +8,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileOpenHandler : FakeOperationHandler<FileOpenArguments, IFileStream>
     {
-        public FileOpenHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root, changeTracker)
+        public FileOpenHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 

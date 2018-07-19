@@ -75,8 +75,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        [NotNull]
-        public T Add<T>([NotNull] T entry)
+        public void Add<T>([NotNull] T entry)
             where T : BaseEntry
         {
             Guard.NotNull(entry, nameof(entry));
@@ -85,7 +84,6 @@ namespace TestableFileSystem.Fakes
             entries[entry.Name] = entry;
 
             InvalidateCache();
-            return entry;
         }
 
         [AssertionMethod]
@@ -116,20 +114,25 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(directoryName, nameof(directoryName));
 
-            if (!entries.ContainsKey(directoryName))
+            if (!Directories.ContainsKey(directoryName))
             {
                 throw ErrorFactory.Internal.UnknownError($"Expected to find an existing directory named '{directoryName}'.");
             }
         }
 
-        public void RemoveFile([NotNull] string fileName)
+        [NotNull]
+        public FileEntry RemoveFile([NotNull] string fileName)
         {
             Guard.NotNull(fileName, nameof(fileName));
             AssertFileExists(fileName);
 
+            var fileToRemove = Files[fileName];
+
             entries.Remove(fileName);
 
             InvalidateCache();
+
+            return fileToRemove;
         }
 
         [AssertionMethod]
@@ -137,7 +140,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(fileName, nameof(fileName));
 
-            if (!entries.ContainsKey(fileName))
+            if (!Files.ContainsKey(fileName))
             {
                 throw ErrorFactory.Internal.UnknownError($"Expected to find an existing file named '{fileName}'.");
             }

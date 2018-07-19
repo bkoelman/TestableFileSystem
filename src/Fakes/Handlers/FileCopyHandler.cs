@@ -11,8 +11,8 @@ namespace TestableFileSystem.Fakes.Handlers
     {
         private const FileAttributes HiddenReadOnlyMask = FileAttributes.Hidden | FileAttributes.ReadOnly;
 
-        public FileCopyHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root, changeTracker)
+        public FileCopyHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 

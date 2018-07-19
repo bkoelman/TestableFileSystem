@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileDeleteHandler : FakeOperationHandler<FileDeleteArguments, object>
     {
-        public FileDeleteHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root, changeTracker)
+        public FileDeleteHandler([NotNull] DirectoryEntry root)
+            : base(root)
         {
         }
 
@@ -36,8 +36,6 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertHasExclusiveAccess(existingFile, arguments.Path);
 
             containingDirectory.DeleteFile(existingFile.Name);
-
-            ChangeTracker.NotifyFileDeleted(arguments.Path.Formatter);
         }
 
         [AssertionMethod]

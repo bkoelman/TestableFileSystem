@@ -36,8 +36,8 @@ namespace TestableFileSystem.Fakes
         private long lastWriteTimeStampUtc;
         private long lastAccessTimeStampUtc;
 
-        [CanBeNull]
-        private readonly IPathFormatter pathFormatter;
+        [NotNull]
+        internal IPathFormatter PathFormatter { get; }
 
         [NotNull]
         public DirectoryEntry Parent { get; private set; }
@@ -87,11 +87,10 @@ namespace TestableFileSystem.Fakes
 
             Parent = parent;
             Attributes = FileAttributes.Archive;
+            PathFormatter = new FileEntryPathFormatter(this);
 
             CreationTimeUtc = parent.SystemClock.UtcNow();
-            HandleFileChanged();
-
-            pathFormatter = new FileEntryPathFormatter(this);
+            HandleFileChanged(false);
         }
 
         [AssertionMethod]
@@ -103,15 +102,15 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private void HandleFileChanged()
+        private void HandleFileChanged(bool notifyChangeTracker)
         {
             HandleFileAccessed();
 
             LastWriteTimeUtc = LastAccessTimeUtc;
 
-            if (pathFormatter != null)
+            if (notifyChangeTracker)
             {
-                ChangeTracker.NotifyFileChanged(pathFormatter);
+                ChangeTracker.NotifyFileChanged(PathFormatter);
             }
         }
 
@@ -477,7 +476,7 @@ namespace TestableFileSystem.Fakes
 
                         if (hasUpdated)
                         {
-                            owner.HandleFileChanged();
+                            owner.HandleFileChanged(true);
                         }
                         else if (hasAccessed)
                         {
