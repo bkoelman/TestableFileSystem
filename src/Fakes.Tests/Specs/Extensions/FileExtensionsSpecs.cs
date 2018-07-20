@@ -182,6 +182,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
         }
 
         [Fact]
+        private void When_writing_all_bytes_to_existing_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ExistingData")
+                .Build();
+
+            // Act
+            fileSystem.File.WriteAllBytes(path, new byte[0]);
+
+            // Assert
+            fileSystem.File.ReadAllBytes(path).Should().BeEmpty();
+        }
+
+        [Fact]
         private void When_writing_all_lines_to_file_it_must_succeed()
         {
             // Arrange
@@ -203,6 +220,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
         }
 
         [Fact]
+        private void When_writing_all_lines_to_existing_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ExistingData")
+                .Build();
+
+            // Act
+            fileSystem.File.WriteAllLines(path, new string[0]);
+
+            // Assert
+            fileSystem.File.ReadAllLines(path).Should().BeEmpty();
+        }
+
+        [Fact]
         private void When_writing_all_text_to_file_it_must_succeed()
         {
             // Arrange
@@ -217,6 +251,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
 
             // Assert
             fileSystem.File.ReadAllText(path).Should().Be(DefaultContents);
+        }
+
+        [Fact]
+        private void When_writing_all_text_to_existing_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ExistingData")
+                .Build();
+
+            // Act
+            fileSystem.File.WriteAllText(path, string.Empty);
+
+            // Assert
+            fileSystem.File.ReadAllText(path).Should().BeEmpty();
         }
 
         [Fact]

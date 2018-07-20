@@ -177,7 +177,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingEmptyFile(@"C:\some\FILE.txt", FileAttributes.Hidden)
+                .IncludingEmptyFile(@"C:\some\FILE.txt")
                 .Build();
 
             DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
@@ -201,7 +201,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.Exists.Should().BeTrue();
             fileInfo.Length.Should().Be(DefaultContents.Length);
             fileInfo.IsReadOnly.Should().BeFalse();
-            fileInfo.Attributes.Should().Be(FileAttributes.Hidden);
+            fileInfo.Attributes.Should().Be(FileAttributes.Archive);
 
             fileInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
             fileInfo.CreationTimeUtc.Should().Be(creationTimeUtc);

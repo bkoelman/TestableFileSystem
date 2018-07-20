@@ -124,7 +124,7 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(bytes, nameof(bytes));
 
-            using (IFileStream stream = file.OpenWrite(path))
+            using (IFileStream stream = file.Create(path))
             {
                 stream.Write(bytes, 0, bytes.Length);
             }
@@ -137,7 +137,7 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(contents, nameof(contents));
 
-            using (IFileStream stream = file.OpenWrite(path))
+            using (IFileStream stream = file.Create(path))
             {
                 using (StreamWriter writer = CreateWriter(stream, encoding))
                 {
@@ -156,7 +156,7 @@ namespace TestableFileSystem.Interfaces
             Guard.NotNull(path, nameof(path));
             Guard.NotNull(contents, nameof(contents));
 
-            using (IFileStream stream = file.OpenWrite(path))
+            using (IFileStream stream = file.Create(path))
             {
                 using (StreamWriter writer = CreateWriter(stream, encoding))
                 {
