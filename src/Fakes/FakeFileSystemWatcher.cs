@@ -186,7 +186,7 @@ namespace TestableFileSystem.Fakes
 
         private bool MatchesFilters([NotNull] FakeSystemChangeEventArgs args)
         {
-            if (!MatchesNotifyFilter(args))
+            if ((NotifyFilter & args.Filters) == 0)
             {
                 return false;
             }
@@ -194,25 +194,6 @@ namespace TestableFileSystem.Fakes
             // TODO: Match against path and file mask.
 
             return true;
-        }
-
-        private bool MatchesNotifyFilter([NotNull] FakeSystemChangeEventArgs args)
-        {
-            switch (args.ChangeType)
-            {
-                case WatcherChangeTypes.Created:
-                case WatcherChangeTypes.Deleted:
-                {
-                    return NotifyFilter.HasFlag(NotifyFilters.FileName);
-                }
-                case WatcherChangeTypes.Changed:
-                {
-                    const NotifyFilters matchingFlags = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size;
-                    return (NotifyFilter & matchingFlags) != 0;
-                }
-            }
-
-            return false;
         }
 
         private void ConsumerLoop(CancellationToken cancellationToken)

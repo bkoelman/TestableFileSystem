@@ -10,18 +10,21 @@ namespace TestableFileSystem.Fakes
     {
         public WatcherChangeTypes ChangeType { get; }
 
+        public NotifyFilters Filters { get; }
+
         [NotNull]
         public IPathFormatter PathFormatter { get; }
 
         [CanBeNull]
         public IPathFormatter PreviousPathInRenameFormatter { get; }
 
-        public FakeSystemChangeEventArgs(WatcherChangeTypes changeType, [NotNull] IPathFormatter pathFormatter,
-            [CanBeNull] IPathFormatter previousPathInRenameFormatter)
+        public FakeSystemChangeEventArgs(WatcherChangeTypes changeType, NotifyFilters filters,
+            [NotNull] IPathFormatter pathFormatter, [CanBeNull] IPathFormatter previousPathInRenameFormatter)
         {
             Guard.NotNull(pathFormatter, nameof(pathFormatter));
 
             ChangeType = changeType;
+            Filters = filters;
             PathFormatter = pathFormatter;
             PreviousPathInRenameFormatter = previousPathInRenameFormatter;
         }

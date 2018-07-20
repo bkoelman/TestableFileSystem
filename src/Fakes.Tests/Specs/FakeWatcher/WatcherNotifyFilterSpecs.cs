@@ -280,6 +280,246 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
+        [Fact]
+        private void When_overwriting_file_with_same_contents_it_must_raise_event_for_last_write()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToOverwrite = "file.txt";
+            string pathToFileToOverwrite = Path.Combine(directoryToWatch, fileNameToOverwrite);
+
+            const string fileContents = "ExampleText";
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToFileToOverwrite, fileContents)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.LastWrite;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.WriteAllText(pathToFileToOverwrite, fileContents);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    args.FullPath.Should().Be(pathToFileToOverwrite);
+                    args.Name.Should().Be(fileNameToOverwrite);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_overwriting_file_with_same_contents_it_must_raise_event_for_last_access()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToOverwrite = "file.txt";
+            string pathToFileToOverwrite = Path.Combine(directoryToWatch, fileNameToOverwrite);
+
+            const string fileContents = "ExampleText";
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToFileToOverwrite, fileContents)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.LastAccess;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.WriteAllText(pathToFileToOverwrite, fileContents);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    args.FullPath.Should().Be(pathToFileToOverwrite);
+                    args.Name.Should().Be(fileNameToOverwrite);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_overwriting_file_with_same_contents_it_must_not_raise_event_for_other_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToOverwrite = "file.txt";
+            string pathToFileToOverwrite = Path.Combine(directoryToWatch, fileNameToOverwrite);
+
+            const NotifyFilters lastAccessLastWrite = NotifyFilters.LastAccess | NotifyFilters.LastWrite;
+            NotifyFilters otherFilters = TestNotifyFilters.All & ~lastAccessLastWrite;
+
+            const string fileContents = "ExampleText";
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToFileToOverwrite, fileContents)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = otherFilters;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.WriteAllText(pathToFileToOverwrite, fileContents);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
+        private void When_truncating_existing_file_it_must_raise_event_for_last_write()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToTruncate = "file.txt";
+            string pathToFileToTruncate = Path.Combine(directoryToWatch, fileNameToTruncate);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToFileToTruncate, "InitialText")
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.LastWrite;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.WriteAllText(pathToFileToTruncate, string.Empty);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    args.FullPath.Should().Be(pathToFileToTruncate);
+                    args.Name.Should().Be(fileNameToTruncate);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_truncating_existing_file_it_must_raise_event_for_last_access()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToTruncate = "file.txt";
+            string pathToFileToTruncate = Path.Combine(directoryToWatch, fileNameToTruncate);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToFileToTruncate, "InitialText")
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.LastAccess;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.WriteAllText(pathToFileToTruncate, string.Empty);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    args.FullPath.Should().Be(pathToFileToTruncate);
+                    args.Name.Should().Be(fileNameToTruncate);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_truncating_existing_file_it_must_raise_event_for_size()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToTruncate = "file.txt";
+            string pathToFileToTruncate = Path.Combine(directoryToWatch, fileNameToTruncate);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToFileToTruncate, "InitialText")
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.Size;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.WriteAllText(pathToFileToTruncate, string.Empty);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    args.FullPath.Should().Be(pathToFileToTruncate);
+                    args.Name.Should().Be(fileNameToTruncate);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_truncating_existing_file_it_must_not_raise_event_for_other_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToTruncate = "file.txt";
+            string pathToFileToTruncate = Path.Combine(directoryToWatch, fileNameToTruncate);
+
+            const NotifyFilters lastAccessLastWriteSize = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Size;
+            NotifyFilters otherFilters = TestNotifyFilters.All & ~lastAccessLastWriteSize;
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToFileToTruncate, "InitialText")
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = otherFilters;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.WriteAllText(pathToFileToTruncate, string.Empty);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().BeEmpty();
+                }
+            }
+        }
+
         // TODO: Add more tests....
     }
 }

@@ -21,12 +21,12 @@ namespace TestableFileSystem.Fakes
 
         partial void ProcessFileDeleted([NotNull] IPathFormatter formatter);
 
-        public void NotifyFileChanged([NotNull] IPathFormatter formatter)
+        public void NotifyFileContentsChanged([NotNull] IPathFormatter formatter, bool hasSizeChanged)
         {
-            ProcessFileChanged(formatter);
+            ProcessFileContentsChanged(formatter, hasSizeChanged);
         }
 
-        partial void ProcessFileChanged([NotNull] IPathFormatter formatter);
+        partial void ProcessFileContentsChanged([NotNull] IPathFormatter formatter, bool hasSizeChanged);
     }
 
     internal sealed partial class FakeFileSystemChangeTracker
@@ -38,7 +38,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(formatter, nameof(formatter));
 
-            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Created, formatter, null);
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Created, NotifyFilters.FileName, formatter, null);
             OnFileSystemChanged(args);
         }
 
@@ -46,15 +46,21 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(formatter, nameof(formatter));
 
-            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Deleted, formatter, null);
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Deleted, NotifyFilters.FileName, formatter, null);
             OnFileSystemChanged(args);
         }
 
-        partial void ProcessFileChanged(IPathFormatter formatter)
+        partial void ProcessFileContentsChanged(IPathFormatter formatter, bool hasSizeChanged)
         {
             Guard.NotNull(formatter, nameof(formatter));
 
-            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Changed, formatter, null);
+            NotifyFilters filters = NotifyFilters.LastWrite | NotifyFilters.LastAccess;
+            if (hasSizeChanged)
+            {
+                filters |= NotifyFilters.Size;
+            }
+
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Changed, filters, formatter, null);
             OnFileSystemChanged(args);
         }
 

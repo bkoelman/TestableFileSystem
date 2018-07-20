@@ -90,7 +90,7 @@ namespace TestableFileSystem.Fakes
             PathFormatter = new FileEntryPathFormatter(this);
 
             CreationTimeUtc = parent.SystemClock.UtcNow();
-            HandleFileChanged(false);
+            HandleFileContentsChanged(false, false);
         }
 
         [AssertionMethod]
@@ -102,19 +102,19 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private void HandleFileChanged(bool notifyChangeTracker)
+        private void HandleFileContentsChanged(bool notifyChangeTracker, bool hasSizeChanged)
         {
-            HandleFileAccessed();
+            HandleFileContentsAccessed();
 
             LastWriteTimeUtc = LastAccessTimeUtc;
 
             if (notifyChangeTracker)
             {
-                ChangeTracker.NotifyFileChanged(PathFormatter);
+                ChangeTracker.NotifyFileContentsChanged(PathFormatter, hasSizeChanged);
             }
         }
 
-        private void HandleFileAccessed()
+        private void HandleFileContentsAccessed()
         {
             LastAccessTimeUtc = Parent.SystemClock.UtcNow();
         }
@@ -469,6 +469,8 @@ namespace TestableFileSystem.Fakes
                     {
                         isClosed = true;
 
+                        bool hasSizeChanged = newLength != null && newLength.Value != owner.Size;
+
                         if (newLength != null)
                         {
                             owner.Size = newLength.Value;
@@ -476,11 +478,11 @@ namespace TestableFileSystem.Fakes
 
                         if (hasUpdated)
                         {
-                            owner.HandleFileChanged(true);
+                            owner.HandleFileContentsChanged(true, hasSizeChanged);
                         }
                         else if (hasAccessed)
                         {
-                            owner.HandleFileAccessed();
+                            owner.HandleFileContentsAccessed();
                         }
 
                         owner.CloseStream(this);
