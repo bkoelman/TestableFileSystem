@@ -23,26 +23,26 @@ namespace TestableFileSystem.Demo
             this.fileSystem = fileSystem;
         }
 
-        public void Start(string path)
+        public void Start(string path, NotifyFilters notifyFilters = NotifyFiltersAll)
         {
             Guard.NotNull(path, nameof(path));
 
             using (var setupCompletedSignal = new ConcurrentSignal())
             {
-                StartMonitorChangesOnDiskLoop(path, setupCompletedSignal);
+                StartMonitorChangesOnDiskLoop(path, notifyFilters, setupCompletedSignal);
             }
 
             Thread.Sleep(250);
         }
 
-        private void StartMonitorChangesOnDiskLoop(string path, ConcurrentSignal setupCompletedSignal)
+        private void StartMonitorChangesOnDiskLoop(string path, NotifyFilters notifyFilters, ConcurrentSignal setupCompletedSignal)
         {
-            Task.Run(() => MonitorChangesOnDiskLoop(path, setupCompletedSignal));
+            Task.Run(() => MonitorChangesOnDiskLoop(path, notifyFilters, setupCompletedSignal));
         }
 
-        private void MonitorChangesOnDiskLoop(string path, ConcurrentSignal setupCompletedSignal)
+        private void MonitorChangesOnDiskLoop(string path, NotifyFilters notifyFilters, ConcurrentSignal setupCompletedSignal)
         {
-            IFileSystemWatcher watcher = Setup(path);
+            IFileSystemWatcher watcher = Setup(path, notifyFilters);
             setupCompletedSignal.SetComplete();
 
             while (true)
@@ -51,7 +51,7 @@ namespace TestableFileSystem.Demo
             }
         }
 
-        private IFileSystemWatcher Setup(string path)
+        private IFileSystemWatcher Setup(string path, NotifyFilters notifyFilters)
         {
             IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher();
 
@@ -63,7 +63,7 @@ namespace TestableFileSystem.Demo
 
             watcher.IncludeSubdirectories = true;
             watcher.Path = path;
-            watcher.NotifyFilter = NotifyFiltersAll;
+            watcher.NotifyFilter = notifyFilters;
             watcher.EnableRaisingEvents = true;
 
             Console.WriteLine($"Start monitoring changes on '{path}'");
