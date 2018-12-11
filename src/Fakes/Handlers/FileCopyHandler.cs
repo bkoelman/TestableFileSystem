@@ -30,8 +30,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             try
             {
-                sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite, arguments.SourcePath);
-                destinationStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, arguments.DestinationPath);
+                sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite, arguments.SourcePath, false);
+                destinationStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, arguments.DestinationPath, false);
 
                 return new FileCopyResult(sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream());
             }
@@ -68,20 +68,23 @@ namespace TestableFileSystem.Fakes.Handlers
             DateTime utcNow = Root.SystemClock.UtcNow();
 
             FileEntry destinationFile;
+            bool isNewlyCreated;
             if (resolveResult.ExistingFileOrNull != null)
             {
                 AssertCanOverwriteFile(overwrite, destinationPath);
                 AssertIsNotHiddenOrReadOnly(resolveResult.ExistingFileOrNull, destinationPath);
 
                 destinationFile = resolveResult.ContainingDirectory.Files[resolveResult.FileName];
+                isNewlyCreated = false;
             }
             else
             {
                 destinationFile = resolveResult.ContainingDirectory.CreateFile(resolveResult.FileName);
                 destinationFile.CreationTimeUtc = utcNow;
+                isNewlyCreated = true;
             }
 
-            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath))
+            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath, isNewlyCreated))
             {
                 createStream.SetLength(sourceFile.Size);
             }

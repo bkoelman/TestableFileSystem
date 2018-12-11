@@ -70,7 +70,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 }
             }
 
-            return file.Open(arguments.Mode, fileAccess, arguments.Path);
+            return file.Open(arguments.Mode, fileAccess, arguments.Path, false);
         }
 
         [AssertionMethod]
@@ -101,7 +101,7 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             FileEntry file = containingDirectory.CreateFile(fileName);
-            return file.Open(arguments.Mode, fileAccess, arguments.Path);
+            return file.Open(arguments.Mode, fileAccess, arguments.Path, true);
         }
     }
 }

@@ -133,7 +133,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path)
+        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path, bool isNewlyCreated)
         {
             Guard.NotNull(path, nameof(path));
 
@@ -194,6 +194,11 @@ namespace TestableFileSystem.Fakes
             if (truncate)
             {
                 stream.SetLength(0);
+
+                if (!isNewlyCreated)
+                {
+                    stream.MarkAsUpdated();
+                }
             }
 
             return new FileStreamWrapper(stream, path.GetText, () => false, () => throw new NotSupportedException(),
@@ -304,6 +309,11 @@ namespace TestableFileSystem.Fakes
             public void SetAppendOffsetToCurrentPosition()
             {
                 appendOffset = Position;
+            }
+
+            public void MarkAsUpdated()
+            {
+                hasUpdated = true;
             }
 
             public override void Flush()

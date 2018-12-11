@@ -33,7 +33,8 @@ namespace TestableFileSystem.Fakes.Handlers
                 file.EnableDeleteOnClose();
             }
 
-            return file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path);
+            bool isNewlyCreated = resolveResult.ExistingFileOrNull == null;
+            return file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path, isNewlyCreated);
         }
 
         [AssertionMethod]
