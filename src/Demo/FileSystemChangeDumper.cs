@@ -63,7 +63,7 @@ namespace TestableFileSystem.Demo
 
             watcher.IncludeSubdirectories = true;
             watcher.Path = path;
-            watcher.NotifyFilter = NotifyFilters.CreationTime;
+            watcher.NotifyFilter = NotifyFiltersAll;
             watcher.EnableRaisingEvents = true;
 
             Console.WriteLine($"Start monitoring changes on '{path}'");
