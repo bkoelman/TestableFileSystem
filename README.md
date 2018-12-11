@@ -1,6 +1,6 @@
 # Testable File System
 
-[![Build status](https://ci.appveyor.com/api/projects/status/wiekgd62kq1o27kw?svg=true)](https://ci.appveyor.com/project/bkoelman/testablefilesystem/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/wiekgd62kq1o27kw?svg=true)](https://ci.appveyor.com/project/bkoelman/testablefilesystem)
 [![codecov](https://codecov.io/gh/bkoelman/TestableFileSystem/branch/master/graph/badge.svg)](https://codecov.io/gh/bkoelman/TestableFileSystem)
 
 This project provides a blazingly fast in-memory file system. With an API surface that is practically identical to the .NET Framework System.IO library. Using the provided interfaces makes it easy to toggle between the real file system and the fake one. For example, in unit tests.
