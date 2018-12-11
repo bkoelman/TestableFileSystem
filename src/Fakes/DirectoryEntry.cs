@@ -27,6 +27,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.Directories;
 
+        internal override IPathFormatter PathFormatter { get; }
+
         [CanBeNull]
         public DirectoryEntry Parent { get; private set; }
 
@@ -74,10 +76,10 @@ namespace TestableFileSystem.Fakes
 
         private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent,
             [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock)
-            : base(name, changeTracker)
+            : base(name, AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory, changeTracker)
         {
             Parent = parent;
-            Attributes = AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
+            PathFormatter = new DirectoryEntryPathFormatter(this);
             SystemClock = systemClock;
 
             CreationTimeUtc = systemClock.UtcNow();
@@ -207,6 +209,40 @@ namespace TestableFileSystem.Fakes
 
             FileAttributes minimumAttributes = Parent?.Parent == null ? MinimumDriveAttributes : FileAttributes.Directory;
             return (attributes & ~DirectoryAttributesToDiscard) | minimumAttributes;
+        }
+
+        private sealed class DirectoryEntryPathFormatter : IPathFormatter
+        {
+            [NotNull]
+            private readonly DirectoryEntry directoryEntry;
+
+            public DirectoryEntryPathFormatter([NotNull] DirectoryEntry directoryEntry)
+            {
+                Guard.NotNull(directoryEntry, nameof(directoryEntry));
+                this.directoryEntry = directoryEntry;
+            }
+
+            public AbsolutePath GetPath()
+            {
+                string text = GetText();
+                return new AbsolutePath(text);
+            }
+
+            [NotNull]
+            private string GetText()
+            {
+                var componentStack = new Stack<string>();
+
+                DirectoryEntry directory = directoryEntry;
+                while (directory.Parent != null)
+                {
+                    componentStack.Push(directory.Name);
+
+                    directory = directory.Parent;
+                }
+
+                return string.Join("\\", componentStack);
+            }
         }
     }
 }

@@ -36,8 +36,7 @@ namespace TestableFileSystem.Fakes
         private long lastWriteTimeStampUtc;
         private long lastAccessTimeStampUtc;
 
-        [NotNull]
-        internal IPathFormatter PathFormatter { get; }
+        internal override IPathFormatter PathFormatter { get; }
 
         [NotNull]
         public DirectoryEntry Parent { get; private set; }
@@ -80,13 +79,12 @@ namespace TestableFileSystem.Fakes
 
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent,
             [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(name, changeTracker)
+            : base(name, FileAttributes.Archive, changeTracker)
         {
             Guard.NotNull(parent, nameof(parent));
             AssertParentIsValid(parent);
 
             Parent = parent;
-            Attributes = FileAttributes.Archive;
             PathFormatter = new FileEntryPathFormatter(this);
 
             CreationTimeUtc = parent.SystemClock.UtcNow();

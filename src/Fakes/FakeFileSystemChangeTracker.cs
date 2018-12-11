@@ -27,6 +27,13 @@ namespace TestableFileSystem.Fakes
         }
 
         partial void ProcessFileContentsChanged([NotNull] IPathFormatter formatter, bool hasSizeChanged);
+
+        public void NotifyAttributesChanged([NotNull] IPathFormatter formatter)
+        {
+            ProcessAttributesChanged(formatter);
+        }
+
+        partial void ProcessAttributesChanged([NotNull] IPathFormatter formatter);
     }
 
     internal sealed partial class FakeFileSystemChangeTracker
@@ -61,6 +68,14 @@ namespace TestableFileSystem.Fakes
             }
 
             var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Changed, filters, formatter, null);
+            OnFileSystemChanged(args);
+        }
+
+        partial void ProcessAttributesChanged(IPathFormatter formatter)
+        {
+            Guard.NotNull(formatter, nameof(formatter));
+
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Changed, NotifyFilters.Attributes, formatter, null);
             OnFileSystemChanged(args);
         }
 
