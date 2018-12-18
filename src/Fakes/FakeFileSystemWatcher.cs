@@ -58,9 +58,9 @@ namespace TestableFileSystem.Fakes
 
         private WatcherState state;
         private int version;
-        private bool hasBufferUnderflow;
         private bool hasBufferOverflow;
         private bool consumerIsFlushingBuffer;
+        private bool consumerHasTerminated;
 
         [CanBeNull]
         private readonly AbsolutePath targetPath;
@@ -207,8 +207,6 @@ namespace TestableFileSystem.Fakes
 
                     lock (lockObject)
                     {
-                        hasBufferUnderflow = false;
-
                         if (hasBufferOverflow && !consumerIsFlushingBuffer)
                         {
                             doRaiseBufferOverflowEvent = true;
@@ -239,9 +237,13 @@ namespace TestableFileSystem.Fakes
                         {
                             if (!producerConsumerQueue.Any())
                             {
-                                hasBufferUnderflow = true;
                                 hasBufferOverflow = false;
                                 consumerIsFlushingBuffer = false;
+                            }
+
+                            if (producerConsumerQueue.IsCompleted)
+                            {
+                                consumerHasTerminated = true;
                             }
                         }
                     }
@@ -293,16 +295,18 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        // TODO: Rename this method to WaitForDispatcherCompleted
         public void WaitForEventDispatcherIdle(int timeout = Timeout.Infinite)
         {
             DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
+
+            producerConsumerQueue.CompleteAdding();
 
             while (DateTime.UtcNow < endTimeUtc)
             {
                 lock (lockObject)
                 {
-                    bool isQueueEmpty = hasBufferUnderflow && producerConsumerQueue.Count == 0;
-                    if (isQueueEmpty || state != WatcherState.Active)
+                    if (consumerHasTerminated || state != WatcherState.Active)
                     {
                         return;
                     }
