@@ -301,7 +301,8 @@ namespace TestableFileSystem.Fakes
             {
                 lock (lockObject)
                 {
-                    if (hasBufferUnderflow || state != WatcherState.Active)
+                    bool isQueueEmpty = hasBufferUnderflow && producerConsumerQueue.Count == 0;
+                    if (isQueueEmpty || state != WatcherState.Active)
                     {
                         return;
                     }
