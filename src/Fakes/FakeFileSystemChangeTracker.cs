@@ -21,12 +21,12 @@ namespace TestableFileSystem.Fakes
 
         partial void ProcessFileDeleted([NotNull] IPathFormatter formatter);
 
-        public void NotifyFileContentsChanged([NotNull] IPathFormatter formatter, bool hasSizeChanged)
+        public void NotifyFileContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds)
         {
-            ProcessFileContentsChanged(formatter, hasSizeChanged);
+            ProcessFileContentsAccessed(formatter, accessKinds);
         }
 
-        partial void ProcessFileContentsChanged([NotNull] IPathFormatter formatter, bool hasSizeChanged);
+        partial void ProcessFileContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds);
 
         public void NotifyAttributesChanged([NotNull] IPathFormatter formatter)
         {
@@ -57,18 +57,38 @@ namespace TestableFileSystem.Fakes
             OnFileSystemChanged(args);
         }
 
-        partial void ProcessFileContentsChanged(IPathFormatter formatter, bool hasSizeChanged)
+        partial void ProcessFileContentsAccessed(IPathFormatter formatter, FileAccessKinds accessKinds)
         {
             Guard.NotNull(formatter, nameof(formatter));
 
-            NotifyFilters filters = NotifyFilters.LastWrite | NotifyFilters.LastAccess;
-            if (hasSizeChanged)
+            NotifyFilters filters = GetNotifyFiltersForAccessKinds(accessKinds);
+            if (filters != 0)
+            {
+                var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Changed, filters, formatter, null);
+                OnFileSystemChanged(args);
+            }
+        }
+
+        private static NotifyFilters GetNotifyFiltersForAccessKinds(FileAccessKinds accessKinds)
+        {
+            NotifyFilters filters = 0;
+
+            if (accessKinds.HasFlag(FileAccessKinds.Read))
+            {
+                filters |= NotifyFilters.LastAccess;
+            }
+
+            if (accessKinds.HasFlag(FileAccessKinds.Write))
+            {
+                filters |= NotifyFilters.LastWrite;
+            }
+
+            if (accessKinds.HasFlag(FileAccessKinds.Resize))
             {
                 filters |= NotifyFilters.Size;
             }
 
-            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Changed, filters, formatter, null);
-            OnFileSystemChanged(args);
+            return filters;
         }
 
         partial void ProcessAttributesChanged(IPathFormatter formatter)

@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             bool isNewlyCreated = resolveResult.ExistingFileOrNull == null;
-            return file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path, isNewlyCreated);
+            return file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path, isNewlyCreated, true);
         }
 
         [AssertionMethod]

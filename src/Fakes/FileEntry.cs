@@ -87,8 +87,7 @@ namespace TestableFileSystem.Fakes
             Parent = parent;
             PathFormatter = new FileEntryPathFormatter(this);
 
-            CreationTimeUtc = parent.SystemClock.UtcNow();
-            HandleFileContentsChanged(false, false);
+            CreationTimeUtc = LastWriteTimeUtc = LastAccessTimeUtc = parent.SystemClock.UtcNow();
         }
 
         [AssertionMethod]
@@ -100,21 +99,24 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private void HandleFileContentsChanged(bool notifyChangeTracker, bool hasSizeChanged)
+        private void HandleFileContentsAccessed(FileAccessKinds accessKinds, bool notifyTracker)
         {
-            HandleFileContentsAccessed();
+            DateTime now = Parent.SystemClock.UtcNow();
 
-            LastWriteTimeUtc = LastAccessTimeUtc;
-
-            if (notifyChangeTracker)
+            if (accessKinds != FileAccessKinds.None)
             {
-                ChangeTracker.NotifyFileContentsChanged(PathFormatter, hasSizeChanged);
+                LastAccessTimeUtc = now;
             }
-        }
 
-        private void HandleFileContentsAccessed()
-        {
-            LastAccessTimeUtc = Parent.SystemClock.UtcNow();
+            if (accessKinds.HasFlag(FileAccessKinds.Write) || accessKinds.HasFlag(FileAccessKinds.Resize))
+            {
+                LastWriteTimeUtc = now;
+            }
+
+            if (notifyTracker)
+            {
+                ChangeTracker.NotifyFileContentsAccessed(PathFormatter, accessKinds);
+            }
         }
 
         public bool IsOpen()
@@ -131,7 +133,8 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path, bool isNewlyCreated)
+        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path, bool isNewlyCreated,
+            bool notifyTracker)
         {
             Guard.NotNull(path, nameof(path));
 
@@ -171,7 +174,7 @@ namespace TestableFileSystem.Fakes
                     throw ErrorFactory.System.FileIsInUse(path.GetText());
                 }
 
-                stream = new FakeFileStream(this, access);
+                stream = new FakeFileStream(this, access, notifyTracker);
 
                 if (isReaderOnly)
                 {
@@ -195,7 +198,7 @@ namespace TestableFileSystem.Fakes
 
                 if (!isNewlyCreated)
                 {
-                    stream.MarkAsUpdated();
+                    stream.EnableAccessKinds(FileAccessKinds.Write | FileAccessKinds.Read);
                 }
             }
 
@@ -212,6 +215,24 @@ namespace TestableFileSystem.Fakes
 
             Name = newName;
             Parent = newParent;
+        }
+
+        public void Touch([NotNull] AbsolutePath path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            lock (readerWriterLock)
+            {
+                if (activeWriter != null || activeReaders.Any())
+                {
+                    throw ErrorFactory.System.FileIsInUse(path.GetText());
+                }
+
+                using (var stream = new FakeFileStream(this, FileAccess.Write, true))
+                {
+                    stream.EnableAccessKinds(FileAccessKinds.Write);
+                }
+            }
         }
 
         private void CloseStream([NotNull] FakeFileStream stream)
@@ -245,14 +266,15 @@ namespace TestableFileSystem.Fakes
 
         private sealed class FakeFileStream : Stream
         {
+            private const int BlockSize = 4096;
+
             [NotNull]
             private readonly FileEntry owner;
 
-            private const int BlockSize = 4096;
+            private readonly bool notifyTracker;
 
             private long position;
-            private bool hasAccessed;
-            private bool hasUpdated;
+            private FileAccessKinds accessKinds = FileAccessKinds.None;
             private bool isClosed;
 
             [CanBeNull]
@@ -295,11 +317,12 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            public FakeFileStream([NotNull] FileEntry owner, FileAccess access)
+            public FakeFileStream([NotNull] FileEntry owner, FileAccess access, bool notifyTracker)
             {
                 Guard.NotNull(owner, nameof(owner));
 
                 this.owner = owner;
+                this.notifyTracker = notifyTracker;
                 CanRead = access.HasFlag(FileAccess.Read);
                 CanWrite = access.HasFlag(FileAccess.Write);
             }
@@ -309,9 +332,9 @@ namespace TestableFileSystem.Fakes
                 appendOffset = Position;
             }
 
-            public void MarkAsUpdated()
+            public void EnableAccessKinds(FileAccessKinds kinds)
             {
-                hasUpdated = true;
+                accessKinds |= kinds;
             }
 
             public override void Flush()
@@ -380,8 +403,6 @@ namespace TestableFileSystem.Fakes
                 {
                     Position = Length;
                 }
-
-                hasUpdated = true;
             }
 
             public override int Read(byte[] buffer, int offset, int count)
@@ -417,7 +438,7 @@ namespace TestableFileSystem.Fakes
                     offsetInCurrentBlock = 0;
                 }
 
-                hasAccessed = true;
+                accessKinds |= FileAccessKinds.Read;
                 return sumBytesRead;
             }
 
@@ -456,7 +477,7 @@ namespace TestableFileSystem.Fakes
                 }
 
                 Position = newPosition;
-                hasUpdated = true;
+                accessKinds |= FileAccessKinds.Write | FileAccessKinds.Read;
             }
 
             private void EnsureCapacity(long bytesNeeded)
@@ -477,20 +498,15 @@ namespace TestableFileSystem.Fakes
                     {
                         isClosed = true;
 
-                        bool hasSizeChanged = newLength != null && newLength.Value != owner.Size;
-
-                        if (newLength != null)
+                        if (newLength != null && newLength.Value != owner.Size)
                         {
                             owner.Size = newLength.Value;
+                            accessKinds |= FileAccessKinds.Resize;
                         }
 
-                        if (hasUpdated)
+                        if (accessKinds != FileAccessKinds.None)
                         {
-                            owner.HandleFileContentsChanged(true, hasSizeChanged);
-                        }
-                        else if (hasAccessed)
-                        {
-                            owner.HandleFileContentsAccessed();
+                            owner.HandleFileContentsAccessed(accessKinds, notifyTracker);
                         }
 
                         owner.CloseStream(this);

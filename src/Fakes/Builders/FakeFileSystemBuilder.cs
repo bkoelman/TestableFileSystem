@@ -135,7 +135,7 @@ namespace TestableFileSystem.Fakes.Builders
 
             FileEntry file = directory.Files.ContainsKey(fileName) ? directory.Files[fileName] : directory.CreateFile(fileName);
 
-            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath, false))
+            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath, true, false))
             {
                 writeContentsToStream(stream);
             }

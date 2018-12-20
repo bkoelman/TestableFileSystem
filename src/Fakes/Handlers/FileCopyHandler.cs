@@ -30,8 +30,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             try
             {
-                sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite, arguments.SourcePath, false);
-                destinationStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, arguments.DestinationPath, false);
+                sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite, arguments.SourcePath, false, false);
+                destinationStream = destinationFile.Open(FileMode.Open, FileAccess.Write, arguments.DestinationPath, false, false);
 
                 return new FileCopyResult(sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream());
             }
@@ -84,7 +84,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 isNewlyCreated = true;
             }
 
-            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath, isNewlyCreated))
+            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath, isNewlyCreated, false))
             {
                 createStream.SetLength(sourceFile.Size);
             }
