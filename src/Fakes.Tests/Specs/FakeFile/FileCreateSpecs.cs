@@ -152,6 +152,34 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_unable_to_create_local_file_with_delete_on_close_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\doc.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "Text")
+                .Build();
+
+            using (fileSystem.File.OpenRead(path))
+            {
+                // Act
+                try
+                {
+                    using (fileSystem.File.Create(path, 1, FileOptions.DeleteOnClose))
+                    {
+                    }
+                }
+                catch (IOException)
+                {
+                }
+            }
+
+            // Assert
+            fileSystem.File.Exists(path).Should().BeTrue();
+        }
+
+        [Fact]
         private void When_creating_existing_local_file_it_must_overwrite()
         {
             // Arrange

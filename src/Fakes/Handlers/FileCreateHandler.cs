@@ -28,13 +28,15 @@ namespace TestableFileSystem.Fakes.Handlers
             FileEntry file = resolveResult.ExistingFileOrNull ??
                 resolveResult.ContainingDirectory.CreateFile(resolveResult.FileName);
 
+            bool isNewlyCreated = resolveResult.ExistingFileOrNull == null;
+            IFileStream stream = file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path, isNewlyCreated, true);
+
             if ((arguments.Options & FileOptions.DeleteOnClose) != 0)
             {
                 file.EnableDeleteOnClose();
             }
 
-            bool isNewlyCreated = resolveResult.ExistingFileOrNull == null;
-            return file.Open(FileMode.Create, FileAccess.ReadWrite, arguments.Path, isNewlyCreated, true);
+            return stream;
         }
 
         [AssertionMethod]
