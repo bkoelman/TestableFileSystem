@@ -101,16 +101,16 @@ namespace TestableFileSystem.Fakes
 
         private void HandleFileContentsAccessed(FileAccessKinds accessKinds, bool notifyTracker)
         {
-            DateTime now = Parent.SystemClock.UtcNow();
+            DateTime utcNow = Parent.SystemClock.UtcNow();
 
             if (accessKinds != FileAccessKinds.None)
             {
-                LastAccessTimeUtc = now;
+                LastAccessTimeUtc = utcNow;
             }
 
             if (accessKinds.HasFlag(FileAccessKinds.Write) || accessKinds.HasFlag(FileAccessKinds.Resize))
             {
-                LastWriteTimeUtc = now;
+                LastWriteTimeUtc = utcNow;
             }
 
             if (notifyTracker)
@@ -215,24 +215,6 @@ namespace TestableFileSystem.Fakes
 
             Name = newName;
             Parent = newParent;
-        }
-
-        public void Touch([NotNull] AbsolutePath path)
-        {
-            Guard.NotNull(path, nameof(path));
-
-            lock (readerWriterLock)
-            {
-                if (activeWriter != null || activeReaders.Any())
-                {
-                    throw ErrorFactory.System.FileIsInUse(path.GetText());
-                }
-
-                using (var stream = new FakeFileStream(this, FileAccess.Write, true))
-                {
-                    stream.EnableAccessKinds(FileAccessKinds.Write);
-                }
-            }
         }
 
         private void CloseStream([NotNull] FakeFileStream stream)

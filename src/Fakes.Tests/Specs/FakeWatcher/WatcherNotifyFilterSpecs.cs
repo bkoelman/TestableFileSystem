@@ -878,9 +878,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        // TODO: When_copying_file...
-
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -929,7 +927,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_file_it_must_raise_event_for_file_name()
         {
             // Arrange
@@ -966,7 +964,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_file_it_must_raise_event_for_size()
         {
             // Arrange
@@ -1003,7 +1001,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_file_it_must_raise_events_for_last_write()
         {
             // Arrange
@@ -1045,7 +1043,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_file_it_must_raise_event_for_last_access()
         {
             // Arrange
@@ -1082,7 +1080,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
@@ -1115,9 +1113,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        // TODO: When_copying_empty_file...
-
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -1159,7 +1155,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_it_must_raise_event_for_file_name()
         {
             // Arrange
@@ -1196,7 +1192,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_it_must_raise_event_for_last_write()
         {
             // Arrange
@@ -1233,7 +1229,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
@@ -1265,9 +1261,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        // TODO: When_copying_over_existing_file...
-
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -1308,7 +1302,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_it_must_raise_events_for_size()
         {
             // Arrange
@@ -1349,7 +1343,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_it_must_raise_events_for_last_write()
         {
             // Arrange
@@ -1390,7 +1384,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_it_must_raise_events_for_last_access()
         {
             // Arrange
@@ -1431,7 +1425,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
@@ -1465,9 +1459,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        // TODO: When_copying_over_existing_file_with_same_size...
-
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_size_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -1508,7 +1500,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_size_it_must_raise_events_for_size()
         {
             // Arrange
@@ -1549,7 +1541,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_size_it_must_raise_events_for_last_write()
         {
             // Arrange
@@ -1590,7 +1582,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_size_it_must_raise_events_for_last_access()
         {
             // Arrange
@@ -1631,7 +1623,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_size_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
@@ -1665,9 +1657,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        // TODO: When_copying_over_existing_file_with_same_content...
-
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_content_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -1708,7 +1698,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_content_it_must_raise_events_for_size()
         {
             // Arrange
@@ -1749,7 +1739,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_content_it_must_raise_events_for_last_write()
         {
             // Arrange
@@ -1790,7 +1780,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_content_it_must_raise_events_for_last_access()
         {
             // Arrange
@@ -1831,7 +1821,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_file_with_same_content_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
@@ -1865,9 +1855,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        // TODO: When_copying_empty_file_over_existing_empty_file...
-
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_empty_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -1908,7 +1896,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_empty_file_it_must_raise_events_for_last_write()
         {
             // Arrange
@@ -1949,7 +1937,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_empty_file_it_must_raise_events_for_last_access()
         {
             // Arrange
@@ -1990,7 +1978,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_empty_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
@@ -2024,9 +2012,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        // TODO: When_copying_empty_file_over_existing_file...
-
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -2067,7 +2053,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_file_it_must_raise_events_for_size()
         {
             // Arrange
@@ -2108,7 +2094,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_file_it_must_raise_events_for_last_write()
         {
             // Arrange
@@ -2149,7 +2135,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_file_it_must_raise_events_for_last_access()
         {
             // Arrange
@@ -2190,7 +2176,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_empty_file_over_existing_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
@@ -2224,9 +2210,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        // TODO: When_copying_over_existing_empty_file...
-
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_empty_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -2267,7 +2251,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_empty_file_it_must_raise_events_for_size()
         {
             // Arrange
@@ -2308,7 +2292,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_empty_file_it_must_raise_events_for_last_write()
         {
             // Arrange
@@ -2349,7 +2333,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_empty_file_it_must_raise_events_for_last_access()
         {
             // Arrange
@@ -2390,7 +2374,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_copying_over_existing_empty_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange

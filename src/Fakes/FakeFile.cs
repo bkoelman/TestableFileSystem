@@ -90,7 +90,7 @@ namespace TestableFileSystem.Fakes
                     AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
                     AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
 
-                    var handler = new FileCopyHandler(root);
+                    var handler = new FileCopyHandler(root, owner.ChangeTracker);
                     var arguments = new FileCopyArguments(sourcePath, destinationPath, overwrite);
 
                     copyResult = handler.Handle(arguments);

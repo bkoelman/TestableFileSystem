@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
@@ -11,19 +12,33 @@ namespace TestableFileSystem.Fakes.Handlers
     {
         private const FileAttributes HiddenReadOnlyMask = FileAttributes.Hidden | FileAttributes.ReadOnly;
 
-        public FileCopyHandler([NotNull] DirectoryEntry root)
+        [NotNull]
+        private readonly FakeFileSystemChangeTracker changeTracker;
+
+        [NotNull]
+        private readonly List<FileAccessKinds> pendingContentChanges = new List<FileAccessKinds>();
+
+        public FileCopyHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
+            this.changeTracker = changeTracker;
         }
 
         public override FileCopyResult Handle(FileCopyArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 
+            pendingContentChanges.Clear();
+            pendingContentChanges.Add(FileAccessKinds.Write);
+
             FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath);
-            AssertHasExclusiveAccess(sourceFile);
 
             FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath, arguments.Overwrite, sourceFile);
+
+            foreach (FileAccessKinds change in pendingContentChanges)
+            {
+                changeTracker.NotifyFileContentsAccessed(destinationFile.PathFormatter, change);
+            }
 
             IFileStream sourceStream = null;
             IFileStream destinationStream = null;
@@ -31,7 +46,8 @@ namespace TestableFileSystem.Fakes.Handlers
             try
             {
                 sourceStream = sourceFile.Open(FileMode.Open, FileAccess.ReadWrite, arguments.SourcePath, false, false);
-                destinationStream = destinationFile.Open(FileMode.Open, FileAccess.Write, arguments.DestinationPath, false, false);
+                destinationStream =
+                    destinationFile.Open(FileMode.Open, FileAccess.Write, arguments.DestinationPath, false, false);
 
                 return new FileCopyResult(sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream());
             }
@@ -52,7 +68,28 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorPathIsVolumeRoot = ErrorFactory.System.DirectoryNotFound
             };
 
-            return sourceResolver.ResolveExistingFile(sourcePath);
+            FileEntry sourceFile = sourceResolver.ResolveExistingFile(sourcePath);
+
+            AssertHasExclusiveAccess(sourceFile);
+            AddChangeForSourceFile(sourceFile);
+
+            return sourceFile;
+        }
+
+        private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
+        {
+            if (file.IsOpen())
+            {
+                throw ErrorFactory.System.FileIsInUse();
+            }
+        }
+
+        private void AddChangeForSourceFile([NotNull] FileEntry sourceFile)
+        {
+            if (sourceFile.Size > 0)
+            {
+                pendingContentChanges.Add(FileAccessKinds.Write | FileAccessKinds.Read | FileAccessKinds.Resize);
+            }
         }
 
         [NotNull]
@@ -74,7 +111,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 AssertCanOverwriteFile(overwrite, destinationPath);
                 AssertIsNotHiddenOrReadOnly(resolveResult.ExistingFileOrNull, destinationPath);
 
-                destinationFile = resolveResult.ContainingDirectory.Files[resolveResult.FileName];
+                destinationFile = ResolveExistingDestinationFile(resolveResult);
                 isNewlyCreated = false;
             }
             else
@@ -84,7 +121,8 @@ namespace TestableFileSystem.Fakes.Handlers
                 isNewlyCreated = true;
             }
 
-            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath, isNewlyCreated, false))
+            using (IFileStream createStream =
+                destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath, isNewlyCreated, false))
             {
                 createStream.SetLength(sourceFile.Size);
             }
@@ -97,12 +135,26 @@ namespace TestableFileSystem.Fakes.Handlers
             return destinationFile;
         }
 
-        private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
+        [NotNull]
+        private FileEntry ResolveExistingDestinationFile([NotNull] FileResolveResult resolveResult)
         {
-            if (file.IsOpen())
+            FileEntry destinationFile = resolveResult.ContainingDirectory.Files[resolveResult.FileName];
+
+            AddChangeForExistingDestinationFile(destinationFile);
+
+            return destinationFile;
+        }
+
+        private void AddChangeForExistingDestinationFile([NotNull] FileEntry destinationFile)
+        {
+            FileAccessKinds accessKinds = FileAccessKinds.Write | FileAccessKinds.Read;
+
+            if (destinationFile.Size > 0)
             {
-                throw ErrorFactory.System.FileIsInUse();
+                accessKinds |= FileAccessKinds.Resize;
             }
+
+            pendingContentChanges.Add(accessKinds);
         }
 
         [AssertionMethod]
