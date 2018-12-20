@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using FluentAssertions;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -12,8 +13,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     {
         private const int NotifyWaitTimeoutMilliseconds = 500;
 
+        [NotNull]
+        private static readonly byte[] LargeFileBuffer = BufferFactory.Create(1024 * 4);
+
         [Fact]
-        private void When_creating_file_it_must_raise_event_for_file_name()
+        private void When_creating_file_it_must_raise_events_for_file_name()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -80,7 +84,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_deleting_file_it_must_raise_event_for_file_name()
+        private void When_deleting_file_it_must_raise_events_for_file_name()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -143,7 +147,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_appending_to_file_it_must_raise_event_for_all_notify_filters()
+        private void When_appending_to_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -177,7 +181,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_appending_to_file_it_must_raise_event_for_last_write()
+        private void When_appending_to_file_it_must_raise_events_for_last_write()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -211,7 +215,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_appending_to_file_it_must_raise_event_for_last_access()
+        private void When_appending_to_file_it_must_raise_events_for_last_access()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -245,7 +249,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_appending_to_file_it_must_raise_event_for_size()
+        private void When_appending_to_file_it_must_raise_events_for_size()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -309,7 +313,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_overwriting_file_with_same_contents_it_must_raise_event_for_all_notify_filters()
+        private void When_overwriting_file_with_same_contents_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -345,7 +349,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_overwriting_file_with_same_contents_it_must_raise_event_for_last_write()
+        private void When_overwriting_file_with_same_contents_it_must_raise_events_for_last_write()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -381,7 +385,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_overwriting_file_with_same_contents_it_must_raise_event_for_last_access()
+        private void When_overwriting_file_with_same_contents_it_must_raise_events_for_last_access()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -448,7 +452,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_truncating_existing_file_it_must_raise_event_for_all_notify_filters()
+        private void When_truncating_existing_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -482,7 +486,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_truncating_existing_file_it_must_raise_event_for_last_write()
+        private void When_truncating_existing_file_it_must_raise_events_for_last_write()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -516,7 +520,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_truncating_existing_file_it_must_raise_event_for_last_access()
+        private void When_truncating_existing_file_it_must_raise_events_for_last_access()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -550,7 +554,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_truncating_existing_file_it_must_raise_event_for_size()
+        private void When_truncating_existing_file_it_must_raise_events_for_size()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -614,7 +618,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_recreating_existing_empty_file_it_must_raise_event_for_all_notify_filters()
+        private void When_recreating_existing_empty_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -650,7 +654,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_recreating_existing_empty_file_it_must_raise_event_for_last_write()
+        private void When_recreating_existing_empty_file_it_must_raise_events_for_last_write()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -686,7 +690,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_recreating_existing_empty_file_it_must_raise_event_for_last_access()
+        private void When_recreating_existing_empty_file_it_must_raise_events_for_last_access()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -753,7 +757,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_changing_file_attributes_it_must_raise_event_for_all_notify_filters()
+        private void When_changing_file_attributes_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -787,7 +791,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_changing_file_attributes_it_must_raise_event_for_attributes()
+        private void When_changing_file_attributes_it_must_raise_events_for_attributes()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -914,21 +918,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     createArgs.FullPath.Should().Be(pathToDestinationFile);
                     createArgs.Name.Should().Be(destinationFileName);
 
-                    FileSystemEventArgs changeArgs1 = listener.ChangeEventArgsCollected.First();
-                    changeArgs1.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs1.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs1.Name.Should().Be(destinationFileName);
-
-                    FileSystemEventArgs changeArgs2 = listener.ChangeEventArgsCollected.Skip(1).Single();
-                    changeArgs2.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs2.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs2.Name.Should().Be(destinationFileName);
+                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
+                    {
+                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                        changeArgs.Name.Should().Be(destinationFileName);
+                    }
                 }
             }
         }
 
         [Fact]
-        private void When_copying_file_it_must_raise_event_for_file_name()
+        private void When_copying_file_it_must_raise_events_for_file_name()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -965,7 +966,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_copying_file_it_must_raise_event_for_size()
+        private void When_copying_file_it_must_raise_events_for_size()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -1029,22 +1030,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(2);
+                    listener.ChangeEventArgsCollected.Should().HaveSameCount(listener.EventsCollected);
 
-                    FileSystemEventArgs changeArgs1 = listener.ChangeEventArgsCollected.First();
-                    changeArgs1.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs1.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs1.Name.Should().Be(destinationFileName);
-
-                    FileSystemEventArgs changeArgs2 = listener.ChangeEventArgsCollected.Skip(1).Single();
-                    changeArgs2.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs2.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs2.Name.Should().Be(destinationFileName);
+                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
+                    {
+                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                        changeArgs.Name.Should().Be(destinationFileName);
+                    }
                 }
             }
         }
 
         [Fact]
-        private void When_copying_file_it_must_raise_event_for_last_access()
+        private void When_copying_file_it_must_raise_events_for_last_access()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -1114,6 +1113,234 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
+        private void When_copying_large_file_it_must_raise_events_for_all_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(pathToSourceFile, LargeFileBuffer)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(4);
+                    listener.CreateEventArgsCollected.Should().HaveCount(1);
+                    listener.ChangeEventArgsCollected.Should().HaveCount(3);
+
+                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
+                    {
+                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                        changeArgs.Name.Should().Be(destinationFileName);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_large_file_it_must_raise_events_for_file_name()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(pathToSourceFile, LargeFileBuffer)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.FileName;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
+                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
+                    createArgs.FullPath.Should().Be(pathToDestinationFile);
+                    createArgs.Name.Should().Be(destinationFileName);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_large_file_it_must_raise_events_for_size()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(pathToSourceFile, LargeFileBuffer)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.Size;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(2);
+                    listener.ChangeEventArgsCollected.Should().HaveSameCount(listener.EventsCollected);
+
+                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
+                    {
+                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                        changeArgs.Name.Should().Be(destinationFileName);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_large_file_it_must_raise_events_for_last_write()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(pathToSourceFile, LargeFileBuffer)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.LastWrite;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(2);
+                    listener.ChangeEventArgsCollected.Should().HaveSameCount(listener.EventsCollected);
+
+                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
+                    {
+                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                        changeArgs.Name.Should().Be(destinationFileName);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_large_file_it_must_raise_events_for_last_access()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(pathToSourceFile, LargeFileBuffer)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.LastAccess;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
+                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                    changeArgs.Name.Should().Be(destinationFileName);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_large_file_it_must_not_raise_events_for_other_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(pathToSourceFile, LargeFileBuffer)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.Size |
+                    NotifyFilters.LastWrite | NotifyFilters.LastAccess);
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
         private void When_copying_empty_file_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
@@ -1156,7 +1383,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_copying_empty_file_it_must_raise_event_for_file_name()
+        private void When_copying_empty_file_it_must_raise_events_for_file_name()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -1193,7 +1420,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_copying_empty_file_it_must_raise_event_for_last_write()
+        private void When_copying_empty_file_it_must_raise_events_for_last_write()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";

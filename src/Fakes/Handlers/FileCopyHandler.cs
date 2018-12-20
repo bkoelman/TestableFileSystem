@@ -71,7 +71,7 @@ namespace TestableFileSystem.Fakes.Handlers
             FileEntry sourceFile = sourceResolver.ResolveExistingFile(sourcePath);
 
             AssertHasExclusiveAccess(sourceFile);
-            AddChangeForSourceFile(sourceFile);
+            AddChangesForSourceFile(sourceFile);
 
             return sourceFile;
         }
@@ -84,11 +84,16 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        private void AddChangeForSourceFile([NotNull] FileEntry sourceFile)
+        private void AddChangesForSourceFile([NotNull] FileEntry sourceFile)
         {
             if (sourceFile.Size > 0)
             {
                 pendingContentChanges.Add(FileAccessKinds.Write | FileAccessKinds.Read | FileAccessKinds.Resize);
+            }
+
+            if (sourceFile.Size >= 1024 * 4)
+            {
+                pendingContentChanges.Add(FileAccessKinds.Resize);
             }
         }
 

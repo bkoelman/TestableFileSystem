@@ -110,10 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             clock.UtcNow = () => changeTimeUtc;
 
             // Act
-            fileSystem.File.WriteAllBytes(path, new byte[]
-            {
-                0xFF
-            });
+            fileSystem.File.WriteAllBytes(path, BufferFactory.SingleByte(0xFF));
 
             // Assert
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
@@ -214,10 +211,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             clock.UtcNow = () => changeTimeUtc;
 
             // Act
-            fileSystem.File.WriteAllBytes(path, new byte[]
-            {
-                0xFF
-            });
+            fileSystem.File.WriteAllBytes(path, BufferFactory.SingleByte(0xFF));
 
             // Assert
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
