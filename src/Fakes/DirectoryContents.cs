@@ -126,7 +126,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(fileName, nameof(fileName));
             AssertFileExists(fileName);
 
-            var fileToRemove = Files[fileName];
+            FileEntry fileToRemove = Files[fileName];
 
             entries.Remove(fileName);
 

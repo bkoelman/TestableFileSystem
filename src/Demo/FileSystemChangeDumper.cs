@@ -35,7 +35,8 @@ namespace TestableFileSystem.Demo
             Thread.Sleep(250);
         }
 
-        private void StartMonitorChangesOnDiskLoop(string path, NotifyFilters notifyFilters, ConcurrentSignal setupCompletedSignal)
+        private void StartMonitorChangesOnDiskLoop(string path, NotifyFilters notifyFilters,
+            ConcurrentSignal setupCompletedSignal)
         {
             Task.Run(() => MonitorChangesOnDiskLoop(path, notifyFilters, setupCompletedSignal));
         }
