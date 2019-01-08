@@ -54,7 +54,7 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         public AbsolutePath TryGetParentPath()
         {
-            return Components.Count == 1 ? null : GetAncestorPath(Components.Count - 2);
+            return IsVolumeRoot ? null : GetAncestorPath(Components.Count - 2);
         }
 
         [NotNull]

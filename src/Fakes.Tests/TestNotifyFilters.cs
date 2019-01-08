@@ -21,6 +21,7 @@ namespace TestableFileSystem.Fakes.Tests
                 result |= value;
             }
 
+            // ReSharper disable once PossibleInvalidCastException
             return (TEnum)(object)result;
         }
     }

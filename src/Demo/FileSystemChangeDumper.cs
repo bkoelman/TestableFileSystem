@@ -49,6 +49,8 @@ namespace TestableFileSystem.Demo
             {
                 GC.KeepAlive(watcher);
             }
+
+            // ReSharper disable once FunctionNeverReturns
         }
 
         private IFileSystemWatcher Setup(string path, NotifyFilters notifyFilters)

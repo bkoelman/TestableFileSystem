@@ -92,6 +92,8 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound()
             };
+
+            // ReSharper disable once AssignNullToNotNullAttribute
             DirectoryEntry parentDirectory = resolver.ResolveDirectory(path.TryGetParentPath(), path.GetText());
 
             string fileOrDirectoryName = path.Components.Last();
