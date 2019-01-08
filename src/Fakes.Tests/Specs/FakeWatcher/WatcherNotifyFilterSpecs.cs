@@ -17,6 +17,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         private static readonly byte[] LargeFileBuffer = BufferFactory.Create(1024 * 4);
 
         [Fact]
+        private void When_creating_file_it_must_raise_events_for_all_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToCreate = "file.txt";
+            string pathToFileToCreate = Path.Combine(directoryToWatch, fileNameToCreate);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(directoryToWatch)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    using (fileSystem.File.Create(pathToFileToCreate))
+                    {
+                    }
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.CreateEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Created);
+                    args.FullPath.Should().Be(pathToFileToCreate);
+                    args.Name.Should().Be(fileNameToCreate);
+                }
+            }
+        }
+
+        [Fact]
         private void When_creating_file_it_must_raise_events_for_file_name()
         {
             // Arrange
@@ -79,6 +115,40 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
+        private void When_deleting_file_it_must_raise_events_for_all_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToDelete = "file.txt";
+            string pathToFileToDelete = Path.Combine(directoryToWatch, fileNameToDelete);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToDelete)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Delete(pathToFileToDelete);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.DeleteEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
+                    args.FullPath.Should().Be(pathToFileToDelete);
+                    args.Name.Should().Be(fileNameToDelete);
                 }
             }
         }
