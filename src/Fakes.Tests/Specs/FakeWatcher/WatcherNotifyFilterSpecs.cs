@@ -53,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_creating_file_it_must_not_raise_event_for_other_notify_filters()
+        private void When_creating_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -118,7 +118,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_deleting_file_it_must_not_raise_event_for_other_notify_filters()
+        private void When_deleting_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -283,7 +283,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_appending_to_file_it_must_not_raise_event_for_other_notify_filters()
+        private void When_appending_to_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -421,7 +421,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_overwriting_file_with_same_contents_it_must_not_raise_event_for_other_notify_filters()
+        private void When_overwriting_file_with_same_contents_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -588,7 +588,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_truncating_existing_file_it_must_not_raise_event_for_other_notify_filters()
+        private void When_truncating_existing_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -726,7 +726,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_recreating_existing_empty_file_it_must_not_raise_event_for_other_notify_filters()
+        private void When_recreating_existing_empty_file_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -825,7 +825,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_changing_file_attributes_it_must_not_raise_event_for_other_notify_filters()
+        private void When_changing_file_attributes_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -854,7 +854,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_changing_file_attributes_to_existing_value_it_must_not_raise_event_for_all_notify_filters()
+        private void When_changing_file_attributes_to_existing_value_it_must_not_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
