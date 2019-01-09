@@ -126,7 +126,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public FileEntry CreateFile([NotNull] string fileName)
         {
-            Guard.NotNull(fileName, nameof(fileName));
+            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
 
             var fileEntry = new FileEntry(fileName, this, ChangeTracker);
             contents.Add(fileEntry);
@@ -138,37 +138,47 @@ namespace TestableFileSystem.Fakes
             return fileEntry;
         }
 
-        public void DeleteFile([NotNull] string fileName, bool notifyTracker)
+        public void DeleteFile([NotNull] string fileName)
         {
-            Guard.NotNull(fileName, nameof(fileName));
+            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
 
             FileEntry fileEntry = contents.RemoveFile(fileName);
 
-            if (notifyTracker)
-            {
-                ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
-            }
-
+            ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
             HandleDirectoryChanged();
         }
 
-        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName, [NotNull] IPathFormatter sourcePathFormatter)
+        public void RenameFile([NotNull] string sourceFileName, [NotNull] string destinationFileName,
+            [NotNull] IPathFormatter sourcePathFormatter)
+        {
+            Guard.NotNullNorWhiteSpace(sourceFileName, nameof(sourceFileName));
+            Guard.NotNullNorWhiteSpace(destinationFileName, nameof(destinationFileName));
+            Guard.NotNull(sourcePathFormatter, nameof(sourcePathFormatter));
+
+            FileEntry fileEntry = contents.RemoveFile(sourceFileName);
+            fileEntry.MoveTo(destinationFileName, this);
+            contents.Add(fileEntry);
+
+            ChangeTracker.NotifyFileMoved(sourcePathFormatter, fileEntry.PathFormatter);
+            HandleDirectoryChanged();
+        }
+
+        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName)
         {
             Guard.NotNull(file, nameof(file));
             Guard.NotNullNorWhiteSpace(newFileName, nameof(newFileName));
-            Guard.NotNull(sourcePathFormatter, nameof(sourcePathFormatter));
 
             file.MoveTo(newFileName, this);
             contents.Add(file);
 
-            ChangeTracker.NotifyFileMoved(sourcePathFormatter, file.PathFormatter);
+            ChangeTracker.NotifyFileCreated(file.PathFormatter);
             HandleDirectoryChanged();
         }
 
         [NotNull]
         public DirectoryEntry CreateDirectory([NotNull] string directoryName)
         {
-            Guard.NotNull(directoryName, nameof(directoryName));
+            Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
             var directoryEntry = new DirectoryEntry(directoryName, this, ChangeTracker, SystemClock);
             contents.Add(directoryEntry);
@@ -180,7 +190,7 @@ namespace TestableFileSystem.Fakes
 
         public void DeleteDirectory([NotNull] string directoryName)
         {
-            Guard.NotNull(directoryName, nameof(directoryName));
+            Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
             contents.RemoveDirectory(directoryName);
 

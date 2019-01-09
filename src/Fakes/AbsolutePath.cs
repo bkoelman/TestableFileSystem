@@ -175,12 +175,12 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public AbsolutePath RebaseFrom([NotNull] AbsolutePath basePath)
+        public string ToRelativePath([NotNull] AbsolutePath basePath)
         {
             Guard.NotNull(basePath, nameof(basePath));
             AssertBasePathIsNotLongerThanSelf(basePath);
 
-            var rebasedComponents = new List<string>();
+            var relativeComponents = new List<string>();
 
             for (int index = 0; index < basePath.Components.Count; index++)
             {
@@ -188,17 +188,15 @@ namespace TestableFileSystem.Fakes
                 string thisComponent = Components[index];
 
                 AssertIsSameComponent(thisComponent, baseComponent, basePath);
-
-                rebasedComponents.Add(baseComponent);
             }
 
             for (int index = basePath.Components.Count; index < Components.Count; index++)
             {
                 string thisComponent = Components[index];
-                rebasedComponents.Add(thisComponent);
+                relativeComponents.Add(thisComponent);
             }
 
-            return new AbsolutePath(rebasedComponents, isExtended);
+            return string.Join(Path.DirectorySeparatorChar.ToString(), relativeComponents);
         }
 
         private void AssertBasePathIsNotLongerThanSelf([NotNull] AbsolutePath basePath)
