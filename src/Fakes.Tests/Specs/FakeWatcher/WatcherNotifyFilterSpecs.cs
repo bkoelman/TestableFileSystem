@@ -2707,6 +2707,47 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
         // TODO: Add tests for:
         // - Move file
+        //      When_moving_file_to_same_location_it_must_succeed                                   => [none]
+        //      When_moving_file_to_same_location_with_different_casing_it_must_rename              => *FileName@sourceFile,targetFile   } same
+        //      When_moving_file_to_different_name_in_same_directory_it_must_rename [BASIC]         => *FileName@sourceFile,targetFile   }
+        //      When_moving_file_to_parent_directory_it_must_succeed [BASIC]                        => -FileName@sourceFile +FileName@targetFile
+        //      When_moving_file_to_subdirectory_it_must_succeed [BASIC]                            => -FileName@sourceFile +FileName@targetFile *LastWrite@targetDir (also when deeper than 1)
+        //      When_moving_file_in_from_different_drive_it_must_succeed [BASIC]                    => +FileName ** (same as copy into)
+        //      When_moving_file_out_to_different_drive_it_must_succeed [BASIC]                     => -FileName@sourceFile
+        //      When_moving_readonly_file_it_must_succeed                                           => *FileName@sourceFile,targetFile *Attributes@targetFile
+
+        [Fact]
+        private void When_moving_file_to_same_location_it_must_not_raise_events()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileName = "file.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, fileName);
+            string pathToDestinationFile = Path.Combine(directoryToWatch.ToUpperInvariant(), fileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "Example")
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().BeEmpty();
+                }
+            }
+        }
+
+        // TODO: Add tests for:
         // - Change file times
         //
         // - Create directory

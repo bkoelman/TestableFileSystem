@@ -26,7 +26,10 @@ namespace TestableFileSystem.Fakes.Handlers
                 ResolveDestinationDirectory(arguments.SourcePath, arguments.DestinationPath, sourceFile);
 
             string newFileName = arguments.DestinationPath.Components.Last();
-            MoveFile(sourceFile, destinationDirectory, newFileName);
+            if (!SourceEqualsDestination(sourceFile, destinationDirectory, newFileName))
+            {
+                MoveFile(sourceFile, destinationDirectory, newFileName);
+            }
 
             return Missing.Value;
         }
@@ -79,6 +82,12 @@ namespace TestableFileSystem.Fakes.Handlers
         private bool IsFileCasingChangeOnly([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath)
         {
             return sourcePath.Components.SequenceEqual(destinationPath.Components, StringComparer.OrdinalIgnoreCase);
+        }
+
+        private bool SourceEqualsDestination([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
+            [NotNull] string destinationFileName)
+        {
+            return sourceFile.Parent == destinationDirectory && sourceFile.Name == destinationFileName;
         }
 
         private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
