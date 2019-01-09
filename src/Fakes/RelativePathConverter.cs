@@ -36,6 +36,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private static string CombinePaths([NotNull] string path1, [NotNull] string path2)
         {
+            // TODO: We should not be depending on System.IO.Path.Combine() but have our own implementation to prevent issue below.
+
             // NETCORE20 contains a bugfix for incorrect detection of rooted paths. The fix causes a different exception
             // to be thrown at a later time when path2 contains "::". To preserve our existing behavior, we check for
             // the fixed scenario here.
