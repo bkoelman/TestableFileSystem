@@ -28,12 +28,12 @@ namespace TestableFileSystem.Fakes
 
         partial void ProcessFileMoved([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter);
 
-        public void NotifyFileContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds)
+        public void NotifyContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds)
         {
-            ProcessFileContentsAccessed(formatter, accessKinds);
+            ProcessContentsAccessed(formatter, accessKinds);
         }
 
-        partial void ProcessFileContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds);
+        partial void ProcessContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds);
 
         public void NotifyAttributesChanged([NotNull] IPathFormatter formatter)
         {
@@ -73,7 +73,7 @@ namespace TestableFileSystem.Fakes
             OnFileSystemChanged(args);
         }
 
-        partial void ProcessFileContentsAccessed(IPathFormatter formatter, FileAccessKinds accessKinds)
+        partial void ProcessContentsAccessed(IPathFormatter formatter, FileAccessKinds accessKinds)
         {
             Guard.NotNull(formatter, nameof(formatter));
 

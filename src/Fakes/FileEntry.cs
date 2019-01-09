@@ -115,7 +115,7 @@ namespace TestableFileSystem.Fakes
 
             if (notifyTracker)
             {
-                ChangeTracker.NotifyFileContentsAccessed(PathFormatter, accessKinds);
+                ChangeTracker.NotifyContentsAccessed(PathFormatter, accessKinds);
             }
         }
 

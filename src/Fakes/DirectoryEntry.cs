@@ -172,6 +172,7 @@ namespace TestableFileSystem.Fakes
             contents.Add(file);
 
             ChangeTracker.NotifyFileCreated(file.PathFormatter);
+            ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
             HandleDirectoryChanged();
         }
 

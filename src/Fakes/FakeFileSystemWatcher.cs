@@ -175,7 +175,7 @@ namespace TestableFileSystem.Fakes
                     }
                     else
                     {
-                        if (targetPath != null && MatchesFilters(args))
+                        if (MatchesFilters(args) && targetPath != null)
                         {
                             producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, targetPath, version));
                         }
@@ -191,7 +191,13 @@ namespace TestableFileSystem.Fakes
                 return false;
             }
 
-            // TODO: Match against path and file mask.
+            AbsolutePath path = args.PathFormatter.GetPath();
+            if (targetPath != null && !path.IsDescendantOf(targetPath))
+            {
+                return false;
+            }
+
+            // TODO: Match against file mask.
 
             return true;
         }
@@ -366,8 +372,8 @@ namespace TestableFileSystem.Fakes
                 ChangeType = args.ChangeType;
                 Version = version;
                 RootDirectory = basePath;
-                RelativePath = args.PathFormatter.GetPath().ToRelativePath(basePath);
-                PreviousRelativePathInRename = args.PreviousPathInRenameFormatter?.GetPath().ToRelativePath(basePath);
+                RelativePath = args.PathFormatter.GetPath().MakeRelativeTo(basePath);
+                PreviousRelativePathInRename = args.PreviousPathInRenameFormatter?.GetPath().MakeRelativeTo(basePath);
             }
         }
 

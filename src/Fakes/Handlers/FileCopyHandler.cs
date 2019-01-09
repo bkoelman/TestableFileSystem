@@ -37,7 +37,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             foreach (FileAccessKinds change in pendingContentChanges)
             {
-                changeTracker.NotifyFileContentsAccessed(destinationFile.PathFormatter, change);
+                changeTracker.NotifyContentsAccessed(destinationFile.PathFormatter, change);
             }
 
             IFileStream sourceStream = null;

@@ -175,7 +175,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public string ToRelativePath([NotNull] AbsolutePath basePath)
+        public string MakeRelativeTo([NotNull] AbsolutePath basePath)
         {
             Guard.NotNull(basePath, nameof(basePath));
             AssertBasePathIsNotLongerThanSelf(basePath);
@@ -215,6 +215,29 @@ namespace TestableFileSystem.Fakes
             {
                 throw ErrorFactory.Internal.UnknownError($"Cannot rebase path '{GetText()}' to '{basePath.GetText()}'.");
             }
+        }
+
+        public bool IsDescendantOf([NotNull] AbsolutePath path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            if (path.Components.Count > Components.Count)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < path.Components.Count; index++)
+            {
+                string baseComponent = path.Components[index];
+                string thisComponent = Components[index];
+
+                if (!string.Equals(thisComponent, baseComponent, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return path.Components.Count < Components.Count;
         }
 
         private sealed class Parser
