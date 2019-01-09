@@ -230,7 +230,7 @@ namespace TestableFileSystem.Fakes
 
                 if (deleteOnClose && !IsOpen())
                 {
-                    Parent.DeleteFile(Name);
+                    Parent.DeleteFile(Name, true);
                 }
             }
         }

@@ -138,25 +138,30 @@ namespace TestableFileSystem.Fakes
             return fileEntry;
         }
 
-        public void DeleteFile([NotNull] string fileName)
+        public void DeleteFile([NotNull] string fileName, bool notifyTracker)
         {
             Guard.NotNull(fileName, nameof(fileName));
 
             FileEntry fileEntry = contents.RemoveFile(fileName);
 
-            ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
+            if (notifyTracker)
+            {
+                ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
+            }
 
             HandleDirectoryChanged();
         }
 
-        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName)
+        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName, [NotNull] IPathFormatter sourcePathFormatter)
         {
             Guard.NotNull(file, nameof(file));
             Guard.NotNullNorWhiteSpace(newFileName, nameof(newFileName));
+            Guard.NotNull(sourcePathFormatter, nameof(sourcePathFormatter));
 
             file.MoveTo(newFileName, this);
             contents.Add(file);
 
+            ChangeTracker.NotifyFileMoved(sourcePathFormatter, file.PathFormatter);
             HandleDirectoryChanged();
         }
 

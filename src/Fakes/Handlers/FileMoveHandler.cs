@@ -28,7 +28,7 @@ namespace TestableFileSystem.Fakes.Handlers
             string newFileName = arguments.DestinationPath.Components.Last();
             if (!SourceEqualsDestination(sourceFile, destinationDirectory, newFileName))
             {
-                MoveFile(sourceFile, destinationDirectory, newFileName);
+                MoveFile(sourceFile, destinationDirectory, newFileName, arguments.SourcePath.Formatter);
             }
 
             return Missing.Value;
@@ -91,10 +91,10 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string newFileName)
+            [NotNull] string newFileName, [NotNull] IPathFormatter sourcePathFormatter)
         {
-            sourceFile.Parent.DeleteFile(sourceFile.Name);
-            destinationDirectory.MoveFileToHere(sourceFile, newFileName);
+            sourceFile.Parent.DeleteFile(sourceFile.Name, false);
+            destinationDirectory.MoveFileToHere(sourceFile, newFileName, sourcePathFormatter);
         }
     }
 }
