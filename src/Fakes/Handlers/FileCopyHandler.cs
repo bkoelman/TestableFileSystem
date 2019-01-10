@@ -132,7 +132,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 createStream.SetLength(sourceFile.Size);
             }
 
-            destinationFile.Attributes = sourceFile.Attributes;
+            destinationFile.SetAttributes(sourceFile.Attributes);
 
             destinationFile.LastAccessTimeUtc = utcNow;
             destinationFile.LastWriteTimeUtc = sourceFile.LastWriteTimeUtc;

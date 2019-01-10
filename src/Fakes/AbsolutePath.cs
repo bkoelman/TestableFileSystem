@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -240,6 +241,13 @@ namespace TestableFileSystem.Fakes
             return path.Components.Count < Components.Count;
         }
 
+        public bool IsOnSameVolume([NotNull] AbsolutePath path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            return string.Equals(Components[0], path.Components[0], StringComparison.OrdinalIgnoreCase);
+        }
+
         private sealed class Parser
         {
             [NotNull]
@@ -448,6 +456,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        [DebuggerDisplay("{GetPath().GetText()}")]
         private sealed class AbsolutePathFormatter : IPathFormatter
         {
             [NotNull]

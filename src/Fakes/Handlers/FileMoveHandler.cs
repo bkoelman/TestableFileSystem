@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -10,6 +11,9 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileMoveHandler : FakeOperationHandler<EntryMoveArguments, object>
     {
+        public bool IsCopyRequired { get; private set; }
+        public bool IsSourceReadOnly { get; private set; }
+
         public FileMoveHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
@@ -25,8 +29,12 @@ namespace TestableFileSystem.Fakes.Handlers
             DirectoryEntry destinationDirectory =
                 ResolveDestinationDirectory(arguments.SourcePath, arguments.DestinationPath, sourceFile);
 
+            bool isOnSameVolume = arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath);
             string destinationFileName = arguments.DestinationPath.Components.Last();
-            MoveFile(sourceFile, destinationDirectory, destinationFileName, arguments.SourcePath.Formatter);
+
+            IsSourceReadOnly = sourceFile.Attributes.HasFlag(FileAttributes.ReadOnly);
+            IsCopyRequired = MoveFile(sourceFile, destinationDirectory, destinationFileName, arguments.SourcePath.Formatter,
+                isOnSameVolume);
 
             return Missing.Value;
         }
@@ -81,8 +89,8 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string destinationFileName, [NotNull] IPathFormatter sourcePathFormatter)
+        private bool MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
+            [NotNull] string destinationFileName, [NotNull] IPathFormatter sourcePathFormatter, bool isOnSameVolume)
         {
             if (sourceFile.Parent == destinationDirectory)
             {
@@ -91,11 +99,17 @@ namespace TestableFileSystem.Fakes.Handlers
                     sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatter);
                 }
             }
+            else if (!isOnSameVolume)
+            {
+                return true;
+            }
             else
             {
                 sourceFile.Parent.DeleteFile(sourceFile.Name);
                 destinationDirectory.MoveFileToHere(sourceFile, destinationFileName);
             }
+
+            return false;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
@@ -182,7 +183,7 @@ namespace TestableFileSystem.Fakes
         {
             if (!file.Attributes.HasFlag(FileAttributes.Archive))
             {
-                ChangeTracker.NotifyAttributesChanged(file.PathFormatter);
+                ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
             }
         }
 
@@ -237,6 +238,7 @@ namespace TestableFileSystem.Fakes
             return (attributes & ~DirectoryAttributesToDiscard) | minimumAttributes;
         }
 
+        [DebuggerDisplay("{GetPath().GetText()}")]
         private sealed class DirectoryEntryPathFormatter : IPathFormatter
         {
             [NotNull]

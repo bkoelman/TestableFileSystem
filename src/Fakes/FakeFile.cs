@@ -133,6 +133,22 @@ namespace TestableFileSystem.Fakes
             var arguments = new EntryMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);
+
+            if (handler.IsCopyRequired)
+            {
+                Copy(sourceFileName, destFileName);
+
+                if (handler.IsSourceReadOnly)
+                {
+                    var setAttributesHandler = new FileSetAttributesHandler(root);
+                    var setAttributeArguments = new FileSetAttributesArguments(sourcePath, FileAttributes.Normal,
+                        FileAccessKinds.Attributes | FileAccessKinds.Read);
+
+                    setAttributesHandler.Handle(setAttributeArguments);
+                }
+
+                Delete(sourceFileName);
+            }
         }
 
         public void Delete(string path)

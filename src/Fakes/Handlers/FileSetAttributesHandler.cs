@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Handlers
             var resolver = new EntryResolver(Root);
             BaseEntry entry = resolver.ResolveEntry(arguments.Path);
 
-            entry.Attributes = arguments.Attributes;
+            entry.SetAttributes(arguments.Attributes, arguments.AccessKinds);
 
             return Missing.Value;
         }

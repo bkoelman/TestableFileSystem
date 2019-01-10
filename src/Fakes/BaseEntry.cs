@@ -18,21 +18,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal abstract IPathFormatter PathFormatter { get; }
 
-        public FileAttributes Attributes
-        {
-            get => attributes;
-            set
-            {
-                FileAttributes beforeAttributes = attributes;
-
-                attributes = FilterAttributes(value);
-
-                if (attributes != beforeAttributes)
-                {
-                    ChangeTracker.NotifyAttributesChanged(PathFormatter);
-                }
-            }
-        }
+        public FileAttributes Attributes => attributes;
 
         public abstract DateTime CreationTime { get; set; }
         public abstract DateTime CreationTimeUtc { get; set; }
@@ -49,6 +35,18 @@ namespace TestableFileSystem.Fakes
             Name = name;
             this.attributes = attributes;
             ChangeTracker = changeTracker;
+        }
+
+        public void SetAttributes(FileAttributes newAttributes, FileAccessKinds accessKinds = FileAccessKinds.Attributes)
+        {
+            FileAttributes beforeAttributes = attributes;
+
+            attributes = FilterAttributes(newAttributes);
+
+            if (attributes != beforeAttributes)
+            {
+                ChangeTracker.NotifyContentsAccessed(PathFormatter, accessKinds);
+            }
         }
 
         protected abstract FileAttributes FilterAttributes(FileAttributes attributes);

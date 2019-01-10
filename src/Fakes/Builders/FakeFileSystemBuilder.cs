@@ -62,7 +62,7 @@ namespace TestableFileSystem.Fakes.Builders
 
             if (attributes != null)
             {
-                directory.Attributes = attributes.Value;
+                directory.SetAttributes(attributes.Value);
             }
 
             return this;
@@ -142,7 +142,7 @@ namespace TestableFileSystem.Fakes.Builders
 
             if (attributes != null)
             {
-                file.Attributes = attributes.Value;
+                file.SetAttributes(attributes.Value);
             }
         }
 

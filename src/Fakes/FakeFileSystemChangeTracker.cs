@@ -34,13 +34,6 @@ namespace TestableFileSystem.Fakes
         }
 
         partial void ProcessContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds);
-
-        public void NotifyAttributesChanged([NotNull] IPathFormatter formatter)
-        {
-            ProcessAttributesChanged(formatter);
-        }
-
-        partial void ProcessAttributesChanged([NotNull] IPathFormatter formatter);
     }
 
     internal sealed partial class FakeFileSystemChangeTracker
@@ -104,15 +97,12 @@ namespace TestableFileSystem.Fakes
                 filters |= NotifyFilters.Size;
             }
 
+            if (accessKinds.HasFlag(FileAccessKinds.Attributes))
+            {
+                filters |= NotifyFilters.Attributes;
+            }
+
             return filters;
-        }
-
-        partial void ProcessAttributesChanged(IPathFormatter formatter)
-        {
-            Guard.NotNull(formatter, nameof(formatter));
-
-            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Changed, NotifyFilters.Attributes, formatter, null);
-            OnFileSystemChanged(args);
         }
 
         private void OnFileSystemChanged([NotNull] FakeSystemChangeEventArgs args)

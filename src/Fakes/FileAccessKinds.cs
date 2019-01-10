@@ -8,6 +8,7 @@ namespace TestableFileSystem.Fakes
         None = 0,
         Read = 1,
         Write = 2,
-        Resize = 4
+        Resize = 4,
+        Attributes = 8
     }
 }

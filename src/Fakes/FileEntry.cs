@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
@@ -523,6 +524,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        [DebuggerDisplay("{GetPath().GetText()}")]
         private sealed class FileEntryPathFormatter : IPathFormatter
         {
             [NotNull]
