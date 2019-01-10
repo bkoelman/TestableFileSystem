@@ -7,14 +7,14 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileDeleteHandler : FakeOperationHandler<FileDeleteArguments, object>
+    internal sealed class FileDeleteHandler : FakeOperationHandler<FileDeleteArguments, Missing>
     {
         public FileDeleteHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
         }
 
-        public override object Handle(FileDeleteArguments arguments)
+        public override Missing Handle(FileDeleteArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 

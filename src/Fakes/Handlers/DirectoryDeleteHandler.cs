@@ -7,7 +7,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class DirectoryDeleteHandler : FakeOperationHandler<DirectoryDeleteArguments, object>
+    internal sealed class DirectoryDeleteHandler : FakeOperationHandler<DirectoryDeleteArguments, Missing>
     {
         [NotNull]
         private readonly CurrentDirectoryManager currentDirectoryManager;
@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Handlers
             this.currentDirectoryManager = currentDirectoryManager;
         }
 
-        public override object Handle(DirectoryDeleteArguments arguments)
+        public override Missing Handle(DirectoryDeleteArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 

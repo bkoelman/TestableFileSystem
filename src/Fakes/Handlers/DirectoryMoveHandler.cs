@@ -8,7 +8,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class DirectoryMoveHandler : FakeOperationHandler<EntryMoveArguments, object>
+    internal sealed class DirectoryMoveHandler : FakeOperationHandler<EntryMoveArguments, Missing>
     {
         [NotNull]
         private readonly CurrentDirectoryManager currentDirectoryManager;
@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Handlers
             this.currentDirectoryManager = currentDirectoryManager;
         }
 
-        public override object Handle(EntryMoveArguments arguments)
+        public override Missing Handle(EntryMoveArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
             AssertMovingToDifferentDirectoryOnSameVolume(arguments);

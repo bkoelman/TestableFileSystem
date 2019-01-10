@@ -9,7 +9,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileMoveHandler : FakeOperationHandler<EntryMoveArguments, object>
+    internal sealed class FileMoveHandler : FakeOperationHandler<EntryMoveArguments, Missing>
     {
         public bool IsCopyRequired { get; private set; }
         public bool IsSourceReadOnly { get; private set; }
@@ -19,7 +19,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
         }
 
-        public override object Handle(EntryMoveArguments arguments)
+        public override Missing Handle(EntryMoveArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 

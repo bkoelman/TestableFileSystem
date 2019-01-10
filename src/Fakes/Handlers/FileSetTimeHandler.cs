@@ -8,7 +8,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileSetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, object>
+    internal sealed class FileSetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, Missing>
     {
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker;
@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Handlers
             this.changeTracker = changeTracker;
         }
 
-        public override object Handle(EntrySetTimeArguments arguments)
+        public override Missing Handle(EntrySetTimeArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
             AssertTimeValueIsInRange(arguments);

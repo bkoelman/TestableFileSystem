@@ -7,14 +7,14 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class DirectorySetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, object>
+    internal sealed class DirectorySetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, Missing>
     {
         public DirectorySetTimeHandler([NotNull] DirectoryEntry root)
             : base(root)
         {
         }
 
-        public override object Handle(EntrySetTimeArguments arguments)
+        public override Missing Handle(EntrySetTimeArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
             AssertTimeValueIsInRange(arguments);
