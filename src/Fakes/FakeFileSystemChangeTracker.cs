@@ -62,7 +62,8 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(sourceFormatter, nameof(sourceFormatter));
             Guard.NotNull(destinationFormatter, nameof(destinationFormatter));
 
-            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Renamed, NotifyFilters.FileName, destinationFormatter, sourceFormatter);
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Renamed, NotifyFilters.FileName, destinationFormatter,
+                sourceFormatter);
             OnFileSystemChanged(args);
         }
 
@@ -82,14 +83,9 @@ namespace TestableFileSystem.Fakes
         {
             NotifyFilters filters = 0;
 
-            if (accessKinds.HasFlag(FileAccessKinds.Read))
+            if (accessKinds.HasFlag(FileAccessKinds.Attributes))
             {
-                filters |= NotifyFilters.LastAccess;
-            }
-
-            if (accessKinds.HasFlag(FileAccessKinds.Write))
-            {
-                filters |= NotifyFilters.LastWrite;
+                filters |= NotifyFilters.Attributes;
             }
 
             if (accessKinds.HasFlag(FileAccessKinds.Resize))
@@ -97,9 +93,19 @@ namespace TestableFileSystem.Fakes
                 filters |= NotifyFilters.Size;
             }
 
-            if (accessKinds.HasFlag(FileAccessKinds.Attributes))
+            if (accessKinds.HasFlag(FileAccessKinds.Write))
             {
-                filters |= NotifyFilters.Attributes;
+                filters |= NotifyFilters.LastWrite;
+            }
+
+            if (accessKinds.HasFlag(FileAccessKinds.Read))
+            {
+                filters |= NotifyFilters.LastAccess;
+            }
+
+            if (accessKinds.HasFlag(FileAccessKinds.Create))
+            {
+                filters |= NotifyFilters.CreationTime;
             }
 
             return filters;

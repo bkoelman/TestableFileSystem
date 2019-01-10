@@ -10,9 +10,14 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileSetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, object>
     {
-        public FileSetTimeHandler([NotNull] DirectoryEntry root)
+        [NotNull]
+        private readonly FakeFileSystemChangeTracker changeTracker;
+
+        public FileSetTimeHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
+            Guard.NotNull(changeTracker, nameof(changeTracker));
+            this.changeTracker = changeTracker;
         }
 
         public override object Handle(EntrySetTimeArguments arguments)
@@ -41,6 +46,7 @@ namespace TestableFileSystem.Fakes.Handlers
                         entry.CreationTime = arguments.TimeValue;
                     }
 
+                    changeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Create);
                     break;
                 }
                 case FileTimeKind.LastWriteTime:
@@ -54,6 +60,7 @@ namespace TestableFileSystem.Fakes.Handlers
                         entry.LastWriteTime = arguments.TimeValue;
                     }
 
+                    changeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Write);
                     break;
                 }
                 case FileTimeKind.LastAccessTime:
@@ -67,6 +74,7 @@ namespace TestableFileSystem.Fakes.Handlers
                         entry.LastAccessTime = arguments.TimeValue;
                     }
 
+                    changeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Read);
                     break;
                 }
                 default:

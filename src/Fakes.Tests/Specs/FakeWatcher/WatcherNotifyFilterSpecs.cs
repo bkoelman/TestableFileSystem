@@ -1,13 +1,9 @@
 ﻿#if !NETCOREAPP1_1
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
-    public sealed class WatcherNotifyFilterSpecs
+    public sealed class WatcherNotifyFilterSpecs : WatcherSpecs
     {
-        private const int NotifyWaitTimeoutMilliseconds = 500;
-
         // TODO: Add tests for:
-        // - Change file times
-        //
         // - Create directory
         // - Delete directory
         // - Change directory attributes

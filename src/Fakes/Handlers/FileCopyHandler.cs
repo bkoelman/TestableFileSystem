@@ -21,6 +21,7 @@ namespace TestableFileSystem.Fakes.Handlers
         public FileCopyHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
+            Guard.NotNull(changeTracker, nameof(changeTracker));
             this.changeTracker = changeTracker;
         }
 
