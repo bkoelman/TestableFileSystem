@@ -29,12 +29,14 @@ namespace TestableFileSystem.Fakes.Handlers
             DirectoryEntry destinationDirectory =
                 ResolveDestinationDirectory(arguments.SourcePath, arguments.DestinationPath, sourceFile);
 
-            bool isOnSameVolume = arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath);
-            string destinationFileName = arguments.DestinationPath.Components.Last();
-
+            IsCopyRequired = !arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath);
             IsSourceReadOnly = sourceFile.Attributes.HasFlag(FileAttributes.ReadOnly);
-            IsCopyRequired = MoveFile(sourceFile, destinationDirectory, destinationFileName, arguments.SourcePath.Formatter,
-                isOnSameVolume);
+
+            if (!IsCopyRequired)
+            {
+                string destinationFileName = arguments.DestinationPath.Components.Last();
+                MoveFile(sourceFile, destinationDirectory, destinationFileName, arguments.SourcePath.Formatter);
+            }
 
             return Missing.Value;
         }
@@ -73,6 +75,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorPathIsVolumeRoot = _ => ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect(),
                 ErrorFileExists = _ => ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists()
             };
+
             return destinationResolver.ResolveContainingDirectoryForMissingFile(destinationPath);
         }
 
@@ -89,8 +92,8 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        private bool MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string destinationFileName, [NotNull] IPathFormatter sourcePathFormatter, bool isOnSameVolume)
+        private void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
+            [NotNull] string destinationFileName, [NotNull] IPathFormatter sourcePathFormatter)
         {
             if (sourceFile.Parent == destinationDirectory)
             {
@@ -99,17 +102,11 @@ namespace TestableFileSystem.Fakes.Handlers
                     sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatter);
                 }
             }
-            else if (!isOnSameVolume)
-            {
-                return true;
-            }
             else
             {
                 sourceFile.Parent.DeleteFile(sourceFile.Name);
                 destinationDirectory.MoveFileToHere(sourceFile, destinationFileName);
             }
-
-            return false;
         }
     }
 }
