@@ -21,12 +21,12 @@ namespace TestableFileSystem.Fakes
 
         partial void ProcessFileDeleted([NotNull] IPathFormatter formatter);
 
-        public void NotifyFileMoved([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter)
+        public void NotifyFileRenamed([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter)
         {
-            ProcessFileMoved(sourceFormatter, destinationFormatter);
+            ProcessFileRenamed(sourceFormatter, destinationFormatter);
         }
 
-        partial void ProcessFileMoved([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter);
+        partial void ProcessFileRenamed([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter);
 
         public void NotifyContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds)
         {
@@ -57,7 +57,7 @@ namespace TestableFileSystem.Fakes
             OnFileSystemChanged(args);
         }
 
-        partial void ProcessFileMoved(IPathFormatter sourceFormatter, IPathFormatter destinationFormatter)
+        partial void ProcessFileRenamed(IPathFormatter sourceFormatter, IPathFormatter destinationFormatter)
         {
             Guard.NotNull(sourceFormatter, nameof(sourceFormatter));
             Guard.NotNull(destinationFormatter, nameof(destinationFormatter));

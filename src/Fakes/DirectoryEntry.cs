@@ -160,7 +160,7 @@ namespace TestableFileSystem.Fakes
             file.MoveTo(destinationFileName, this);
             contents.Add(file);
 
-            ChangeTracker.NotifyFileMoved(sourcePathFormatter, file.PathFormatter);
+            ChangeTracker.NotifyFileRenamed(sourcePathFormatter, file.PathFormatter);
             NotifyFileMoveForAttributes(file);
             HandleDirectoryChanged();
         }
