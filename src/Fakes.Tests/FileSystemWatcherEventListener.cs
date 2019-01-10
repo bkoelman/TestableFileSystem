@@ -22,7 +22,23 @@ namespace TestableFileSystem.Fakes.Tests
 
         [NotNull]
         [ItemNotNull]
-        public ConcurrentBag<EventDetails> EventsCollected { get; } = new ConcurrentBag<EventDetails>();
+        private readonly List<EventDetails> eventsCollected = new List<EventDetails>();
+
+        [NotNull]
+        private readonly object lockObject = new object();
+
+        [NotNull]
+        [ItemNotNull]
+        public List<EventDetails> EventsCollected
+        {
+            get
+            {
+                lock (lockObject)
+                {
+                    return eventsCollected.ToList();
+                }
+            }
+        }
 
         [NotNull]
         [ItemNotNull]
@@ -109,27 +125,91 @@ namespace TestableFileSystem.Fakes.Tests
 
         private void WatcherOnDeleted([CanBeNull] object sender, [NotNull] FileSystemEventArgs args)
         {
-            EventsCollected.Add(new EventDetails(DeleteEventName, args));
+            lock (lockObject)
+            {
+                eventsCollected.Add(new EventDetails(DeleteEventName, args));
+            }
         }
 
         private void WatcherOnCreated([CanBeNull] object sender, [NotNull] FileSystemEventArgs args)
         {
-            EventsCollected.Add(new EventDetails(CreateEventName, args));
+            lock (lockObject)
+            {
+                eventsCollected.Add(new EventDetails(CreateEventName, args));
+            }
         }
 
         private void WatcherOnChanged([CanBeNull] object sender, [NotNull] FileSystemEventArgs args)
         {
-            EventsCollected.Add(new EventDetails(ChangeEventName, args));
+            lock (lockObject)
+            {
+                eventsCollected.Add(new EventDetails(ChangeEventName, args));
+            }
         }
 
         private void WatcherOnRenamed([CanBeNull] object sender, [NotNull] RenamedEventArgs args)
         {
-            EventsCollected.Add(new EventDetails(RenameEventName, args));
+            lock (lockObject)
+            {
+                eventsCollected.Add(new EventDetails(RenameEventName, args));
+            }
         }
 
         private void WatcherOnError([CanBeNull] object sender, [NotNull] ErrorEventArgs args)
         {
-            EventsCollected.Add(new EventDetails(ErrorEventName, args));
+            lock (lockObject)
+            {
+                eventsCollected.Add(new EventDetails(ErrorEventName, args));
+            }
+        }
+
+        [NotNull]
+        [ItemNotNull]
+        public IList<string> GetEventsCollectedAsText()
+        {
+            var lines = new List<string>();
+
+            foreach (EventDetails details in EventsCollected)
+            {
+                if (details.Args is FileSystemEventArgs fileArgs)
+                {
+                    var symbol = GetChangeSymbol(fileArgs.ChangeType);
+                    lines.Add(details.Args is RenamedEventArgs renameArgs
+                        ? $"{symbol} {renameArgs.OldName} => {fileArgs.Name}"
+                        : $"{symbol} {fileArgs.Name}");
+                }
+                else if (details.Args is ErrorEventArgs errorArgs)
+                {
+                    lines.Add($"! {errorArgs.GetException().Message}");
+                }
+            }
+
+            return lines;
+        }
+
+        [NotNull]
+        private static string GetChangeSymbol(WatcherChangeTypes changeType)
+        {
+            switch (changeType)
+            {
+                case WatcherChangeTypes.Created:
+                {
+                    return "+";
+                }
+                case WatcherChangeTypes.Deleted:
+                {
+                    return "-";
+                }
+                case WatcherChangeTypes.Changed:
+                case WatcherChangeTypes.Renamed:
+                {
+                    return "*";
+                }
+                default:
+                {
+                    return "?";
+                }
+            }
         }
     }
 }
