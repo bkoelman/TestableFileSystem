@@ -11,6 +11,11 @@ namespace TestableFileSystem.Fakes.Builders
 {
     public sealed class FakeFileSystemBuilder : ITestDataBuilder<FakeFileSystem>
     {
+        private static readonly DateTime DefaultTestTime = new DateTime(1900, 1, 2, 3, 44, 55);
+
+        [NotNull]
+        private static readonly SystemClock DefaultTestClock = new SystemClock(() => DefaultTestTime);
+
         private bool includeDriveC = true;
 
         [NotNull]
@@ -23,7 +28,7 @@ namespace TestableFileSystem.Fakes.Builders
         private WaitIndicator copyWaitIndicator = WaitIndicator.None;
 
         public FakeFileSystemBuilder()
-            : this(SystemClock.Default)
+            : this(DefaultTestClock)
         {
         }
 
