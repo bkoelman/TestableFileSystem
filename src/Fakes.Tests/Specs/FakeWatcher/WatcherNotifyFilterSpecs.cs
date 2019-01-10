@@ -2713,9 +2713,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         //    x When_moving_file_to_parent_directory_it_must_succeed [BASIC]                        => -FileName@sourceFile +FileName@targetFile
         //    x When_moving_file_to_subdirectory_it_must_succeed [BASIC]                            => -FileName@sourceFile +FileName@targetFile *LastWrite&LastAccess@targetDir (also when deeper than 1)   } same
         //    x When_moving_file_to_sibling_directory_it_must_succeed [BASIC]                       => -FileName@sourceFile +FileName@targetFile *LastWrite&LastAccess@targetDir (also when deeper than 1)   }
-        //      When_moving_file_in_from_different_drive_it_must_succeed [BASIC]                    => +FileName ** (same as copy into)
-        //      When_moving_file_out_to_different_drive_it_must_succeed [BASIC]                     => -FileName@sourceFile
         //    x When_renaming/moving_system_file_it_must_succeed                                    => *FileName@sourceFile,targetFile *Attributes@targetFile  (always, except when mask contains Archive flag)
+        //    x When_moving_file_out_to_different_drive_it_must_succeed [BASIC]                     => -FileName@sourceFile
+        //      When_moving_file_in_from_different_drive_it_must_succeed [BASIC]                    => +FileName ** (same as copy into)
 
         [Fact]
         private void When_renaming_file_to_itself_it_must_not_raise_events()
@@ -4579,6 +4579,115 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         #endregion
+
+        [Fact]
+        private void When_moving_file_out_to_different_drive_it_must_raise_events_for_all_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "CONTENT")
+                .IncludingDirectory(@"d:\")
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.DeleteEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
+                    args.FullPath.Should().Be(pathToSourceFile);
+                    args.Name.Should().Be(sourceFileName);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_moving_file_out_to_different_drive_it_must_raise_events_for_file_name()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "CONTENT")
+                .IncludingDirectory(@"d:\")
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.FileName;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.DeleteEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
+                    args.FullPath.Should().Be(pathToSourceFile);
+                    args.Name.Should().Be(sourceFileName);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_moving_file_out_to_different_drive_it_must_not_raise_events_for_other_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string sourceFileName = "source.txt";
+            const string destinationFileName = "target.txt";
+
+            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
+            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "CONTENT")
+                .IncludingDirectory(@"d:\")
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName);
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().BeEmpty();
+                }
+            }
+        }
 
         // TODO: Add tests for:
         // - Change file times
