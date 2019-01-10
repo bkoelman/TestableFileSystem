@@ -132,9 +132,8 @@ namespace TestableFileSystem.Fakes
             var fileEntry = new FileEntry(fileName, this, ChangeTracker);
             contents.Add(fileEntry);
 
-            ChangeTracker.NotifyFileCreated(fileEntry.PathFormatter);
-
             HandleDirectoryChanged();
+            ChangeTracker.NotifyFileCreated(fileEntry.PathFormatter);
 
             return fileEntry;
         }
@@ -145,8 +144,8 @@ namespace TestableFileSystem.Fakes
 
             FileEntry fileEntry = contents.RemoveFile(fileName);
 
-            ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
             HandleDirectoryChanged();
+            ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
         }
 
         public void RenameFile([NotNull] string sourceFileName, [NotNull] string destinationFileName,
@@ -160,9 +159,9 @@ namespace TestableFileSystem.Fakes
             file.MoveTo(destinationFileName, this);
             contents.Add(file);
 
+            HandleDirectoryChanged();
             ChangeTracker.NotifyFileRenamed(sourcePathFormatter, file.PathFormatter);
             NotifyFileMoveForAttributes(file);
-            HandleDirectoryChanged();
         }
 
         public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName)
@@ -173,10 +172,10 @@ namespace TestableFileSystem.Fakes
             file.MoveTo(newFileName, this);
             contents.Add(file);
 
+            HandleDirectoryChanged();
             ChangeTracker.NotifyFileCreated(file.PathFormatter);
             ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
             NotifyFileMoveForAttributes(file);
-            HandleDirectoryChanged();
         }
 
         private void NotifyFileMoveForAttributes([NotNull] FileEntry file)
@@ -196,6 +195,7 @@ namespace TestableFileSystem.Fakes
             contents.Add(directoryEntry);
 
             HandleDirectoryChanged();
+            ChangeTracker.NotifyDirectoryCreated(directoryEntry.PathFormatter);
 
             return directoryEntry;
         }

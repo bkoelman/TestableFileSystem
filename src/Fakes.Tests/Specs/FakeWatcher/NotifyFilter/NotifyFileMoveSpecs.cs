@@ -1438,15 +1438,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs[] changeArgsArray = listener.ChangeEventArgsCollected.OrderBy(x => x.Name).ToArray();
                     changeArgsArray.Should().HaveCount(2);
 
-                    FileSystemEventArgs changeArgs1 = changeArgsArray[0];
-                    changeArgs1.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs1.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs1.Name.Should().Be("dstFolder");
+                    changeArgsArray[0].ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    changeArgsArray[0].FullPath.Should().Be(pathToDestinationDirectory);
+                    changeArgsArray[0].Name.Should().Be("dstFolder");
 
-                    FileSystemEventArgs changeArgs2 = changeArgsArray[1];
-                    changeArgs2.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs2.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs2.Name.Should().Be(@"dstFolder\target.txt");
+                    changeArgsArray[1].ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    changeArgsArray[1].FullPath.Should().Be(pathToDestinationFile);
+                    changeArgsArray[1].Name.Should().Be(@"dstFolder\target.txt");
                 }
             }
         }
