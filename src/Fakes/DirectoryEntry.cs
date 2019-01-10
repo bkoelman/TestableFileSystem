@@ -155,11 +155,12 @@ namespace TestableFileSystem.Fakes
             Guard.NotNullNorWhiteSpace(destinationFileName, nameof(destinationFileName));
             Guard.NotNull(sourcePathFormatter, nameof(sourcePathFormatter));
 
-            FileEntry fileEntry = contents.RemoveFile(sourceFileName);
-            fileEntry.MoveTo(destinationFileName, this);
-            contents.Add(fileEntry);
+            FileEntry file = contents.RemoveFile(sourceFileName);
+            file.MoveTo(destinationFileName, this);
+            contents.Add(file);
 
-            ChangeTracker.NotifyFileMoved(sourcePathFormatter, fileEntry.PathFormatter);
+            ChangeTracker.NotifyFileMoved(sourcePathFormatter, file.PathFormatter);
+            NotifyFileMoveForAttributes(file);
             HandleDirectoryChanged();
         }
 
@@ -173,7 +174,16 @@ namespace TestableFileSystem.Fakes
 
             ChangeTracker.NotifyFileCreated(file.PathFormatter);
             ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+            NotifyFileMoveForAttributes(file);
             HandleDirectoryChanged();
+        }
+
+        private void NotifyFileMoveForAttributes([NotNull] FileEntry file)
+        {
+            if (!file.Attributes.HasFlag(FileAttributes.Archive))
+            {
+                ChangeTracker.NotifyAttributesChanged(file.PathFormatter);
+            }
         }
 
         [NotNull]
