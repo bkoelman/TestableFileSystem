@@ -3685,7 +3685,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -3735,7 +3735,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -3780,7 +3780,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -3820,7 +3820,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -3860,7 +3860,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -3898,7 +3898,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -3948,7 +3948,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -3993,7 +3993,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4033,7 +4033,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4073,7 +4073,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4109,7 +4109,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4167,7 +4167,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4212,7 +4212,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4252,7 +4252,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4292,7 +4292,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4332,7 +4332,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4369,7 +4369,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4420,7 +4420,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4466,7 +4466,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4507,7 +4507,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
@@ -4549,7 +4549,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(Path.Combine(directoryToWatch, "srcFolder"), sourceFileName);
+            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
             string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
             string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
 
