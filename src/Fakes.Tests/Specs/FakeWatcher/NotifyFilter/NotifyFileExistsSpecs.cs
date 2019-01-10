@@ -9,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
     public sealed class NotifyFileExistsSpecs : WatcherSpecs
     {
         [Fact]
-        private void When_getting_file_existence_it_must_not_raise_events_for_notify_filters()
+        private void When_getting_file_existence_it_must_not_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";

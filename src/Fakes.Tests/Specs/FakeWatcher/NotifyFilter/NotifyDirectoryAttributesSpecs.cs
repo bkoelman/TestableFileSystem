@@ -7,17 +7,17 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
-    public sealed class NotifyFileAttributesSpecs : WatcherSpecs
+    public sealed class NotifyDirectoryAttributesSpecs : WatcherSpecs
     {
         [Fact]
-        private void When_getting_file_attributes_it_must_not_raise_events_for_all_notify_filters()
+        private void When_getting_directory_attributes_it_must_not_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            string filePath = Path.Combine(directoryToWatch, "file.txt");
+            string path = Path.Combine(directoryToWatch, "Subfolder");
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(filePath, FileAttributes.Hidden)
+                .IncludingDirectory(path, FileAttributes.Hidden)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
@@ -27,7 +27,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.GetAttributes(filePath);
+                    fileSystem.File.GetAttributes(path);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -38,15 +38,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_attributes_it_must_raise_events_for_all_notify_filters()
+        private void When_changing_directory_attributes_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileNameToUpdate = "file.txt";
-            string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);
+            const string directoryNameToUpdate = "Subfolder";
+            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(pathToFileToUpdate)
+                .IncludingDirectory(pathToDirectoryToUpdate)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
@@ -56,7 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -65,22 +65,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToFileToUpdate);
-                    args.Name.Should().Be(fileNameToUpdate);
+                    args.FullPath.Should().Be(pathToDirectoryToUpdate);
+                    args.Name.Should().Be(directoryNameToUpdate);
                 }
             }
         }
 
         [Fact]
-        private void When_changing_file_attributes_it_must_raise_events_for_attributes()
+        private void When_changing_directory_attributes_it_must_raise_events_for_attributes()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileNameToUpdate = "file.txt";
-            string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);
+            const string directoryNameToUpdate = "Subfolder";
+            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(pathToFileToUpdate)
+                .IncludingDirectory(pathToDirectoryToUpdate)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
@@ -90,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -99,32 +99,66 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToFileToUpdate);
-                    args.Name.Should().Be(fileNameToUpdate);
+                    args.FullPath.Should().Be(pathToDirectoryToUpdate);
+                    args.Name.Should().Be(directoryNameToUpdate);
                 }
             }
         }
 
         [Fact]
-        private void When_changing_file_attributes_it_must_not_raise_events_for_other_notify_filters()
+        private void When_changing_directory_attributes_it_must_raise_events_for_last_access()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileNameToUpdate = "file.txt";
-            string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);
+            const string directoryNameToUpdate = "Subfolder";
+            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(pathToFileToUpdate)
+                .IncludingDirectory(pathToDirectoryToUpdate)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.Attributes);
+                watcher.NotifyFilter = NotifyFilters.LastAccess;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
+                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    args.FullPath.Should().Be(pathToDirectoryToUpdate);
+                    args.Name.Should().Be(directoryNameToUpdate);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_changing_directory_attributes_it_must_not_raise_events_for_other_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string directoryNameToUpdate = "file.txt";
+            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(pathToDirectoryToUpdate)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.Attributes | NotifyFilters.LastAccess);
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -135,15 +169,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_attributes_to_existing_value_it_must_not_raise_events_for_all_notify_filters()
+        private void When_changing_directory_attributes_to_existing_value_it_must_not_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileNameToUpdate = "file.txt";
-            string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);
+            const string directoryNameToUpdate = "file.txt";
+            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(pathToFileToUpdate, FileAttributes.ReadOnly)
+                .IncludingDirectory(pathToDirectoryToUpdate, FileAttributes.ReadOnly)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
@@ -153,7 +187,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
