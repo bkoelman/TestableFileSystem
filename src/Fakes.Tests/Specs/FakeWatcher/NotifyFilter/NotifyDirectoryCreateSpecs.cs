@@ -1,10 +1,10 @@
-﻿using System.IO;
+﻿#if !NETCOREAPP1_1
+using System.IO;
 using System.Linq;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
-#if !NETCOREAPP1_1
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyDirectoryCreateSpecs : WatcherSpecs
