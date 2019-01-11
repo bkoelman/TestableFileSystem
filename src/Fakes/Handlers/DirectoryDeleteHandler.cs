@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
@@ -28,12 +29,13 @@ namespace TestableFileSystem.Fakes.Handlers
 
             DirectoryEntry directory = ResolveDirectory(arguments.Path);
 
+            // TODO: Should we check al these upfront and bail out, or just fail while partially completed?
             AssertNoConflictWithCurrentDirectory(directory, arguments.Path);
             AssertIsEmptyOrRecursive(directory, arguments.Recursive);
             AssertIsNotReadOnly(directory, arguments.Path);
             AssertDirectoryContainsNoOpenFiles(directory, arguments.Path);
 
-            directory.Parent?.DeleteDirectory(directory.Name);
+            DeleteTree(directory);
 
             return Missing.Value;
         }
@@ -123,6 +125,23 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 throw ErrorFactory.System.FileIsInUse(openFilePath.GetText());
             }
+        }
+
+        private static void DeleteTree([NotNull] DirectoryEntry directory)
+        {
+            foreach (BaseEntry entry in directory.EnumerateEntries(EnumerationFilter.All).OrderBy(x => x.Name).ToArray())
+            {
+                if (entry is FileEntry file)
+                {
+                    file.Parent.DeleteFile(file.Name);
+                }
+                else if (entry is DirectoryEntry subdirectory)
+                {
+                    DeleteTree(subdirectory);
+                }
+            }
+
+            directory.Parent?.DeleteDirectory(directory.Name);
         }
     }
 }
