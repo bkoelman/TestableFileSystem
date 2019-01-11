@@ -28,6 +28,13 @@ namespace TestableFileSystem.Fakes
 
         partial void ProcessFileDeleted([NotNull] IPathFormatter formatter);
 
+        public void NotifyDirectoryDeleted([NotNull] IPathFormatter formatter)
+        {
+            ProcessDirectoryDeleted(formatter);
+        }
+
+        partial void ProcessDirectoryDeleted([NotNull] IPathFormatter formatter);
+
         public void NotifyFileRenamed([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter)
         {
             ProcessFileRenamed(sourceFormatter, destinationFormatter);
@@ -69,6 +76,14 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(formatter, nameof(formatter));
 
             var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Deleted, NotifyFilters.FileName, formatter, null);
+            OnFileSystemChanged(args);
+        }
+
+        partial void ProcessDirectoryDeleted(IPathFormatter formatter)
+        {
+            Guard.NotNull(formatter, nameof(formatter));
+
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Deleted, NotifyFilters.DirectoryName, formatter, null);
             OnFileSystemChanged(args);
         }
 

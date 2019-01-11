@@ -204,9 +204,10 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
-            contents.RemoveDirectory(directoryName);
+            DirectoryEntry directoryEntry = contents.RemoveDirectory(directoryName);
 
             HandleDirectoryChanged();
+            ChangeTracker.NotifyDirectoryDeleted(directoryEntry.PathFormatter);
         }
 
         public void MoveDirectoryToHere([NotNull] DirectoryEntry directory, [NotNull] string newDirectoryName)

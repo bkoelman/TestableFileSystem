@@ -99,14 +99,18 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public void RemoveDirectory([NotNull] string directoryName)
+        [NotNull]
+        public DirectoryEntry RemoveDirectory([NotNull] string directoryName)
         {
             Guard.NotNull(directoryName, nameof(directoryName));
             AssertDirectoryExists(directoryName);
 
+            DirectoryEntry directoryEntry = Directories[directoryName];
             entries.Remove(directoryName);
 
             InvalidateCache();
+
+            return directoryEntry;
         }
 
         [AssertionMethod]
