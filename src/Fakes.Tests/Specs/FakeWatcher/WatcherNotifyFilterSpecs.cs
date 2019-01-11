@@ -8,6 +8,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         // - Copy directory
         // - Move directory (including file)
         // - Change directory times
+        // - Enumeration
     }
 }
 #endif
