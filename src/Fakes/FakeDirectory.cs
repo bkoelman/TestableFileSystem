@@ -163,7 +163,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryDeleteHandler(root, owner.CurrentDirectoryManager);
+            var handler = new DirectoryDeleteHandler(root, owner.CurrentDirectoryManager, owner.ChangeTracker);
             var arguments = new DirectoryDeleteArguments(absolutePath, recursive);
 
             handler.Handle(arguments);

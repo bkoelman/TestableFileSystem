@@ -13,12 +13,17 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly CurrentDirectoryManager currentDirectoryManager;
 
-        public DirectoryDeleteHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager)
+        [NotNull]
+        private readonly FakeFileSystemChangeTracker changeTracker;
+
+        public DirectoryDeleteHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
+            Guard.NotNull(changeTracker, nameof(changeTracker));
 
             this.currentDirectoryManager = currentDirectoryManager;
+            this.changeTracker = changeTracker;
         }
 
         public override Missing Handle(DirectoryDeleteArguments arguments)
@@ -29,7 +34,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             DirectoryEntry directory = ResolveDirectory(arguments.Path);
 
-            // TODO: Should we check al these upfront and bail out, or just fail while partially completed?
+            // TODO: Should we check al these upfront and bail out, or just fail while partially completed? Or continue-on-fail and throw first error at the end?
             AssertNoConflictWithCurrentDirectory(directory, arguments.Path);
             AssertIsEmptyOrRecursive(directory, arguments.Recursive);
             AssertIsNotReadOnly(directory, arguments.Path);
@@ -127,18 +132,27 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        private static void DeleteTree([NotNull] DirectoryEntry directory)
+        private void DeleteTree([NotNull] DirectoryEntry directory)
         {
+            bool hasChanges = false;
+
             foreach (BaseEntry entry in directory.EnumerateEntries(EnumerationFilter.All).OrderBy(x => x.Name).ToArray())
             {
                 if (entry is FileEntry file)
                 {
                     file.Parent.DeleteFile(file.Name);
+                    hasChanges = true;
                 }
                 else if (entry is DirectoryEntry subdirectory)
                 {
                     DeleteTree(subdirectory);
+                    hasChanges = true;
                 }
+            }
+
+            if (hasChanges)
+            {
+                changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Read | FileAccessKinds.Write);
             }
 
             directory.Parent?.DeleteDirectory(directory.Name);
