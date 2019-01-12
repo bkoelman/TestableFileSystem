@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryEnumerateEntriesHandler(root);
+            var handler = new DirectoryEnumerateEntriesHandler(root, owner.ChangeTracker);
             var arguments =
                 new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption, EnumerationFilter.Files);
 
@@ -83,7 +83,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryEnumerateEntriesHandler(root);
+            var handler = new DirectoryEnumerateEntriesHandler(root, owner.ChangeTracker);
             var arguments = new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption,
                 EnumerationFilter.Directories);
 
@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryEnumerateEntriesHandler(root);
+            var handler = new DirectoryEnumerateEntriesHandler(root, owner.ChangeTracker);
             var arguments =
                 new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption, EnumerationFilter.All);
 

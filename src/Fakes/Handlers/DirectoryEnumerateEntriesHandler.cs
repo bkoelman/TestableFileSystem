@@ -10,9 +10,14 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class DirectoryEnumerateEntriesHandler : FakeOperationHandler<DirectoryEnumerateEntriesArguments, string[]>
     {
-        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root)
+        [NotNull]
+        private readonly FakeFileSystemChangeTracker changeTracker;
+
+        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
+            Guard.NotNull(changeTracker, nameof(changeTracker));
+            this.changeTracker = changeTracker;
         }
 
         [ItemNotNull]
@@ -50,6 +55,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (subPattern == null)
             {
+                changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Read);
+
                 foreach (BaseEntry entry in directory.EnumerateEntries(filter).Where(x => pattern.IsMatch(x.Name))
                     .OrderBy(x => x.Name))
                 {
