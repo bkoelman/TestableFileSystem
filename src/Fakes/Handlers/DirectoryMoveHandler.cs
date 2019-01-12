@@ -61,19 +61,10 @@ namespace TestableFileSystem.Fakes.Handlers
                 throw ErrorFactory.System.DestinationMustBeDifferentFromSource();
             }
 
-            string sourceRoot = GetPathRoot(arguments.SourcePath);
-            string destinationRoot = GetPathRoot(arguments.DestinationPath);
-
-            if (!string.Equals(sourceRoot, destinationRoot, StringComparison.OrdinalIgnoreCase))
+            if (!arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath))
             {
-                throw ErrorFactory.System.RootsMustBeIdentical();
+                throw ErrorFactory.System.VolumesMustBeIdentical();
             }
-        }
-
-        [NotNull]
-        private static string GetPathRoot([NotNull] AbsolutePath path)
-        {
-            return path.GetAncestorPath(0).GetText();
         }
 
         private static void AssertSourceIsNotVolumeRoot([NotNull] AbsolutePath path)

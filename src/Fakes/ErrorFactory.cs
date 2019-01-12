@@ -194,7 +194,7 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
-            public static Exception RootsMustBeIdentical()
+            public static Exception VolumesMustBeIdentical()
             {
                 return new IOException(
                     "Source and destination path must have identical roots. Move will not work across volumes.");
