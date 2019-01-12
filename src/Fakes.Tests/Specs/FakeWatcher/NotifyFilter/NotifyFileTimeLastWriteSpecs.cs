@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETCOREAPP1_1
+using System;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -6,7 +7,6 @@ using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
-#if !NETCOREAPP1_1
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyFileTimeLastWriteSpecs : WatcherSpecs
