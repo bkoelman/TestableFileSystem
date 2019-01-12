@@ -139,7 +139,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_local_zone_to_existing_value_it_must_raise_events_for_all_notify_filters()
+        private void
+            When_changing_file_last_access_time_in_local_zone_to_existing_value_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -175,7 +176,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_local_zone_to_existing_value_it_must_raise_events_for_last_access_time()
+        private void
+            When_changing_file_last_access_time_in_local_zone_to_existing_value_it_must_raise_events_for_last_access_time()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -211,7 +213,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_local_zone_to_existing_value_it_must_not_raise_events_for_other_notify_filters()
+        private void
+            When_changing_file_last_access_time_in_local_zone_to_existing_value_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";

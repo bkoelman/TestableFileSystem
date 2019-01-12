@@ -211,7 +211,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_directory_creation_time_in_UTC_to_existing_value_it_must_not_raise_events_for_other_notify_filters()
+        private void
+            When_changing_directory_creation_time_in_UTC_to_existing_value_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
