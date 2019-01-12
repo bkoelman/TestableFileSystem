@@ -8,14 +8,14 @@ namespace TestableFileSystem.Fakes.HandlerArguments
         [NotNull]
         public AbsolutePath Path { get; }
 
-        public bool Recursive { get; }
+        public bool IsRecursive { get; }
 
-        public DirectoryDeleteArguments([NotNull] AbsolutePath path, bool recursive)
+        public DirectoryDeleteArguments([NotNull] AbsolutePath path, bool isRecursive)
         {
             Guard.NotNull(path, nameof(path));
 
             Path = path;
-            Recursive = recursive;
+            IsRecursive = isRecursive;
         }
     }
 }

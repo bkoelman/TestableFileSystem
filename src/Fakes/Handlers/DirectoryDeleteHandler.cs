@@ -16,7 +16,8 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker;
 
-        public DirectoryDeleteHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager, [NotNull] FakeFileSystemChangeTracker changeTracker)
+        public DirectoryDeleteHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager,
+            [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
@@ -36,11 +37,11 @@ namespace TestableFileSystem.Fakes.Handlers
 
             // TODO: Should we check al these upfront and bail out, or just fail while partially completed? Or continue-on-fail and throw first error at the end?
             AssertNoConflictWithCurrentDirectory(directory, arguments.Path);
-            AssertIsEmptyOrRecursive(directory, arguments.Recursive);
+            AssertIsEmptyOrRecursive(directory, arguments.IsRecursive);
             AssertIsNotReadOnly(directory, arguments.Path);
             AssertDirectoryContainsNoOpenFiles(directory, arguments.Path);
 
-            DeleteTree(directory);
+            DeleteTree(directory, arguments.IsRecursive);
 
             return Missing.Value;
         }
@@ -55,7 +56,7 @@ namespace TestableFileSystem.Fakes.Handlers
                     throw ErrorFactory.System.FileIsInUse(arguments.Path.GetText());
                 }
 
-                if (arguments.Recursive)
+                if (arguments.IsRecursive)
                 {
                     throw ErrorFactory.System.FileNotFound(arguments.Path.GetText());
                 }
@@ -132,27 +133,32 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        private void DeleteTree([NotNull] DirectoryEntry directory)
+        private void DeleteTree([NotNull] DirectoryEntry directory, bool isRecursive)
         {
-            bool hasChanges = false;
+            var accessKinds = FileAccessKinds.None;
 
-            foreach (BaseEntry entry in directory.EnumerateEntries(EnumerationFilter.All).OrderBy(x => x.Name).ToArray())
+            if (isRecursive)
             {
-                if (entry is FileEntry file)
+                accessKinds |= FileAccessKinds.Read;
+
+                foreach (BaseEntry entry in directory.EnumerateEntries(EnumerationFilter.All).OrderBy(x => x.Name).ToArray())
                 {
-                    file.Parent.DeleteFile(file.Name);
-                    hasChanges = true;
-                }
-                else if (entry is DirectoryEntry subdirectory)
-                {
-                    DeleteTree(subdirectory);
-                    hasChanges = true;
+                    if (entry is FileEntry file)
+                    {
+                        file.Parent.DeleteFile(file.Name);
+                        accessKinds |= FileAccessKinds.Write;
+                    }
+                    else if (entry is DirectoryEntry subdirectory)
+                    {
+                        DeleteTree(subdirectory, true);
+                        accessKinds |= FileAccessKinds.Write;
+                    }
                 }
             }
 
-            if (hasChanges)
+            if (accessKinds != FileAccessKinds.None)
             {
-                changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Read | FileAccessKinds.Write);
+                changeTracker.NotifyContentsAccessed(directory.PathFormatter, accessKinds);
             }
 
             directory.Parent?.DeleteDirectory(directory.Name);
