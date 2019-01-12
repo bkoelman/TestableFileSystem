@@ -4,10 +4,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     public sealed class WatcherNotifyFilterSpecs : WatcherSpecs
     {
         // TODO: Add tests for:
-        // - Change directory attributes
         // - Copy directory
         // - Move directory (including file)
-        // - Change directory times
         // - Enumeration
     }
 }

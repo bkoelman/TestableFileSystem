@@ -76,7 +76,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_last_write_time_in_local_zone_it_must_raise_events_for_creation_time()
+        private void When_changing_file_last_write_time_in_local_zone_it_must_raise_events_for_last_write_time()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -175,7 +175,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_last_write_time_in_local_zone_to_existing_value_it_must_raise_events_for_creation_time()
+        private void When_changing_file_last_write_time_in_local_zone_to_existing_value_it_must_raise_events_for_last_write_time()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";

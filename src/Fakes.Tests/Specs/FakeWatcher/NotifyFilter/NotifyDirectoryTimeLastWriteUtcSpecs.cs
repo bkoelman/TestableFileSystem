@@ -9,19 +9,19 @@ using Xunit;
 #if !NETCOREAPP1_1
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
-    public sealed class NotifyFileTimeLastAccessUtcSpecs : WatcherSpecs
+    public sealed class NotifyDirectoryTimeLastWriteUtcSpecs : WatcherSpecs
     {
         private static readonly DateTime DefaultTimeUtc = 1.February(2003).At(12, 34, 56).AsUtc();
 
         [Fact]
-        private void When_getting_file_last_access_time_in_UTC_it_must_not_raise_events_for_all_notify_filters()
+        private void When_getting_directory_last_write_time_in_UTC_it_must_not_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            string filePath = Path.Combine(directoryToWatch, "file.txt");
+            string directoryPath = Path.Combine(directoryToWatch, "Subfolder");
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(filePath, "CONTENT")
+                .IncludingDirectory(directoryPath)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
@@ -31,7 +31,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.GetLastAccessTimeUtc(filePath);
+                    fileSystem.Directory.GetLastWriteTimeUtc(directoryPath);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -42,15 +42,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_UTC_it_must_raise_events_for_all_notify_filters()
+        private void When_changing_directory_last_write_time_in_UTC_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
+            const string directoryName = "Subfolder";
+            string directoryPath = Path.Combine(directoryToWatch, directoryName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(filePath, "CONTENT")
+                .IncludingDirectory(directoryPath)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
@@ -60,7 +60,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetLastAccessTimeUtc(filePath, DefaultTimeUtc);
+                    fileSystem.Directory.SetLastWriteTimeUtc(directoryPath, DefaultTimeUtc);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -69,32 +69,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(filePath);
-                    args.Name.Should().Be(fileName);
+                    args.FullPath.Should().Be(directoryPath);
+                    args.Name.Should().Be(directoryName);
                 }
             }
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_UTC_it_must_raise_events_for_last_access_time()
+        private void When_changing_directory_last_write_time_in_UTC_it_must_raise_events_for_last_write_time()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
+            const string directoryName = "Subfolder";
+            string directoryPath = Path.Combine(directoryToWatch, directoryName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(filePath, "CONTENT")
+                .IncludingDirectory(directoryPath)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
+                watcher.NotifyFilter = NotifyFilters.LastWrite;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetLastAccessTimeUtc(filePath, DefaultTimeUtc);
+                    fileSystem.Directory.SetLastWriteTimeUtc(directoryPath, DefaultTimeUtc);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -103,32 +103,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(filePath);
-                    args.Name.Should().Be(fileName);
+                    args.FullPath.Should().Be(directoryPath);
+                    args.Name.Should().Be(directoryName);
                 }
             }
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_UTC_it_must_not_raise_events_for_other_notify_filters()
+        private void When_changing_directory_last_write_time_in_UTC_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
+            const string directoryName = "Subfolder";
+            string directoryPath = Path.Combine(directoryToWatch, directoryName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(filePath, "CONTENT")
+                .IncludingDirectory(directoryPath)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.LastAccess);
+                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.LastWrite);
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetLastAccessTimeUtc(filePath, DefaultTimeUtc);
+                    fileSystem.Directory.SetLastWriteTimeUtc(directoryPath, DefaultTimeUtc);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -139,17 +139,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_UTC_to_existing_value_it_must_raise_events_for_all_notify_filters()
+        private void When_changing_directory_last_write_time_in_UTC_to_existing_value_it_must_raise_events_for_all_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
+            const string directoryName = "Subfolder";
+            string directoryPath = Path.Combine(directoryToWatch, directoryName);
 
             var clock = new SystemClock(() => DefaultTimeUtc);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingTextFile(filePath, "CONTENT")
+                .IncludingDirectory(directoryPath)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
@@ -159,7 +159,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetLastAccessTimeUtc(filePath, DefaultTimeUtc);
+                    fileSystem.Directory.SetLastWriteTimeUtc(directoryPath, DefaultTimeUtc);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -168,34 +168,34 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(filePath);
-                    args.Name.Should().Be(fileName);
+                    args.FullPath.Should().Be(directoryPath);
+                    args.Name.Should().Be(directoryName);
                 }
             }
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_UTC_to_existing_value_it_must_raise_events_for_last_access_time()
+        private void When_changing_directory_last_write_time_in_UTC_to_existing_value_it_must_raise_events_for_last_write_time()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
+            const string directoryName = "Subfolder";
+            string directoryPath = Path.Combine(directoryToWatch, directoryName);
 
             var clock = new SystemClock(() => DefaultTimeUtc);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingTextFile(filePath, "CONTENT")
+                .IncludingDirectory(directoryPath)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
+                watcher.NotifyFilter = NotifyFilters.LastWrite;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetLastAccessTimeUtc(filePath, DefaultTimeUtc);
+                    fileSystem.Directory.SetLastWriteTimeUtc(directoryPath, DefaultTimeUtc);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
@@ -204,34 +204,34 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(filePath);
-                    args.Name.Should().Be(fileName);
+                    args.FullPath.Should().Be(directoryPath);
+                    args.Name.Should().Be(directoryName);
                 }
             }
         }
 
         [Fact]
-        private void When_changing_file_last_access_time_in_UTC_to_existing_value_it_must_not_raise_events_for_other_notify_filters()
+        private void When_changing_directory_last_write_time_in_UTC_to_existing_value_it_must_not_raise_events_for_other_notify_filters()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
+            const string directoryName = "Subfolder";
+            string directoryPath = Path.Combine(directoryToWatch, directoryName);
 
             var clock = new SystemClock(() => DefaultTimeUtc);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingTextFile(filePath, "CONTENT")
+                .IncludingDirectory(directoryPath)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.LastAccess);
+                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.LastWrite);
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     // Act
-                    fileSystem.File.SetLastAccessTimeUtc(filePath, DefaultTimeUtc);
+                    fileSystem.Directory.SetLastWriteTimeUtc(directoryPath, DefaultTimeUtc);
 
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
