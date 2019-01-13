@@ -38,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.GetFileSystemEntries(pathToDirectoryToEnumerate);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -73,7 +73,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.GetFileSystemEntries(pathToDirectoryToEnumerate);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -109,7 +109,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.GetFileSystemEntries(pathToDirectoryToEnumerate);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -148,7 +148,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.GetFileSystemEntries(pathToDirectoryToEnumerate, "*.txt");
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -183,7 +183,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.GetFileSystemEntries(pathToDirectoryToEnumerate, "*.txt");
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -223,7 +223,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     fileSystem.Directory.GetFileSystemEntries(pathToDirectoryToEnumerate,
                         searchOption: SearchOption.AllDirectories);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -259,7 +259,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     fileSystem.Directory.GetFileSystemEntries(pathToDirectoryToEnumerate,
                         searchOption: SearchOption.AllDirectories);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -305,7 +305,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     fileSystem.Directory.GetFileSystemEntries(pathToDirectoryToEnumerate,
                         searchOption: SearchOption.AllDirectories);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

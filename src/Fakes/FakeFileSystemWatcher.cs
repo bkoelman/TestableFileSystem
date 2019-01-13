@@ -296,8 +296,7 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        // TODO: Rename this method to WaitForDispatcherCompleted
-        public void WaitForEventDispatcherIdle(int timeout = Timeout.Infinite)
+        public void WaitForCompleted(int timeout = Timeout.Infinite)
         {
             DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
 

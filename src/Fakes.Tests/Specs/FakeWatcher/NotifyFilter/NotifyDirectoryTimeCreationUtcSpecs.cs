@@ -33,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.GetCreationTimeUtc(directoryPath);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();
@@ -66,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.SetCreationTimeUtc(directoryPath, DefaultTimeUtc);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -102,7 +102,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.SetCreationTimeUtc(directoryPath, DefaultTimeUtc);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

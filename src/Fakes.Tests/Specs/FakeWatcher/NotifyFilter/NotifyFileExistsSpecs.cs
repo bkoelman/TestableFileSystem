@@ -28,7 +28,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Exists(filePath);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();

@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.GetAttributes(path);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();
@@ -66,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -96,7 +96,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(0);

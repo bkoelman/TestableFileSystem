@@ -45,7 +45,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.Move(pathToSourceDirectory, pathToDestinationDirectory);
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

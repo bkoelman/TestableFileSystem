@@ -33,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(2);
@@ -108,7 +108,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -143,7 +143,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -178,7 +178,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -214,7 +214,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -251,7 +251,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -286,7 +286,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -321,7 +321,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -356,7 +356,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                     }
 
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
