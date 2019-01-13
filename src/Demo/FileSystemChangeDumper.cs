@@ -93,22 +93,25 @@ namespace TestableFileSystem.Demo
             switch (changeType)
             {
                 case WatcherChangeTypes.Created:
-                {
-                    return "+";
-                }
+                    {
+                        return "+";
+                    }
                 case WatcherChangeTypes.Deleted:
-                {
-                    return "-";
-                }
+                    {
+                        return "-";
+                    }
                 case WatcherChangeTypes.Changed:
+                    {
+                        return "*";
+                    }
                 case WatcherChangeTypes.Renamed:
-                {
-                    return "*";
-                }
+                    {
+                        return ">";
+                    }
                 default:
-                {
-                    return "?";
-                }
+                    {
+                        return "?";
+                    }
             }
         }
 

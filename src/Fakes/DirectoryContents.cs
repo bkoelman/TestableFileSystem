@@ -105,12 +105,12 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(directoryName, nameof(directoryName));
             AssertDirectoryExists(directoryName);
 
-            DirectoryEntry directoryEntry = Directories[directoryName];
+            DirectoryEntry directoryToRemove = Directories[directoryName];
             entries.Remove(directoryName);
 
             InvalidateCache();
 
-            return directoryEntry;
+            return directoryToRemove;
         }
 
         [AssertionMethod]

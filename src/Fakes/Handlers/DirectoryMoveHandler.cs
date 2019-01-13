@@ -37,8 +37,8 @@ namespace TestableFileSystem.Fakes.Handlers
                 DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
                 AssertDestinationIsNotDescendantOfSource(destinationDirectory, sourceDirectory);
 
-                string newDirectoryName = arguments.DestinationPath.Components.Last();
-                MoveDirectory(sourceDirectory, destinationDirectory, newDirectoryName);
+                string destinationDirectoryName = arguments.DestinationPath.Components.Last();
+                MoveDirectory(sourceDirectory, destinationDirectory, destinationDirectoryName, arguments.SourcePath.Formatter);
             }
             else if (sourceFileOrDirectory is FileEntry sourceFile)
             {
@@ -46,8 +46,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
 
-                string newFileName = arguments.DestinationPath.Components.Last();
-                MoveFile(sourceFile, destinationDirectory, newFileName, arguments.SourcePath.Formatter);
+                string destinationFileName = arguments.DestinationPath.Components.Last();
+                MoveFile(sourceFile, destinationDirectory, destinationFileName);
             }
 
             return Missing.Value;
@@ -188,17 +188,24 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         private static void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string newDirectoryName)
+            [NotNull] string destinationDirectoryName, [NotNull] IPathFormatter sourcePathFormatter)
         {
-            sourceDirectory.Parent?.DeleteDirectory(sourceDirectory.Name);
-            destinationDirectory.MoveDirectoryToHere(sourceDirectory, newDirectoryName);
+            if (sourceDirectory.Parent == destinationDirectory)
+            {
+                sourceDirectory.Parent.RenameDirectory(sourceDirectory.Name, destinationDirectoryName, sourcePathFormatter);
+            }
+            else
+            {
+                sourceDirectory.Parent?.DeleteDirectory(sourceDirectory.Name);
+                destinationDirectory.MoveDirectoryToHere(sourceDirectory, destinationDirectoryName);
+            }
         }
 
         private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string newFileName, [NotNull] IPathFormatter sourcePathFormatter)
+            [NotNull] string destinationFileName)
         {
             sourceFile.Parent.DeleteFile(sourceFile.Name);
-            destinationDirectory.MoveFileToHere(sourceFile, newFileName);
+            destinationDirectory.MoveFileToHere(sourceFile, destinationFileName);
         }
     }
 }

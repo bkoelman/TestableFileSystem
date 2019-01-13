@@ -93,6 +93,12 @@ namespace TestableFileSystem.Fakes
             ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
         }
 
+        private void HandleDirectoryContentsAccessed()
+        {
+            UpdateLastAccessTime();
+            ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Read);
+        }
+
         private void UpdateLastWriteLastAccessTime()
         {
             UpdateLastAccessTime();
@@ -213,6 +219,22 @@ namespace TestableFileSystem.Fakes
 
             UpdateLastWriteLastAccessTime();
             ChangeTracker.NotifyDirectoryDeleted(directoryEntry.PathFormatter);
+        }
+
+        public void RenameDirectory([NotNull] string sourceDirectoryName, [NotNull] string destinationDirectoryName,
+            [NotNull] IPathFormatter sourcePathFormatter)
+        {
+            Guard.NotNullNorWhiteSpace(sourceDirectoryName, nameof(sourceDirectoryName));
+            Guard.NotNullNorWhiteSpace(destinationDirectoryName, nameof(destinationDirectoryName));
+            Guard.NotNull(sourcePathFormatter, nameof(sourcePathFormatter));
+
+            DirectoryEntry directory = contents.RemoveDirectory(sourceDirectoryName);
+            directory.Name = destinationDirectoryName;
+            contents.Add(directory);
+
+            HandleDirectoryContentsAccessed();
+            ChangeTracker.NotifyDirectoryRenamed(sourcePathFormatter, directory.PathFormatter);
+            HandleDirectoryContentsChanged();
         }
 
         public void MoveDirectoryToHere([NotNull] DirectoryEntry directory, [NotNull] string newDirectoryName)

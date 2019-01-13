@@ -201,9 +201,12 @@ namespace TestableFileSystem.Fakes.Tests
                     return "-";
                 }
                 case WatcherChangeTypes.Changed:
-                case WatcherChangeTypes.Renamed:
                 {
                     return "*";
+                }
+                case WatcherChangeTypes.Renamed:
+                {
+                    return ">";
                 }
                 default:
                 {
