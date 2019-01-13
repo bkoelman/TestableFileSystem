@@ -18,11 +18,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToSourceFile, "Example")
@@ -31,6 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -47,13 +50,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
                     createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
                     createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(destinationFileName);
+                    createArgs.Name.Should().Be(containerDirectoryName + @"\" + destinationFileName);
 
                     foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
                     {
                         changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                         changeArgs.FullPath.Should().Be(pathToDestinationFile);
-                        changeArgs.Name.Should().Be(destinationFileName);
+                        changeArgs.Name.Should().Be(containerDirectoryName + @"\" + destinationFileName);
                     }
                 }
             }
@@ -64,11 +67,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToSourceFile, "Example")
@@ -77,6 +82,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = NotifyFilters.FileName;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -91,7 +97,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
                     createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
                     createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(destinationFileName);
+                    createArgs.Name.Should().Be(containerDirectoryName + @"\" + destinationFileName);
                 }
             }
         }
@@ -101,11 +107,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToSourceFile, "Example")
@@ -114,6 +122,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = NotifyFilters.Size;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -128,7 +137,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
                     changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                     changeArgs.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs.Name.Should().Be(destinationFileName);
+                    changeArgs.Name.Should().Be(containerDirectoryName + @"\" + destinationFileName);
                 }
             }
         }
@@ -138,11 +147,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToSourceFile, "Example")
@@ -151,6 +162,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -167,7 +179,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     {
                         changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                         changeArgs.FullPath.Should().Be(pathToDestinationFile);
-                        changeArgs.Name.Should().Be(destinationFileName);
+                        changeArgs.Name.Should().Be(containerDirectoryName + @"\" + destinationFileName);
                     }
                 }
             }
@@ -178,11 +190,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToSourceFile, "Example")
@@ -191,6 +205,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = NotifyFilters.LastAccess;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -205,7 +220,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
                     changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                     changeArgs.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs.Name.Should().Be(destinationFileName);
+                    changeArgs.Name.Should().Be(containerDirectoryName + @"\" + destinationFileName);
                 }
             }
         }
@@ -215,11 +230,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string sourceFileName = "source.txt";
             const string destinationFileName = "target.txt";
 
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToSourceFile, "Example")
@@ -229,6 +246,279 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             {
                 watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.Size |
                     NotifyFilters.LastWrite | NotifyFilters.LastAccess);
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_file_to_subdirectory_it_must_raise_events_for_all_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string sourceFileName = "source.txt";
+            const string destinationDirectoryName = "Subfolder";
+            const string destinationFileName = "target.txt";
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationDirectory = Path.Combine(pathToContainerDirectory, destinationDirectoryName);
+            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "Example")
+                .IncludingDirectory(pathToDestinationDirectory)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(3);
+                    listener.CreateEventArgsCollected.Should().HaveCount(1);
+                    listener.ChangeEventArgsCollected.Should().HaveCount(2);
+
+                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
+                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
+                    createArgs.FullPath.Should().Be(pathToDestinationFile);
+                    createArgs.Name.Should().Be(string.Join(@"\",
+                        containerDirectoryName, destinationDirectoryName, destinationFileName));
+
+                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
+                    {
+                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                        changeArgs.Name.Should().Be(string.Join(@"\",
+                            containerDirectoryName, destinationDirectoryName, destinationFileName));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_file_to_subdirectory_it_must_raise_events_for_file_name()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string sourceFileName = "source.txt";
+            const string destinationDirectoryName = "Subfolder";
+            const string destinationFileName = "target.txt";
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationDirectory = Path.Combine(pathToContainerDirectory, destinationDirectoryName);
+            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "Example")
+                .IncludingDirectory(pathToDestinationDirectory)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.FileName;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
+                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
+                    createArgs.FullPath.Should().Be(pathToDestinationFile);
+                    createArgs.Name.Should().Be(string.Join(@"\",
+                        containerDirectoryName, destinationDirectoryName, destinationFileName));
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_file_to_subdirectory_it_must_raise_events_for_size()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string sourceFileName = "source.txt";
+            const string destinationDirectoryName = "Subfolder";
+            const string destinationFileName = "target.txt";
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationDirectory = Path.Combine(pathToContainerDirectory, destinationDirectoryName);
+            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "Example")
+                .IncludingDirectory(pathToDestinationDirectory)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.Size;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
+                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                    changeArgs.Name.Should().Be(string.Join(@"\",
+                        containerDirectoryName, destinationDirectoryName, destinationFileName));
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_file_to_subdirectory_it_must_raise_events_for_last_write()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string sourceFileName = "source.txt";
+            const string destinationDirectoryName = "Subfolder";
+            const string destinationFileName = "target.txt";
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationDirectory = Path.Combine(pathToContainerDirectory, destinationDirectoryName);
+            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "Example")
+                .IncludingDirectory(pathToDestinationDirectory)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.LastWrite;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(2);
+                    listener.ChangeEventArgsCollected.Should().HaveCount(2);
+
+                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
+                    {
+                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                        changeArgs.Name.Should().Be(string.Join(@"\",
+                            containerDirectoryName, destinationDirectoryName, destinationFileName));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_file_to_subdirectory_it_must_raise_events_for_last_access()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string sourceFileName = "source.txt";
+            const string destinationDirectoryName = "Subfolder";
+            const string destinationFileName = "target.txt";
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationDirectory = Path.Combine(pathToContainerDirectory, destinationDirectoryName);
+            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "Example")
+                .IncludingDirectory(pathToDestinationDirectory)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = NotifyFilters.LastAccess;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
+
+                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    listener.EventsCollected.Should().HaveCount(1);
+
+                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
+                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
+                    changeArgs.FullPath.Should().Be(pathToDestinationFile);
+                    changeArgs.Name.Should().Be(string.Join(@"\",
+                        containerDirectoryName, destinationDirectoryName, destinationFileName));
+                }
+            }
+        }
+
+        [Fact]
+        private void When_copying_file_to_subdirectory_it_must_not_raise_events_for_other_notify_filters()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string sourceFileName = "source.txt";
+            const string destinationDirectoryName = "Subfolder";
+            const string destinationFileName = "target.txt";
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
+            string pathToDestinationDirectory = Path.Combine(pathToContainerDirectory, destinationDirectoryName);
+            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(pathToSourceFile, "Example")
+                .IncludingDirectory(pathToDestinationDirectory)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.Size |
+                    NotifyFilters.LastWrite | NotifyFilters.LastAccess);
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {

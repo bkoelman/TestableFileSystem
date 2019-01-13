@@ -42,8 +42,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToUpdate = "file.txt";
-            string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToUpdate = Path.Combine(pathToContainerDirectory, fileNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToUpdate)
@@ -52,6 +55,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -66,7 +70,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                     args.FullPath.Should().Be(pathToFileToUpdate);
-                    args.Name.Should().Be(fileNameToUpdate);
+                    args.Name.Should().Be(containerDirectoryName + @"\" + fileNameToUpdate);
                 }
             }
         }
@@ -76,8 +80,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToUpdate = "file.txt";
-            string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToUpdate = Path.Combine(pathToContainerDirectory, fileNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToUpdate)
@@ -86,6 +93,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = NotifyFilters.Attributes;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -100,7 +108,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                     args.FullPath.Should().Be(pathToFileToUpdate);
-                    args.Name.Should().Be(fileNameToUpdate);
+                    args.Name.Should().Be(containerDirectoryName + @"\" + fileNameToUpdate);
                 }
             }
         }
@@ -110,8 +118,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToUpdate = "file.txt";
-            string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToUpdate = Path.Combine(pathToContainerDirectory, fileNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToUpdate)
@@ -120,6 +131,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.Attributes);
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {

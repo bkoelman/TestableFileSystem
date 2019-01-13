@@ -14,8 +14,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToDelete = "file.txt";
-            string pathToFileToDelete = Path.Combine(directoryToWatch, fileNameToDelete);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToDelete = Path.Combine(pathToContainerDirectory, fileNameToDelete);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToDelete)
@@ -24,6 +27,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -38,7 +42,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs args = listener.DeleteEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
                     args.FullPath.Should().Be(pathToFileToDelete);
-                    args.Name.Should().Be(fileNameToDelete);
+                    args.Name.Should().Be(containerDirectoryName + @"\" + fileNameToDelete);
                 }
             }
         }
@@ -48,8 +52,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToDelete = "file.txt";
-            string pathToFileToDelete = Path.Combine(directoryToWatch, fileNameToDelete);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToDelete = Path.Combine(pathToContainerDirectory, fileNameToDelete);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToDelete)
@@ -58,6 +65,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = NotifyFilters.FileName;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -72,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs args = listener.DeleteEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
                     args.FullPath.Should().Be(pathToFileToDelete);
-                    args.Name.Should().Be(fileNameToDelete);
+                    args.Name.Should().Be(containerDirectoryName + @"\" + fileNameToDelete);
                 }
             }
         }
@@ -82,8 +90,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToDelete = "file.txt";
-            string pathToFileToDelete = Path.Combine(directoryToWatch, fileNameToDelete);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToDelete = Path.Combine(pathToContainerDirectory, fileNameToDelete);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToDelete)
@@ -92,6 +103,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName);
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {

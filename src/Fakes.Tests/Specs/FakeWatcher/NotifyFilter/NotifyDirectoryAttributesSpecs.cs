@@ -42,8 +42,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string directoryNameToUpdate = "Subfolder";
-            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToDirectoryToUpdate = Path.Combine(pathToContainerDirectory, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(pathToDirectoryToUpdate)
@@ -52,6 +55,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -66,7 +70,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                     args.FullPath.Should().Be(pathToDirectoryToUpdate);
-                    args.Name.Should().Be(directoryNameToUpdate);
+                    args.Name.Should().Be(containerDirectoryName + @"\" + directoryNameToUpdate);
                 }
             }
         }
@@ -76,8 +80,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string directoryNameToUpdate = "Subfolder";
-            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToDirectoryToUpdate = Path.Combine(pathToContainerDirectory, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(pathToDirectoryToUpdate)
@@ -86,6 +93,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = NotifyFilters.Attributes;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -100,41 +108,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                     args.FullPath.Should().Be(pathToDirectoryToUpdate);
-                    args.Name.Should().Be(directoryNameToUpdate);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_changing_directory_attributes_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string directoryNameToUpdate = "Subfolder";
-            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(pathToDirectoryToUpdate)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToDirectoryToUpdate);
-                    args.Name.Should().Be(directoryNameToUpdate);
+                    args.Name.Should().Be(containerDirectoryName + @"\" + directoryNameToUpdate);
                 }
             }
         }
@@ -144,8 +118,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string directoryNameToUpdate = "file.txt";
-            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
+            const string containerDirectoryName = "Container";
+            const string directoryNameToUpdate = "Subfolder";
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToDirectoryToUpdate = Path.Combine(pathToContainerDirectory, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(pathToDirectoryToUpdate)
@@ -153,7 +130,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.Attributes | NotifyFilters.LastAccess);
+                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.Attributes);
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {

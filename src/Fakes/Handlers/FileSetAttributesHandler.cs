@@ -20,13 +20,7 @@ namespace TestableFileSystem.Fakes.Handlers
             var resolver = new EntryResolver(Root);
             BaseEntry entry = resolver.ResolveEntry(arguments.Path);
 
-            FileAccessKinds accessKinds = arguments.AccessKinds;
-            if (entry is DirectoryEntry)
-            {
-                accessKinds |= FileAccessKinds.Read;
-            }
-
-            entry.SetAttributes(arguments.Attributes, accessKinds);
+            entry.SetAttributes(arguments.Attributes, arguments.AccessKinds);
 
             return Missing.Value;
         }

@@ -15,16 +15,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToCreate = "file.txt";
-            string pathToFileToCreate = Path.Combine(directoryToWatch, fileNameToCreate);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToCreate = Path.Combine(pathToContainerDirectory, fileNameToCreate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(directoryToWatch)
+                .IncludingDirectory(pathToContainerDirectory)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -41,7 +45,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs args = listener.CreateEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Created);
                     args.FullPath.Should().Be(pathToFileToCreate);
-                    args.Name.Should().Be(fileNameToCreate);
+                    args.Name.Should().Be(containerDirectoryName + @"\" + fileNameToCreate);
                 }
             }
         }
@@ -51,16 +55,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToCreate = "file.txt";
-            string pathToFileToCreate = Path.Combine(directoryToWatch, fileNameToCreate);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToCreate = Path.Combine(pathToContainerDirectory, fileNameToCreate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(directoryToWatch)
+                .IncludingDirectory(pathToContainerDirectory)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = NotifyFilters.FileName;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -77,7 +85,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     FileSystemEventArgs args = listener.CreateEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Created);
                     args.FullPath.Should().Be(pathToFileToCreate);
-                    args.Name.Should().Be(fileNameToCreate);
+                    args.Name.Should().Be(containerDirectoryName + @"\" + fileNameToCreate);
                 }
             }
         }
@@ -87,16 +95,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
             const string fileNameToCreate = "file.txt";
-            string pathToFileToCreate = Path.Combine(directoryToWatch, fileNameToCreate);
+
+            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
+            string pathToFileToCreate = Path.Combine(pathToContainerDirectory, fileNameToCreate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(directoryToWatch)
+                .IncludingDirectory(pathToContainerDirectory)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName);
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
