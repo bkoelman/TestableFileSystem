@@ -1,9 +1,9 @@
 ﻿#if !NETCOREAPP1_1
 using System;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Extensions;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
@@ -14,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         private static readonly DateTime DefaultTimeUtc = 1.February(2003).At(12, 34, 56).AsUtc();
 
         [Fact]
-        private void When_getting_directory_last_access_time_in_local_zone_it_must_not_raise_events_for_all_notify_filters()
+        private void When_getting_directory_last_access_time_in_local_zone_it_must_not_raise_events()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -41,8 +41,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Fact]
-        private void When_changing_directory_last_access_time_in_local_zone_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * Subfolder                                     @ LastAccess
+        ")]
+        private void When_changing_directory_last_access_time_in_local_zone_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -55,7 +59,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -65,82 +69,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(directoryPath);
-                    args.Name.Should().Be(directoryName);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_changing_directory_last_access_time_in_local_zone_it_must_raise_events_for_last_access_time()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string directoryName = "Subfolder";
-            string directoryPath = Path.Combine(directoryToWatch, directoryName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(directoryPath)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.Directory.SetLastAccessTime(directoryPath, DefaultTimeUtc.ToLocalTime());
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(directoryPath);
-                    args.Name.Should().Be(directoryName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_changing_directory_last_access_time_in_local_zone_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string directoryName = "Subfolder";
-            string directoryPath = Path.Combine(directoryToWatch, directoryName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(directoryPath)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.LastAccess);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.Directory.SetLastAccessTime(directoryPath, DefaultTimeUtc.ToLocalTime());
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void
-            When_changing_directory_last_access_time_in_local_zone_to_existing_value_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * Subfolder                                     @ LastAccess
+        ")]
+        private void When_changing_directory_last_access_time_in_local_zone_to_existing_value_it_must_raise_events(
+            NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -155,7 +96,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -165,81 +106,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(directoryPath);
-                    args.Name.Should().Be(directoryName);
-                }
-            }
-        }
-
-        [Fact]
-        private void
-            When_changing_directory_last_access_time_in_local_zone_to_existing_value_it_must_raise_events_for_last_access_time()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string directoryName = "Subfolder";
-            string directoryPath = Path.Combine(directoryToWatch, directoryName);
-
-            var clock = new SystemClock(() => DefaultTimeUtc);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(directoryPath)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.Directory.SetLastAccessTime(directoryPath, DefaultTimeUtc.ToLocalTime());
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(directoryPath);
-                    args.Name.Should().Be(directoryName);
-                }
-            }
-        }
-
-        [Fact]
-        private void
-            When_changing_directory_last_access_time_in_local_zone_to_existing_value_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string directoryName = "Subfolder";
-            string directoryPath = Path.Combine(directoryToWatch, directoryName);
-
-            var clock = new SystemClock(() => DefaultTimeUtc);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(directoryPath)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.LastAccess);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.Directory.SetLastAccessTime(directoryPath, DefaultTimeUtc.ToLocalTime());
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }

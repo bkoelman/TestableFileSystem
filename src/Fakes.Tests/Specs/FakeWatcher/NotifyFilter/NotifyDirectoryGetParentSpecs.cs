@@ -9,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
     public sealed class NotifyDirectoryGetParentSpecs : WatcherSpecs
     {
         [Fact]
-        private void When_getting_parent_directory_it_must_not_raise_events_for_all_notify_filters()
+        private void When_getting_parent_directory_it_must_not_raise_events()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";

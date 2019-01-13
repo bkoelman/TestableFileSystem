@@ -1,9 +1,9 @@
 ﻿#if !NETCOREAPP1_1
 using System;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Extensions;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
@@ -14,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         private static readonly DateTime DefaultTimeUtc = 1.February(2003).At(12, 34, 56).AsUtc();
 
         [Fact]
-        private void When_getting_file_last_write_time_in_UTC_it_must_not_raise_events_for_all_notify_filters()
+        private void When_getting_file_last_write_time_in_UTC_it_must_not_raise_events()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -41,8 +41,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Fact]
-        private void When_changing_file_last_write_time_in_UTC_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * file.txt                                      @ LastWrite
+        ")]
+        private void When_changing_file_last_write_time_in_UTC_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -55,7 +59,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -65,81 +69,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(filePath);
-                    args.Name.Should().Be(fileName);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_changing_file_last_write_time_in_UTC_it_must_raise_events_for_last_write_time()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(filePath, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.SetLastWriteTimeUtc(filePath, DefaultTimeUtc);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(filePath);
-                    args.Name.Should().Be(fileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_changing_file_last_write_time_in_UTC_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(filePath, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.LastWrite);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.SetLastWriteTimeUtc(filePath, DefaultTimeUtc);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_changing_file_last_write_time_in_UTC_to_existing_value_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * file.txt                                      @ LastWrite
+        ")]
+        private void When_changing_file_last_write_time_in_UTC_to_existing_value_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -154,7 +95,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -164,80 +105,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(filePath);
-                    args.Name.Should().Be(fileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_changing_file_last_write_time_in_UTC_to_existing_value_it_must_raise_events_for_last_write_time()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
-
-            var clock = new SystemClock(() => DefaultTimeUtc);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingTextFile(filePath, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.SetLastWriteTimeUtc(filePath, DefaultTimeUtc);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(filePath);
-                    args.Name.Should().Be(fileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void
-            When_changing_file_last_write_time_in_UTC_to_existing_value_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string fileName = "file.txt";
-            string filePath = Path.Combine(directoryToWatch, fileName);
-
-            var clock = new SystemClock(() => DefaultTimeUtc);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingTextFile(filePath, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.LastWrite);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.SetLastWriteTimeUtc(filePath, DefaultTimeUtc);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }

@@ -1,7 +1,8 @@
 ﻿#if !NETCOREAPP1_1
+using System;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
     public sealed class NotifyFileAttributesSpecs : WatcherSpecs
     {
         [Fact]
-        private void When_getting_file_attributes_it_must_not_raise_events_for_all_notify_filters()
+        private void When_getting_file_attributes_it_must_not_raise_events()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -37,8 +38,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Fact]
-        private void When_changing_file_attributes_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * Container\file.txt                            @ Attributes
+        ")]
+        private void When_changing_file_attributes_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -54,7 +59,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
                 watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -65,89 +70,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToFileToUpdate);
-                    args.Name.Should().Be(containerDirectoryName + @"\" + fileNameToUpdate);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
         [Fact]
-        private void When_changing_file_attributes_it_must_raise_events_for_attributes()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string containerDirectoryName = "Container";
-            const string fileNameToUpdate = "file.txt";
-
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToFileToUpdate = Path.Combine(pathToContainerDirectory, fileNameToUpdate);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(pathToFileToUpdate)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.Attributes;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToFileToUpdate);
-                    args.Name.Should().Be(containerDirectoryName + @"\" + fileNameToUpdate);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_changing_file_attributes_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string containerDirectoryName = "Container";
-            const string fileNameToUpdate = "file.txt";
-
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToFileToUpdate = Path.Combine(pathToContainerDirectory, fileNameToUpdate);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(pathToFileToUpdate)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.Attributes);
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_changing_file_attributes_to_existing_value_it_must_not_raise_events_for_all_notify_filters()
+        private void When_changing_file_attributes_to_existing_value_it_must_not_raise_events()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";

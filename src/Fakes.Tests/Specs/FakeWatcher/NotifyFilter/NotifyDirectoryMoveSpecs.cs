@@ -15,9 +15,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
         [Theory]
         [WatcherNotifyTestData(@"
-            * Container                                     @ LastAccess
+            * Container                                     @                               LastAccess
             > Container\MoveSource => Container\MoveTarget  @ DirectoryName
-            * Container                                     @ LastWrite LastAccess
+            * Container                                     @                   LastWrite   LastAccess
         ")]
         private void When_renaming_empty_directory_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
         {

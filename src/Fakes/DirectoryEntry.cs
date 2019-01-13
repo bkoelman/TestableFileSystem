@@ -172,8 +172,8 @@ namespace TestableFileSystem.Fakes
             contents.Add(file);
 
             ChangeTracker.NotifyFileRenamed(sourcePathFormatter, file.PathFormatter);
-            NotifyFileMoveForAttributes(file);
             HandleDirectoryContentsChanged();
+            NotifyFileMoveForAttributes(file);
         }
 
         public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName)
@@ -185,8 +185,8 @@ namespace TestableFileSystem.Fakes
             contents.Add(file);
 
             ChangeTracker.NotifyFileCreated(file.PathFormatter);
-            NotifyFileMoveForAttributes(file);
             HandleDirectoryContentsChanged();
+            NotifyFileMoveForAttributes(file);
         }
 
         private void NotifyFileMoveForAttributes([NotNull] FileEntry file)

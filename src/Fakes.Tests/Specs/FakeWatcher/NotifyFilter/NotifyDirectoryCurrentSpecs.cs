@@ -9,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
     public sealed class NotifyDirectoryCurrentSpecs : WatcherSpecs
     {
         [Fact]
-        private void When_setting_current_directory_it_must_not_raise_events_for_all_notify_filters()
+        private void When_setting_current_directory_it_must_not_raise_events()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -37,7 +37,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         }
 
         [Fact]
-        private void When_getting_current_directory_it_must_not_raise_events_for_all_notify_filters()
+        private void When_getting_current_directory_it_must_not_raise_events()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";

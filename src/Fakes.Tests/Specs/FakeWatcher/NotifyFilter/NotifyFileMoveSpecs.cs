@@ -1,7 +1,8 @@
 ﻿#if !NETCOREAPP1_1
+using System;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
@@ -40,8 +41,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Fact]
-        private void When_renaming_file_to_itself_with_different_casing_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            > Container\file.TXT => Container\FILE.txt      @ FileName
+            * Container                                     @               LastWrite   LastAccess
+        ")]
+        private void When_renaming_file_to_itself_with_different_casing_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -59,7 +65,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
                 watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -70,183 +76,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    RenamedEventArgs renameArgs = listener.RenameEventArgsCollected.Single();
-                    renameArgs.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    renameArgs.FullPath.Should().Be(pathToDestinationFile);
-                    renameArgs.Name.Should().Be(containerDirectoryName + @"\" + destinationFileName);
-                    renameArgs.OldFullPath.Should().Be(pathToSourceFile);
-                    renameArgs.OldName.Should().Be(containerDirectoryName + @"\" + sourceFileName);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToContainerDirectory);
-                    changeArgs.Name.Should().Be(containerDirectoryName);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_renaming_file_to_itself_with_different_casing_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string containerDirectoryName = "Container";
-            const string sourceFileName = "file.TXT";
-            const string destinationFileName = "FILE.txt";
-
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
-            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    RenamedEventArgs args = listener.RenameEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(containerDirectoryName + @"\" + destinationFileName);
-                    args.OldFullPath.Should().Be(pathToSourceFile);
-                    args.OldName.Should().Be(containerDirectoryName + @"\" + sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_file_to_itself_with_different_casing_it_must_raise_events_for_last_write()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string containerDirectoryName = "Container";
-            const string sourceFileName = "file.TXT";
-            const string destinationFileName = "FILE.txt";
-
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
-            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToContainerDirectory);
-                    args.Name.Should().Be(containerDirectoryName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_file_to_itself_with_different_casing_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string containerDirectoryName = "Container";
-            const string sourceFileName = "file.TXT";
-            const string destinationFileName = "FILE.txt";
-
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
-            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToContainerDirectory);
-                    args.Name.Should().Be(containerDirectoryName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_file_to_itself_with_different_casing_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string containerDirectoryName = "Container";
-            const string sourceFileName = "file.TXT";
-            const string destinationFileName = "FILE.txt";
-
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToSourceFile = Path.Combine(pathToContainerDirectory, sourceFileName);
-            string pathToDestinationFile = Path.Combine(pathToContainerDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter =
-                    TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.LastAccess);
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_file_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            > source.txt => target.txt                      @ FileName
+        ")]
+        private void When_renaming_file_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -262,7 +102,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -272,93 +112,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    RenamedEventArgs args = listener.RenameEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                    args.OldFullPath.Should().Be(pathToSourceFile);
-                    args.OldName.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_file_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    RenamedEventArgs args = listener.RenameEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                    args.OldFullPath.Should().Be(pathToSourceFile);
-                    args.OldName.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_file_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
         #region Attributes in rename
 
-        [Fact]
-        private void When_renaming_archive_file_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            > source.txt => target.txt                      @ FileName
+        ")]
+        private void When_renaming_archive_file_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -374,7 +140,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -384,91 +150,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    RenamedEventArgs args = listener.RenameEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                    args.OldFullPath.Should().Be(pathToSourceFile);
-                    args.OldName.Should().Be(sourceFileName);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_renaming_archive_file_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.Archive)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    RenamedEventArgs args = listener.RenameEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                    args.OldFullPath.Should().Be(pathToSourceFile);
-                    args.OldName.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_archive_file_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.Archive)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_system_file_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            > source.txt => target.txt                      @ FileName
+            * target.txt                                    @ Attributes
+        ")]
+        private void When_renaming_system_file_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -484,7 +177,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -494,133 +187,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    RenamedEventArgs renameArgs = listener.RenameEventArgsCollected.Single();
-                    renameArgs.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    renameArgs.FullPath.Should().Be(pathToDestinationFile);
-                    renameArgs.Name.Should().Be(destinationFileName);
-                    renameArgs.OldFullPath.Should().Be(pathToSourceFile);
-                    renameArgs.OldName.Should().Be(sourceFileName);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs.Name.Should().Be(destinationFileName);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_renaming_system_file_it_must_raise_events_for_attributes()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.System)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.Attributes;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_system_file_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.System)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    RenamedEventArgs args = listener.RenameEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                    args.OldFullPath.Should().Be(pathToSourceFile);
-                    args.OldName.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_system_file_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.System)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.Attributes);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_readonly_hidden_system_archive_file_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            > source.txt => target.txt                      @ FileName
+        ")]
+        private void When_renaming_readonly_hidden_system_archive_file_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -637,7 +215,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -647,95 +225,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    RenamedEventArgs args = listener.RenameEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                    args.OldFullPath.Should().Be(pathToSourceFile);
-                    args.OldName.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_readonly_hidden_system_archive_file_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT",
-                    attributes: FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System | FileAttributes.Archive)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    RenamedEventArgs args = listener.RenameEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Renamed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                    args.OldFullPath.Should().Be(pathToSourceFile);
-                    args.OldName.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_renaming_readonly_hidden_system_archive_file_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT",
-                    attributes: FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System | FileAttributes.Archive)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
         #endregion
 
-        [Fact]
-        private void When_moving_file_to_parent_directory_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            - nested\source.txt                             @ FileName
+            + target.txt                                    @ FileName
+        ")]
+        private void When_moving_file_to_parent_directory_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -751,7 +255,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
                 watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -762,99 +266,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"nested\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(destinationFileName);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_moving_file_to_parent_directory_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "nested", sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"nested\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(destinationFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_parent_directory_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "nested", sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName);
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_subdirectory_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            - source.txt                                    @ FileName
+            + nested\target.txt                             @ FileName
+            * nested                                        @ LastWrite     LastAccess
+        ")]
+        private void When_moving_file_to_subdirectory_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -872,7 +296,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
                 watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -883,189 +307,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(3);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(sourceFileName);
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"nested\target.txt");
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("nested");
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_moving_file_to_subdirectory_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "nested");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(sourceFileName);
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"nested\target.txt");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_subdirectory_it_must_raise_events_for_last_write()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "nested");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("nested");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_subdirectory_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "nested");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("nested");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_subdirectory_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "nested");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter =
-                    TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.LastAccess);
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_sibling_directory_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            - srcFolder\source.txt                          @ FileName
+            + dstFolder\target.txt                          @ FileName
+            * dstFolder                                     @ LastWrite     LastAccess
+        ")]
+        private void When_moving_file_to_sibling_directory_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -1083,7 +338,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
                 watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -1094,191 +349,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(3);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"srcFolder\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"dstFolder\target.txt");
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_sibling_directory_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"srcFolder\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"dstFolder\target.txt");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_sibling_directory_it_must_raise_events_for_last_write()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_sibling_directory_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_to_sibling_directory_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter =
-                    TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.LastAccess);
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
         #region Attributes in move
 
-        [Fact]
-        private void When_moving_archive_file_to_sibling_directory_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            - srcFolder\source.txt                          @ FileName
+            + dstFolder\target.txt                          @ FileName
+            * dstFolder                                     @ LastWrite     LastAccess
+        ")]
+        private void When_moving_archive_file_to_sibling_directory_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -1296,7 +382,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
                 watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -1307,189 +393,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(3);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"srcFolder\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"dstFolder\target.txt");
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_moving_archive_file_to_sibling_directory_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.Archive)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"srcFolder\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"dstFolder\target.txt");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_archive_file_to_sibling_directory_it_must_raise_events_for_last_write()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.Archive)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_archive_file_to_sibling_directory_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.Archive)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_archive_file_to_sibling_directory_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.Archive)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter =
-                    TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.LastAccess);
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_system_file_to_sibling_directory_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            - srcFolder\source.txt                          @ FileName
+            + dstFolder\target.txt                          @ FileName
+            * dstFolder                                     @ LastWrite     LastAccess
+            * dstFolder\target.txt                          @ Attributes
+        ")]
+        private void When_moving_system_file_to_sibling_directory_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -1507,7 +425,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
                 watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -1518,236 +436,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(4);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"srcFolder\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"dstFolder\target.txt");
-
-                    FileSystemEventArgs[] changeArgsArray = listener.ChangeEventArgsCollected.OrderBy(x => x.Name).ToArray();
-                    changeArgsArray.Should().HaveCount(2);
-
-                    changeArgsArray[0].ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgsArray[0].FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgsArray[0].Name.Should().Be("dstFolder");
-
-                    changeArgsArray[1].ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgsArray[1].FullPath.Should().Be(pathToDestinationFile);
-                    changeArgsArray[1].Name.Should().Be(@"dstFolder\target.txt");
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_moving_system_file_to_sibling_directory_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.System)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"srcFolder\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"dstFolder\target.txt");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_system_file_to_sibling_directory_it_must_raise_events_for_last_write()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.System)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_system_file_to_sibling_directory_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.System)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_system_file_to_sibling_directory_it_must_raise_events_for_attributes()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.System)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.Attributes;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(@"dstFolder\target.txt");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_system_file_to_sibling_directory_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.System)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.LastWrite |
-                    NotifyFilters.LastAccess | NotifyFilters.Attributes);
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void
-            When_moving_readonly_hidden_system_archive_file_to_sibling_directory_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            - srcFolder\source.txt                          @ FileName
+            + dstFolder\target.txt                          @ FileName
+            * dstFolder                                     @ LastWrite     LastAccess
+        ")]
+        private void When_moving_readonly_hidden_system_archive_file_to_sibling_directory_it_must_raise_events(
+            NotifyFilters filters, [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -1766,7 +468,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
                 watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -1777,196 +479,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(3);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"srcFolder\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"dstFolder\target.txt");
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_readonly_hidden_system_archive_file_to_sibling_directory_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT",
-                    attributes: FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System | FileAttributes.Archive)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(@"srcFolder\source.txt");
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(@"dstFolder\target.txt");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_readonly_hidden_system_archive_file_to_sibling_directory_it_must_raise_events_for_last_write()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT",
-                    attributes: FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System | FileAttributes.Archive)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_readonly_hidden_system_archive_file_to_sibling_directory_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT",
-                    attributes: FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System | FileAttributes.Archive)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationDirectory);
-                    changeArgs.Name.Should().Be("dstFolder");
-                }
-            }
-        }
-
-        [Fact]
-        private void
-            When_moving_readonly_hidden_system_archive_file_to_sibling_directory_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, "srcFolder", sourceFileName);
-            string pathToDestinationDirectory = Path.Combine(directoryToWatch, "dstFolder");
-            string pathToDestinationFile = Path.Combine(pathToDestinationDirectory, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT",
-                    attributes: FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System | FileAttributes.Archive)
-                .IncludingDirectory(pathToDestinationDirectory)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter =
-                    TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.LastAccess);
-                watcher.IncludeSubdirectories = true;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
         #endregion
 
-        [Fact]
-        private void When_moving_file_out_to_different_drive_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            - source.txt                                    @ FileName
+        ")]
+        private void When_moving_file_out_to_different_drive_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -1983,7 +509,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -1993,89 +519,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.DeleteEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    args.FullPath.Should().Be(pathToSourceFile);
-                    args.Name.Should().Be(sourceFileName);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_moving_file_out_to_different_drive_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(@"d:\")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.DeleteEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    args.FullPath.Should().Be(pathToSourceFile);
-                    args.Name.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_out_to_different_drive_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(@"d:\")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_readonly_file_out_to_different_drive_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * source.txt                                    @           Attributes      LastAccess
+            - source.txt                                    @ FileName
+        ")]
+        private void When_moving_readonly_file_out_to_different_drive_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -2092,7 +548,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -2102,171 +558,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs deleteArgs = listener.DeleteEventArgsCollected.Single();
-                    deleteArgs.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    deleteArgs.FullPath.Should().Be(pathToSourceFile);
-                    deleteArgs.Name.Should().Be(sourceFileName);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToSourceFile);
-                    changeArgs.Name.Should().Be(sourceFileName);
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
 
-        [Fact]
-        private void When_moving_readonly_file_out_to_different_drive_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.ReadOnly)
-                .IncludingDirectory(@"d:\")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.DeleteEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Deleted);
-                    args.FullPath.Should().Be(pathToSourceFile);
-                    args.Name.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_readonly_file_out_to_different_drive_it_must_raise_events_for_attributes()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.ReadOnly)
-                .IncludingDirectory(@"d:\")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.Attributes;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToSourceFile);
-                    args.Name.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_readonly_file_out_to_different_drive_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.ReadOnly)
-                .IncludingDirectory(@"d:\")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToSourceFile);
-                    args.Name.Should().Be(sourceFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_readonly_file_out_to_different_drive_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(directoryToWatch, sourceFileName);
-            string pathToDestinationFile = Path.Combine(@"d:\", destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT", attributes: FileAttributes.ReadOnly)
-                .IncludingDirectory(@"d:\")
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter =
-                    TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.Attributes | NotifyFilters.LastAccess);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_in_from_different_drive_it_must_raise_events_for_all_notify_filters()
+        [Theory]
+        [WatcherNotifyTestData(@"
+            + target.txt                                    @ FileName
+            * target.txt                                    @           LastWrite                   Size
+            * target.txt                                    @           LastWrite       LastAccess
+        ")]
+        private void When_moving_file_in_from_different_drive_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -2283,7 +588,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
-                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.NotifyFilter = filters;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -2293,210 +598,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
-                    listener.EventsCollected.Should().HaveCount(3);
-                    listener.CreateEventArgsCollected.Should().HaveCount(1);
-                    listener.ChangeEventArgsCollected.Should().HaveCount(2);
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(destinationFileName);
-
-                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
-                    {
-                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
-                        changeArgs.Name.Should().Be(destinationFileName);
-                    }
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_in_from_different_drive_it_must_raise_events_for_file_name()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(@"d:\", sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(directoryToWatch)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.FileName;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs createArgs = listener.CreateEventArgsCollected.Single();
-                    createArgs.ChangeType.Should().Be(WatcherChangeTypes.Created);
-                    createArgs.FullPath.Should().Be(pathToDestinationFile);
-                    createArgs.Name.Should().Be(destinationFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_in_from_different_drive_it_must_raise_events_for_size()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(@"d:\", sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(directoryToWatch)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.Size;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
-                    args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(pathToDestinationFile);
-                    args.Name.Should().Be(destinationFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_in_from_different_drive_it_must_raise_events_for_last_write()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(@"d:\", sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(directoryToWatch)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(2);
-                    listener.ChangeEventArgsCollected.Should().HaveCount(2);
-
-                    foreach (FileSystemEventArgs changeArgs in listener.ChangeEventArgsCollected)
-                    {
-                        changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                        changeArgs.FullPath.Should().Be(pathToDestinationFile);
-                        changeArgs.Name.Should().Be(destinationFileName);
-                    }
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_in_from_different_drive_it_must_raise_events_for_last_access()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(@"d:\", sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(directoryToWatch)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = NotifyFilters.LastAccess;
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().HaveCount(1);
-
-                    FileSystemEventArgs changeArgs = listener.ChangeEventArgsCollected.Single();
-                    changeArgs.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    changeArgs.FullPath.Should().Be(pathToDestinationFile);
-                    changeArgs.Name.Should().Be(destinationFileName);
-                }
-            }
-        }
-
-        [Fact]
-        private void When_moving_file_in_from_different_drive_it_must_not_raise_events_for_other_notify_filters()
-        {
-            // Arrange
-            const string directoryToWatch = @"c:\some";
-            const string sourceFileName = "source.txt";
-            const string destinationFileName = "target.txt";
-
-            string pathToSourceFile = Path.Combine(@"d:\", sourceFileName);
-            string pathToDestinationFile = Path.Combine(directoryToWatch, destinationFileName);
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(pathToSourceFile, "CONTENT")
-                .IncludingDirectory(directoryToWatch)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
-            {
-                watcher.NotifyFilter = TestNotifyFilters.All.Except(NotifyFilters.FileName | NotifyFilters.Size |
-                    NotifyFilters.LastWrite | NotifyFilters.LastAccess);
-
-                using (var listener = new FileSystemWatcherEventListener(watcher))
-                {
-                    // Act
-                    fileSystem.File.Move(pathToSourceFile, pathToDestinationFile);
-
-                    watcher.WaitForEventDispatcherIdle(NotifyWaitTimeoutMilliseconds);
-
-                    // Assert
-                    listener.EventsCollected.Should().BeEmpty();
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
                 }
             }
         }
