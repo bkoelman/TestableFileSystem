@@ -16,6 +16,8 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker;
 
+        public bool IsFileMoveRequired { get; private set; }
+
         public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
@@ -33,6 +35,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertSourceIsNotVolumeRoot(arguments.SourcePath);
 
             BaseEntry sourceFileOrDirectory = ResolveSourceFileOrDirectory(arguments.SourcePath);
+            IsFileMoveRequired = sourceFileOrDirectory is FileEntry;
 
             if (sourceFileOrDirectory is DirectoryEntry sourceDirectory)
             {
@@ -44,15 +47,6 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 string destinationDirectoryName = arguments.DestinationPath.Components.Last();
                 MoveDirectory(sourceDirectory, destinationDirectory, destinationDirectoryName, arguments.SourcePath.Formatter);
-            }
-            else if (sourceFileOrDirectory is FileEntry sourceFile)
-            {
-                AssertHasExclusiveAccess(sourceFile);
-
-                DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
-
-                string destinationFileName = arguments.DestinationPath.Components.Last();
-                MoveFile(sourceFile, destinationDirectory, destinationFileName);
             }
 
             return Missing.Value;
@@ -184,14 +178,6 @@ namespace TestableFileSystem.Fakes.Handlers
             while (current != null);
         }
 
-        private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
-        {
-            if (file.IsOpen())
-            {
-                throw ErrorFactory.System.FileIsInUse();
-            }
-        }
-
         private void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
             [NotNull] string destinationDirectoryName, [NotNull] IPathFormatter sourcePathFormatter)
         {
@@ -206,13 +192,6 @@ namespace TestableFileSystem.Fakes.Handlers
                 sourceDirectory.Parent?.DeleteDirectory(sourceDirectory.Name);
                 destinationDirectory.MoveDirectoryToHere(sourceDirectory, destinationDirectoryName);
             }
-        }
-
-        private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string destinationFileName)
-        {
-            sourceFile.Parent.DeleteFile(sourceFile.Name);
-            destinationDirectory.MoveFileToHere(sourceFile, destinationFileName);
         }
     }
 }

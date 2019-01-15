@@ -184,6 +184,12 @@ namespace TestableFileSystem.Fakes
             var arguments = new EntryMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);
+
+            if (handler.IsFileMoveRequired)
+            {
+                var fileMoveHandler = new FileMoveHandler(root);
+                fileMoveHandler.Handle(arguments);
+            }
         }
 
         private static void AssertFileNameIsNotEmpty([NotNull] string path)
