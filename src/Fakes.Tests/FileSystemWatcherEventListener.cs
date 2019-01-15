@@ -1,6 +1,5 @@
 ﻿#if !NETCOREAPP1_1
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -173,7 +172,7 @@ namespace TestableFileSystem.Fakes.Tests
             {
                 if (details.Args is FileSystemEventArgs fileArgs)
                 {
-                    var symbol = GetChangeSymbol(fileArgs.ChangeType);
+                    string symbol = GetChangeSymbol(fileArgs.ChangeType);
                     lines.Add(details.Args is RenamedEventArgs renameArgs
                         ? $"{symbol} {renameArgs.OldName} => {fileArgs.Name}"
                         : $"{symbol} {fileArgs.Name}");
