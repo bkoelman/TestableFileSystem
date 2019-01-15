@@ -122,6 +122,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -159,6 +160,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -198,6 +200,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -238,6 +241,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -278,6 +282,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -317,6 +322,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -356,6 +362,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
@@ -396,6 +403,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
