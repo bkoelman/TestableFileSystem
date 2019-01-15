@@ -7,10 +7,8 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
-    public sealed class FileCreateSpecs
+    public sealed class FileCreateSpecs : WatcherSpecs
     {
-        private const int NotifyWaitTimeoutMilliseconds = 500;
-
         [Fact]
         private void When_creating_local_file_it_must_raise_event()
         {

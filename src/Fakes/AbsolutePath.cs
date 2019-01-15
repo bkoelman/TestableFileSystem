@@ -241,6 +241,27 @@ namespace TestableFileSystem.Fakes
             return path.Components.Count < Components.Count;
         }
 
+        public bool IsEquivalentTo([CanBeNull] AbsolutePath path)
+        {
+            if (path == null || path.Components.Count != Components.Count)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < path.Components.Count; index++)
+            {
+                string baseComponent = path.Components[index];
+                string thisComponent = Components[index];
+
+                if (!string.Equals(thisComponent, baseComponent, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public bool IsOnSameVolume([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));

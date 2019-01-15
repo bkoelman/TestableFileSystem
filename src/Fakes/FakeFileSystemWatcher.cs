@@ -175,7 +175,7 @@ namespace TestableFileSystem.Fakes
                     }
                     else
                     {
-                        if (MatchesFilters(args) && targetPath != null)
+                        if (targetPath != null && MatchesFilters(args, targetPath))
                         {
                             producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, targetPath, version));
                         }
@@ -184,15 +184,16 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private bool MatchesFilters([NotNull] FakeSystemChangeEventArgs args)
+        private bool MatchesFilters([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath watchDirectory)
         {
-            if ((NotifyFilter & args.Filters) == 0)
+            if (!MatchesNotifyFilter(args.Filters))
             {
                 return false;
             }
 
             AbsolutePath path = args.PathFormatter.GetPath();
-            if (targetPath != null && !path.IsDescendantOf(targetPath))
+
+            if (!MatchesIncludeSubdirectories(path, watchDirectory))
             {
                 return false;
             }
@@ -200,6 +201,18 @@ namespace TestableFileSystem.Fakes
             // TODO: Match against file mask.
 
             return true;
+        }
+
+        private bool MatchesNotifyFilter(NotifyFilters filters)
+        {
+            return (NotifyFilter & filters) != 0;
+        }
+
+        private bool MatchesIncludeSubdirectories([NotNull] AbsolutePath path, [NotNull] AbsolutePath watchDirectory)
+        {
+            return IncludeSubdirectories
+                ? path.IsDescendantOf(watchDirectory)
+                : watchDirectory.IsEquivalentTo(path.TryGetParentPath());
         }
 
         private void ConsumerLoop(CancellationToken cancellationToken)
