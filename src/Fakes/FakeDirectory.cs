@@ -180,7 +180,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath sourcePath = owner.ToAbsolutePath(sourceDirName);
             AbsolutePath destinationPath = owner.ToAbsolutePath(destDirName);
 
-            var handler = new DirectoryMoveHandler(root, owner.CurrentDirectoryManager);
+            var handler = new DirectoryMoveHandler(root, owner.CurrentDirectoryManager, owner.ChangeTracker);
             var arguments = new EntryMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);

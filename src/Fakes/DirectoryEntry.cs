@@ -248,6 +248,8 @@ namespace TestableFileSystem.Fakes
             contents.Add(directory);
 
             UpdateLastWriteLastAccessTime();
+            ChangeTracker.NotifyDirectoryCreated(directory.PathFormatter);
+            HandleDirectoryContentsChanged();
         }
 
         public override string ToString()

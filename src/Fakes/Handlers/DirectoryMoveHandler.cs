@@ -13,12 +13,17 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly CurrentDirectoryManager currentDirectoryManager;
 
-        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager)
+        [NotNull]
+        private readonly FakeFileSystemChangeTracker changeTracker;
+
+        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
+            Guard.NotNull(changeTracker, nameof(changeTracker));
 
             this.currentDirectoryManager = currentDirectoryManager;
+            this.changeTracker = changeTracker;
         }
 
         public override Missing Handle(EntryMoveArguments arguments)
@@ -187,7 +192,7 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        private static void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
+        private void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
             [NotNull] string destinationDirectoryName, [NotNull] IPathFormatter sourcePathFormatter)
         {
             if (sourceDirectory.Parent == destinationDirectory)
@@ -196,6 +201,8 @@ namespace TestableFileSystem.Fakes.Handlers
             }
             else
             {
+                changeTracker.NotifyContentsAccessed(destinationDirectory.PathFormatter, FileAccessKinds.Read);
+
                 sourceDirectory.Parent?.DeleteDirectory(sourceDirectory.Name);
                 destinationDirectory.MoveDirectoryToHere(sourceDirectory, destinationDirectoryName);
             }
