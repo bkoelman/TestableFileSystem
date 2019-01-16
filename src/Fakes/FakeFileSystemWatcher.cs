@@ -88,7 +88,10 @@ namespace TestableFileSystem.Fakes
         // TODO: What happens when changing these properties on running instance?
 
         public string Filter { get; set; }
-        public NotifyFilters NotifyFilter { get; set; }
+
+        public NotifyFilters NotifyFilter { get; set; } =
+            NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite;
+
         public bool IncludeSubdirectories { get; set; }
 
         public bool EnableRaisingEvents
@@ -148,14 +151,10 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(filter, nameof(filter));
 
             this.changeTracker = changeTracker;
-
-            CancellationToken cancellationToken = consumerCancellationTokenSource.Token;
-            consumerTask = Task.Run(() => ConsumerLoop(cancellationToken));
-
-            // TODO: Throw when non-null path does not exist.
-
             targetPath = path;
             Filter = filter;
+
+            consumerTask = Task.Run(() => ConsumerLoop(consumerCancellationTokenSource.Token));
         }
 
         private void HandleFileSystemChange([CanBeNull] object sender, [NotNull] FakeSystemChangeEventArgs args)
@@ -242,11 +241,13 @@ namespace TestableFileSystem.Fakes
                     {
                         if (doRaiseBufferOverflowEvent)
                         {
+                            // TODO: What happens when event handler throws?
                             RaiseEventForBufferOverflow();
                         }
 
                         if (doRaiseChangeEvent)
                         {
+                            // TODO: What happens when event handler throws?
                             RaiseEventForChange(change);
                         }
                     }

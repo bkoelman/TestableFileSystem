@@ -130,6 +130,12 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
+            public static Exception DirectoryNameIsInvalid([NotNull] string path)
+            {
+                return new ArgumentException($"The directory name {path} is invalid.");
+            }
+
+            [NotNull]
             public static Exception UncPathIsInvalid()
             {
                 return new ArgumentException(@"The UNC path should be of the form \\server\share.");

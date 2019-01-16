@@ -86,7 +86,17 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(filter, nameof(filter));
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = path.Length > 0 ? ToAbsolutePath(path) : null;
+            AbsolutePath absolutePath = null;
+            if (path != "" || filter != "*.*")
+            {
+                if (!Directory.Exists(path))
+                {
+                    throw ErrorFactory.System.DirectoryNameIsInvalid(path);
+                }
+
+                absolutePath = ToAbsolutePath(path);
+            }
+
             return new FakeFileSystemWatcher(ChangeTracker, absolutePath, filter);
         }
 

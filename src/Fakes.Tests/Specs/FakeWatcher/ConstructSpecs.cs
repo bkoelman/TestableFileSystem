@@ -1,5 +1,6 @@
 ﻿#if !NETCOREAPP1_1
 using System;
+using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
@@ -18,9 +19,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     //      - Test blocking for incoming changes (with timeout or infinite)
     //
     // Construction specs:
-    // - Construct with invalid path characters, different casing, trailing whitespace etc.
+    // - Construct with different casing, trailing whitespace etc.
     // - Construct with extended path => use extended path in event.FullPath
-    // - Assert on initial defaults after construction
     // - Start watching without proper setup
     // - Convert incoming empty filter (via property or ctor) into *.*
     //
@@ -33,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
     public sealed class ConstructSpecs
     {
-        [Fact]
+        [Fact(Skip = "TODO")]
         private void When_constructing_watcher_it_must_succeed()
         {
             // Arrange
@@ -44,11 +44,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher();
 
             // Assert
-            watcher.Should().NotBeNull();
+            watcher.Path.Should().Be(string.Empty);
+            watcher.Filter.Should().Be("*.*");
+            watcher.NotifyFilter.Should().Be(NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite);
+            watcher.IncludeSubdirectories.Should().BeFalse();
+            watcher.EnableRaisingEvents.Should().BeFalse();
+            watcher.InternalBufferSize.Should().Be(8192);
         }
 
-        [Fact]
-        private void When_constructing_watcher_for_null_it_must_fail()
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_null_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -62,20 +67,155 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().Throw<ArgumentNullException>();
         }
 
-        [Fact]
-        private void When_constructing_watcher_for_path_and_null_it_must_fail()
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_empty_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            // ReSharper disable AssignNullToNotNullAttribute
+            Action action = () => fileSystem.ConstructFileSystemWatcher(string.Empty, "*.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("The directory name  is invalid.");
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_whitespace_path_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.ConstructFileSystemWatcher(" ");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("The directory name   is invalid.");
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_invalid_path_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.ConstructFileSystemWatcher("::");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("The directory name :: is invalid.");
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_invalid_characters_in_path_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\SomeFolder?");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage(@"The directory name c:\SomeFolder? is invalid.");
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_missing_directory_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.ConstructFileSystemWatcher(@"e:\MissingFolder");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage(@"The directory name e:\MissingFolder is invalid.");
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_existing_directory_it_must_succeed()
+        {
+            // Arrange
+            const string directoryToWatch = @"e:\ExistingFolder";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(directoryToWatch)
+                .Build();
+
+            // Act
+            var watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch);
+
+            // Assert
+            watcher.Path.Should().Be(directoryToWatch);
+            watcher.Filter.Should().Be("*.*");
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_null_filter_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
             Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\", null);
-            // ReSharper restore AssignNullToNotNullAttribute
 
             // Assert
             action.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_empty_filter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            string filter = string.Empty;
+
+            // Act
+            var watcher = fileSystem.ConstructFileSystemWatcher(@"c:\", filter);
+
+            // Assert
+            watcher.Filter.Should().Be(filter);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_invalid_filter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            const string filter = "::";
+
+            // Act
+            var watcher  = fileSystem.ConstructFileSystemWatcher(@"c:\", filter);
+
+            // Assert
+            watcher.Filter.Should().Be(filter);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_constructing_watcher_for_valid_filter_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            const string filter = "fil*.txt";
+
+            // Act
+            var watcher = fileSystem.ConstructFileSystemWatcher(@"c:\", filter);
+
+            // Assert
+            watcher.Filter.Should().Be(filter);
         }
     }
 }
