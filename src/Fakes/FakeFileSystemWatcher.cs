@@ -154,6 +154,8 @@ namespace TestableFileSystem.Fakes
             targetPath = path;
             Filter = filter;
 
+            // TODO: When an application schedules a lot of tasks, ours may be started too late.
+            // This happens for example, when many watchers are created without disposing them.
             consumerTask = Task.Run(() => ConsumerLoop(consumerCancellationTokenSource.Token));
         }
 

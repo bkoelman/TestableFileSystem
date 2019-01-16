@@ -33,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
     public sealed class ConstructSpecs
     {
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_it_must_succeed()
         {
             // Arrange
@@ -41,18 +41,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 .Build();
 
             // Act
-            IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher();
-
-            // Assert
-            watcher.Path.Should().Be(string.Empty);
-            watcher.Filter.Should().Be("*.*");
-            watcher.NotifyFilter.Should().Be(NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite);
-            watcher.IncludeSubdirectories.Should().BeFalse();
-            watcher.EnableRaisingEvents.Should().BeFalse();
-            watcher.InternalBufferSize.Should().Be(8192);
+            using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            {
+                // Assert
+                watcher.Path.Should().Be(string.Empty);
+                watcher.Filter.Should().Be("*.*");
+                watcher.NotifyFilter.Should().Be(NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite);
+                watcher.IncludeSubdirectories.Should().BeFalse();
+                watcher.EnableRaisingEvents.Should().BeFalse();
+                watcher.InternalBufferSize.Should().Be(8192);
+            }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_null_path_it_must_fail()
         {
             // Arrange
@@ -67,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().Throw<ArgumentNullException>();
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_empty_path_it_must_fail()
         {
             // Arrange
@@ -81,7 +82,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().Throw<ArgumentException>().WithMessage("The directory name  is invalid.");
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_whitespace_path_it_must_fail()
         {
             // Arrange
@@ -95,7 +96,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().Throw<ArgumentException>().WithMessage("The directory name   is invalid.");
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_invalid_path_it_must_fail()
         {
             // Arrange
@@ -109,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().Throw<ArgumentException>().WithMessage("The directory name :: is invalid.");
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_invalid_characters_in_path_it_must_fail()
         {
             // Arrange
@@ -123,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().Throw<ArgumentException>().WithMessage(@"The directory name c:\SomeFolder? is invalid.");
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_missing_directory_it_must_fail()
         {
             // Arrange
@@ -137,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().Throw<ArgumentException>().WithMessage(@"The directory name e:\MissingFolder is invalid.");
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_existing_directory_it_must_succeed()
         {
             // Arrange
@@ -148,14 +149,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 .Build();
 
             // Act
-            var watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch);
-
-            // Assert
-            watcher.Path.Should().Be(directoryToWatch);
-            watcher.Filter.Should().Be("*.*");
+            using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                // Assert
+                watcher.Path.Should().Be(directoryToWatch);
+                watcher.Filter.Should().Be("*.*");
+            }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_null_filter_it_must_fail()
         {
             // Arrange
@@ -170,7 +172,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().Throw<ArgumentNullException>();
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_empty_filter_it_must_succeed()
         {
             // Arrange
@@ -180,13 +182,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             string filter = string.Empty;
 
             // Act
-            var watcher = fileSystem.ConstructFileSystemWatcher(@"c:\", filter);
-
-            // Assert
-            watcher.Filter.Should().Be(filter);
+            using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(@"c:\", filter))
+            {
+                // Assert
+                watcher.Filter.Should().Be(filter);
+            }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_invalid_filter_it_must_succeed()
         {
             // Arrange
@@ -196,13 +199,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string filter = "::";
 
             // Act
-            var watcher  = fileSystem.ConstructFileSystemWatcher(@"c:\", filter);
-
-            // Assert
-            watcher.Filter.Should().Be(filter);
+            using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(@"c:\", filter))
+            {
+                // Assert
+                watcher.Filter.Should().Be(filter);
+            }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_constructing_watcher_for_valid_filter_it_must_succeed()
         {
             // Arrange
@@ -212,10 +216,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             const string filter = "fil*.txt";
 
             // Act
-            var watcher = fileSystem.ConstructFileSystemWatcher(@"c:\", filter);
-
-            // Assert
-            watcher.Filter.Should().Be(filter);
+            using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(@"c:\", filter))
+            {
+                // Assert
+                watcher.Filter.Should().Be(filter);
+            }
         }
     }
 }
