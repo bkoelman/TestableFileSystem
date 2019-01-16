@@ -51,7 +51,7 @@ namespace TestableFileSystem.Fakes
         private readonly CancellationTokenSource consumerCancellationTokenSource = new CancellationTokenSource();
 
         [NotNull]
-        private readonly Task consumerTask;
+        private readonly Thread consumerThread;
 
         [NotNull]
         private readonly object lockObject = new object();
@@ -154,9 +154,8 @@ namespace TestableFileSystem.Fakes
             targetPath = path;
             Filter = filter;
 
-            // TODO: When an application schedules a lot of tasks, ours may be started too late.
-            // This happens for example, when many watchers are created without disposing them.
-            consumerTask = Task.Run(() => ConsumerLoop(consumerCancellationTokenSource.Token));
+            consumerThread = new Thread(() => ConsumerLoop(consumerCancellationTokenSource.Token));
+            consumerThread.Start();
         }
 
         private void HandleFileSystemChange([CanBeNull] object sender, [NotNull] FakeSystemChangeEventArgs args)
@@ -356,9 +355,8 @@ namespace TestableFileSystem.Fakes
             if (doCleanup)
             {
                 consumerCancellationTokenSource.Cancel();
-                consumerTask.Wait();
+                consumerThread.Join();
 
-                consumerTask.Dispose();
                 consumerCancellationTokenSource.Dispose();
                 producerConsumerQueue.Dispose();
             }
