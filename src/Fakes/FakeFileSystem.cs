@@ -87,7 +87,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = null;
-            if (path != "" || filter != "*.*")
+            if (!IsDefaultInvocation(path, filter))
             {
                 if (!Directory.Exists(path))
                 {
@@ -98,6 +98,11 @@ namespace TestableFileSystem.Fakes
             }
 
             return new FakeFileSystemWatcher(ChangeTracker, absolutePath, filter);
+        }
+
+        private static bool IsDefaultInvocation([NotNull] string path, [NotNull] string filter)
+        {
+            return path == "" && filter == "*.*";
         }
 
         IFileSystemWatcher IFileSystem.ConstructFileSystemWatcher(string path, string filter) =>

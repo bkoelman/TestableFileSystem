@@ -22,7 +22,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     // - Construct with different casing, trailing whitespace etc.
     // - Construct with extended path => use extended path in event.FullPath
     // - Start watching without proper setup
-    // - Convert incoming empty filter (via property or ctor) into *.*
     //
     // Miscellaneous specs:
     // - Automatic restart on property change if we were already running

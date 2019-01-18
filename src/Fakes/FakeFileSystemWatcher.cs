@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -65,6 +64,9 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         private readonly AbsolutePath targetPath;
 
+        [NotNull]
+        private PathFilter pathFilter;
+
         public string Path
         {
             get
@@ -87,7 +89,23 @@ namespace TestableFileSystem.Fakes
 
         // TODO: What happens when changing these properties on running instance?
 
-        public string Filter { get; set; }
+        public string Filter
+        {
+            get
+            {
+                lock (lockObject)
+                {
+                    return pathFilter.Text;
+                }
+            }
+            set
+            {
+                lock (lockObject)
+                {
+                    pathFilter = new PathFilter(value, false);
+                }
+            }
+        }
 
         public NotifyFilters NotifyFilter { get; set; } =
             NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite;
@@ -152,7 +170,7 @@ namespace TestableFileSystem.Fakes
 
             this.changeTracker = changeTracker;
             targetPath = path;
-            Filter = filter;
+            pathFilter = new PathFilter(filter, true);
 
             consumerThread = new Thread(() => ConsumerLoop(consumerCancellationTokenSource.Token));
             consumerThread.Start();
@@ -198,7 +216,10 @@ namespace TestableFileSystem.Fakes
                 return false;
             }
 
-            // TODO: Match against file mask.
+            if (!MatchesPattern(path))
+            {
+                return false;
+            }
 
             return true;
         }
@@ -213,6 +234,12 @@ namespace TestableFileSystem.Fakes
             return IncludeSubdirectories
                 ? path.IsDescendantOf(watchDirectory)
                 : watchDirectory.IsEquivalentTo(path.TryGetParentPath());
+        }
+
+        private bool MatchesPattern([NotNull] AbsolutePath path)
+        {
+            string fileOrDirectoryName = path.Components.Last();
+            return pathFilter.IsMatch(fileOrDirectoryName);
         }
 
         private void ConsumerLoop(CancellationToken cancellationToken)
@@ -359,6 +386,34 @@ namespace TestableFileSystem.Fakes
 
                 consumerCancellationTokenSource.Dispose();
                 producerConsumerQueue.Dispose();
+            }
+        }
+
+        private sealed class PathFilter
+        {
+            [NotNull]
+            private readonly PathPattern.Sequence sequence;
+
+            [NotNull]
+            public string Text { get; }
+
+            public PathFilter([CanBeNull] string text, bool allowEmptyString)
+            {
+                if (allowEmptyString && text == string.Empty)
+                {
+                    Text = string.Empty;
+                    sequence = PathPattern.ParsePattern("*");
+                }
+                else
+                {
+                    Text = string.IsNullOrEmpty(text) ? "*.*" : text;
+                    sequence = PathPattern.ParsePattern(Text == "*.*" ? "*" : Text);
+                }
+            }
+
+            public bool IsMatch([NotNull] string text)
+            {
+                return sequence.IsMatch(text);
             }
         }
 

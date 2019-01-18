@@ -9,7 +9,147 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class FilterSpecs : WatcherSpecs
     {
-        [Fact(Skip = "TODO")]
+        [Fact]
+        private void When_filtering_directory_with_null_pattern_it_must_raise_events()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdate1 = Path.Combine(directoryToWatch, "MatchingFile.txt");
+            string pathToFileToUpdate2 = Path.Combine(directoryToWatch, "MatchingFile");
+            string pathToDirectoryToUpdate1 = Path.Combine(directoryToWatch, "MatchingFolder.txt");
+            string pathToDirectoryToUpdate2 = Path.Combine(directoryToWatch, "MatchingFolder");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingEmptyFile(pathToFileToUpdate2)
+                .IncludingDirectory(pathToDirectoryToUpdate1)
+                .IncludingDirectory(pathToDirectoryToUpdate2)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+                // ReSharper disable once AssignNullToNotNullAttribute
+                watcher.Filter = null;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
+
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    watcher.Filter.Should().Be("*.*");
+
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(@"
+                        * MatchingFile.txt
+                        * MatchingFile
+                        * MatchingFolder.txt
+                        * MatchingFolder
+                        ".TrimLines());
+                }
+            }
+        }
+
+        [Fact]
+        private void When_filtering_directory_with_empty_pattern_it_must_raise_events()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdate1 = Path.Combine(directoryToWatch, "MatchingFile.txt");
+            string pathToFileToUpdate2 = Path.Combine(directoryToWatch, "MatchingFile");
+            string pathToDirectoryToUpdate1 = Path.Combine(directoryToWatch, "MatchingFolder.txt");
+            string pathToDirectoryToUpdate2 = Path.Combine(directoryToWatch, "MatchingFolder");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingEmptyFile(pathToFileToUpdate2)
+                .IncludingDirectory(pathToDirectoryToUpdate1)
+                .IncludingDirectory(pathToDirectoryToUpdate2)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+                watcher.Filter = string.Empty;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
+
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    watcher.Filter.Should().Be("*.*");
+
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(@"
+                        * MatchingFile.txt
+                        * MatchingFile
+                        * MatchingFolder.txt
+                        * MatchingFolder
+                        ".TrimLines());
+                }
+            }
+        }
+
+        [Fact]
+        private void When_filtering_directory_with_whitespace_pattern_it_must_not_raise_events()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdate1 = Path.Combine(directoryToWatch, "MatchingFile.txt");
+            string pathToFileToUpdate2 = Path.Combine(directoryToWatch, "MatchingFile");
+            string pathToDirectoryToUpdate1 = Path.Combine(directoryToWatch, "MatchingFolder.txt");
+            string pathToDirectoryToUpdate2 = Path.Combine(directoryToWatch, "MatchingFolder");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingEmptyFile(pathToFileToUpdate2)
+                .IncludingDirectory(pathToDirectoryToUpdate1)
+                .IncludingDirectory(pathToDirectoryToUpdate2)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+                watcher.Filter = " ";
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
+
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    watcher.Filter.Should().Be(" ");
+
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
         private void When_filtering_directory_with_extension_pattern_it_must_raise_events()
         {
             // Arrange
@@ -53,7 +193,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_filtering_directory_with_name_pattern_it_must_raise_events()
         {
             // Arrange
@@ -97,7 +237,120 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
+        private void When_filtering_directory_with_name_pattern_and_trailing_whitespace_it_must_not_raise_events()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdate1 = Path.Combine(directoryToWatch, "NonMatchingFile");
+            string pathToDirectoryToUpdate1 = Path.Combine(directoryToWatch, "NonMatchingFolder");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingDirectory(pathToDirectoryToUpdate1)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+                watcher.Filter = "* ";
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
+
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    watcher.Filter.Should().Be("* ");
+
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
+        private void When_filtering_directory_with_absolute_path_pattern_it_must_not_raise_events()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdate1 = Path.Combine(directoryToWatch, "NonMatchingFile");
+            string pathToDirectoryToUpdate1 = Path.Combine(directoryToWatch, "NonMatchingFolder");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingDirectory(pathToDirectoryToUpdate1)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+                watcher.Filter = @"c:\some\*";
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
+
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    watcher.Filter.Should().Be(@"c:\some\*");
+
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
+        private void When_filtering_directory_with_absolute_path_without_drive_pattern_it_must_not_raise_events()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdate1 = Path.Combine(directoryToWatch, "NonMatchingFile");
+            string pathToDirectoryToUpdate1 = Path.Combine(directoryToWatch, "NonMatchingFolder");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingDirectory(pathToDirectoryToUpdate1)
+                .Build();
+
+            fileSystem.Directory.SetCurrentDirectory(@"c:\");
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+                watcher.Filter = @"\some\*";
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
+                    fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
+
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    watcher.Filter.Should().Be(@"\some\*");
+
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
         private void When_filtering_directory_tree_with_extension_pattern_it_must_raise_events()
         {
             // Arrange
@@ -144,18 +397,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
+                    watcher.Filter.Should().Be("*.TXT");
+
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
                     text.Should().Be(@"
                         * RootMatchingFile.txt
-                        * RootMatchingFolder.txt
                         * SubFolder\SubMatchingFile.txt
+                        * RootMatchingFolder.txt
                         * SubFolder\SubMatchingFolder.txt
                         ".TrimLines());
                 }
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_filtering_directory_tree_with_name_pattern_it_must_raise_events()
         {
             // Arrange
@@ -205,15 +460,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
                     text.Should().Be(@"
                         * RMatchingFile
-                        * RMatchingFolder
                         * SubFolder\SMatchingFile
+                        * RMatchingFolder
                         * SubFolder\SMatchingFolder
                         ".TrimLines());
                 }
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_filtering_directory_tree_with_asterisk_dot_pattern_it_must_not_raise_events()
         {
             // Arrange
@@ -226,7 +481,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingEmptyFile(pathToFileToUpdate2)
                 .IncludingDirectory(pathToDirectoryToUpdate1)
+                .IncludingDirectory(pathToDirectoryToUpdate2)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
@@ -246,13 +503,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
+                    watcher.Filter.Should().Be("*.");
+
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
                     text.Should().BeEmpty();
                 }
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_filtering_directory_tree_with_asterisk_pattern_it_must_raise_events()
         {
             // Arrange
@@ -299,6 +558,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
+                    watcher.Filter.Should().Be("*");
+
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
                     text.Should().Be(@"
                         * RootFile1.txt
@@ -314,7 +575,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_filtering_directory_tree_with_subdirectory_pattern_it_must_not_raise_events()
         {
             // Arrange
@@ -343,6 +604,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
+                    watcher.Filter.Should().Be(@"SubFolder\*.txt");
+
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
                     text.Should().BeEmpty();
                 }

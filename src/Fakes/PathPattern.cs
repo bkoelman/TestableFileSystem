@@ -135,8 +135,10 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        private static Sequence ParsePattern([NotNull] string pattern)
+        public static Sequence ParsePattern([NotNull] string pattern)
         {
+            Guard.NotNullNorEmpty(pattern, nameof(pattern));
+
             var builder = new StringBuilder(pattern.Length);
             Sequence root = null;
 
@@ -198,7 +200,7 @@ namespace TestableFileSystem.Fakes
             return SubPattern != null ? root + ", " + SubPattern : root.ToString();
         }
 
-        private abstract class Sequence
+        public abstract class Sequence
         {
             [CanBeNull]
             public abstract Sequence Next { get; }
@@ -220,6 +222,11 @@ namespace TestableFileSystem.Fakes
             public override bool IsMatch(string text)
             {
                 return false;
+            }
+
+            public override string ToString()
+            {
+                return string.Empty;
             }
         }
 
