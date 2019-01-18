@@ -123,7 +123,7 @@ namespace TestableFileSystem.Fakes
             }
             set
             {
-                // TODO: Precondition checks
+                // TODO: Precondition checks (Path must still exist, for example)
 
                 lock (lockObject)
                 {

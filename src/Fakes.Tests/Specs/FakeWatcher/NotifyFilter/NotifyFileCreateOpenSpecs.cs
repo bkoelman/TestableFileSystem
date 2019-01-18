@@ -52,6 +52,45 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
         [Theory]
         [WatcherNotifyTestData(@"
+            + file.txt                                      @ FileName
+            - file.txt                                      @ FileName
+        ")]
+        private void When_creating_file_with_delete_on_close_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string fileNameToCreate = "file.txt";
+
+            string pathToFileToCreate = Path.Combine(directoryToWatch, fileNameToCreate);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(directoryToWatch)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    using (fileSystem.File.Create(pathToFileToCreate, options: FileOptions.DeleteOnClose))
+                    {
+                    }
+
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
+                }
+            }
+        }
+
+
+        [Theory]
+        [WatcherNotifyTestData(@"
             * file.txt                                      @ LastWrite     LastAccess      Size
         ")]
         private void When_appending_to_file_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)

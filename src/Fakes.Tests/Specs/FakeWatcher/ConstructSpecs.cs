@@ -10,25 +10,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     // TODO: Add specs for various features...
     //
-    // File/Directory operation specs:
-    // - Test for the various events (.NotifyFilter)
-    //      - Test for single file, directory or directory subtree
-    //      - Test for various wildcards (.Filter)
-    //      - Test for hidden files?
-    //      - Works for root of drive/UNC path?
-    //      - Test blocking for incoming changes (with timeout or infinite)
-    //
-    // Construction specs:
-    // - Construct with different casing, trailing whitespace etc.
-    // - Construct with extended path => use extended path in event.FullPath
-    // - Start watching without proper setup
+    // Property specs:
+    // - NotifyFilter
+    //   - Review operations for usage of hidden files
+    // - Path
+    //   - Different casing, trailing whitespace, relative path, local/remote/extended, volume root etc. (see FileCreateSpecs)
+    //   - Construct with extended path => use extended path in event.FullPath
+    // - EnableRaisingEvents
+    //   - Start watching without proper setup
+    // - InternalBufferSize
     //
     // Miscellaneous specs:
     // - Automatic restart on property change if we were already running
+    // - When restarting with different settings, make sure old events from queue are discarded
+    // - Throw when calling properties/methods in disposed state
     // - Multiple watchers attached to the same file system
     // - Test for buffer overflow: Raises Error event; "If the buffer overflows, the entire contents of the buffer is discarded"
-    // - Throw when calling properties/methods in disposed state
-    // - When restarting with different settings, make sure old events from queue are discarded
+    // - Test blocking for incoming changes (with timeout or infinite)
 
     public sealed class ConstructSpecs
     {
