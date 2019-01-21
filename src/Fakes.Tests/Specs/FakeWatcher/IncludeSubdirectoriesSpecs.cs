@@ -84,7 +84,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
-            const string pathToDirectoryToUpdate = @"\\?\c:\some\TargetFolder  ";
+            const string directoryNameToUpdate = "TargetFolder";
+
+            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(pathToDirectoryToUpdate)
@@ -108,8 +110,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     FileSystemEventArgs args = listener.ChangeEventArgsCollected.Single();
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
-                    args.FullPath.Should().Be(@"c:\some\TargetFolder");
-                    args.Name.Should().Be("TargetFolder");
+                    args.FullPath.Should().Be(pathToDirectoryToUpdate);
+                    args.Name.Should().Be(directoryNameToUpdate);
                 }
             }
         }

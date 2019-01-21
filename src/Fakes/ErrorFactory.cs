@@ -136,6 +136,12 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
+            public static Exception ErrorReadingTheDirectory([NotNull] string path)
+            {
+                return new FileNotFoundException($"Error reading the {path} directory.");
+            }
+
+            [NotNull]
             public static Exception UncPathIsInvalid()
             {
                 return new ArgumentException(@"The UNC path should be of the form \\server\share.");

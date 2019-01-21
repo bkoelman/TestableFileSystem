@@ -39,6 +39,9 @@ namespace TestableFileSystem.Fakes
         // 3. [main] joins consumer thread and disposes queue
 
         [NotNull]
+        private readonly FakeFileSystem owner;
+
+        [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker;
 
         [NotNull]
@@ -62,10 +65,12 @@ namespace TestableFileSystem.Fakes
         private bool consumerHasTerminated;
 
         [CanBeNull]
-        private readonly AbsolutePath targetPath;
+        private AbsolutePath targetPath;
 
         [NotNull]
         private PathFilter pathFilter;
+
+        // TODO: What happens when changing properties on running instance?
 
         public string Path
         {
@@ -78,16 +83,24 @@ namespace TestableFileSystem.Fakes
             }
             set
             {
-                // TODO: Restart when changing path on running instance.
-
                 lock (lockObject)
                 {
-                    throw new NotImplementedException();
+                    if (string.IsNullOrEmpty(value))
+                    {
+                        targetPath = null;
+                    }
+                    else
+                    {
+                        if (!owner.Directory.Exists(value))
+                        {
+                            throw ErrorFactory.System.DirectoryNameIsInvalid(value);
+                        }
+
+                        targetPath = owner.ToAbsolutePathInLock(value);
+                    }
                 }
             }
         }
-
-        // TODO: What happens when changing these properties on running instance?
 
         public string Filter
         {
@@ -136,6 +149,13 @@ namespace TestableFileSystem.Fakes
 
                         if (state == WatcherState.Suspended)
                         {
+                            if (!owner.Directory.Exists(Path))
+                            {
+                                throw ErrorFactory.System.ErrorReadingTheDirectory(Path);
+                            }
+
+                            // TODO: Should we put some kind of lock on the directory being watched?
+
                             changeTracker.FileSystemChanged += HandleFileSystemChange;
 
                             version++;
@@ -162,12 +182,14 @@ namespace TestableFileSystem.Fakes
         public event RenamedEventHandler Renamed;
         public event ErrorEventHandler Error;
 
-        internal FakeFileSystemWatcher([NotNull] FakeFileSystemChangeTracker changeTracker, [CanBeNull] AbsolutePath path,
-            [NotNull] string filter)
+        internal FakeFileSystemWatcher([NotNull] FakeFileSystem owner, [NotNull] FakeFileSystemChangeTracker changeTracker,
+            [CanBeNull] AbsolutePath path, [NotNull] string filter)
         {
+            Guard.NotNull(owner, nameof(owner));
             Guard.NotNull(changeTracker, nameof(changeTracker));
             Guard.NotNull(filter, nameof(filter));
 
+            this.owner = owner;
             this.changeTracker = changeTracker;
             targetPath = path;
             pathFilter = new PathFilter(filter, true);

@@ -48,7 +48,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(fileName, nameof(fileName));
 
-            AbsolutePath absolutePath = ToAbsolutePath(fileName);
+            AbsolutePath absolutePath = ToAbsolutePathInLock(fileName);
             return new FakeFileInfo(root, this, absolutePath);
         }
 
@@ -59,7 +59,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
+            AbsolutePath absolutePath = ToAbsolutePathInLock(path);
             return ConstructDirectoryInfo(absolutePath);
         }
 
@@ -72,6 +72,15 @@ namespace TestableFileSystem.Fakes
         }
 
         IDirectoryInfo IFileSystem.ConstructDirectoryInfo(string path) => ConstructDirectoryInfo(path);
+
+        [NotNull]
+        internal AbsolutePath ToAbsolutePathInLock([NotNull] string path)
+        {
+            lock (TreeLock)
+            {
+                return ToAbsolutePath(path);
+            }
+        }
 
         [NotNull]
         internal AbsolutePath ToAbsolutePath([NotNull] string path)
@@ -94,10 +103,10 @@ namespace TestableFileSystem.Fakes
                     throw ErrorFactory.System.DirectoryNameIsInvalid(path);
                 }
 
-                absolutePath = ToAbsolutePath(path);
+                absolutePath = ToAbsolutePathInLock(path);
             }
 
-            return new FakeFileSystemWatcher(ChangeTracker, absolutePath, filter);
+            return new FakeFileSystemWatcher(this, ChangeTracker, absolutePath, filter);
         }
 
         private static bool IsDefaultInvocation([NotNull] string path, [NotNull] string filter)

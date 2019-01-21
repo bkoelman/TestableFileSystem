@@ -13,9 +13,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     // Property specs:
     // - NotifyFilter
     //   - Review operations for usage of hidden files
-    // - Path
-    //   - Different casing, trailing whitespace, relative path, local/remote/extended, volume root etc. (see FileCreateSpecs)
-    //   - Construct with extended path => use extended path in event.FullPath
     // - EnableRaisingEvents
     //   - Start watching without proper setup
     // - InternalBufferSize

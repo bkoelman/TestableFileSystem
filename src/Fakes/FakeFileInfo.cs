@@ -78,7 +78,7 @@ namespace TestableFileSystem.Fakes
         {
             Owner.File.Move(FullName, destFileName);
 
-            AbsolutePath destinationPath = Owner.ToAbsolutePath(destFileName);
+            AbsolutePath destinationPath = Owner.ToAbsolutePathInLock(destFileName);
             ChangePath(destinationPath);
         }
 
