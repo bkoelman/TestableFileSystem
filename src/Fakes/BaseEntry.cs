@@ -7,8 +7,6 @@ namespace TestableFileSystem.Fakes
 {
     internal abstract class BaseEntry
     {
-        private FileAttributes attributes;
-
         [NotNull]
         public string Name { get; protected set; }
 
@@ -18,7 +16,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal abstract IPathFormatter PathFormatter { get; }
 
-        public FileAttributes Attributes => attributes;
+        public FileAttributes Attributes { get; private set; }
 
         public abstract DateTime CreationTime { get; set; }
         public abstract DateTime CreationTimeUtc { get; set; }
@@ -33,17 +31,17 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(changeTracker, nameof(changeTracker));
 
             Name = name;
-            this.attributes = attributes;
+            Attributes = attributes;
             ChangeTracker = changeTracker;
         }
 
         public void SetAttributes(FileAttributes newAttributes, FileAccessKinds accessKinds = FileAccessKinds.Attributes)
         {
-            FileAttributes beforeAttributes = attributes;
+            FileAttributes beforeAttributes = Attributes;
 
-            attributes = FilterAttributes(newAttributes);
+            Attributes = FilterAttributes(newAttributes);
 
-            if (attributes != beforeAttributes)
+            if (Attributes != beforeAttributes)
             {
                 ChangeTracker.NotifyContentsAccessed(PathFormatter, accessKinds);
             }
