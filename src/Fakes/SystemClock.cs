@@ -7,14 +7,10 @@ namespace TestableFileSystem.Fakes
     public sealed class SystemClock
     {
         [NotNull]
-        public static readonly SystemClock Default = new SystemClock();
+        public static readonly Func<DateTime> UseHardwareClock = () => DateTime.UtcNow;
 
         [NotNull]
-        public Func<DateTime> UtcNow = () => DateTime.UtcNow;
-
-        private SystemClock()
-        {
-        }
+        public Func<DateTime> UtcNow { get; set; }
 
         public SystemClock([NotNull] Func<DateTime> utcNow)
         {
