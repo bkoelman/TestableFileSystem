@@ -35,7 +35,7 @@ The NuGet packages are compatible with projects that target at least [NetStandar
   
   `Install-Package TestableFileSystem.Fakes -project YourProductUnitTests`
 
-See [Demo/Program.cs](https://github.com/bkoelman/TestableFileSystem/blob/master/src/Demo/Program.cs) for example usage.
+See [Demo/Program.cs](https://github.com/bkoelman/TestableFileSystem/blob/master/src/Demo/Program.cs) and [documentation](doc/Overview.md) for example usage.
 
 ## Trying out the latest build
 
