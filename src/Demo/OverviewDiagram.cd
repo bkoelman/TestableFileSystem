@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="System.IO.FileSystemWatcher">
+    <Position X="4.104" Y="7.635" Height="0.312" Width="1.908" />
+  </Comment>
+  <Comment CommentText="System.IO.DirectoryInfo">
+    <Position X="1.479" Y="6.573" Height="0.312" Width="1.908" />
+  </Comment>
+  <Comment CommentText="System.IO.FileInfo">
+    <Position X="4.104" Y="6.573" Height="0.312" Width="1.908" />
+  </Comment>
+  <Comment CommentText="System.IO.FileSystemInfo">
+    <Position X="4.104" Y="5.198" Height="0.312" Width="1.908" />
+  </Comment>
+  <Comment CommentText="System.IO.File">
+    <Position X="4.104" Y="4.385" Height="0.312" Width="1.908" />
+  </Comment>
+  <Comment CommentText="System.IO.Directory">
+    <Position X="4.104" Y="3.385" Height="0.312" Width="1.908" />
+  </Comment>
+  <Class Name="TestableFileSystem.Wrappers.DirectoryWrapper" Collapsed="true">
+    <Position X="2.25" Y="3" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Wrappers.FileWrapper" Collapsed="true">
+    <Position X="2.25" Y="4" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Wrappers.FileSystemInfoWrapper" Collapsed="true">
+    <Position X="2.25" Y="5" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Wrappers.FileInfoWrapper" Collapsed="true">
+    <Position X="3.5" Y="6" Width="2.25" />
+    <InheritanceLine Type="TestableFileSystem.Wrappers.FileSystemInfoWrapper" FixedToPoint="true">
+      <Path>
+        <Point X="3.375" Y="5.562" />
+        <Point X="3.375" Y="5.76" />
+        <Point X="3.875" Y="5.76" />
+        <Point X="3.875" Y="6" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+    <Lollipop Position="1.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Wrappers.DirectoryInfoWrapper" Collapsed="true">
+    <Position X="1" Y="6" Width="2.25" />
+    <InheritanceLine Type="TestableFileSystem.Wrappers.FileSystemInfoWrapper" FixedToPoint="true">
+      <Path>
+        <Point X="3.375" Y="5.562" />
+        <Point X="3.375" Y="5.76" />
+        <Point X="2.875" Y="5.76" />
+        <Point X="2.875" Y="6" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+    <Lollipop Position="0.1" />
+  </Class>
+  <Class Name="TestableFileSystem.Wrappers.FileSystemWrapper">
+    <Position X="2.25" Y="0.5" Width="2.25" />
+    <Members>
+      <Method Name="ConstructDirectoryInfo" Hidden="true" />
+      <Method Name="ConstructFileInfo" Hidden="true" />
+      <Method Name="ConstructFileSystemWatcher" Hidden="true" />
+      <Property Name="Directory" Hidden="true" />
+      <Property Name="File" Hidden="true" />
+    </Members>
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeFileSystem" Collapsed="true">
+    <Position X="11.75" Y="0.5" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeFile" Collapsed="true">
+    <Position X="11.75" Y="4" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeDirectory" Collapsed="true">
+    <Position X="11.75" Y="3" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeFileInfo" Collapsed="true">
+    <Position X="13" Y="6" Width="2.25" />
+    <InheritanceLine Type="TestableFileSystem.Fakes.FakeFileSystemInfo" FixedToPoint="true">
+      <Path>
+        <Point X="12.875" Y="5.562" />
+        <Point X="12.875" Y="5.76" />
+        <Point X="13.375" Y="5.76" />
+        <Point X="13.375" Y="6" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+    <Lollipop Position="1.231" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeDirectoryInfo" Collapsed="true">
+    <Position X="10.5" Y="6" Width="2.25" />
+    <InheritanceLine Type="TestableFileSystem.Fakes.FakeFileSystemInfo" FixedToPoint="true">
+      <Path>
+        <Point X="12.875" Y="5.562" />
+        <Point X="12.875" Y="5.76" />
+        <Point X="12.375" Y="5.76" />
+        <Point X="12.375" Y="6" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+    <Lollipop Position="0.1" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeFileSystemInfo" Collapsed="true">
+    <Position X="11.75" Y="5" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Wrappers.FileSystemWatcherWrapper" Collapsed="true">
+    <Position X="2.25" Y="7.25" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeFileSystemWatcher" Collapsed="true">
+    <Position X="11.75" Y="7.25" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Builders.FakeFileSystemBuilder">
+    <Position X="12.75" Y="0.75" Width="2.25" />
+    <Members>
+      <Method Name="FakeFileSystemBuilder" Hidden="true" />
+      <Method Name="WithCopyWaitIndicator" Hidden="true" />
+      <Method Name="WithoutDefaultDriveC" Hidden="true" />
+    </Members>
+    <TypeIdentifier />
+  </Class>
+  <Interface Name="TestableFileSystem.Interfaces.IFileSystem">
+    <Position X="7" Y="0.5" Width="2.25" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IFile" Collapsed="true">
+    <Position X="7.25" Y="4" Width="1.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IDirectory" Collapsed="true">
+    <Position X="7.25" Y="3" Width="1.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IFileSystemWatcher" Collapsed="true">
+    <Position X="7.25" Y="7.25" Width="1.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IFileInfo" Collapsed="true">
+    <Position X="8.25" Y="6" Width="1.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IFileSystemInfo" Collapsed="true">
+    <Position X="7.25" Y="5" Width="1.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IDirectoryInfo" Collapsed="true">
+    <Position X="6.25" Y="6" Width="1.75" />
+    <InheritanceLine Type="TestableFileSystem.Interfaces.IFileSystemInfo" FixedToPoint="true">
+      <Path>
+        <Point X="8.125" Y="5.562" />
+        <Point X="8.125" Y="5.76" />
+        <Point X="7.688" Y="5.76" />
+        <Point X="7.688" Y="6" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier />
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
