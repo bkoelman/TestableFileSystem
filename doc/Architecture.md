@@ -2,6 +2,8 @@
 
 If you are interested in how the in-memory file system works, please read on. If you just want to use this library, now is the time to start coding instead! :)
 
+![Architecture diagram](images/architecture.png)
+
 At the deepest level, the in-memory file system stores its files and directories in a tree structure. `FileEntry` contains the metadata and content of a single file. `DirectoryEntry` stores the list of its containing files and subdirectories, by referencing other `FileEntry` and `DirectoryEntry` instances. Both types share a common base class, named `BaseEntry`. It represents common metadata such as name, attributes, creation time, last write and last access time.
 
 `FileEntry` additionally stores its file size and contents, which can be accessed through an `IFileStream` implementation that is returned by its `Open(...)` method. It guards that only a single writer or multiple readers have access to its contents at the same time. Attached stream instances notify their `FileEntry` owner about stream access, so it can update its file times and fire off change notifications.
