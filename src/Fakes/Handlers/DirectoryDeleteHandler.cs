@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -35,13 +36,13 @@ namespace TestableFileSystem.Fakes.Handlers
 
             DirectoryEntry directory = ResolveDirectory(arguments.Path);
 
-            // TODO: Should we check al these upfront and bail out, or just fail while partially completed? Or continue-on-fail and throw first error at the end?
             AssertNoConflictWithCurrentDirectory(directory, arguments.Path);
             AssertIsEmptyOrRecursive(directory, arguments.IsRecursive);
-            AssertIsNotReadOnly(directory, arguments.Path);
-            AssertDirectoryContainsNoOpenFiles(directory, arguments.Path);
 
-            DeleteTree(directory, arguments.IsRecursive);
+            using (var recorder = new ErrorRecorder())
+            {
+                DeleteDirectoryTree(directory, arguments.IsRecursive, recorder);
+            }
 
             return Missing.Value;
         }
@@ -94,74 +95,138 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        [AssertionMethod]
-        private static void AssertIsNotReadOnly([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath directoryPath)
+        [NotNull]
+        private DirectoryState DeleteDirectoryTree([NotNull] DirectoryEntry directory, bool isRecursive,
+            [NotNull] ErrorRecorder recorder)
         {
-            if (directory.Attributes.HasFlag(FileAttributes.ReadOnly))
-            {
-                throw ErrorFactory.System.AccessDenied(directoryPath.GetText());
-            }
-
-            foreach (FileEntry file in directory.Files.Values)
-            {
-                AssertFileIsNotReadOnly(file);
-            }
-
-            foreach (DirectoryEntry subdirectory in directory.Directories.Values)
-            {
-                AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
-                AssertIsNotReadOnly(subdirectory, subdirectoryPath);
-            }
-        }
-
-        [AssertionMethod]
-        private static void AssertFileIsNotReadOnly([NotNull] FileEntry file)
-        {
-            if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
-            {
-                throw ErrorFactory.System.UnauthorizedAccess(file.Name);
-            }
-        }
-
-        [AssertionMethod]
-        private static void AssertDirectoryContainsNoOpenFiles([NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
-        {
-            AbsolutePath openFilePath = directory.TryGetPathOfFirstOpenFile(path);
-            if (openFilePath != null)
-            {
-                throw ErrorFactory.System.FileIsInUse(openFilePath.GetText());
-            }
-        }
-
-        private void DeleteTree([NotNull] DirectoryEntry directory, bool isRecursive)
-        {
-            var accessKinds = FileAccessKinds.None;
+            var state = new DirectoryState(recorder);
 
             if (isRecursive)
             {
-                accessKinds |= FileAccessKinds.Read;
+                state.MarkHasRead();
 
                 foreach (BaseEntry entry in directory.EnumerateEntries(EnumerationFilter.All).OrderBy(x => x.Name).ToArray())
                 {
                     if (entry is FileEntry file)
                     {
-                        file.Parent.DeleteFile(file.Name);
-                        accessKinds |= FileAccessKinds.Write;
+                        DeleteSingleFile(file, state);
                     }
                     else if (entry is DirectoryEntry subdirectory)
                     {
-                        DeleteTree(subdirectory, true);
-                        accessKinds |= FileAccessKinds.Write;
+                        DirectoryState subState = DeleteDirectoryTree(subdirectory, true, recorder);
+                        state.PropagateSubdirectoryState(subState);
                     }
                 }
             }
 
-            if (accessKinds != FileAccessKinds.None)
+            if (state.AccessKinds != FileAccessKinds.None)
             {
-                changeTracker.NotifyContentsAccessed(directory.PathFormatter, accessKinds);
+                changeTracker.NotifyContentsAccessed(directory.PathFormatter, state.AccessKinds);
             }
 
-            directory.Parent?.DeleteDirectory(directory.Name);
+            DeleteSingleDirectory(directory, state);
+
+            return state;
+        }
+
+        private static void DeleteSingleFile([NotNull] FileEntry file, [NotNull] DirectoryState state)
+        {
+            if (file.IsOpen())
+            {
+                string path = file.PathFormatter.GetPath().GetText();
+                state.SetError(ErrorFactory.System.FileIsInUse(path));
+            }
+            else if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                state.SetError(ErrorFactory.System.UnauthorizedAccess(file.Name));
+            }
+            else
+            {
+                file.Parent.DeleteFile(file.Name);
+                state.MarkHasWritten();
+            }
+        }
+
+        private static void DeleteSingleDirectory([NotNull] DirectoryEntry directory, [NotNull] DirectoryState state)
+        {
+            if (directory.Attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                string path = directory.PathFormatter.GetPath().GetText();
+                state.SetError(ErrorFactory.System.AccessDenied(path));
+            }
+
+            if (state.CanBeDeleted)
+            {
+                directory.Parent?.DeleteDirectory(directory.Name);
+            }
+        }
+
+        private sealed class DirectoryState
+        {
+            [NotNull]
+            private readonly ErrorRecorder recorder;
+
+            public FileAccessKinds AccessKinds { get; private set; } = FileAccessKinds.None;
+            public bool CanBeDeleted { get; private set; } = true;
+
+            public DirectoryState([NotNull] ErrorRecorder recorder)
+            {
+                Guard.NotNull(recorder, nameof(recorder));
+                this.recorder = recorder;
+            }
+
+            public void MarkHasRead()
+            {
+                AccessKinds |= FileAccessKinds.Read;
+            }
+
+            public void MarkHasWritten()
+            {
+                AccessKinds |= FileAccessKinds.Write;
+            }
+
+            public void SetError([NotNull] Exception exception)
+            {
+                recorder.Add(exception);
+                CanBeDeleted = false;
+            }
+
+            public void PropagateSubdirectoryState([NotNull] DirectoryState subdirectoryState)
+            {
+                Guard.NotNull(subdirectoryState, nameof(subdirectoryState));
+
+                if (!subdirectoryState.CanBeDeleted)
+                {
+                    CanBeDeleted = false;
+                }
+
+                if (subdirectoryState.AccessKinds.HasFlag(FileAccessKinds.Write))
+                {
+                    MarkHasWritten();
+                }
+            }
+        }
+
+        private sealed class ErrorRecorder : IDisposable
+        {
+            [CanBeNull]
+            private Exception firstError;
+
+            public void Add([NotNull] Exception exception)
+            {
+                if (firstError == null)
+                {
+                    firstError = exception;
+                }
+            }
+
+            public void Dispose()
+            {
+                if (firstError != null)
+                {
+                    throw firstError;
+                }
+            }
         }
     }
 }

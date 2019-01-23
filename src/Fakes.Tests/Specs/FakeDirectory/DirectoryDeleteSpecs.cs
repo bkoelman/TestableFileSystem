@@ -177,53 +177,89 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_deleting_local_nonempty_directory_recursively_that_contains_open_file_it_must_fail()
+        private void When_deleting_local_nonempty_directory_recursively_that_contains_open_files_it_must_delete_all_others_and_it_fail_on_first_open_file()
         {
             // Arrange
+            const string subdirectory = @"C:\some\folder\deeper";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"C:\some\folder\deeper\file.txt")
+                .IncludingEmptyFile(Path.Combine(subdirectory, "fileA.txt"))
+                .IncludingEmptyFile(Path.Combine(subdirectory, "fileB.txt"))
+                .IncludingEmptyFile(Path.Combine(subdirectory, "fileC.txt"))
+                .IncludingEmptyFile(Path.Combine(subdirectory, "fileD.txt"))
                 .Build();
 
-            using (fileSystem.File.OpenRead(@"C:\some\folder\deeper\file.txt"))
+            using (fileSystem.File.OpenRead(Path.Combine(subdirectory, "fileB.txt")))
             {
-                // Act
-                Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
+                using (fileSystem.File.OpenRead(Path.Combine(subdirectory, "fileC.txt")))
+                {
+                    // Act
+                    Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
 
-                // Assert
-                action.Should().Throw<IOException>()
-                    .WithMessage(
-                        @"The process cannot access the file 'C:\some\folder\deeper\file.txt' because it is being used by another process.");
+                    // Assert
+                    action.Should().Throw<IOException>()
+                        .WithMessage(
+                            @"The process cannot access the file 'C:\some\folder\deeper\fileB.txt' because it is being used by another process.");
+
+                    fileSystem.File.Exists(Path.Combine(subdirectory, "fileA.txt")).Should().BeFalse();
+                    fileSystem.File.Exists(Path.Combine(subdirectory, "fileB.txt")).Should().BeTrue();
+                    fileSystem.File.Exists(Path.Combine(subdirectory, "fileC.txt")).Should().BeTrue();
+                    fileSystem.File.Exists(Path.Combine(subdirectory, "fileD.txt")).Should().BeFalse();
+                    fileSystem.Directory.Exists(subdirectory).Should().BeTrue();
+                }
             }
         }
 
         [Fact]
-        private void When_deleting_local_nonempty_directory_recursively_that_contains_readonly_file_it_must_fail()
+        private void When_deleting_local_nonempty_directory_recursively_that_contains_readonly_files_it_must_delete_all_others_and_fail_on_first_readonly_file()
         {
             // Arrange
+            const string subdirectory = @"C:\some\folder\deeper";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"C:\some\folder\deeper\file.txt", FileAttributes.ReadOnly)
+                .IncludingEmptyFile(Path.Combine(subdirectory, "fileA.txt"))
+                .IncludingEmptyFile(Path.Combine(subdirectory, "fileB.txt"), FileAttributes.ReadOnly)
+                .IncludingEmptyFile(Path.Combine(subdirectory, "fileC.txt"), FileAttributes.ReadOnly)
+                .IncludingEmptyFile(Path.Combine(subdirectory, "fileD.txt"))
                 .Build();
 
             // Act
             Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'file.txt' is denied.");
+            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'fileB.txt' is denied.");
+
+            fileSystem.File.Exists(Path.Combine(subdirectory, "fileA.txt")).Should().BeFalse();
+            fileSystem.File.Exists(Path.Combine(subdirectory, "fileB.txt")).Should().BeTrue();
+            fileSystem.File.Exists(Path.Combine(subdirectory, "fileC.txt")).Should().BeTrue();
+            fileSystem.File.Exists(Path.Combine(subdirectory, "fileD.txt")).Should().BeFalse();
+            fileSystem.Directory.Exists(subdirectory).Should().BeTrue();
         }
 
         [Fact]
-        private void When_deleting_local_nonempty_directory_recursively_that_contains_readonly_directory_it_must_fail()
+        private void When_deleting_local_nonempty_directory_recursively_that_contains_readonly_subdirectories_it_must_delete_all_others_and_fail_on_first_readonly_subdirectory()
         {
             // Arrange
+            const string subdirectory = @"C:\some\folder\deeper";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"C:\some\folder\deeper\subfolder", FileAttributes.ReadOnly)
+                .IncludingDirectory(Path.Combine(subdirectory, "subfolderA"))
+                .IncludingDirectory(Path.Combine(subdirectory, "subfolderB"), FileAttributes.ReadOnly)
+                .IncludingDirectory(Path.Combine(subdirectory, "subfolderC"), FileAttributes.ReadOnly)
+                .IncludingDirectory(Path.Combine(subdirectory, "subfolderD"))
                 .Build();
 
             // Act
             Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Access to the path 'C:\some\folder\deeper\subfolder' is denied.");
+            action.Should().Throw<IOException>().WithMessage(@"Access to the path 'C:\some\folder\deeper\subfolderB' is denied.");
+
+            fileSystem.Directory.Exists(Path.Combine(subdirectory, "subfolderA")).Should().BeFalse();
+            fileSystem.Directory.Exists(Path.Combine(subdirectory, "subfolderB")).Should().BeTrue();
+            fileSystem.Directory.Exists(Path.Combine(subdirectory, "subfolderC")).Should().BeTrue();
+            fileSystem.Directory.Exists(Path.Combine(subdirectory, "subfolderD")).Should().BeFalse();
+            fileSystem.Directory.Exists(subdirectory).Should().BeTrue();
         }
 
         [Fact]
