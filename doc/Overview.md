@@ -76,6 +76,12 @@ clock.UtcNow = () => new DateTime(2002, 2, 2);
 fileSystem.File.AppendAllText(@"c:\demo\file1.txt", "Extra");
 ```
 
+If you do not want to use a clock that is frozen in time, but use the actual running system clock instead, create it as follows:
+
+```csharp
+var clock = new SystemClock(SystemClock.UseHardwareClock);
+```
+
 This should get you started using this library. 
 
 If you're interested in the inner workings of the in-memory file system, you may want to continue reading at: [in-memory file system architecture](Architecture.md).
