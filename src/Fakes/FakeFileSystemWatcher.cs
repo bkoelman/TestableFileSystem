@@ -136,22 +136,25 @@ namespace TestableFileSystem.Fakes
             }
             set
             {
-                // TODO: Precondition checks (Path must still exist, for example)
-
                 lock (lockObject)
                 {
                     if (value)
                     {
                         if (state == WatcherState.Disposed)
                         {
-                            throw new ObjectDisposedException(GetType().FullName);
+                            throw new ObjectDisposedException("FileSystemWatcher");
                         }
 
-                        if (state == WatcherState.Suspended)
+                        if (state == WatcherState.Suspended || state == WatcherState.Unstarted)
                         {
                             if (!owner.Directory.Exists(Path))
                             {
                                 throw ErrorFactory.System.ErrorReadingTheDirectory(Path);
+                            }
+
+                            if (state == WatcherState.Unstarted)
+                            {
+                                consumerThread.Start();
                             }
 
                             // TODO: Should we put some kind of lock on the directory being watched?
@@ -194,8 +197,10 @@ namespace TestableFileSystem.Fakes
             targetPath = path;
             pathFilter = new PathFilter(filter, true);
 
-            consumerThread = new Thread(() => ConsumerLoop(consumerCancellationTokenSource.Token));
-            consumerThread.Start();
+            consumerThread = new Thread(() => ConsumerLoop(consumerCancellationTokenSource.Token))
+            {
+                IsBackground = true
+            };
         }
 
         private void HandleFileSystemChange([CanBeNull] object sender, [NotNull] FakeSystemChangeEventArgs args)
@@ -370,7 +375,7 @@ namespace TestableFileSystem.Fakes
             {
                 lock (lockObject)
                 {
-                    if (consumerHasTerminated || state != WatcherState.Active)
+                    if (consumerHasTerminated || state == WatcherState.Unstarted || state == WatcherState.Disposed)
                     {
                         return;
                     }
@@ -404,7 +409,11 @@ namespace TestableFileSystem.Fakes
             if (doCleanup)
             {
                 consumerCancellationTokenSource.Cancel();
-                consumerThread.Join();
+
+                if (!consumerThread.ThreadState.HasFlag(ThreadState.Unstarted))
+                {
+                    consumerThread.Join();
+                }
 
                 consumerCancellationTokenSource.Dispose();
                 producerConsumerQueue.Dispose();
@@ -469,6 +478,7 @@ namespace TestableFileSystem.Fakes
 
         private enum WatcherState
         {
+            Unstarted,
             Suspended,
             Active,
             Disposed

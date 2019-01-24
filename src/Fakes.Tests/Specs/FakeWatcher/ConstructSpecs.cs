@@ -13,8 +13,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     // Property specs:
     // - NotifyFilter
     //   - Review operations for usage of hidden files
-    // - EnableRaisingEvents
-    //   - Start watching without proper setup
     // - InternalBufferSize
     //
     // Miscellaneous specs:
