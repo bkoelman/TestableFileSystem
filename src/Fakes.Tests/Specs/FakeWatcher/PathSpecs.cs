@@ -141,11 +141,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = directoryToWatch;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
@@ -178,11 +179,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = directoryToWatch;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
@@ -215,11 +217,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = directoryToWatch + " ";
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
@@ -250,11 +253,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = directoryToWatch;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
@@ -289,11 +293,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = @"\some";
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
@@ -328,11 +333,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = "some";
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
@@ -447,11 +453,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = directoryToWatch;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
@@ -505,11 +512,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = directoryToWatch;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
@@ -558,11 +566,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
+
+                // Act
                 watcher.Path = directoryToWatch;
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    // Act
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
