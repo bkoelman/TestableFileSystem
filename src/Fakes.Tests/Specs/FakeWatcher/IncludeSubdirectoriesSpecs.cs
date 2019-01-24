@@ -144,6 +144,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 }
             }
         }
+
+        [Fact]
+        private void When_setting_IncludeSubdirectories_on_disposed_watcher_it_must_succeed()
+        {
+            // Arrange
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher();
+            watcher.Dispose();
+
+            // Act
+            watcher.IncludeSubdirectories = true;
+
+            // Assert
+            watcher.IncludeSubdirectories.Should().BeTrue();
+        }
     }
 }
 #endif

@@ -589,6 +589,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
+        private void When_setting_path_on_disposed_watcher_it_must_succeed()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(directoryToWatch)
+                .Build();
+
+            FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher();
+            watcher.Dispose();
+
+            // Act
+            watcher.Path = directoryToWatch;
+
+            // Assert
+            watcher.Path.Should().Be(directoryToWatch);
+        }
+
+        [Fact]
         private void When_creating_local_file_with_trailing_whitespace_it_must_raise_event()
         {
             // Arrange
