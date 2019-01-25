@@ -14,7 +14,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     // - NotifyFilter
     //   - Review operations for usage of hidden files
     // - InternalBufferSize
-    //   - Allow when changed in disposed state
     //   - Test for buffer overflow: Raises Error event; "If the buffer overflows, the entire contents of the buffer is discarded"
     //
     // Method specs:

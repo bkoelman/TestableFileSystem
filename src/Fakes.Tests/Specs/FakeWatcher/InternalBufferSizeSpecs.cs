@@ -76,6 +76,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 }
             }
         }
+
+        [Fact]
+        private void When_setting_InternalBufferSize_on_disposed_watcher_it_must_succeed()
+        {
+            // Arrange
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher();
+            watcher.Dispose();
+
+            // Act
+            watcher.InternalBufferSize = 1024;
+
+            // Assert
+            watcher.InternalBufferSize.Should().Be(1024);
+        }
     }
 }
 #endif
