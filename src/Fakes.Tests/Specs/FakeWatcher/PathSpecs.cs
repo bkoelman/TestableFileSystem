@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
@@ -492,7 +493,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = path;
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage(@"The directory name \\server\share\MissingFolder is invalid.");
+                action.Should().Throw<ArgumentException>()
+                    .WithMessage(@"The directory name \\server\share\MissingFolder is invalid.");
             }
         }
 
@@ -584,6 +586,74 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     args.ChangeType.Should().Be(WatcherChangeTypes.Changed);
                     args.FullPath.Should().Be(@"\\?\c:\some\file.txt");
                     args.Name.Should().Be("file.txt");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_changing_path_on_running_watcher_it_must_discard_old_notifications_and_restart()
+        {
+            // Arrange
+            const string directoryToWatch1 = @"c:\some";
+            const string directoryToWatch2 = @"c:\some\deeper";
+
+            string pathToFileToUpdate1 = Path.Combine(directoryToWatch2, "file1.txt");
+            string pathToFileToUpdate2 = Path.Combine(directoryToWatch2, "file2.txt");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingEmptyFile(pathToFileToUpdate2)
+                .Build();
+
+            var lockObject = new object();
+            bool isFirstEventInvocation = true;
+            FileSystemEventArgs argsAfterRestart = null;
+
+            var resumeEventHandlerEvent = new ManualResetEvent(false);
+            var testCompletionEvent = new ManualResetEvent(false);
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch1))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+                watcher.Changed += (sender, args) =>
+                {
+                    lock (lockObject)
+                    {
+                        if (isFirstEventInvocation)
+                        {
+                            // Wait for all change notifications on file1.txt and file2.txt to queue up.
+                            resumeEventHandlerEvent.WaitOne(Timeout.Infinite);
+                            isFirstEventInvocation = false;
+                        }
+                        else
+                        {
+                            // After event handler for first change on file1 has completed, no additional
+                            // changes on file1.txt should be raised because they have become outdated.
+                            argsAfterRestart = args;
+                            testCompletionEvent.Set();
+                        }
+                    }
+                };
+                watcher.EnableRaisingEvents = true;
+
+                fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
+                fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.ReadOnly);
+                fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.System);
+                Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
+
+                // Act
+                watcher.Path = directoryToWatch2;
+
+                fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
+
+                resumeEventHandlerEvent.Set();
+                testCompletionEvent.WaitOne(Timeout.Infinite);
+
+                lock (lockObject)
+                {
+                    // Assert
+                    argsAfterRestart.Name.Should().Be("file2.txt");
                 }
             }
         }

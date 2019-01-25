@@ -1,6 +1,7 @@
 ﻿#if !NETCOREAPP1_1
 using System;
 using System.IO;
+using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
@@ -608,6 +609,46 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
                     text.Should().BeEmpty();
+                }
+            }
+        }
+
+        [Fact]
+        private void When_changing_filter_on_running_watcher_it_must_not_restart()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdate1 = Path.Combine(directoryToWatch, "file1.txt");
+            string pathToFileToUpdate2 = Path.Combine(directoryToWatch, "file2.txt");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate1)
+                .IncludingEmptyFile(pathToFileToUpdate2)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
+                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
+
+                    // Act
+                    watcher.Filter = "*.txt";
+
+                    fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
+
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(@"
+                        * file1.txt
+                        * file2.txt
+                        ".TrimLines());
                 }
             }
         }

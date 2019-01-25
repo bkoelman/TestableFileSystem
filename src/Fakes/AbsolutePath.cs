@@ -241,7 +241,22 @@ namespace TestableFileSystem.Fakes
             return path.Components.Count < Components.Count;
         }
 
-        public bool IsEquivalentTo([CanBeNull] AbsolutePath path)
+        public static bool AreEquivalent([CanBeNull] AbsolutePath path1, [CanBeNull] AbsolutePath path2)
+        {
+            if (ReferenceEquals(path1, path2))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(path1, null))
+            {
+                return false;
+            }
+
+            return path1.IsEquivalentTo(path2);
+        }
+
+        private bool IsEquivalentTo([CanBeNull] AbsolutePath path)
         {
             if (path == null || path.Components.Count != Components.Count)
             {

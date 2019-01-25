@@ -10,9 +10,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class EnableRaisingEventsSpecs : WatcherSpecs
     {
-        // Note: Thread sleeps ensure that the watcher event handler is raised before state change occurs.
-        private const int ThreadSleepTimeMilliseconds = 250;
-
         [Fact]
         private void When_starting_watcher_without_setting_path_it_must_fail()
         {
@@ -107,7 +104,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
-                    Thread.Sleep(ThreadSleepTimeMilliseconds);
+                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
                     // Act
                     watcher.EnableRaisingEvents = false;
@@ -148,23 +145,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
                     fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
-                    Thread.Sleep(ThreadSleepTimeMilliseconds);
+                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
                     // Act
                     watcher.EnableRaisingEvents = false;
 
                     fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
-                    Thread.Sleep(ThreadSleepTimeMilliseconds);
+                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
                     watcher.EnableRaisingEvents = true;
 
                     fileSystem.File.SetAttributes(pathToFileToUpdate3, FileAttributes.Hidden);
-                    Thread.Sleep(ThreadSleepTimeMilliseconds);
+                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
                     watcher.EnableRaisingEvents = false;
 
                     fileSystem.File.SetAttributes(pathToFileToUpdate4, FileAttributes.Hidden);
-                    Thread.Sleep(ThreadSleepTimeMilliseconds);
+                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
                     watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
 
@@ -179,7 +176,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_restarting_watcher_it_must_discard_old_events()
+        private void When_restarting_watcher_it_must_discard_old_notifications()
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -214,8 +211,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         }
                         else
                         {
-                            // After event handler of first change on file1.txt has completed, additional
-                            // changes on file1.txt should no longer arrive here.
+                            // After event handler for first change on file1 has completed, no additional
+                            // changes on file1.txt should be raised because they have become outdated.
                             argsAfterRestart = args;
                             testCompletionEvent.Set();
                         }
@@ -226,7 +223,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
                 fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.ReadOnly);
                 fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.System);
-                Thread.Sleep(ThreadSleepTimeMilliseconds);
+                Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
                 // Act
                 watcher.EnableRaisingEvents = false;
@@ -286,7 +283,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             watcher.EnableRaisingEvents = true;
 
             fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.ReadOnly);
-            Thread.Sleep(ThreadSleepTimeMilliseconds);
+            Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
             // Act
             Action action = () =>

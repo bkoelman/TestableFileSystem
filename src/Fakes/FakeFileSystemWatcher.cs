@@ -70,7 +70,9 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private PathFilter pathFilter;
 
-        // TODO: What happens when changing properties on running instance?
+        private NotifyFilters notifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite;
+        private bool includeSubdirectories;
+        private int internalBufferSize = 8192;
 
         public string Path
         {
@@ -85,9 +87,11 @@ namespace TestableFileSystem.Fakes
             {
                 lock (lockObject)
                 {
+                    AbsolutePath newTargetPath;
+
                     if (string.IsNullOrEmpty(value))
                     {
-                        targetPath = null;
+                        newTargetPath = null;
                     }
                     else
                     {
@@ -96,7 +100,13 @@ namespace TestableFileSystem.Fakes
                             throw ErrorFactory.System.DirectoryNameIsInvalid(value);
                         }
 
-                        targetPath = owner.ToAbsolutePathInLock(value);
+                        newTargetPath = owner.ToAbsolutePathInLock(value);
+                    }
+
+                    if (!AbsolutePath.AreEquivalent(targetPath, newTargetPath))
+                    {
+                        targetPath = newTargetPath;
+                        Restart();
                     }
                 }
             }
@@ -120,10 +130,49 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public NotifyFilters NotifyFilter { get; set; } =
-            NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite;
+        public NotifyFilters NotifyFilter
+        {
+            get
+            {
+                lock (lockObject)
+                {
+                    return notifyFilter;
+                }
+            }
+            set
+            {
+                lock (lockObject)
+                {
+                    if (notifyFilter != value)
+                    {
+                        notifyFilter = value;
+                        Restart();
+                    }
+                }
+            }
+        }
 
-        public bool IncludeSubdirectories { get; set; }
+        public bool IncludeSubdirectories
+        {
+            get
+            {
+                lock (lockObject)
+                {
+                    return includeSubdirectories;
+                }
+            }
+            set
+            {
+                lock (lockObject)
+                {
+                    if (includeSubdirectories != value)
+                    {
+                        includeSubdirectories = value;
+                        Restart();
+                    }
+                }
+            }
+        }
 
         public bool EnableRaisingEvents
         {
@@ -140,44 +189,37 @@ namespace TestableFileSystem.Fakes
                 {
                     if (value)
                     {
-                        if (state == WatcherState.Disposed)
-                        {
-                            throw new ObjectDisposedException("FileSystemWatcher");
-                        }
-
-                        if (state == WatcherState.Suspended || state == WatcherState.Unstarted)
-                        {
-                            if (!owner.Directory.Exists(Path))
-                            {
-                                throw ErrorFactory.System.ErrorReadingTheDirectory(Path);
-                            }
-
-                            if (state == WatcherState.Unstarted)
-                            {
-                                consumerThread.Start();
-                            }
-
-                            // TODO: Should we put some kind of lock on the directory being watched?
-
-                            changeTracker.FileSystemChanged += HandleFileSystemChange;
-
-                            version++;
-                            state = WatcherState.Active;
-                        }
+                        Start();
                     }
                     else
                     {
-                        if (state == WatcherState.Active)
-                        {
-                            changeTracker.FileSystemChanged -= HandleFileSystemChange;
-                            state = WatcherState.Suspended;
-                        }
+                        Stop();
                     }
                 }
             }
         }
 
-        public int InternalBufferSize { get; set; } = 8192;
+        public int InternalBufferSize
+        {
+            get
+            {
+                lock (lockObject)
+                {
+                    return internalBufferSize;
+                }
+            }
+            set
+            {
+                lock (lockObject)
+                {
+                    if (internalBufferSize != value)
+                    {
+                        internalBufferSize = value;
+                        Restart();
+                    }
+                }
+            }
+        }
 
         public event FileSystemEventHandler Deleted;
         public event FileSystemEventHandler Created;
@@ -201,6 +243,55 @@ namespace TestableFileSystem.Fakes
             {
                 IsBackground = true
             };
+        }
+
+        private void Start()
+        {
+            if (state == WatcherState.Disposed)
+            {
+                throw new ObjectDisposedException("FileSystemWatcher");
+            }
+
+            if (state == WatcherState.Suspended || state == WatcherState.Unstarted)
+            {
+                if (!owner.Directory.Exists(Path))
+                {
+                    throw ErrorFactory.System.ErrorReadingTheDirectory(Path);
+                }
+
+                if (state == WatcherState.Unstarted)
+                {
+                    consumerThread.Start();
+                }
+
+                // TODO: Should we put some kind of lock on the directory being watched?
+
+                changeTracker.FileSystemChanged += HandleFileSystemChange;
+
+                version++;
+                state = WatcherState.Active;
+            }
+        }
+
+        private bool Stop()
+        {
+            if (state == WatcherState.Active)
+            {
+                changeTracker.FileSystemChanged -= HandleFileSystemChange;
+                state = WatcherState.Suspended;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private void Restart()
+        {
+            if (Stop())
+            {
+                Start();
+            }
         }
 
         private void HandleFileSystemChange([CanBeNull] object sender, [NotNull] FakeSystemChangeEventArgs args)
@@ -253,14 +344,14 @@ namespace TestableFileSystem.Fakes
 
         private bool MatchesNotifyFilter(NotifyFilters filters)
         {
-            return (NotifyFilter & filters) != 0;
+            return (notifyFilter & filters) != 0;
         }
 
         private bool MatchesIncludeSubdirectories([NotNull] AbsolutePath path, [NotNull] AbsolutePath watchDirectory)
         {
-            return IncludeSubdirectories
+            return includeSubdirectories
                 ? path.IsDescendantOf(watchDirectory)
-                : watchDirectory.IsEquivalentTo(path.TryGetParentPath());
+                : AbsolutePath.AreEquivalent(watchDirectory, path.TryGetParentPath());
         }
 
         private bool MatchesPattern([NotNull] AbsolutePath path)

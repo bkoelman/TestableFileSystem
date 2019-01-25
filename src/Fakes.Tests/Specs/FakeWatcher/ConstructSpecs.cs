@@ -22,8 +22,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     //   - Throw when called in disposed state
 
     // Miscellaneous specs:
-    // - Automatic restart on property change if we were already running
-    // - When restarting with different settings, make sure old events from queue are discarded
     // - Multiple watchers attached to the same file system
 
     public sealed class ConstructSpecs
