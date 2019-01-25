@@ -31,7 +31,7 @@ namespace TestableFileSystem.Fakes
         // 4. [consumer] finishes event handler and flushes outdated queue entries
         // 5. [consumer] detects empty queue and unsets HasBufferOverflow
         // 6. [consumer] starts blocking for new work in queue
-        // 7. [main] enqueues new work in queue because HasBufferOverflow is unset
+        // 7. [main] enqueues new work because HasBufferOverflow is unset
 
         // Flow control scenario on disposal
         // 1. [main] requests Dispose: set state to IsDisposed, unsubscribe from FS, signal CancellationToken
