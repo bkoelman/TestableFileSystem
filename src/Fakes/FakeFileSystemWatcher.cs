@@ -387,18 +387,21 @@ namespace TestableFileSystem.Fakes
                     {
                         if (doRaiseBufferOverflowEvent)
                         {
-                            // TODO: What happens when event handler throws?
                             RaiseEventForBufferOverflow();
                         }
 
                         if (doRaiseChangeEvent)
                         {
-                            // TODO: What happens when event handler throws?
                             RaiseEventForChange(change);
                         }
                     }
                     finally
                     {
+                        // When an event handler throws, the process terminates (because of unhandled exception on background thread) by default.
+                        // This can be overruled with <legacyUnhandledExceptionPolicy enabled="1" /> in app.config, in which case we'll be broken.
+                        // Because after the first uncaught exception, this loop terminates and we no longer raise subsequent events.
+                        // Such scenario is so rare though, that we ignore the problem for now.
+
                         lock (lockObject)
                         {
                             if (!producerConsumerQueue.Any())
