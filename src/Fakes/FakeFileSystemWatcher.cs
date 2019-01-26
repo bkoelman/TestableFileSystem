@@ -38,6 +38,11 @@ namespace TestableFileSystem.Fakes
         // 2. [consumer] finishes event handler, then catches OperationCanceledException and terminates
         // 3. [main] joins consumer thread and disposes queue
 
+        private static readonly WaitForChangedResult WaitForChangeTimedOut = new WaitForChangedResult
+        {
+            TimedOut = true
+        };
+
         [NotNull]
         private readonly FakeFileSystem owner;
 
@@ -58,6 +63,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly object lockObject = new object();
 
+        // Fields below must only be accessed within lock.
+
         private WatcherState state;
         private int version;
         private bool hasBufferOverflow;
@@ -73,6 +80,12 @@ namespace TestableFileSystem.Fakes
         private NotifyFilters notifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite;
         private bool includeSubdirectories;
         private int internalBufferSize = 8192;
+
+        [NotNull]
+        private readonly object waitForChangeLockObject = new object();
+
+        [CanBeNull]
+        private WaitForChangedResult? firstChangeResult;
 
         public string Path
         {
@@ -485,9 +498,146 @@ namespace TestableFileSystem.Fakes
 
         public WaitForChangedResult WaitForChanged(WatcherChangeTypes changeType, int timeout = Timeout.Infinite)
         {
-            // TODO: Temporarily subscribe to our own events, then wait and see what happens...
+            try
+            {
+                lock (waitForChangeLockObject)
+                {
+                    bool wasRunning = EnsureStarted();
 
-            throw new NotImplementedException();
+                    firstChangeResult = null;
+                    AttachHandlersForChangeTypes(changeType);
+                    WaitForFirstChangeOrTimeout(timeout);
+
+                    EnsureStopped(wasRunning);
+
+                    return firstChangeResult ?? WaitForChangeTimedOut;
+                }
+            }
+            finally
+            {
+                DetachHandlersForChangeTypes(changeType);
+            }
+        }
+
+        private bool EnsureStarted()
+        {
+            lock (lockObject)
+            {
+                bool wasRunning = state == WatcherState.Active;
+                if (!wasRunning)
+                {
+                    Start();
+                }
+
+                return wasRunning;
+            }
+        }
+
+        private void EnsureStopped(bool wasRunning)
+        {
+            if (!wasRunning)
+            {
+                lock (lockObject)
+                {
+                    Stop();
+                }
+            }
+        }
+
+        private void WaitForFirstChangeOrTimeout(int timeout)
+        {
+            if (timeout == Timeout.Infinite)
+            {
+                while (firstChangeResult == null)
+                {
+                    Monitor.Wait(waitForChangeLockObject);
+                }
+            }
+            else
+            {
+                Monitor.Wait(waitForChangeLockObject, timeout);
+            }
+        }
+
+        private void AttachHandlersForChangeTypes(WatcherChangeTypes changeType)
+        {
+            if (changeType.HasFlag(WatcherChangeTypes.Created))
+            {
+                Created += WaitForChangeHandler;
+            }
+
+            if (changeType.HasFlag(WatcherChangeTypes.Deleted))
+            {
+                Deleted += WaitForChangeHandler;
+            }
+
+            if (changeType.HasFlag(WatcherChangeTypes.Changed))
+            {
+                Changed += WaitForChangeHandler;
+            }
+
+            if (changeType.HasFlag(WatcherChangeTypes.Renamed))
+            {
+                Renamed += WaitForChangeRenameHandler;
+            }
+        }
+
+        private void DetachHandlersForChangeTypes(WatcherChangeTypes changeType)
+        {
+            if (changeType.HasFlag(WatcherChangeTypes.Created))
+            {
+                Created -= WaitForChangeHandler;
+            }
+
+            if (changeType.HasFlag(WatcherChangeTypes.Deleted))
+            {
+                Deleted -= WaitForChangeHandler;
+            }
+
+            if (changeType.HasFlag(WatcherChangeTypes.Changed))
+            {
+                Changed -= WaitForChangeHandler;
+            }
+
+            if (changeType.HasFlag(WatcherChangeTypes.Renamed))
+            {
+                Renamed -= WaitForChangeRenameHandler;
+            }
+        }
+
+        private void WaitForChangeHandler([NotNull] object sender, [NotNull] FileSystemEventArgs args)
+        {
+            lock (waitForChangeLockObject)
+            {
+                if (firstChangeResult == null)
+                {
+                    firstChangeResult = new WaitForChangedResult
+                    {
+                        ChangeType = args.ChangeType,
+                        Name = args.Name
+                    };
+
+                    Monitor.Pulse(waitForChangeLockObject);
+                }
+            }
+        }
+
+        private void WaitForChangeRenameHandler([NotNull] object sender, [NotNull] RenamedEventArgs args)
+        {
+            lock (waitForChangeLockObject)
+            {
+                if (firstChangeResult == null)
+                {
+                    firstChangeResult = new WaitForChangedResult
+                    {
+                        ChangeType = args.ChangeType,
+                        Name = args.Name,
+                        OldName = args.OldName
+                    };
+
+                    Monitor.Pulse(waitForChangeLockObject);
+                }
+            }
         }
 
         public void Dispose()
