@@ -11,10 +11,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     // TODO: Add specs for various features...
     //
     // Property specs:
-    // - NotifyFilter
-    //   - Review operations for usage of hidden files
     // - InternalBufferSize
     //   - Test for buffer overflow: Raises Error event; "If the buffer overflows, the entire contents of the buffer is discarded"
+    //   - "If there are many changes in a short time, the buffer can overflow. This causes the component to lose track of changes
+    //       in the directory, and it will only provide blanket notification."
     //
     // Method specs:
     // - WaitForChanged (blocking for incoming changes, with timeout or infinite)

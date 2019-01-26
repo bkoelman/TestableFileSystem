@@ -303,6 +303,10 @@ namespace TestableFileSystem.Fakes
                 if (state == WatcherState.Active && !hasBufferOverflow)
                 {
                     // TODO: How does InternalBufferSize relate to queue size?
+                    // https://docs.microsoft.com/en-us/windows/desktop/api/winnt/ns-winnt-_file_notify_information
+                    // DWORD: A 32-bit unsigned integer. The range is 0 through 4294967295 decimal.
+
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher.internalbuffersize?view=netframework-4.7.2
 
                     if (producerConsumerQueue.Count >= InternalBufferSize)
                     {

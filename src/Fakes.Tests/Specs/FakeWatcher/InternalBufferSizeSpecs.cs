@@ -11,6 +11,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     {
         // TODO: Add basic specs
 
+        // MSDN: You can set the buffer to 4 KB or larger, but it must not exceed 64 KB. If you try to set the InternalBufferSize property to less than 4096 bytes, 
+        // your value is discarded and the InternalBufferSize property is set to 4096 bytes. For best performance, use a multiple of 4 KB on Intel-based computers.
+
         [Fact]
         private void When_changing_InternalBufferSize_on_running_watcher_it_must_discard_old_notifications_and_restart()
         {
@@ -88,10 +91,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             watcher.Dispose();
 
             // Act
-            watcher.InternalBufferSize = 1024;
+            watcher.InternalBufferSize = 4099;
 
             // Assert
-            watcher.InternalBufferSize.Should().Be(1024);
+            watcher.InternalBufferSize.Should().Be(4099);
         }
     }
 }
