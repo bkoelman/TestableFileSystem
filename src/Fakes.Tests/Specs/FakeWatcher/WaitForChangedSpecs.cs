@@ -381,6 +381,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 result.OldName.Should().BeNull();
             }
         }
+
+        [Fact]
+        private void When_waiting_for_disposed_watcher_it_must_fail()
+        {
+            // Arrange
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher();
+            watcher.Dispose();
+
+            // Act
+            Action action = () => watcher.WaitForChanged(WatcherChangeTypes.All);
+
+            // Assert
+            action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a disposed object.*")
+                .And.ObjectName.Should().Be("FileSystemWatcher");
+        }
     }
 }
 #endif

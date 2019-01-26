@@ -16,10 +16,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     //   - "If there are many changes in a short time, the buffer can overflow. This causes the component to lose track of changes
     //       in the directory, and it will only provide blanket notification."
     //
-    // Method specs:
-    // - WaitForChanged (blocking for incoming changes, with timeout or infinite)
-    //   - Throw when called in disposed state
-
     // Miscellaneous specs:
     // - Multiple watchers attached to the same file system
 
