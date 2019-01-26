@@ -141,6 +141,14 @@ namespace TestableFileSystem.Fakes
                 return new FileNotFoundException($"Error reading the {path} directory.");
             }
 
+#if !NETSTANDARD1_3
+            [NotNull]
+            public static Exception TooManyChangesAtOnce([NotNull] string path)
+            {
+                return new InternalBufferOverflowException($"Too many changes at once in directory:{path}.");
+            }
+#endif
+
             [NotNull]
             public static Exception UncPathIsInvalid()
             {

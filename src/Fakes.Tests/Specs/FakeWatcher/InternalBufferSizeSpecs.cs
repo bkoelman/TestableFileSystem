@@ -1,7 +1,9 @@
 ﻿#if !NETCOREAPP1_1
+using System;
 using System.IO;
 using System.Threading;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
 
@@ -9,14 +11,43 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class InternalBufferSizeSpecs : WatcherSpecs
     {
-        // TODO: Add basic specs for buffer size.
+        // TODO: Test for "If the buffer overflows, the entire contents of the buffer is discarded"
 
-        //   - Test for buffer overflow: Raises Error event; "If the buffer overflows, the entire contents of the buffer is discarded"
-        //   - "If there are many changes in a short time, the buffer can overflow. This causes the component to lose track of changes
-        //       in the directory, and it will only provide blanket notification."
+        [Fact]
+        private void When_setting_InternalBufferSize_to_low_value_it_must_correct_value()
+        {
+            // Arrange
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
 
-        // MSDN: You can set the buffer to 4 KB or larger, but it must not exceed 64 KB. If you try to set the InternalBufferSize property to less than 4096 bytes, 
-        // your value is discarded and the InternalBufferSize property is set to 4096 bytes. For best performance, use a multiple of 4 KB on Intel-based computers.
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            {
+                // Act
+                watcher.InternalBufferSize = 1;
+
+                // Assert
+                watcher.InternalBufferSize.Should().Be(4096);
+            }
+        }
+
+        [Fact]
+        private void When_setting_InternalBufferSize_to_high_value_it_must_store_value()
+        {
+            // Arrange
+            const int oneMegabyte = 1024 * 1024;
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            {
+                // Act
+                watcher.InternalBufferSize = oneMegabyte;
+
+                // Assert
+                watcher.InternalBufferSize.Should().Be(oneMegabyte);
+            }
+        }
 
         [Fact]
         private void When_changing_InternalBufferSize_on_running_watcher_it_must_discard_old_notifications_and_restart()
@@ -99,6 +130,64 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
             // Assert
             watcher.InternalBufferSize.Should().Be(4099);
+        }
+
+        [Fact]
+        private void When_buffer_overflows_it_must_raise_error_event()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdate = Path.Combine(directoryToWatch, "file.txt");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdate)
+                .Build();
+
+            DateTime startTime = DateTime.UtcNow;
+
+            var lockObject = new object();
+            ErrorEventArgs errorArgs = null;
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.InternalBufferSize = 1;
+
+                watcher.Changed += (sender, args) => { Thread.Sleep(100); };
+                watcher.Error += (sender, args) =>
+                {
+                    lock (lockObject)
+                    {
+                        errorArgs = args;
+                    }
+                };
+                watcher.EnableRaisingEvents = true;
+
+                // Act
+                while (startTime + TimeSpan.FromSeconds(3) > DateTime.UtcNow)
+                {
+                    fileSystem.File.SetCreationTimeUtc(pathToFileToUpdate, 1.January(2001));
+
+                    lock (lockObject)
+                    {
+                        if (errorArgs != null)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                lock (lockObject)
+                {
+                    // Assert
+                    errorArgs.Should().NotBeNull();
+                    Exception exception = errorArgs.GetException();
+
+                    exception.Should().BeOfType<InternalBufferOverflowException>()
+                        .Subject.Message.Should().Be(@"Too many changes at once in directory:c:\some.");
+                }
+            }
         }
     }
 }

@@ -39,6 +39,8 @@ namespace TestableFileSystem.Fakes
         // 2. [consumer] finishes event handler, then catches OperationCanceledException and terminates
         // 3. [main] joins consumer thread and disposes queue
 
+        private const int MinBufferSize = 4096;
+
         private static readonly WaitForChangedResult WaitForChangeTimedOut = new WaitForChangedResult
         {
             TimedOut = true
@@ -226,9 +228,11 @@ namespace TestableFileSystem.Fakes
             {
                 lock (lockObject)
                 {
-                    if (internalBufferSize != value)
+                    int valueInRange = value < MinBufferSize ? MinBufferSize : value;
+
+                    if (internalBufferSize != valueInRange)
                     {
-                        internalBufferSize = value;
+                        internalBufferSize = valueInRange;
                         Restart();
                     }
                 }
@@ -333,7 +337,8 @@ namespace TestableFileSystem.Fakes
 
                             // https://docs.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher.internalbuffersize?view=netframework-4.7.2
 
-                            if (producerConsumerQueue.Count >= InternalBufferSize)
+                            // For the moment, assume each entry represents 100 bytes.
+                            if (producerConsumerQueue.Count >= InternalBufferSize / 100)
                             {
                                 hasBufferOverflow = true;
                                 version++;
@@ -475,7 +480,8 @@ namespace TestableFileSystem.Fakes
 
         private void RaiseEventForBufferOverflow()
         {
-            Error?.Invoke(this, new ErrorEventArgs(new Exception("TODO: Buffer overflow")));
+            Exception error = ErrorFactory.System.TooManyChangesAtOnce(Path);
+            Error?.Invoke(this, new ErrorEventArgs(error));
         }
 
         private void RaiseEventForChange([NotNull] FakeFileSystemVersionedChange change)
