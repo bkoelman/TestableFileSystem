@@ -9,7 +9,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class InternalBufferSizeSpecs : WatcherSpecs
     {
-        // TODO: Add basic specs
+        // TODO: Add basic specs for buffer size.
+
+        //   - Test for buffer overflow: Raises Error event; "If the buffer overflows, the entire contents of the buffer is discarded"
+        //   - "If there are many changes in a short time, the buffer can overflow. This causes the component to lose track of changes
+        //       in the directory, and it will only provide blanket notification."
 
         // MSDN: You can set the buffer to 4 KB or larger, but it must not exceed 64 KB. If you try to set the InternalBufferSize property to less than 4096 bytes, 
         // your value is discarded and the InternalBufferSize property is set to 4096 bytes. For best performance, use a multiple of 4 KB on Intel-based computers.

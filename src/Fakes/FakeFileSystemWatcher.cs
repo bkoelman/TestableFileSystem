@@ -1,6 +1,7 @@
 ﻿#if !NETSTANDARD1_3
 using System;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -72,7 +73,7 @@ namespace TestableFileSystem.Fakes
         private bool consumerHasTerminated;
 
         [CanBeNull]
-        private AbsolutePath targetPath;
+        private AbsolutePath directoryToWatch;
 
         [NotNull]
         private PathFilter pathFilter;
@@ -93,18 +94,18 @@ namespace TestableFileSystem.Fakes
             {
                 lock (lockObject)
                 {
-                    return targetPath?.GetText() ?? string.Empty;
+                    return directoryToWatch?.GetText() ?? string.Empty;
                 }
             }
             set
             {
                 lock (lockObject)
                 {
-                    AbsolutePath newTargetPath;
+                    AbsolutePath newDirectoryToWatch;
 
                     if (string.IsNullOrEmpty(value))
                     {
-                        newTargetPath = null;
+                        newDirectoryToWatch = null;
                     }
                     else
                     {
@@ -113,12 +114,12 @@ namespace TestableFileSystem.Fakes
                             throw ErrorFactory.System.DirectoryNameIsInvalid(value);
                         }
 
-                        newTargetPath = owner.ToAbsolutePathInLock(value);
+                        newDirectoryToWatch = owner.ToAbsolutePathInLock(value);
                     }
 
-                    if (!AbsolutePath.AreEquivalent(targetPath, newTargetPath))
+                    if (!AbsolutePath.AreEquivalent(directoryToWatch, newDirectoryToWatch))
                     {
-                        targetPath = newTargetPath;
+                        directoryToWatch = newDirectoryToWatch;
                         Restart();
                     }
                 }
@@ -249,7 +250,7 @@ namespace TestableFileSystem.Fakes
 
             this.owner = owner;
             this.changeTracker = changeTracker;
-            targetPath = path;
+            directoryToWatch = path;
             pathFilter = new PathFilter(filter, true);
 
             consumerThread = new Thread(() => ConsumerLoop(consumerCancellationTokenSource.Token))
@@ -276,8 +277,6 @@ namespace TestableFileSystem.Fakes
                 {
                     consumerThread.Start();
                 }
-
-                // TODO: Should we put some kind of lock on the directory being watched?
 
                 changeTracker.FileSystemChanged += HandleFileSystemChange;
 
@@ -313,45 +312,66 @@ namespace TestableFileSystem.Fakes
 
             lock (lockObject)
             {
-                if (state == WatcherState.Active && !hasBufferOverflow)
+                if (state == WatcherState.Active)
                 {
-                    // TODO: How does InternalBufferSize relate to queue size?
-                    // https://docs.microsoft.com/en-us/windows/desktop/api/winnt/ns-winnt-_file_notify_information
-                    // DWORD: A 32-bit unsigned integer. The range is 0 through 4294967295 decimal.
+                    AbsolutePath pathInArgs = args.PathFormatter.GetPath();
 
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher.internalbuffersize?view=netframework-4.7.2
-
-                    if (producerConsumerQueue.Count >= InternalBufferSize)
+                    AbsolutePath directoryToWatchSnapshot = directoryToWatch;
+                    if (directoryToWatchSnapshot != null)
                     {
-                        hasBufferOverflow = true;
-                        version++;
-                    }
-                    else
-                    {
-                        if (targetPath != null && MatchesFilters(args, targetPath))
+                        if (IsDeleteOfWatcherDirectory(args, pathInArgs))
                         {
-                            producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, targetPath, version));
+                            producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, pathInArgs,
+                                directoryToWatchSnapshot, version, true));
+                        }
+
+                        if (!hasBufferOverflow)
+                        {
+                            // TODO: How does InternalBufferSize relate to queue size?
+                            // https://docs.microsoft.com/en-us/windows/desktop/api/winnt/ns-winnt-_file_notify_information
+                            // DWORD: A 32-bit unsigned integer. The range is 0 through 4294967295 decimal.
+
+                            // https://docs.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher.internalbuffersize?view=netframework-4.7.2
+
+                            if (producerConsumerQueue.Count >= InternalBufferSize)
+                            {
+                                hasBufferOverflow = true;
+                                version++;
+                            }
+                            else
+                            {
+                                if (MatchesFilters(args, pathInArgs, directoryToWatchSnapshot))
+                                {
+                                    producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, pathInArgs,
+                                        directoryToWatchSnapshot, version, false));
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
-        private bool MatchesFilters([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath watchDirectory)
+        private bool IsDeleteOfWatcherDirectory([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath pathInArgs)
+        {
+            return args.ChangeType == WatcherChangeTypes.Deleted && args.Filters.HasFlag(NotifyFilters.DirectoryName) &&
+                AbsolutePath.AreEquivalent(pathInArgs, directoryToWatch);
+        }
+
+        private bool MatchesFilters([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath pathInArgs,
+            [NotNull] AbsolutePath watchDirectory)
         {
             if (!MatchesNotifyFilter(args.Filters))
             {
                 return false;
             }
 
-            AbsolutePath path = args.PathFormatter.GetPath();
-
-            if (!MatchesIncludeSubdirectories(path, watchDirectory))
+            if (!MatchesIncludeSubdirectories(pathInArgs, watchDirectory))
             {
                 return false;
             }
 
-            if (!MatchesPattern(path))
+            if (!MatchesPattern(pathInArgs))
             {
                 return false;
             }
@@ -402,14 +422,22 @@ namespace TestableFileSystem.Fakes
 
                     try
                     {
-                        if (doRaiseBufferOverflowEvent)
+                        if (change.IsDeleteOfWatcherDirectory)
                         {
-                            RaiseEventForBufferOverflow();
+                            RaiseEventForWatcherDirectoryDeleted();
+                            EnableRaisingEvents = false;
                         }
-
-                        if (doRaiseChangeEvent)
+                        else
                         {
-                            RaiseEventForChange(change);
+                            if (doRaiseBufferOverflowEvent)
+                            {
+                                RaiseEventForBufferOverflow();
+                            }
+
+                            if (doRaiseChangeEvent)
+                            {
+                                RaiseEventForChange(change);
+                            }
                         }
                     }
                     finally
@@ -438,6 +466,11 @@ namespace TestableFileSystem.Fakes
             catch (OperationCanceledException)
             {
             }
+        }
+
+        private void RaiseEventForWatcherDirectoryDeleted()
+        {
+            Error?.Invoke(this, new ErrorEventArgs(new Win32Exception(5)));
         }
 
         private void RaiseEventForBufferOverflow()
@@ -711,15 +744,18 @@ namespace TestableFileSystem.Fakes
 
             public int Version { get; }
 
-            public FakeFileSystemVersionedChange([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath basePath,
-                int version)
+            public bool IsDeleteOfWatcherDirectory { get; }
+
+            public FakeFileSystemVersionedChange([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath pathInArgs,
+                [NotNull] AbsolutePath basePath, int version, bool isDeleteOfWatcherDirectory)
             {
                 Guard.NotNull(args, nameof(args));
 
                 ChangeType = args.ChangeType;
                 Version = version;
+                IsDeleteOfWatcherDirectory = isDeleteOfWatcherDirectory;
                 RootDirectory = basePath;
-                RelativePath = args.PathFormatter.GetPath().MakeRelativeTo(basePath);
+                RelativePath = pathInArgs.MakeRelativeTo(basePath);
                 PreviousRelativePathInRename = args.PreviousPathInRenameFormatter?.GetPath().MakeRelativeTo(basePath);
             }
         }
