@@ -394,15 +394,18 @@ namespace TestableFileSystem.Fakes
 
                     lock (lockObject)
                     {
-                        if (hasBufferOverflow && !consumerIsFlushingBuffer)
+                        if (change != FakeFileSystemVersionedChange.Empty)
                         {
-                            doRaiseBufferOverflowEvent = true;
-                            consumerIsFlushingBuffer = true;
-                        }
+                            if (hasBufferOverflow && !consumerIsFlushingBuffer)
+                            {
+                                doRaiseBufferOverflowEvent = true;
+                                consumerIsFlushingBuffer = true;
+                            }
 
-                        if (change.Version == version)
-                        {
-                            doRaiseChangeEvent = true;
+                            if (change.Version == version)
+                            {
+                                doRaiseChangeEvent = true;
+                            }
                         }
                     }
 
@@ -644,6 +647,7 @@ namespace TestableFileSystem.Fakes
         {
             DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
 
+            producerConsumerQueue.Add(FakeFileSystemVersionedChange.Empty);
             producerConsumerQueue.CompleteAdding();
 
             while (DateTime.UtcNow < endTimeUtc)
@@ -716,22 +720,29 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private sealed class FakeFileSystemVersionedChange
+        private class FakeFileSystemVersionedChange
         {
-            public WatcherChangeTypes ChangeType { get; }
+            public virtual WatcherChangeTypes ChangeType { get; }
 
             [NotNull]
-            public AbsolutePath RootDirectory { get; }
+            public virtual AbsolutePath RootDirectory { get; }
 
             [NotNull]
-            public string RelativePath { get; }
+            public virtual string RelativePath { get; }
 
             [CanBeNull]
-            public string PreviousRelativePathInRename { get; }
+            public virtual string PreviousRelativePathInRename { get; }
 
-            public int Version { get; }
+            public virtual int Version { get; }
 
-            public bool IsDeleteOfWatcherDirectory { get; }
+            public virtual bool IsDeleteOfWatcherDirectory { get; }
+
+            [NotNull]
+            public static readonly FakeFileSystemVersionedChange Empty = new EmptyVersionedChange();
+
+            protected FakeFileSystemVersionedChange()
+            {
+            }
 
             public FakeFileSystemVersionedChange([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath pathInArgs,
                 [CanBeNull] AbsolutePath previousPathInRenameInArgs, [NotNull] AbsolutePath basePath, int version,
@@ -745,6 +756,16 @@ namespace TestableFileSystem.Fakes
                 RootDirectory = basePath;
                 RelativePath = pathInArgs.MakeRelativeTo(basePath);
                 PreviousRelativePathInRename = previousPathInRenameInArgs?.MakeRelativeTo(basePath);
+            }
+
+            private sealed class EmptyVersionedChange : FakeFileSystemVersionedChange
+            {
+                public override WatcherChangeTypes ChangeType => throw new NotSupportedException();
+                public override AbsolutePath RootDirectory => throw new NotSupportedException();
+                public override string RelativePath => throw new NotSupportedException();
+                public override string PreviousRelativePathInRename => throw new NotSupportedException();
+                public override int Version => throw new NotSupportedException();
+                public override bool IsDeleteOfWatcherDirectory => false;
             }
         }
 
