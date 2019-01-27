@@ -41,6 +41,11 @@ namespace TestableFileSystem.Fakes
 
         private const int MinBufferSize = 4096;
 
+        private const int AverageRelativeFileNameLengthInChars = 50;
+        private const int AverageRelativeFileNameLengthInBytes = AverageRelativeFileNameLengthInChars * 2;
+        private const int FileNotifyInformationStructSizeInBytes = 6;
+        private const int NumBytesPerChange = FileNotifyInformationStructSizeInBytes + AverageRelativeFileNameLengthInBytes;
+
         private static readonly WaitForChangedResult WaitForChangeTimedOut = new WaitForChangedResult
         {
             TimedOut = true
@@ -331,14 +336,7 @@ namespace TestableFileSystem.Fakes
 
                         if (!hasBufferOverflow)
                         {
-                            // TODO: How does InternalBufferSize relate to queue size?
-                            // https://docs.microsoft.com/en-us/windows/desktop/api/winnt/ns-winnt-_file_notify_information
-                            // DWORD: A 32-bit unsigned integer. The range is 0 through 4294967295 decimal.
-
-                            // https://docs.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher.internalbuffersize?view=netframework-4.7.2
-
-                            // For the moment, assume each entry represents 100 bytes.
-                            if (producerConsumerQueue.Count >= InternalBufferSize / 100)
+                            if (producerConsumerQueue.Count >= InternalBufferSize / NumBytesPerChange)
                             {
                                 hasBufferOverflow = true;
                                 version++;
@@ -398,6 +396,8 @@ namespace TestableFileSystem.Fakes
 
         private bool MatchesPattern([NotNull] AbsolutePath path)
         {
+            // TODO: Pattern matching for rename must match old OR new name!
+
             string fileOrDirectoryName = path.Components.Last();
             return pathFilter.IsMatch(fileOrDirectoryName);
         }

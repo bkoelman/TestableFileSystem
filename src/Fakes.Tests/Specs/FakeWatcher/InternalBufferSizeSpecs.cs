@@ -11,7 +11,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class InternalBufferSizeSpecs : WatcherSpecs
     {
-        // TODO: Test for "If the buffer overflows, the entire contents of the buffer is discarded"
+        // Unable to reproduce these documented constraints:
+        // MSDN: ReadDirectoryChangesW fails with ERROR_NOACCESS when the buffer is not aligned on a DWORD boundary.
+        // MSDN: ReadDirectoryChangesW fails with ERROR_INVALID_PARAMETER when the buffer length is greater than 64 KB and the application is
+        //       monitoring a directory over the network. This is due to a packet size limitation with the underlying file sharing protocols.
 
         [Fact]
         private void When_setting_InternalBufferSize_to_low_value_it_must_correct_value()
@@ -147,19 +150,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             DateTime startTime = DateTime.UtcNow;
 
             var lockObject = new object();
-            ErrorEventArgs errorArgs = null;
+            ErrorEventArgs firstErrorArgs = null;
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.NotifyFilter = TestNotifyFilters.All;
                 watcher.InternalBufferSize = 1;
-
                 watcher.Changed += (sender, args) => { Thread.Sleep(100); };
                 watcher.Error += (sender, args) =>
                 {
                     lock (lockObject)
                     {
-                        errorArgs = args;
+                        if (firstErrorArgs == null)
+                        {
+                            firstErrorArgs = args;
+                        }
                     }
                 };
                 watcher.EnableRaisingEvents = true;
@@ -171,7 +176,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     lock (lockObject)
                     {
-                        if (errorArgs != null)
+                        if (firstErrorArgs != null)
                         {
                             break;
                         }
@@ -181,12 +186,95 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 lock (lockObject)
                 {
                     // Assert
-                    errorArgs.Should().NotBeNull();
-                    Exception exception = errorArgs.GetException();
+                    firstErrorArgs.Should().NotBeNull();
+                    Exception exception = firstErrorArgs.GetException();
 
                     exception.Should().BeOfType<InternalBufferOverflowException>()
                         .Subject.Message.Should().Be(@"Too many changes at once in directory:c:\some.");
                 }
+            }
+        }
+
+        [Fact]
+        private void When_buffer_overflows_it_must_discard_old_notifications_and_continue()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string pathToFileToUpdateBefore = Path.Combine(directoryToWatch, "file-before.txt");
+            string pathToFileToUpdateAfter = Path.Combine(directoryToWatch, "file-after.txt");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(pathToFileToUpdateBefore)
+                .IncludingEmptyFile(pathToFileToUpdateAfter)
+                .Build();
+
+            var bufferOverflowWaitHandle = new AutoResetEvent(false);
+
+            var lockObject = new object();
+            bool isAfterBufferOverflow = false;
+            FileSystemEventArgs firstChangeArgsAfterBufferOverflow = null;
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.InternalBufferSize = 1;
+                watcher.Changed += (sender, args) =>
+                {
+                    bool keepConsumerBusy = false;
+
+                    lock (lockObject)
+                    {
+                        // ReSharper disable once AccessToModifiedClosure
+                        if (!isAfterBufferOverflow)
+                        {
+                            keepConsumerBusy = true;
+                        }
+                        else
+                        {
+                            // Capture the first args after buffer overflow, so we can assert on main thread.
+                            if (firstChangeArgsAfterBufferOverflow == null)
+                            {
+                                firstChangeArgsAfterBufferOverflow = args;
+                            }
+                        }
+                    }
+
+                    if (keepConsumerBusy)
+                    {
+                        // Block the change handler shortly, allowing the buffer to fill and overflow. Do not block
+                        // the handler indefinitely, because that would prevent the error handler from getting raised.
+                        Thread.Sleep(250);
+                    }
+                };
+                watcher.Error += (sender, args) => { bufferOverflowWaitHandle.Set(); };
+                watcher.EnableRaisingEvents = true;
+
+                // Act (cause buffer to overflow)
+                while (!bufferOverflowWaitHandle.WaitOne(1))
+                {
+                    fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 1.January(2001));
+                }
+
+                lock (lockObject)
+                {
+                    isAfterBufferOverflow = true;
+                }
+
+                // Wait for watcher to flush its queue.
+                Thread.Sleep(NotifyWaitTimeoutMilliseconds);
+
+                // Extra event after buffer overflow, that should be processed normally.
+                fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateAfter, 1.January(2001));
+
+                watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+            }
+
+            // Assert
+            lock (lockObject)
+            {
+                firstChangeArgsAfterBufferOverflow.Should().NotBeNull();
+                firstChangeArgsAfterBufferOverflow.Name.Should().Be("file-after.txt");
             }
         }
     }
