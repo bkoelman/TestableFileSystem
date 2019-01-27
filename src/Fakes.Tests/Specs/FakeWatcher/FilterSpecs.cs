@@ -239,6 +239,54 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
+        private void When_filtering_directory_with_name_pattern_in_rename_it_must_raise_events()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            string sourcePathToFile1 = Path.Combine(directoryToWatch, "SourceHit1.txt");
+            string targetPathToFile1 = Path.Combine(directoryToWatch, "TargetHit1.txt");
+            string sourcePathToFile2 = Path.Combine(directoryToWatch, "SourceHit2.txt");
+            string targetPathToFile2 = Path.Combine(directoryToWatch, "TargetMiss2.txt");
+            string sourcePathToFile3 = Path.Combine(directoryToWatch, "SourceMiss3.txt");
+            string targetPathToFile3 = Path.Combine(directoryToWatch, "TargetHit3.txt");
+            string sourcePathToFile4 = Path.Combine(directoryToWatch, "SourceMiss4.txt");
+            string targetPathToFile4 = Path.Combine(directoryToWatch, "TargetMiss4.txt");
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(sourcePathToFile1)
+                .IncludingEmptyFile(sourcePathToFile2)
+                .IncludingEmptyFile(sourcePathToFile3)
+                .IncludingEmptyFile(sourcePathToFile4)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = TestNotifyFilters.All;
+                watcher.IncludeSubdirectories = true;
+                watcher.Filter = "*Hit*.*";
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Move(sourcePathToFile1, targetPathToFile1);
+                    fileSystem.File.Move(sourcePathToFile2, targetPathToFile2);
+                    fileSystem.File.Move(sourcePathToFile3, targetPathToFile3);
+                    fileSystem.File.Move(sourcePathToFile4, targetPathToFile4);
+                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(@"
+                        > SourceHit1.txt => TargetHit1.txt
+                        > SourceHit2.txt => TargetMiss2.txt
+                        > SourceMiss3.txt => TargetHit3.txt
+                        ".TrimLines());
+                }
+            }
+        }
+
+        [Fact]
         private void When_filtering_directory_with_name_pattern_and_trailing_whitespace_it_must_not_raise_events()
         {
             // Arrange

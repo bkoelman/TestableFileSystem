@@ -324,13 +324,14 @@ namespace TestableFileSystem.Fakes
                 if (state == WatcherState.Active)
                 {
                     AbsolutePath pathInArgs = args.PathFormatter.GetPath();
+                    AbsolutePath previousPathInRenameInArgs = args.PreviousPathInRenameFormatter?.GetPath();
 
                     AbsolutePath directoryToWatchSnapshot = directoryToWatch;
                     if (directoryToWatchSnapshot != null)
                     {
                         if (IsDeleteOfWatcherDirectory(args, pathInArgs))
                         {
-                            producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, pathInArgs,
+                            producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, pathInArgs, null,
                                 directoryToWatchSnapshot, version, true));
                         }
 
@@ -343,10 +344,10 @@ namespace TestableFileSystem.Fakes
                             }
                             else
                             {
-                                if (MatchesFilters(args, pathInArgs, directoryToWatchSnapshot))
+                                if (MatchesFilters(args, pathInArgs, previousPathInRenameInArgs, directoryToWatchSnapshot))
                                 {
                                     producerConsumerQueue.Add(new FakeFileSystemVersionedChange(args, pathInArgs,
-                                        directoryToWatchSnapshot, version, false));
+                                        previousPathInRenameInArgs, directoryToWatchSnapshot, version, false));
                                 }
                             }
                         }
@@ -362,7 +363,7 @@ namespace TestableFileSystem.Fakes
         }
 
         private bool MatchesFilters([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath pathInArgs,
-            [NotNull] AbsolutePath watchDirectory)
+            [CanBeNull] AbsolutePath previousPathInRenameInArgs, [NotNull] AbsolutePath watchDirectory)
         {
             if (!MatchesNotifyFilter(args.Filters))
             {
@@ -374,7 +375,7 @@ namespace TestableFileSystem.Fakes
                 return false;
             }
 
-            if (!MatchesPattern(pathInArgs))
+            if (!MatchesPattern(pathInArgs, previousPathInRenameInArgs))
             {
                 return false;
             }
@@ -394,9 +395,16 @@ namespace TestableFileSystem.Fakes
                 : AbsolutePath.AreEquivalent(watchDirectory, path.TryGetParentPath());
         }
 
-        private bool MatchesPattern([NotNull] AbsolutePath path)
+        private bool MatchesPattern([NotNull] AbsolutePath path, [CanBeNull] AbsolutePath previousPathInRenameInArgs)
         {
-            // TODO: Pattern matching for rename must match old OR new name!
+            if (previousPathInRenameInArgs != null)
+            {
+                string previousFileOrDirectoryName = previousPathInRenameInArgs.Components.Last();
+                if (pathFilter.IsMatch(previousFileOrDirectoryName))
+                {
+                    return true;
+                }
+            }
 
             string fileOrDirectoryName = path.Components.Last();
             return pathFilter.IsMatch(fileOrDirectoryName);
@@ -753,7 +761,8 @@ namespace TestableFileSystem.Fakes
             public bool IsDeleteOfWatcherDirectory { get; }
 
             public FakeFileSystemVersionedChange([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath pathInArgs,
-                [NotNull] AbsolutePath basePath, int version, bool isDeleteOfWatcherDirectory)
+                [CanBeNull] AbsolutePath previousPathInRenameInArgs, [NotNull] AbsolutePath basePath, int version,
+                bool isDeleteOfWatcherDirectory)
             {
                 Guard.NotNull(args, nameof(args));
 
@@ -762,7 +771,7 @@ namespace TestableFileSystem.Fakes
                 IsDeleteOfWatcherDirectory = isDeleteOfWatcherDirectory;
                 RootDirectory = basePath;
                 RelativePath = pathInArgs.MakeRelativeTo(basePath);
-                PreviousRelativePathInRename = args.PreviousPathInRenameFormatter?.GetPath().MakeRelativeTo(basePath);
+                PreviousRelativePathInRename = previousPathInRenameInArgs?.MakeRelativeTo(basePath);
             }
         }
 
