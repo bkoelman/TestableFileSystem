@@ -12,33 +12,6 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileSystemWatcher : IFileSystemWatcher
     {
-        // How FSW works:
-        // - Events may be raised from different threads (likely from the ThreadPool)
-        // - Multiple events do not execute concurrently
-        // - Exceptions raised from event handlers (on background thread) crash the process
-
-        // Flow control on pause + resume:
-        // 1. [main] requests Pause: set state to IsSuspended and increment version
-        // 2. [main] discards any incoming operations because state is not Active
-        // 3. [consumer] finishes event handler and flushes outdated queue entries
-        // 4. [consumer] starts blocking for new work in queue
-        // 5. [main] requests Resume: set state to Active
-        // 6. [main] enqueues new work because state is Active
-
-        // Flow control scenario on buffer overflow
-        // 1. [main] detects that maximum queue length threshold is being exceeded
-        // 2. [main] sets HasBufferOverflow and increments version
-        // 3. [main] discards any incoming operations because HasBufferOverflow is set
-        // 4. [consumer] finishes event handler and flushes outdated queue entries
-        // 5. [consumer] detects empty queue and unsets HasBufferOverflow
-        // 6. [consumer] starts blocking for new work in queue
-        // 7. [main] enqueues new work because HasBufferOverflow is unset
-
-        // Flow control scenario on disposal
-        // 1. [main] requests Dispose: set state to IsDisposed, unsubscribe from FS, signal CancellationToken
-        // 2. [consumer] finishes event handler, then catches OperationCanceledException and terminates
-        // 3. [main] joins consumer thread and disposes queue
-
         private const int MinBufferSize = 4096;
 
         private const int AverageRelativeFileNameLengthInChars = 50;
@@ -523,26 +496,6 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public void WaitForCompleted(int timeout = Timeout.Infinite)
-        {
-            DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
-
-            producerConsumerQueue.CompleteAdding();
-
-            while (DateTime.UtcNow < endTimeUtc)
-            {
-                lock (lockObject)
-                {
-                    if (consumerHasTerminated || state == WatcherState.Unstarted || state == WatcherState.Disposed)
-                    {
-                        return;
-                    }
-                }
-
-                Thread.Sleep(0);
-            }
-        }
-
         public WaitForChangedResult WaitForChanged(WatcherChangeTypes changeType, int timeout = Timeout.Infinite)
         {
             try
@@ -684,6 +637,26 @@ namespace TestableFileSystem.Fakes
 
                     Monitor.Pulse(waitForChangeLockObject);
                 }
+            }
+        }
+
+        public void WaitForCompleted(int timeout = Timeout.Infinite)
+        {
+            DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
+
+            producerConsumerQueue.CompleteAdding();
+
+            while (DateTime.UtcNow < endTimeUtc)
+            {
+                lock (lockObject)
+                {
+                    if (consumerHasTerminated || state == WatcherState.Unstarted || state == WatcherState.Disposed)
+                    {
+                        return;
+                    }
+                }
+
+                Thread.Sleep(0);
             }
         }
 
