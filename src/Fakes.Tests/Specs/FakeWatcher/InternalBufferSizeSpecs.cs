@@ -213,8 +213,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 .IncludingEmptyFile(pathToFileToUpdateAfter)
                 .Build();
 
-            var bufferOverflowWaitHandle = new AutoResetEvent(false);
-
             var lockObject = new object();
             bool isAfterBufferOverflow = false;
             FileSystemEventArgs firstChangeArgsAfterBufferOverflow = null;
@@ -225,14 +223,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 watcher.InternalBufferSize = 1;
                 watcher.Changed += (sender, args) =>
                 {
-                    bool keepConsumerBusy = false;
-
                     lock (lockObject)
                     {
                         // ReSharper disable once AccessToModifiedClosure
                         if (!isAfterBufferOverflow)
                         {
-                            keepConsumerBusy = true;
+                            // Block the change handler shortly, allowing the buffer to fill and overflow. Do not block
+                            // the handler indefinitely, because that would prevent the error handler from getting raised.
+                            Thread.Sleep(250);
                         }
                         else
                         {
@@ -243,24 +241,33 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                             }
                         }
                     }
-
-                    if (keepConsumerBusy)
+                };
+                watcher.Error += (sender, args) =>
+                {
+                    lock (lockObject)
                     {
-                        // Block the change handler shortly, allowing the buffer to fill and overflow. Do not block
-                        // the handler indefinitely, because that would prevent the error handler from getting raised.
-                        Thread.Sleep(250);
+                        isAfterBufferOverflow = true;
                     }
                 };
-                watcher.Error += (sender, args) => { bufferOverflowWaitHandle.Set(); };
                 watcher.EnableRaisingEvents = true;
 
                 DateTime startTime = DateTime.UtcNow;
                 bool timedOut = false;
 
                 // Act (cause buffer to overflow)
-                while (!bufferOverflowWaitHandle.WaitOne(1) && !timedOut)
+                while (!timedOut)
                 {
-                    fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 1.January(2001));
+                    lock (lockObject)
+                    {
+                        if (!isAfterBufferOverflow)
+                        {
+                            fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 1.January(2001));
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
 
                     timedOut = startTime + SpecTimout <= DateTime.UtcNow;
                 }
@@ -273,7 +280,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 }
 
                 // Wait for watcher to flush its queue.
-                Thread.Sleep(NotifyWaitTimeoutMilliseconds * 2);
+                Thread.Sleep(NotifyWaitTimeoutMilliseconds);
 
                 // Extra event after buffer overflow, which should be processed normally.
                 fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateAfter, 1.January(2001));
