@@ -14,6 +14,7 @@ To help transition existing codebases, an analyzer is included that runs in Visu
 * Supports absolute and relative paths, based on settable current directory
 * Supports local and UNC (Universal Naming Convention) network paths
 * Paths are case-insensitive
+* Mimics NTFS behavior with [NtfsDisableLastAccessUpdate](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/fsutil-behavior) disabled.
 
 ## Limitations of the fake filesystem
 * A file cannot be opened by multiple writers at the same time (multiple readers are allowed)
@@ -32,7 +33,7 @@ The NuGet packages are compatible with projects that target at least [NetStandar
 * From the NuGet package manager console:
 
   `Install-Package TestableFileSystem.Wrappers -project YourProductName`
-  
+
   `Install-Package TestableFileSystem.Fakes -project YourProductUnitTests`
 
 See [Demo/Program.cs](https://github.com/bkoelman/TestableFileSystem/blob/master/src/Demo/Program.cs) and [documentation](doc/Overview.md) for example usage.
