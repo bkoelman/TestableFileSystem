@@ -16,8 +16,8 @@ namespace TestableFileSystem.Fakes
 
         private const int AverageRelativeFileNameLengthInChars = 50;
         private const int AverageRelativeFileNameLengthInBytes = AverageRelativeFileNameLengthInChars * 2;
-        private const int FileNotifyInformationStructSizeInBytes = 6;
-        private const int NumBytesPerChange = FileNotifyInformationStructSizeInBytes + AverageRelativeFileNameLengthInBytes;
+        private const int DWordSizeInBytes = 32 / 8;
+        private const int NumBytesPerChange = 3 * DWordSizeInBytes + AverageRelativeFileNameLengthInBytes;
 
         private static readonly WaitForChangedResult WaitForChangeTimedOut = new WaitForChangedResult
         {
