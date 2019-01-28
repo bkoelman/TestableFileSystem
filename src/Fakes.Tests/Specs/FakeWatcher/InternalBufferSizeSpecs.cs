@@ -11,6 +11,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class InternalBufferSizeSpecs : WatcherSpecs
     {
+        private static readonly TimeSpan SpecTimout = TimeSpan.FromSeconds(3);
+
         // Unable to reproduce these documented constraints:
         // MSDN: ReadDirectoryChangesW fails with ERROR_NOACCESS when the buffer is not aligned on a DWORD boundary.
         // MSDN: ReadDirectoryChangesW fails with ERROR_INVALID_PARAMETER when the buffer length is greater than 64 KB and the application is
@@ -108,11 +110,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
 
                 resumeEventHandlerEvent.Set();
-                testCompletionEvent.WaitOne(Timeout.Infinite);
+                bool signaled = testCompletionEvent.WaitOne(SpecTimout);
+
+                // Assert
+                signaled.Should().BeTrue();
 
                 lock (lockObject)
                 {
-                    // Assert
                     argsAfterRestart.Name.Should().Be("file2.txt");
                 }
             }
@@ -170,7 +174,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 watcher.EnableRaisingEvents = true;
 
                 // Act
-                while (startTime + TimeSpan.FromSeconds(3) > DateTime.UtcNow)
+                while (startTime + SpecTimout > DateTime.UtcNow)
                 {
                     fileSystem.File.SetCreationTimeUtc(pathToFileToUpdate, 1.January(2001));
 
@@ -195,7 +199,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO: Fails in cibuild")]
+        [Fact]
         private void When_buffer_overflows_it_must_discard_old_notifications_and_continue()
         {
             // Arrange
@@ -250,11 +254,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 watcher.Error += (sender, args) => { bufferOverflowWaitHandle.Set(); };
                 watcher.EnableRaisingEvents = true;
 
+                DateTime startTime = DateTime.UtcNow;
+                bool timedOut = false;
+
                 // Act (cause buffer to overflow)
-                while (!bufferOverflowWaitHandle.WaitOne(1))
+                while (!bufferOverflowWaitHandle.WaitOne(1) && !timedOut)
                 {
                     fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 1.January(2001));
+
+                    timedOut = startTime + SpecTimout <= DateTime.UtcNow;
                 }
+
+                timedOut.Should().BeFalse();
 
                 lock (lockObject)
                 {
@@ -262,9 +273,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 }
 
                 // Wait for watcher to flush its queue.
-                Thread.Sleep(NotifyWaitTimeoutMilliseconds);
+                Thread.Sleep(NotifyWaitTimeoutMilliseconds * 2);
 
-                // Extra event after buffer overflow, that should be processed normally.
+                // Extra event after buffer overflow, which should be processed normally.
                 fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateAfter, 1.January(2001));
 
                 watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
