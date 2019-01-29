@@ -16,6 +16,28 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         private const int OperationDelayInMilliseconds = 250;
 
         [Fact]
+        private void When_waiting_for_changes_with_negative_timeout_it_must_fail()
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(directoryToWatch)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => watcher.WaitForChanged(WatcherChangeTypes.All, -5);
+
+                // Assert
+                action.Should().Throw<ArgumentOutOfRangeException>()
+                    .WithMessage("Specified argument was out of the range of valid values.*");
+            }
+        }
+
+        [Fact]
         private void When_waiting_for_changes_while_timeout_expires_it_must_succeed()
         {
             // Arrange

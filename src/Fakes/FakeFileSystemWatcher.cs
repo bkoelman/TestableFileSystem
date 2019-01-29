@@ -508,6 +508,8 @@ namespace TestableFileSystem.Fakes
 
         public WaitForChangedResult WaitForChanged(WatcherChangeTypes changeType, int timeout = Timeout.Infinite)
         {
+            AssertPositiveOrInfiniteTimeout(timeout);
+
             try
             {
                 lock (waitForChangeLockObject)
@@ -526,6 +528,14 @@ namespace TestableFileSystem.Fakes
             finally
             {
                 DetachHandlersForChangeTypes(changeType);
+            }
+        }
+
+        private static void AssertPositiveOrInfiniteTimeout(int timeout)
+        {
+            if (timeout < 0 && timeout != Timeout.Infinite)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeout), "Specified argument was out of the range of valid values.");
             }
         }
 
@@ -659,6 +669,8 @@ namespace TestableFileSystem.Fakes
         /// </param>
         public void FinishAndWaitForFlushed(int timeout = Timeout.Infinite)
         {
+            AssertPositiveOrInfiniteTimeout(timeout);
+
             DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
 
             producerConsumerQueue.CompleteAdding();
