@@ -41,7 +41,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     {
                     }
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -79,7 +79,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     {
                     }
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -114,7 +114,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.AppendAllText(pathToFileToAppend, "Extra");
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -151,7 +151,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.WriteAllText(pathToFileToOverwrite, fileContents);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -185,7 +185,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.WriteAllText(pathToFileToTruncate, string.Empty);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -222,7 +222,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     {
                     }
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

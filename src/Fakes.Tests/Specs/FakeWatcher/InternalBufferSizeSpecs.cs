@@ -288,7 +288,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 // Extra event after buffer overflow, which should be processed normally.
                 fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateAfter, 1.January(2001));
 
-                watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
             }
 
             lock (lockObject)

@@ -45,7 +45,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -89,7 +89,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -129,7 +129,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -167,7 +167,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -207,7 +207,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile, true);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -248,7 +248,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile, true);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -289,7 +289,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile, true);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -329,7 +329,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile, true);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -369,7 +369,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile, true);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -410,7 +410,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Copy(pathToSourceFile, pathToDestinationFile, true);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

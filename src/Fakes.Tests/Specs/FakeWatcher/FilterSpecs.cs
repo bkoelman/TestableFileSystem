@@ -43,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be("*.*");
@@ -91,7 +91,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be("*.*");
@@ -139,7 +139,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be(" ");
@@ -182,7 +182,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -226,7 +226,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -273,7 +273,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.Move(sourcePathToFile2, targetPathToFile2);
                     fileSystem.File.Move(sourcePathToFile3, targetPathToFile3);
                     fileSystem.File.Move(sourcePathToFile4, targetPathToFile4);
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -312,7 +312,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be("* ");
@@ -349,7 +349,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be(@"c:\some\*");
@@ -388,7 +388,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be(@"\some\*");
@@ -443,7 +443,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate3, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate4, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be("*.TXT");
@@ -503,7 +503,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate3, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate4, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -549,7 +549,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate2, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be("*.");
@@ -604,7 +604,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate3, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate4, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be("*");
@@ -650,7 +650,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.Hidden);
                     fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     watcher.Filter.Should().Be(@"SubFolder\*.txt");
@@ -689,7 +689,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

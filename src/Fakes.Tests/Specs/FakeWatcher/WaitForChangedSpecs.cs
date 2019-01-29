@@ -226,7 +226,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 3.January(2000));
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     result.TimedOut.Should().BeFalse();
@@ -279,7 +279,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 3.January(2000));
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     result.TimedOut.Should().BeFalse();

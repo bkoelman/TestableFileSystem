@@ -29,7 +29,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.Exists(directoryPath);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();

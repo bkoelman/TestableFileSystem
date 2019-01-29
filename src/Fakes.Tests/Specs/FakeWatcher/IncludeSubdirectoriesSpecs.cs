@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     // Act
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -72,7 +72,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     // Act
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();
@@ -103,7 +103,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     // Act
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -138,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     // Act
                     fileSystem.File.SetAttributes(pathToDirectoryToUpdate, FileAttributes.ReadOnly);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();

@@ -650,7 +650,14 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public void WaitForCompleted(int timeout = Timeout.Infinite)
+        /// <summary>
+        /// Stops accepting new file system notifications and blocks until all pending notification event handlers have completed.
+        /// </summary>
+        /// <param name="timeout">
+        /// The number of milliseconds to wait, or <see cref="Timeout.Infinite" /> (-1) to wait indefinitely. A
+        /// <see cref="TimeoutException" /> is thrown when the timeout expires before all handlers have completed.
+        /// </param>
+        public void FinishAndWaitForFlushed(int timeout = Timeout.Infinite)
         {
             DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
 
@@ -669,7 +676,7 @@ namespace TestableFileSystem.Fakes
                 Thread.Sleep(0);
             }
 
-            throw new TimeoutException("Timed out waiting for watcher to finish.");
+            throw new TimeoutException("Timed out waiting for notification event handlers to finish.");
         }
 
         public void Dispose()

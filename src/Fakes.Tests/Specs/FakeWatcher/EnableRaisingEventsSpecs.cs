@@ -76,7 +76,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(2);
@@ -111,7 +111,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem.File.SetAttributes(pathToFileToUpdate, FileAttributes.Hidden);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().HaveCount(1);
@@ -163,7 +163,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     fileSystem.File.SetAttributes(pathToFileToUpdate4, FileAttributes.Hidden);
                     Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
-                    watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

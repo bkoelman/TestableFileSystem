@@ -124,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         {
                             fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 2.January(2002));
 
-                            watcher2.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                            watcher2.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                             text2 = string.Join(Environment.NewLine, listener2.GetEventsCollectedAsText());
                         }
@@ -132,7 +132,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 3.January(2002));
 
-                    watcher1.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher1.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     text1 = string.Join(Environment.NewLine, listener1.GetEventsCollectedAsText());
                 }
@@ -188,7 +188,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         {
                             fileSystem2.File.SetLastWriteTimeUtc(pathToFileToUpdate2, 2.January(2002));
 
-                            watcher2.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                            watcher2.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                             text2 = string.Join(Environment.NewLine, listener2.GetEventsCollectedAsText());
                         }
@@ -196,7 +196,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem1.File.SetLastWriteTimeUtc(pathToFileToUpdate1, 3.January(2002));
 
-                    watcher1.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
+                    watcher1.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
 
                     text1 = string.Join(Environment.NewLine, listener1.GetEventsCollectedAsText());
                 }
