@@ -216,6 +216,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             var lockObject = new object();
             bool isAfterBufferOverflow = false;
             FileSystemEventArgs firstChangeArgsAfterBufferOverflow = null;
+            int changeCount = 0;
+            int sleepCount = 0;
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
@@ -231,6 +233,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                             // Block the change handler shortly, allowing the buffer to fill and overflow. Do not block
                             // the handler indefinitely, because that would prevent the error handler from getting raised.
                             Thread.Sleep(250);
+                            Interlocked.Increment(ref sleepCount);
                         }
                         else
                         {
@@ -265,8 +268,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         if (!isAfterBufferOverflow)
                         {
                             fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 1.January(2001));
-                            fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 2.January(2001));
-                            fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 3.January(2001));
+                            Interlocked.Increment(ref changeCount);
                         }
                         else
                         {
@@ -275,6 +277,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     }
 
                     timedOut = startTime + SpecTimeout <= DateTime.UtcNow;
+                }
+
+                if (timedOut)
+                {
+                    throw new Exception($"Exception in test: changeCount={changeCount}, sleepCount={sleepCount}.");
                 }
 
                 timedOut.Should().BeFalse();
