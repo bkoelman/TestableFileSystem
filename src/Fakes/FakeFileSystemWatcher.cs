@@ -389,71 +389,78 @@ namespace TestableFileSystem.Fakes
             {
                 foreach (FakeFileSystemVersionedChange change in producerConsumerQueue.GetConsumingEnumerable(cancellationToken))
                 {
-                    bool doRaiseBufferOverflowEvent = false;
-                    bool doRaiseChangeEvent = false;
-
-                    lock (lockObject)
-                    {
-                        if (change != FakeFileSystemVersionedChange.Empty)
-                        {
-                            if (hasBufferOverflow && !consumerIsFlushingBuffer)
-                            {
-                                doRaiseBufferOverflowEvent = true;
-                                consumerIsFlushingBuffer = true;
-                            }
-
-                            if (change.Version == version)
-                            {
-                                doRaiseChangeEvent = true;
-                            }
-                        }
-                    }
-
-                    try
-                    {
-                        if (change.IsDeleteOfWatcherDirectory)
-                        {
-                            RaiseEventForWatcherDirectoryDeleted();
-                            EnableRaisingEvents = false;
-                        }
-                        else
-                        {
-                            if (doRaiseBufferOverflowEvent)
-                            {
-                                RaiseEventForBufferOverflow();
-                            }
-
-                            if (doRaiseChangeEvent)
-                            {
-                                RaiseEventForChange(change);
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        // When an event handler throws, the process terminates (because of unhandled exception on background thread) by default.
-                        // This can be overruled with <legacyUnhandledExceptionPolicy enabled="1" /> in app.config, in which case we'll be broken.
-                        // Because after the first uncaught exception, this loop terminates and we no longer raise subsequent events.
-                        // Such scenario is so rare though, that we ignore the problem for now.
-
-                        lock (lockObject)
-                        {
-                            if (!producerConsumerQueue.Any())
-                            {
-                                hasBufferOverflow = false;
-                                consumerIsFlushingBuffer = false;
-                            }
-
-                            if (producerConsumerQueue.IsCompleted)
-                            {
-                                consumerHasTerminated = true;
-                            }
-                        }
-                    }
+                    ConsumeNextVersionedChange(change);
                 }
             }
             catch (OperationCanceledException)
             {
+            }
+            finally
+            {
+                lock (lockObject)
+                {
+                    if (producerConsumerQueue.IsCompleted)
+                    {
+                        consumerHasTerminated = true;
+                    }
+                }
+            }
+        }
+
+        private void ConsumeNextVersionedChange([NotNull] FakeFileSystemVersionedChange change)
+        {
+            bool doRaiseBufferOverflowEvent = false;
+            bool doRaiseChangeEvent = false;
+
+            lock (lockObject)
+            {
+                if (hasBufferOverflow && !consumerIsFlushingBuffer)
+                {
+                    doRaiseBufferOverflowEvent = true;
+                    consumerIsFlushingBuffer = true;
+                }
+
+                if (change.Version == version)
+                {
+                    doRaiseChangeEvent = true;
+                }
+            }
+
+            try
+            {
+                if (change.IsDeleteOfWatcherDirectory)
+                {
+                    RaiseEventForWatcherDirectoryDeleted();
+                    EnableRaisingEvents = false;
+                }
+                else
+                {
+                    if (doRaiseBufferOverflowEvent)
+                    {
+                        RaiseEventForBufferOverflow();
+                    }
+
+                    if (doRaiseChangeEvent)
+                    {
+                        RaiseEventForChange(change);
+                    }
+                }
+            }
+            finally
+            {
+                // When an event handler throws, the process terminates (because of unhandled exception on background thread) by default.
+                // This can be overruled with <legacyUnhandledExceptionPolicy enabled="1" /> in app.config, in which case we'll be broken.
+                // Because after the first uncaught exception, this loop terminates and we no longer raise subsequent events.
+                // Such scenario is so rare though, that we ignore the problem for now.
+
+                lock (lockObject)
+                {
+                    if (!producerConsumerQueue.Any())
+                    {
+                        hasBufferOverflow = false;
+                        consumerIsFlushingBuffer = false;
+                    }
+                }
             }
         }
 
@@ -647,7 +654,6 @@ namespace TestableFileSystem.Fakes
         {
             DateTime endTimeUtc = timeout == Timeout.Infinite ? DateTime.MaxValue : DateTime.UtcNow.AddMilliseconds(timeout);
 
-            producerConsumerQueue.Add(FakeFileSystemVersionedChange.Empty);
             producerConsumerQueue.CompleteAdding();
 
             while (DateTime.UtcNow < endTimeUtc)
@@ -662,6 +668,8 @@ namespace TestableFileSystem.Fakes
 
                 Thread.Sleep(0);
             }
+
+            throw new TimeoutException("Timed out waiting for watcher to finish.");
         }
 
         public void Dispose()
@@ -720,29 +728,22 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        private class FakeFileSystemVersionedChange
+        private sealed class FakeFileSystemVersionedChange
         {
-            public virtual WatcherChangeTypes ChangeType { get; }
+            public WatcherChangeTypes ChangeType { get; }
 
             [NotNull]
-            public virtual AbsolutePath RootDirectory { get; }
+            public AbsolutePath RootDirectory { get; }
 
             [NotNull]
-            public virtual string RelativePath { get; }
+            public string RelativePath { get; }
 
             [CanBeNull]
-            public virtual string PreviousRelativePathInRename { get; }
+            public string PreviousRelativePathInRename { get; }
 
-            public virtual int Version { get; }
+            public int Version { get; }
 
-            public virtual bool IsDeleteOfWatcherDirectory { get; }
-
-            [NotNull]
-            public static readonly FakeFileSystemVersionedChange Empty = new EmptyVersionedChange();
-
-            protected FakeFileSystemVersionedChange()
-            {
-            }
+            public bool IsDeleteOfWatcherDirectory { get; }
 
             public FakeFileSystemVersionedChange([NotNull] FakeSystemChangeEventArgs args, [NotNull] AbsolutePath pathInArgs,
                 [CanBeNull] AbsolutePath previousPathInRenameInArgs, [NotNull] AbsolutePath basePath, int version,
@@ -756,16 +757,6 @@ namespace TestableFileSystem.Fakes
                 RootDirectory = basePath;
                 RelativePath = pathInArgs.MakeRelativeTo(basePath);
                 PreviousRelativePathInRename = previousPathInRenameInArgs?.MakeRelativeTo(basePath);
-            }
-
-            private sealed class EmptyVersionedChange : FakeFileSystemVersionedChange
-            {
-                public override WatcherChangeTypes ChangeType => throw new NotSupportedException();
-                public override AbsolutePath RootDirectory => throw new NotSupportedException();
-                public override string RelativePath => throw new NotSupportedException();
-                public override string PreviousRelativePathInRename => throw new NotSupportedException();
-                public override int Version => throw new NotSupportedException();
-                public override bool IsDeleteOfWatcherDirectory => false;
             }
         }
 

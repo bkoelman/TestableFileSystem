@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class InternalBufferSizeSpecs : WatcherSpecs
     {
-        private static readonly TimeSpan SpecTimout = TimeSpan.FromSeconds(3);
+        private static readonly TimeSpan SpecTimeout = TimeSpan.FromSeconds(3);
 
         // Unable to reproduce these documented constraints:
         // MSDN: ReadDirectoryChangesW fails with ERROR_NOACCESS when the buffer is not aligned on a DWORD boundary.
@@ -110,13 +110,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
 
                 resumeEventHandlerEvent.Set();
-                bool signaled = testCompletionEvent.WaitOne(SpecTimout);
+                bool signaled = testCompletionEvent.WaitOne(SpecTimeout);
 
-                // Assert
                 signaled.Should().BeTrue();
 
                 lock (lockObject)
                 {
+                    // Assert
                     argsAfterRestart.Name.Should().Be("file2.txt");
                 }
             }
@@ -174,7 +174,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 watcher.EnableRaisingEvents = true;
 
                 // Act
-                while (startTime + SpecTimout > DateTime.UtcNow)
+                while (startTime + SpecTimeout > DateTime.UtcNow)
                 {
                     fileSystem.File.SetCreationTimeUtc(pathToFileToUpdate, 1.January(2001));
 
@@ -246,7 +246,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 {
                     lock (lockObject)
                     {
-                        isAfterBufferOverflow = true;
+                        if (args.GetException() is InternalBufferOverflowException)
+                        {
+                            isAfterBufferOverflow = true;
+                        }
                     }
                 };
                 watcher.EnableRaisingEvents = true;
@@ -269,7 +272,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         }
                     }
 
-                    timedOut = startTime + SpecTimout <= DateTime.UtcNow;
+                    timedOut = startTime + SpecTimeout <= DateTime.UtcNow;
                 }
 
                 timedOut.Should().BeFalse();
@@ -288,9 +291,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 watcher.WaitForCompleted(NotifyWaitTimeoutMilliseconds);
             }
 
-            // Assert
             lock (lockObject)
             {
+                // Assert
                 firstChangeArgsAfterBufferOverflow.Should().NotBeNull();
                 firstChangeArgsAfterBufferOverflow.Name.Should().Be("file-after.txt");
             }
