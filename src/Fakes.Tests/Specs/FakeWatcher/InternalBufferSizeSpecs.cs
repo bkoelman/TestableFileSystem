@@ -265,6 +265,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         if (!isAfterBufferOverflow)
                         {
                             fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 1.January(2001));
+                            fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 2.January(2001));
+                            fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 3.January(2001));
                         }
                         else
                         {
