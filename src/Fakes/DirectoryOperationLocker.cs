@@ -154,5 +154,12 @@ namespace TestableFileSystem.Fakes
         {
             ExecuteInLock(() => target.SetLastWriteTimeUtc(path, lastWriteTimeUtc));
         }
+
+#if !NETSTANDARD1_3
+        public string[] GetLogicalDrives()
+        {
+            return ExecuteInLock(() => target.GetLogicalDrives());
+        }
+#endif
     }
 }

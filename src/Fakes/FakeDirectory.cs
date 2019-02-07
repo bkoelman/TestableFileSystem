@@ -334,5 +334,13 @@ namespace TestableFileSystem.Fakes
 
             handler.Handle(arguments);
         }
+
+#if !NETSTANDARD1_3
+        public string[] GetLogicalDrives()
+        {
+            // TODO: Implement this (and have tests).
+            throw new NotImplementedException();
+        }
+#endif
     }
 }

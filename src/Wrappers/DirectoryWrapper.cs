@@ -142,5 +142,12 @@ namespace TestableFileSystem.Wrappers
         {
             Directory.SetLastWriteTimeUtc(path, lastWriteTimeUtc);
         }
+
+#if !NETSTANDARD1_3
+        public string[] GetLogicalDrives()
+        {
+            return Directory.GetLogicalDrives();
+        }
+#endif
     }
 }
