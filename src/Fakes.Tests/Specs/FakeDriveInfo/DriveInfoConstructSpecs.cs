@@ -174,8 +174,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
             directoryInfo.FullName.Should().Be(@"p:\");
             directoryInfo.Exists.Should().BeTrue();
         }
-
-        // TODO: (Separate file) Add tests for changing volume label (should be persisted in FS)
     }
 }
 #endif

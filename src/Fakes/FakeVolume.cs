@@ -7,6 +7,9 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeVolume
     {
+        [NotNull]
+        private string label;
+
         public long CapacityInBytes { get; }
         public long FreeSpaceInBytes { get; }
         public DriveType Type { get; }
@@ -15,7 +18,11 @@ namespace TestableFileSystem.Fakes
         public string Format { get; }
 
         [NotNull]
-        public string Label { get; }
+        public string Label
+        {
+            get => label;
+            internal set => label = string.IsNullOrEmpty(value) ? string.Empty : value;
+        }
 
         internal FakeVolume(long capacityInBytes, long freeSpaceInBytes, DriveType type, [NotNull] string format,
             [NotNull] string label)
@@ -28,7 +35,7 @@ namespace TestableFileSystem.Fakes
             FreeSpaceInBytes = freeSpaceInBytes;
             Type = type;
             Format = format;
-            Label = label;
+            this.label = label;
         }
 
         private static void AssertNotNegativeAndInRange(long capacityInBytes, long freeSpaceInBytes)

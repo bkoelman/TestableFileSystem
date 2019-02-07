@@ -28,7 +28,7 @@ namespace TestableFileSystem.Fakes
             get
             {
                 FakeVolume volume = TryGetVolume();
-                return volume == null ? DriveType.NoRootDirectory : volume.Type;
+                return volume?.Type ?? DriveType.NoRootDirectory;
             }
         }
 
@@ -36,10 +36,20 @@ namespace TestableFileSystem.Fakes
 
         public string VolumeLabel
         {
-            get => GetVolume().Label;
+            get
+            {
+                lock (owner.TreeLock)
+                {
+                    return GetVolume().Label;
+                }
+            }
             set
             {
-                // TODO: Implement (do we need locking?)
+                lock (owner.TreeLock)
+                {
+                    var volume = GetVolume();
+                    volume.Label = value;
+                }
             }
         }
 
