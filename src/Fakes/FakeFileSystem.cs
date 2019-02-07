@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -8,6 +9,9 @@ namespace TestableFileSystem.Fakes
     {
         [NotNull]
         private readonly DirectoryEntry root;
+
+        [NotNull]
+        private readonly IDictionary<string, FakeVolume> volumes;
 
         [NotNull]
         internal readonly object TreeLock = new object();
@@ -27,14 +31,15 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal FakeFileSystemChangeTracker ChangeTracker { get; }
 
-        internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker,
-            [NotNull] WaitIndicator copyWaitIndicator)
+        internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] IDictionary<string, FakeVolume> volumes,
+            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] WaitIndicator copyWaitIndicator)
         {
             Guard.NotNull(root, nameof(root));
             Guard.NotNull(changeTracker, nameof(changeTracker));
             Guard.NotNull(copyWaitIndicator, nameof(copyWaitIndicator));
 
             this.root = root;
+            this.volumes = volumes;
             ChangeTracker = changeTracker;
             CopyWaitIndicator = copyWaitIndicator;
 
@@ -125,5 +130,11 @@ namespace TestableFileSystem.Fakes
         IFileSystemWatcher IFileSystem.ConstructFileSystemWatcher(string path, string filter) =>
             ConstructFileSystemWatcher(path, filter);
 #endif
+
+        [CanBeNull]
+        internal FakeVolume GetVolume([NotNull] string driveName)
+        {
+            return volumes.ContainsKey(driveName) ? volumes[driveName] : null;
+        }
     }
 }

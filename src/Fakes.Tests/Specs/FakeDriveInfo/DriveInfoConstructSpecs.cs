@@ -143,7 +143,38 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
             directoryInfo.Exists.Should().BeFalse();
         }
 
-        // TODO: Add test for creation with non-default drive properties
+        [Fact]
+        private void When_constructing_drive_info_it_must_return_custom_values()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("P:", new FakeVolumeBuilder()
+                    .OfCapacity(8 * OneGigabyte)
+                    .WithFreeSpace(3 * OneGigabyte)
+                    .OfType(DriveType.Network)
+                    .InFormat("FAT32")
+                    .Labeled("CompanyShare"))
+                .Build();
+
+            // Act
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("p");
+
+            // Assert
+            driveInfo.Name.Should().Be(@"p:\");
+            driveInfo.IsReady.Should().BeTrue();
+            driveInfo.AvailableFreeSpace.Should().Be(3 * OneGigabyte);
+            driveInfo.TotalFreeSpace.Should().Be(3 * OneGigabyte);
+            driveInfo.TotalSize.Should().Be(8 * OneGigabyte);
+            driveInfo.DriveType.Should().Be(DriveType.Network);
+            driveInfo.DriveFormat.Should().Be("FAT32");
+            driveInfo.VolumeLabel.Should().Be("CompanyShare");
+            driveInfo.ToString().Should().Be(@"p:\");
+
+            IDirectoryInfo directoryInfo = driveInfo.RootDirectory.ShouldNotBeNull();
+            directoryInfo.FullName.Should().Be(@"p:\");
+            directoryInfo.Exists.Should().BeTrue();
+        }
+
         // TODO: (Separate file) Add tests for changing volume label (should be persisted in FS)
     }
 }

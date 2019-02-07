@@ -9,66 +9,37 @@ namespace TestableFileSystem.Fakes
     [Serializable]
     internal sealed class FakeDriveInfo : IDriveInfo
     {
-        private const long OneGigabyte = 1024 * 1024 * 1024;
-
         [NotNull]
         private readonly FakeFileSystem owner;
 
         private readonly char driveLetter;
 
         public string Name => driveLetter + Path.VolumeSeparatorChar.ToString() + Path.DirectorySeparatorChar;
-        public bool IsReady => DriveExists;
-
-        private bool DriveExists => owner.Directory.Exists(Name);
+        public bool IsReady => TryGetVolume() != null;
 
         // TODO: Update free space during various file system operations. Throw on insufficient space.
-        public long AvailableFreeSpace
+
+        public long AvailableFreeSpace => GetVolume().FreeSpaceInBytes;
+        public long TotalFreeSpace => GetVolume().FreeSpaceInBytes;
+        public long TotalSize => GetVolume().CapacityInBytes;
+
+        public DriveType DriveType
         {
             get
             {
-                AssertDriveExists();
-                return TotalFreeSpace;
+                FakeVolume volume = TryGetVolume();
+                return volume == null ? DriveType.NoRootDirectory : (DriveType)volume.Type;
             }
         }
 
-        public long TotalFreeSpace
-        {
-            get
-            {
-                AssertDriveExists();
-                return OneGigabyte;
-            }
-        }
-
-        public long TotalSize
-        {
-            get
-            {
-                AssertDriveExists();
-                return OneGigabyte;
-            }
-        }
-
-        public DriveType DriveType => DriveExists ? DriveType.Fixed : DriveType.NoRootDirectory;
-
-        public string DriveFormat
-        {
-            get
-            {
-                AssertDriveExists();
-                return "NTFS";
-            }
-        }
+        public string DriveFormat => GetVolume().Format;
 
         public string VolumeLabel
         {
-            get
-            {
-                AssertDriveExists();
-                return string.Empty;
-            }
+            get => GetVolume().Label;
             set
             {
+                // TODO: Implement (do we need locking?)
             }
         }
 
@@ -107,12 +78,23 @@ namespace TestableFileSystem.Fakes
             return Name;
         }
 
-        private void AssertDriveExists()
+        [CanBeNull]
+        private FakeVolume TryGetVolume()
         {
-            if (!DriveExists)
+            return owner.GetVolume(driveLetter + Path.VolumeSeparatorChar.ToString());
+        }
+
+        [NotNull]
+        private FakeVolume GetVolume()
+        {
+            FakeVolume volume = TryGetVolume();
+
+            if (volume == null)
             {
                 throw ErrorFactory.System.CouldNotFindDrive(Name);
             }
+
+            return volume;
         }
     }
 }

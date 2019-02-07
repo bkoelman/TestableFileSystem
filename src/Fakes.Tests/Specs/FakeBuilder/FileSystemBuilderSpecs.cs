@@ -5,7 +5,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 {
-    public sealed class BuilderSpecs
+    public sealed class FileSystemBuilderSpecs
     {
         [Fact]
         private void When_creating_builder_it_must_include_drive_C()

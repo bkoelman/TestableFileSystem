@@ -1,4 +1,6 @@
 ﻿using System;
+using System.CodeDom;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,6 +22,10 @@ namespace TestableFileSystem.Fakes.Builders
 
         [NotNull]
         private readonly DirectoryEntry root;
+
+        [NotNull]
+        private readonly IDictionary<string, FakeVolume> volumes =
+            new Dictionary<string, FakeVolume>(StringComparer.OrdinalIgnoreCase);
 
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker = new FakeFileSystemChangeTracker();
@@ -47,13 +53,41 @@ namespace TestableFileSystem.Fakes.Builders
             }
 
             copyWaitIndicator.Reset();
-            return new FakeFileSystem(root, changeTracker, copyWaitIndicator);
+            return new FakeFileSystem(root, volumes, changeTracker, copyWaitIndicator);
         }
 
         [NotNull]
         public FakeFileSystemBuilder WithoutDefaultDriveC()
         {
             includeDriveC = false;
+            return this;
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder IncludingVolume([NotNull] string name, [NotNull] FakeVolumeBuilder builder)
+        {
+            Guard.NotNull(builder, nameof(builder));
+
+            return IncludingVolume(name, builder.Build());
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder IncludingVolume([NotNull] string name, [NotNull] FakeVolume volume)
+        {
+            Guard.NotNullNorWhiteSpace(name, nameof(name));
+            Guard.NotNull(volume, nameof(volume));
+
+            var path = new AbsolutePath(name);
+            if (!path.IsVolumeRoot)
+            {
+                throw ErrorFactory.System.PathFormatIsNotSupported();
+            }
+
+            string volumeName = path.Components.Single();
+            volumes[volumeName] = volume;
+
+            CreateDirectories(path);
+
             return this;
         }
 
@@ -76,10 +110,21 @@ namespace TestableFileSystem.Fakes.Builders
         [NotNull]
         private DirectoryEntry CreateDirectories([NotNull] AbsolutePath absolutePath)
         {
+            CreateVolume(absolutePath);
+
             var arguments = new DirectoryCreateArguments(absolutePath, true);
             var handler = new DirectoryCreateHandler(root);
 
             return handler.Handle(arguments);
+        }
+
+        private void CreateVolume([NotNull] AbsolutePath absolutePath)
+        {
+            string volumeName = absolutePath.Components.First();
+            if (!volumes.ContainsKey(volumeName))
+            {
+                volumes[volumeName] = new FakeVolumeBuilder().Build();
+            }
         }
 
         [NotNull]

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 {
-    public sealed class BuilderIncludingDirectorySpecs
+    public sealed class FileSystemBuilderIncludingDirectorySpecs
     {
         [Fact]
         private void When_including_directory_for_null_it_must_fail()
