@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes.Builders
 
         private long capacityInBytes = OneGigabyte;
         private long freeSpaceInBytes = OneGigabyte;
-        private FakeDriveType driveType = FakeDriveType.Fixed;
+        private DriveType driveType = DriveType.Fixed;
 
         [NotNull]
         private string volumeLabel = string.Empty;
@@ -37,21 +37,12 @@ namespace TestableFileSystem.Fakes.Builders
             return this;
         }
 
-#if NETSTANDARD1_3
         [NotNull]
-        public FakeVolumeBuilder OfType(FakeDriveType type)
+        public FakeVolumeBuilder OfType(DriveType type)
         {
             driveType = type;
             return this;
         }
-#else
-        [NotNull]
-        public FakeVolumeBuilder OfType(DriveType type)
-        {
-            driveType = (FakeDriveType)type;
-            return this;
-        }
-#endif
 
         [NotNull]
         public FakeVolumeBuilder InFormat([NotNull] string format)

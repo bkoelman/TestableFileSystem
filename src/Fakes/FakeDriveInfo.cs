@@ -28,7 +28,7 @@ namespace TestableFileSystem.Fakes
             get
             {
                 FakeVolume volume = TryGetVolume();
-                return volume == null ? DriveType.NoRootDirectory : (DriveType)volume.Type;
+                return volume == null ? DriveType.NoRootDirectory : volume.Type;
             }
         }
 

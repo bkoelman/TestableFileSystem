@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes
     {
         public long CapacityInBytes { get; }
         public long FreeSpaceInBytes { get; }
-        public FakeDriveType Type { get; }
+        public DriveType Type { get; }
 
         [NotNull]
         public string Format { get; }
@@ -16,7 +17,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string Label { get; }
 
-        internal FakeVolume(long capacityInBytes, long freeSpaceInBytes, FakeDriveType type, [NotNull] string format,
+        internal FakeVolume(long capacityInBytes, long freeSpaceInBytes, DriveType type, [NotNull] string format,
             [NotNull] string label)
         {
             Guard.NotNull(format, nameof(format));

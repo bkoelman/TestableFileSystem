@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             // Assert
             volume.CapacityInBytes.Should().Be(1073741824);
             volume.FreeSpaceInBytes.Should().Be(1073741824);
-            volume.Type.Should().Be(FakeDriveType.Fixed);
+            volume.Type.Should().Be(DriveType.Fixed);
             volume.Format.Should().Be("NTFS");
             volume.Label.Should().BeEmpty();
         }
@@ -35,11 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             FakeVolume volume = builder
                 .OfCapacity(1024)
                 .WithFreeSpace(512)
-#if NETCOREAPP1_1
-                .OfType(FakeDriveType.Ram)
-#else
                 .OfType(DriveType.Ram)
-#endif
                 .InFormat("FAT16")
                 .Labeled("DataDisk")
                 .Build();
@@ -47,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             // Assert
             volume.CapacityInBytes.Should().Be(1024);
             volume.FreeSpaceInBytes.Should().Be(512);
-            volume.Type.Should().Be(FakeDriveType.Ram);
+            volume.Type.Should().Be(DriveType.Ram);
             volume.Format.Should().Be("FAT16");
             volume.Label.Should().Be("DataDisk");
         }
