@@ -71,6 +71,9 @@ namespace TestableFileSystem.Analyzer.Tests
 
                     DirectoryInfo directoryInfo = null;
                     directoryInfo.GetAccessControl();
+
+                    FileSystemWatcher watcher = null;
+                    watcher.BeginInit();
                 ")
                 .Build();
 
@@ -103,6 +106,24 @@ namespace TestableFileSystem.Analyzer.Tests
                         [|directoryInfo.Delete|](false);
                         var text = [|directoryInfo.ToString|]();
                     }
+
+                    void M3()
+                    {
+                        DriveInfo driveInfo = null;
+
+                        var name = [|driveInfo.Name|];
+                        [|driveInfo.VolumeLabel|] = ""X"";
+                        var text = [|driveInfo.ToString|]();
+                    }
+
+                    void M4()
+                    {
+                        FileSystemWatcher watcher = null;
+
+                        var notifyFilter = [|watcher.NotifyFilter|];
+                        [|watcher.IncludeSubdirectories|] = true;
+                        var result = [|watcher.WaitForChanged|](WatcherChangeTypes.All);
+                    }
                 ")
                 .Build();
 
@@ -113,7 +134,13 @@ namespace TestableFileSystem.Analyzer.Tests
                 "Usage of 'System.IO.FileInfo.ToString' should be replaced by 'TestableFileSystem.Interfaces.IFileInfo.ToString'.",
                 "Usage of 'System.IO.DirectoryInfo.Name' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo.Name'.",
                 "Usage of 'System.IO.DirectoryInfo.Delete' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo.Delete'.",
-                "Usage of 'System.IO.DirectoryInfo.ToString' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo.ToString'.");
+                "Usage of 'System.IO.DirectoryInfo.ToString' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo.ToString'.",
+                "Usage of 'System.IO.DriveInfo.Name' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo.Name'.",
+                "Usage of 'System.IO.DriveInfo.VolumeLabel' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo.VolumeLabel'.",
+                "Usage of 'System.IO.DriveInfo.ToString' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo.ToString'.",
+                "Usage of 'System.IO.FileSystemWatcher.NotifyFilter' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher.NotifyFilter'.",
+                "Usage of 'System.IO.FileSystemWatcher.IncludeSubdirectories' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher.IncludeSubdirectories'.",
+                "Usage of 'System.IO.FileSystemWatcher.WaitForChanged' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher.WaitForChanged'.");
         }
 
         [Fact]
@@ -143,7 +170,9 @@ namespace TestableFileSystem.Analyzer.Tests
                 .InDefaultMethod(@"
                     var fileInfo = new [|FileInfo|](null);
                     var directoryInfo = new [|DirectoryInfo|](null);
+                    var driveInfo = new [|DriveInfo|](null);
                     var stream = new [|FileStream|](null, FileMode.Create);
+                    var watcher = new [|FileSystemWatcher|](null);
                 ")
                 .Build();
 
@@ -151,7 +180,9 @@ namespace TestableFileSystem.Analyzer.Tests
             VerifyFileSystemDiagnostic(source,
                 "Usage of 'System.IO.FileInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileInfo'.",
                 "Usage of 'System.IO.DirectoryInfo' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo'.",
-                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.");
+                "Usage of 'System.IO.DriveInfo' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo'.",
+                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.",
+                "Usage of 'System.IO.FileSystemWatcher' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher'.");
         }
 
         [Fact]
@@ -180,7 +211,7 @@ namespace TestableFileSystem.Analyzer.Tests
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
                 .InDefaultClass(@"
-                    void M(FileInfo [|fi|], DirectoryInfo [|di|], FileSystemInfo [|fsi|], FileStream [|fs|])
+                    void M(FileInfo [|fi|], DirectoryInfo [|di|], FileSystemInfo [|fsi|], DriveInfo [|dri|], FileStream [|fs|], FileSystemWatcher [|fw|])
                     {
                     }
                 ")
@@ -191,7 +222,9 @@ namespace TestableFileSystem.Analyzer.Tests
                 "Usage of 'System.IO.FileInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileInfo'.",
                 "Usage of 'System.IO.DirectoryInfo' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo'.",
                 "Usage of 'System.IO.FileSystemInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemInfo'.",
-                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.");
+                "Usage of 'System.IO.DriveInfo' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo'.",
+                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.",
+                "Usage of 'System.IO.FileSystemWatcher' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher'.");
         }
 
         [Fact]
@@ -223,7 +256,9 @@ namespace TestableFileSystem.Analyzer.Tests
                     private FileInfo [|fi|];
                     public DirectoryInfo [|di|];
                     internal FileSystemInfo [|fsi|];
+                    protected internal DriveInfo [|dri|];
                     protected FileStream [|fs|];
+                    private protected FileSystemWatcher [|fw|];
                 ")
                 .Build();
 
@@ -232,7 +267,9 @@ namespace TestableFileSystem.Analyzer.Tests
                 "Usage of 'System.IO.FileInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileInfo'.",
                 "Usage of 'System.IO.DirectoryInfo' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo'.",
                 "Usage of 'System.IO.FileSystemInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemInfo'.",
-                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.");
+                "Usage of 'System.IO.DriveInfo' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo'.",
+                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.",
+                "Usage of 'System.IO.FileSystemWatcher' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher'.");
         }
 
         [Fact]
@@ -264,7 +301,9 @@ namespace TestableFileSystem.Analyzer.Tests
                     private FileInfo [|fi|] { get; set; }
                     public DirectoryInfo [|di|] { get; set; }
                     internal FileSystemInfo [|fsi|] { get; set; }
+                    protected internal DriveInfo [|dri|] { get; set; }
                     protected FileStream [|fs|] { get; set; }
+                    private protected FileSystemWatcher [|fw|] { get; set; }
                 ")
                 .Build();
 
@@ -273,7 +312,9 @@ namespace TestableFileSystem.Analyzer.Tests
                 "Usage of 'System.IO.FileInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileInfo'.",
                 "Usage of 'System.IO.DirectoryInfo' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo'.",
                 "Usage of 'System.IO.FileSystemInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemInfo'.",
-                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.");
+                "Usage of 'System.IO.DriveInfo' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo'.",
+                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.",
+                "Usage of 'System.IO.FileSystemWatcher' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher'.");
         }
 
         [Fact]
@@ -305,7 +346,9 @@ namespace TestableFileSystem.Analyzer.Tests
                     private FileInfo [|fi|]() { throw new System.NotImplementedException(); }
                     public DirectoryInfo [|di|]() { throw new System.NotImplementedException(); }
                     internal FileSystemInfo [|fsi|]() { throw new System.NotImplementedException(); }
+                    protected internal DriveInfo [|dri|]() { throw new System.NotImplementedException(); }
                     protected FileStream [|fs|]() { throw new System.NotImplementedException(); }
+                    private protected FileSystemWatcher [|fw|]() { throw new System.NotImplementedException(); }
                 ")
                 .Build();
 
@@ -314,7 +357,9 @@ namespace TestableFileSystem.Analyzer.Tests
                 "Usage of 'System.IO.FileInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileInfo'.",
                 "Usage of 'System.IO.DirectoryInfo' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo'.",
                 "Usage of 'System.IO.FileSystemInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemInfo'.",
-                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.");
+                "Usage of 'System.IO.DriveInfo' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo'.",
+                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.",
+                "Usage of 'System.IO.FileSystemWatcher' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher'.");
         }
 
         [Fact]

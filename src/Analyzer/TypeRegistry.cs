@@ -33,7 +33,9 @@ namespace TestableFileSystem.Analyzer
             builder.IncludePair("System.IO.File", "TestableFileSystem.Interfaces.IFile");
             builder.IncludePair("System.IO.FileInfo", "TestableFileSystem.Interfaces.IFileInfo");
             builder.IncludePair("System.IO.FileSystemInfo", "TestableFileSystem.Interfaces.IFileSystemInfo");
+            builder.IncludePair("System.IO.DriveInfo", "TestableFileSystem.Interfaces.IDriveInfo");
             builder.IncludePair("System.IO.FileStream", "TestableFileSystem.Interfaces.IFileStream");
+            builder.IncludePair("System.IO.FileSystemWatcher", "TestableFileSystem.Interfaces.IFileSystemWatcher");
 
             typeMap = builder.Build();
 
