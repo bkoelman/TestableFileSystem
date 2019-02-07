@@ -258,7 +258,7 @@ namespace TestableFileSystem.Analyzer.Tests
                     internal FileSystemInfo [|fsi|];
                     protected internal DriveInfo [|dri|];
                     protected FileStream [|fs|];
-                    private protected FileSystemWatcher [|fw|];
+                    protected FileSystemWatcher [|fw|];
                 ")
                 .Build();
 
@@ -303,7 +303,7 @@ namespace TestableFileSystem.Analyzer.Tests
                     internal FileSystemInfo [|fsi|] { get; set; }
                     protected internal DriveInfo [|dri|] { get; set; }
                     protected FileStream [|fs|] { get; set; }
-                    private protected FileSystemWatcher [|fw|] { get; set; }
+                    protected FileSystemWatcher [|fw|] { get; set; }
                 ")
                 .Build();
 
@@ -348,7 +348,7 @@ namespace TestableFileSystem.Analyzer.Tests
                     internal FileSystemInfo [|fsi|]() { throw new System.NotImplementedException(); }
                     protected internal DriveInfo [|dri|]() { throw new System.NotImplementedException(); }
                     protected FileStream [|fs|]() { throw new System.NotImplementedException(); }
-                    private protected FileSystemWatcher [|fw|]() { throw new System.NotImplementedException(); }
+                    protected FileSystemWatcher [|fw|]() { throw new System.NotImplementedException(); }
                 ")
                 .Build();
 
