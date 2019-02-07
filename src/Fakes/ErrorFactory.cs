@@ -124,6 +124,27 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
+            public static Exception DriveNameMustBeRootOrLetter()
+            {
+                throw new ArgumentException(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
+            }
+
+#if !NETSTANDARD1_3
+            [NotNull]
+            public static Exception CouldNotFindDrive([NotNull] string driveName)
+            {
+                throw new DriveNotFoundException(
+                    $"Could not find the drive '{driveName}'. The drive might not be ready or might not be mapped.");
+            }
+
+            [NotNull]
+            public static Exception TooManyChangesAtOnce([NotNull] string path)
+            {
+                return new InternalBufferOverflowException($"Too many changes at once in directory:{path}.");
+            }
+#endif
+
+            [NotNull]
             public static Exception DirectoryNameIsInvalid()
             {
                 return new IOException("The directory name is invalid.");
@@ -140,14 +161,6 @@ namespace TestableFileSystem.Fakes
             {
                 return new FileNotFoundException($"Error reading the {path} directory.");
             }
-
-#if !NETSTANDARD1_3
-            [NotNull]
-            public static Exception TooManyChangesAtOnce([NotNull] string path)
-            {
-                return new InternalBufferOverflowException($"Too many changes at once in directory:{path}.");
-            }
-#endif
 
             [NotNull]
             public static Exception UncPathIsInvalid()

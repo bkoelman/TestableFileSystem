@@ -24,6 +24,11 @@ namespace TestableFileSystem.Wrappers
         }
 
 #if !NETSTANDARD1_3
+        public IDriveInfo ConstructDriveInfo(string driveName)
+        {
+            return new DriveInfoWrapper(new DriveInfo(driveName));
+        }
+
         public IFileSystemWatcher ConstructFileSystemWatcher(string path = "", string filter = "*.*")
         {
             FileSystemWatcher watcher = path == string.Empty ? new FileSystemWatcher() : new FileSystemWatcher(path, filter);

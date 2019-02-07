@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -89,6 +90,13 @@ namespace TestableFileSystem.Fakes
         }
 
 #if !NETSTANDARD1_3
+        public IDriveInfo ConstructDriveInfo(string driveName)
+        {
+            Guard.NotNull(driveName, nameof(driveName));
+
+            return new FakeDriveInfo(this, driveName);
+        }
+
         [NotNull]
         public FakeFileSystemWatcher ConstructFileSystemWatcher([NotNull] string path = "", [NotNull] string filter = "*.*")
         {

@@ -19,6 +19,9 @@ namespace TestableFileSystem.Interfaces
 
 #if !NETSTANDARD1_3
         [NotNull]
+        IDriveInfo ConstructDriveInfo([NotNull] string driveName);
+
+        [NotNull]
         IFileSystemWatcher ConstructFileSystemWatcher([NotNull] string path = "", [NotNull] string filter = "*.*");
 #endif
     }
