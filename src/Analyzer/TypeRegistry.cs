@@ -28,8 +28,6 @@ namespace TestableFileSystem.Analyzer
         {
             var builder = new RegistryBuilder(compilation);
 
-            // TODO: Verify that loading a subset of the types still works on NetStandard13 / NetCore11.
-
             builder.IncludePair("Directory", "IDirectory");
             builder.IncludePair("DirectoryInfo", "IDirectoryInfo");
             builder.IncludePair("File", "IFile");
@@ -47,7 +45,7 @@ namespace TestableFileSystem.Analyzer
                 compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.TestableInterfaces, "FileInfoExtensions"))
             };
 
-            IsComplete = builder.FoundAll && TestableExtensionTypes.All(x => x != null);
+            IsComplete = typeMap.Any() && TestableExtensionTypes.All(x => x != null);
         }
 
         [CanBeNull]
@@ -67,8 +65,6 @@ namespace TestableFileSystem.Analyzer
             private readonly Dictionary<INamedTypeSymbol, INamedTypeSymbol> map =
                 new Dictionary<INamedTypeSymbol, INamedTypeSymbol>();
 
-            public bool FoundAll = true;
-
             public RegistryBuilder([NotNull] Compilation compilation)
             {
                 this.compilation = compilation;
@@ -87,11 +83,7 @@ namespace TestableFileSystem.Analyzer
                 INamedTypeSymbol testableTypeSymbol =
                     compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.TestableInterfaces, testableTypeName));
 
-                if (systemTypeSymbol == null || testableTypeSymbol == null)
-                {
-                    FoundAll = false;
-                }
-                else
+                if (systemTypeSymbol != null && testableTypeSymbol != null)
                 {
                     map.Add(systemTypeSymbol, testableTypeSymbol);
                 }
