@@ -199,11 +199,11 @@ namespace TestableFileSystem.Analyzer.Tests
 
             // Act and assert
             VerifyFileSystemDiagnostic(source,
-                "Usage of 'System.IO.FileInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileInfo'.",
-                "Usage of 'System.IO.DirectoryInfo' should be replaced by 'TestableFileSystem.Interfaces.IDirectoryInfo'.",
-                "Usage of 'System.IO.DriveInfo' should be replaced by 'TestableFileSystem.Interfaces.IDriveInfo'.",
-                "Usage of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFileStream'.",
-                "Usage of 'System.IO.FileSystemWatcher' should be replaced by 'TestableFileSystem.Interfaces.IFileSystemWatcher'.");
+                "Construction of 'System.IO.FileInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileSystem.ConstructFileInfo'.",
+                "Construction of 'System.IO.DirectoryInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileSystem.ConstructDirectoryInfo'.",
+                "Construction of 'System.IO.DriveInfo' should be replaced by 'TestableFileSystem.Interfaces.IFileSystem.ConstructDriveInfo'.",
+                "Construction of 'System.IO.FileStream' should be replaced by 'TestableFileSystem.Interfaces.IFile.Open'.",
+                "Construction of 'System.IO.FileSystemWatcher' should be replaced by 'TestableFileSystem.Interfaces.IFileSystem.ConstructFileSystemWatcher'.");
         }
 
         [Fact]

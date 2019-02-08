@@ -30,21 +30,21 @@ namespace TestableFileSystem.Analyzer
 
             // TODO: Verify that loading a subset of the types still works on NetStandard13 / NetCore11.
 
-            builder.IncludePair("System.IO.Directory", "TestableFileSystem.Interfaces.IDirectory");
-            builder.IncludePair("System.IO.DirectoryInfo", "TestableFileSystem.Interfaces.IDirectoryInfo");
-            builder.IncludePair("System.IO.File", "TestableFileSystem.Interfaces.IFile");
-            builder.IncludePair("System.IO.FileInfo", "TestableFileSystem.Interfaces.IFileInfo");
-            builder.IncludePair("System.IO.FileSystemInfo", "TestableFileSystem.Interfaces.IFileSystemInfo");
-            builder.IncludePair("System.IO.DriveInfo", "TestableFileSystem.Interfaces.IDriveInfo");
-            builder.IncludePair("System.IO.FileStream", "TestableFileSystem.Interfaces.IFileStream");
-            builder.IncludePair("System.IO.FileSystemWatcher", "TestableFileSystem.Interfaces.IFileSystemWatcher");
+            builder.IncludePair("Directory", "IDirectory");
+            builder.IncludePair("DirectoryInfo", "IDirectoryInfo");
+            builder.IncludePair("File", "IFile");
+            builder.IncludePair("FileInfo", "IFileInfo");
+            builder.IncludePair("FileSystemInfo", "IFileSystemInfo");
+            builder.IncludePair("DriveInfo", "IDriveInfo");
+            builder.IncludePair("FileStream", "IFileStream");
+            builder.IncludePair("FileSystemWatcher", "IFileSystemWatcher");
 
             typeMap = builder.Build();
 
             TestableExtensionTypes = new List<INamedTypeSymbol>
             {
-                compilation.GetTypeByMetadataName("TestableFileSystem.Interfaces.FileExtensions"),
-                compilation.GetTypeByMetadataName("TestableFileSystem.Interfaces.FileInfoExtensions")
+                compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.TestableInterfaces, "FileExtensions")),
+                compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.TestableInterfaces, "FileInfoExtensions"))
             };
 
             IsComplete = builder.FoundAll && TestableExtensionTypes.All(x => x != null);
@@ -82,8 +82,10 @@ namespace TestableFileSystem.Analyzer
 
             public void IncludePair([NotNull] string systemTypeName, [NotNull] string testableTypeName)
             {
-                INamedTypeSymbol systemTypeSymbol = compilation.GetTypeByMetadataName(systemTypeName);
-                INamedTypeSymbol testableTypeSymbol = compilation.GetTypeByMetadataName(testableTypeName);
+                INamedTypeSymbol systemTypeSymbol =
+                    compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.SystemIO, systemTypeName));
+                INamedTypeSymbol testableTypeSymbol =
+                    compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.TestableInterfaces, testableTypeName));
 
                 if (systemTypeSymbol == null || testableTypeSymbol == null)
                 {
