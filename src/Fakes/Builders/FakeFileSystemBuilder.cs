@@ -83,12 +83,18 @@ namespace TestableFileSystem.Fakes.Builders
                 throw ErrorFactory.System.PathFormatIsNotSupported();
             }
 
-            string volumeName = path.Components.Single();
+            string volumeName = GetVolumeName(path);
             volumes[volumeName] = volume;
 
             CreateDirectories(path);
 
             return this;
+        }
+
+        [NotNull]
+        private static string GetVolumeName([NotNull] AbsolutePath path)
+        {
+            return path.IsOnLocalDrive ? path.Components.First().ToUpperInvariant() : path.Components.First();
         }
 
         [NotNull]
@@ -120,7 +126,7 @@ namespace TestableFileSystem.Fakes.Builders
 
         private void CreateVolume([NotNull] AbsolutePath absolutePath)
         {
-            string volumeName = absolutePath.Components.First();
+            string volumeName = GetVolumeName(absolutePath);
             if (!volumes.ContainsKey(volumeName))
             {
                 volumes[volumeName] = new FakeVolumeBuilder().Build();

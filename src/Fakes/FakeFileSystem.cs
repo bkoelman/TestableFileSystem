@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -100,6 +100,19 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(driveName, nameof(driveName));
 
             return new FakeDriveInfo(this, driveName);
+        }
+
+        public IDriveInfo[] GetDrives()
+        {
+            var driveInfos = new List<IDriveInfo>();
+
+            foreach (string driveName in volumes.Keys.Where(AbsolutePath.IsDriveLetter).OrderBy(x => x))
+            {
+                IDriveInfo driveInfo = ConstructDriveInfo(driveName);
+                driveInfos.Add(driveInfo);
+            }
+
+            return driveInfos.ToArray();
         }
 
         [NotNull]
