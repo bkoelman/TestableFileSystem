@@ -74,8 +74,6 @@ namespace TestableFileSystem.Interfaces
         void SetLastWriteTimeUtc([NotNull] string path, DateTime lastWriteTimeUtc);
 
 #if !NETSTANDARD1_3
-        // TODO: Update analyzer to also detect System.Environment.GetLogicalDrives()
-
         [NotNull]
         [ItemNotNull]
         string[] GetLogicalDrives();

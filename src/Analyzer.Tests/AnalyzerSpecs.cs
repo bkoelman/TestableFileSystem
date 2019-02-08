@@ -59,6 +59,27 @@ namespace TestableFileSystem.Analyzer.Tests
         }
 
         [Fact]
+        private void When_invoking_special_static_member_it_must_be_reported()
+        {
+            // Arrange
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
+                .WithReference(typeof(IFileSystem).Assembly)
+                .Using(typeof(File).Namespace)
+                .InDefaultMethod(@"
+                    var drives1 = [|Directory.GetLogicalDrives|]();
+                    var drives2 = [|Environment.GetLogicalDrives|]();
+                    var drives3 = [|DriveInfo.GetDrives|]();
+                ")
+                .Build();
+
+            // Act and assert
+            VerifyFileSystemDiagnostic(source,
+                "Usage of 'System.IO.Directory.GetLogicalDrives' should be replaced by 'TestableFileSystem.Interfaces.IDirectory.GetLogicalDrives'.",
+                "Usage of 'System.Environment.GetLogicalDrives' should be replaced by 'TestableFileSystem.Interfaces.IDirectory.GetLogicalDrives'.",
+                "Usage of 'System.IO.DriveInfo.GetDrives' should be replaced by 'TestableFileSystem.Interfaces.IFileSystem.GetDrives'.");
+        }
+
+        [Fact]
         private void When_invoking_non_fakeable_instance_member_it_must_be_skipped()
         {
             // Arrange

@@ -28,6 +28,8 @@ namespace TestableFileSystem.Analyzer
         {
             var builder = new RegistryBuilder(compilation);
 
+            // TODO: Verify that loading a subset of the types still works on NetStandard13 / NetCore11.
+
             builder.IncludePair("System.IO.Directory", "TestableFileSystem.Interfaces.IDirectory");
             builder.IncludePair("System.IO.DirectoryInfo", "TestableFileSystem.Interfaces.IDirectoryInfo");
             builder.IncludePair("System.IO.File", "TestableFileSystem.Interfaces.IFile");

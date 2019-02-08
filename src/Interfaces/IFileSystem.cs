@@ -21,7 +21,6 @@ namespace TestableFileSystem.Interfaces
         [NotNull]
         IDriveInfo ConstructDriveInfo([NotNull] string driveName);
 
-        // TODO: Update analyzer to redirect from static DriveInfo.GetDrives() to here.
         [NotNull]
         [ItemNotNull]
         IDriveInfo[] GetDrives();

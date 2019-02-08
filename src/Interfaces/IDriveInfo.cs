@@ -28,10 +28,6 @@ namespace TestableFileSystem.Interfaces
 
         [NotNull]
         string ToString();
-
-        // TODO: Provide a way to retrieve all drives in non-static context.
-        // Maybe throw with a message that describes where/how to obtain this data.
-        // public static DriveInfo[] GetDrives()
     }
 }
 #endif

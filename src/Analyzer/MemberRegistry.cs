@@ -39,6 +39,9 @@ namespace TestableFileSystem.Analyzer
                     memberMap.Add(systemMemberName, testableExtensionMemberSymbol.GetCompleteMemberName());
                 }
             }
+
+            memberMap.Add("System.Environment.GetLogicalDrives", "TestableFileSystem.Interfaces.IDirectory.GetLogicalDrives");
+            memberMap.Add("System.IO.DriveInfo.GetDrives", "TestableFileSystem.Interfaces.IFileSystem.GetDrives");
         }
 
         [NotNull]
