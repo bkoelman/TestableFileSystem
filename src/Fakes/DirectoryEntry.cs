@@ -133,7 +133,8 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         public ICollection<DirectoryEntry> FilterDrives()
         {
-            return Directories.Where(x => x.Key.IndexOf(Path.VolumeSeparatorChar) != -1).Select(x => x.Value).ToArray();
+            return Directories.Where(x => AbsolutePath.IsDriveLetter(x.Key)).OrderBy(x => x.Key.ToUpperInvariant())
+                .Select(x => x.Value).ToArray();
         }
 
         [NotNull]

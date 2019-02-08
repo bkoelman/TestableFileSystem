@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Handlers;
@@ -338,8 +339,8 @@ namespace TestableFileSystem.Fakes
 #if !NETSTANDARD1_3
         public string[] GetLogicalDrives()
         {
-            // TODO: Implement this (and have tests).
-            throw new NotImplementedException();
+            ICollection<DirectoryEntry> drives = root.FilterDrives();
+            return drives.Select(x => x.Name + Path.DirectorySeparatorChar).ToArray();
         }
 #endif
     }
