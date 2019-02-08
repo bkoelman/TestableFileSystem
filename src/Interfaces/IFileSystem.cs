@@ -17,6 +17,8 @@ namespace TestableFileSystem.Interfaces
         [NotNull]
         IDirectoryInfo ConstructDirectoryInfo([NotNull] string path);
 
+        // TODO: Add replacement for System.IO.Path.GetTempFileName() - added in NetStandard 1.3
+
 #if !NETSTANDARD1_3
         [NotNull]
         IDriveInfo ConstructDriveInfo([NotNull] string driveName);
