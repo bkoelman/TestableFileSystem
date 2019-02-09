@@ -64,7 +64,7 @@ namespace TestableFileSystem.Wrappers
         {
         }
 
-        public FileStreamWrapper([NotNull] Stream source, [NotNull] Func<string> getName, [NotNull] Func<bool> getIsAsync,
+        internal FileStreamWrapper([NotNull] Stream source, [NotNull] Func<string> getName, [NotNull] Func<bool> getIsAsync,
             [NotNull] Func<SafeFileHandle> getSafeFileHandle, [NotNull] Action<bool> doFlush)
         {
             Guard.NotNull(source, nameof(source));
@@ -129,6 +129,28 @@ namespace TestableFileSystem.Wrappers
         {
             return innerStream.WriteAsync(buffer, offset, count, cancellationToken);
         }
+
+#if !NETSTANDARD1_3
+        public IAsyncResult BeginRead(byte[] array, int offset, int numBytes, AsyncCallback userCallback, object stateObject)
+        {
+            return innerStream.BeginRead(array, offset, numBytes, userCallback, stateObject);
+        }
+
+        public int EndRead(IAsyncResult asyncResult)
+        {
+            return innerStream.EndRead(asyncResult);
+        }
+
+        public IAsyncResult BeginWrite(byte[] array, int offset, int numBytes, AsyncCallback userCallback, object stateObject)
+        {
+            return innerStream.BeginWrite(array, offset, numBytes, userCallback, stateObject);
+        }
+
+        public void EndWrite(IAsyncResult asyncResult)
+        {
+            innerStream.EndWrite(asyncResult);
+        }
+#endif
 
         public void CopyTo(Stream destination, int bufferSize = 81920)
         {

@@ -1,6 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
@@ -183,6 +186,104 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_async_writing_buffer_to_file_using_TPL_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            byte[] buffer = Encoding.ASCII.GetBytes(content);
+            bool hasCompleted;
+
+            using (IFileStream stream = fileSystem.File.Create(path))
+            {
+                // Act
+                Task task = stream.WriteAsync(buffer, 0, buffer.Length);
+                hasCompleted = task.Wait(TimeSpan.FromSeconds(1));
+            }
+
+            // Assert
+            hasCompleted.Should().BeTrue();
+            fileSystem.File.ReadAllText(path).Should().Be(content);
+        }
+
+#if !NETCOREAPP1_1
+        [Fact]
+        private void When_async_writing_buffer_to_file_using_APM_without_callback_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            byte[] buffer = Encoding.ASCII.GetBytes(content);
+            IAsyncResult asyncResult;
+
+            using (IFileStream stream = fileSystem.File.Create(path))
+            {
+                // Act
+                asyncResult = stream.BeginWrite(buffer, 0, buffer.Length, null, null);
+                stream.EndWrite(asyncResult);
+            }
+
+            // Assert
+            asyncResult.IsCompleted.Should().BeTrue();
+            fileSystem.File.ReadAllText(path).Should().Be(content);
+        }
+
+        [Fact]
+        private void When_async_writing_buffer_to_file_using_APM_with_callback_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            byte[] buffer = Encoding.ASCII.GetBytes(content);
+            IAsyncResult outerAsyncResult;
+            Exception error = null;
+            var completionWaitHandle = new AutoResetEvent(false);
+            bool wasSignaled;
+
+            using (IFileStream stream = fileSystem.File.Create(path))
+            {
+                // Act
+                outerAsyncResult = stream.BeginWrite(buffer, 0, buffer.Length, WriteCompleted, null);
+
+                void WriteCompleted(IAsyncResult innerAsyncResult)
+                {
+                    try
+                    {
+                        // ReSharper disable once AccessToDisposedClosure
+                        stream.EndWrite(innerAsyncResult);
+                    }
+                    catch (Exception exception)
+                    {
+                        error = exception;
+                    }
+
+                    completionWaitHandle.Set();
+                }
+
+                wasSignaled = completionWaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+            }
+
+            // Assert
+            wasSignaled.Should().BeTrue();
+            outerAsyncResult.IsCompleted.Should().BeTrue();
+            error.Should().BeNull();
+            fileSystem.File.ReadAllText(path).Should().Be(content);
+        }
+#endif
+
+        [Fact]
         private void When_reading_small_buffer_from_file_it_must_succeed()
         {
             // Arrange
@@ -234,6 +335,106 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 buffer.Take(size).SequenceEqual(contents).Should().BeTrue();
             }
         }
+
+        [Fact]
+        private void When_async_reading_buffer_from_file_using_TPL_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, content)
+                .Build();
+
+            var buffer = new byte[1024];
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                // Act
+                Task<int> task = stream.ReadAsync(buffer, 0, buffer.Length);
+                int numBytesRead = task.Result;
+
+                // Assert
+                numBytesRead.Should().Be(content.Length);
+                new string(Encoding.ASCII.GetChars(buffer, 0, numBytesRead)).Should().Be(content);
+            }
+        }
+
+#if !NETCOREAPP1_1
+        [Fact]
+        private void When_async_reading_buffer_from_file_using_APM_without_callback_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, content)
+                .Build();
+
+            var buffer = new byte[1024];
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                // Act
+                IAsyncResult asyncResult = stream.BeginRead(buffer, 0, buffer.Length, null, null);
+                int numBytesRead = stream.EndRead(asyncResult);
+
+                // Assert
+                asyncResult.IsCompleted.Should().BeTrue();
+                numBytesRead.Should().Be(content.Length);
+                new string(Encoding.ASCII.GetChars(buffer, 0, numBytesRead)).Should().Be(content);
+            }
+        }
+
+        [Fact]
+        private void When_async_reading_buffer_from_file_using_APM_with_callback_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, content)
+                .Build();
+
+            var buffer = new byte[1024];
+            int numBytesRead = -1;
+            Exception error = null;
+            var completionWaitHandle = new AutoResetEvent(false);
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                // Act
+                IAsyncResult outerAsyncResult = stream.BeginRead(buffer, 0, buffer.Length, ReadCompleted, null);
+
+                void ReadCompleted(IAsyncResult innerAsyncResult)
+                {
+                    try
+                    {
+                        // ReSharper disable once AccessToDisposedClosure
+                        numBytesRead = stream.EndRead(innerAsyncResult);
+                    }
+                    catch (Exception exception)
+                    {
+                        error = exception;
+                    }
+
+                    completionWaitHandle.Set();
+                }
+
+                bool wasSignaled = completionWaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+
+                // Assert
+                wasSignaled.Should().BeTrue();
+                outerAsyncResult.IsCompleted.Should().BeTrue();
+                error.Should().BeNull();
+                numBytesRead.Should().Be(content.Length);
+                new string(Encoding.ASCII.GetChars(buffer, 0, numBytesRead)).Should().Be(content);
+            }
+        }
+#endif
 
         [Fact]
         private void When_appending_small_buffer_to_file_it_must_succeed()

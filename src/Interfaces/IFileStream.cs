@@ -50,6 +50,20 @@ namespace TestableFileSystem.Interfaces
         [NotNull]
         Task WriteAsync([NotNull] byte[] buffer, int offset, int count, CancellationToken cancellationToken = default);
 
+#if !NETSTANDARD1_3
+        [NotNull]
+        IAsyncResult BeginRead([NotNull] byte[] array, int offset, int numBytes, [CanBeNull] AsyncCallback userCallback,
+            [CanBeNull] object stateObject);
+
+        int EndRead([NotNull] IAsyncResult asyncResult);
+
+        [NotNull]
+        IAsyncResult BeginWrite([NotNull] byte[] array, int offset, int numBytes, [CanBeNull] AsyncCallback userCallback,
+            [CanBeNull] object stateObject);
+
+        void EndWrite([NotNull] IAsyncResult asyncResult);
+#endif
+
         void CopyTo([NotNull] Stream destination, int bufferSize = 81920);
 
         [NotNull]
