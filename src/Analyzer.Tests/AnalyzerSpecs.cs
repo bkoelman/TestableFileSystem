@@ -1,4 +1,7 @@
 ﻿using System.IO;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 using TestableFileSystem.Analyzer.Tests.TestDataBuilders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -47,8 +50,8 @@ namespace TestableFileSystem.Analyzer.Tests
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
-                    var stream = [|File.Create|](null);
-                    var files = [|Directory.GetFiles|](null);
+                    var stream = File.[|Create|](null);
+                    var files = Directory.[|GetFiles|](null);
                 ")
                 .Build();
 
@@ -66,9 +69,9 @@ namespace TestableFileSystem.Analyzer.Tests
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
-                    var drives1 = [|Directory.GetLogicalDrives|]();
-                    var drives2 = [|Environment.GetLogicalDrives|]();
-                    var drives3 = [|DriveInfo.GetDrives|]();
+                    var drives1 = Directory.[|GetLogicalDrives|]();
+                    var drives2 = Environment.[|GetLogicalDrives|]();
+                    var drives3 = DriveInfo.[|GetDrives|]();
                 ")
                 .Build();
 
@@ -114,36 +117,36 @@ namespace TestableFileSystem.Analyzer.Tests
                     {
                         FileInfo fileInfo = null;
 
-                        var name = [|fileInfo.Name|];
-                        var directory = [|fileInfo.Directory|];
-                        var text = [|fileInfo.ToString|]();
+                        var name = fileInfo.[|Name|];
+                        var directory = fileInfo.[|Directory|];
+                        var text = fileInfo.[|ToString|]();
                     }
 
                     void M2()
                     {
                         DirectoryInfo directoryInfo = null;
 
-                        var name = [|directoryInfo.Name|];
-                        [|directoryInfo.Delete|](false);
-                        var text = [|directoryInfo.ToString|]();
+                        var name = directoryInfo.[|Name|];
+                        directoryInfo.[|Delete|](false);
+                        var text = directoryInfo.[|ToString|]();
                     }
 
                     void M3()
                     {
                         DriveInfo driveInfo = null;
 
-                        var name = [|driveInfo.Name|];
-                        [|driveInfo.VolumeLabel|] = ""X"";
-                        var text = [|driveInfo.ToString|]();
+                        var name = driveInfo.[|Name|];
+                        driveInfo.[|VolumeLabel|] = ""X"";
+                        var text = driveInfo.[|ToString|]();
                     }
 
                     void M4()
                     {
                         FileSystemWatcher watcher = null;
 
-                        var notifyFilter = [|watcher.NotifyFilter|];
-                        [|watcher.IncludeSubdirectories|] = true;
-                        var result = [|watcher.WaitForChanged|](WatcherChangeTypes.All);
+                        var notifyFilter = watcher.[|NotifyFilter|];
+                        watcher.[|IncludeSubdirectories|] = true;
+                        var result = watcher.[|WaitForChanged|](WatcherChangeTypes.All);
                     }
                 ")
                 .Build();
@@ -432,10 +435,10 @@ namespace TestableFileSystem.Analyzer.Tests
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
-                    var stream1 = [|File.OpenRead|](null);
+                    var stream1 = File.[|OpenRead|](null);
 
                     FileInfo info = null;
-                    var stream2 = [|info.OpenRead|]();
+                    var stream2 = info.[|OpenRead|]();
                 ")
                 .Build();
 
@@ -443,6 +446,114 @@ namespace TestableFileSystem.Analyzer.Tests
             VerifyFileSystemDiagnostic(source,
                 "Usage of 'System.IO.File.OpenRead' should be replaced by 'TestableFileSystem.Interfaces.FileExtensions.OpenRead'.",
                 "Usage of 'System.IO.FileInfo.OpenRead' should be replaced by 'TestableFileSystem.Interfaces.FileInfoExtensions.OpenRead'.");
+        }
+
+        [Fact]
+        private void When_invoking_external_constructor_with_stream_it_must_be_skipped()
+        {
+            // Arrange
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
+                .WithReference(typeof(IFileSystem).Assembly)
+                .Using(typeof(StreamReader).Namespace)
+                .WithReference(typeof(XmlDocument).Assembly)
+                .Using(typeof(XmlDocument).Namespace)
+                .WithReference(typeof(XDocument).Assembly)
+                .Using(typeof(XDocument).Namespace)
+                .Using(typeof(Encoding).Namespace)
+                .InDefaultMethod(@"
+                    new StreamReader(new MemoryStream());
+
+                    new StreamWriter(new MemoryStream());
+
+                    new XmlDocument().Load(new MemoryStream());
+                    new XmlDocument().Save(new MemoryStream());
+
+                    XmlWriter.Create(new MemoryStream());
+
+                    new XmlTextWriter(new MemoryStream(), Encoding.UTF8);
+                    XmlTextWriter.Create(new MemoryStream());
+
+                    new XDocument().Save(new MemoryStream());
+
+                    new XElement(string.Empty).Save(new MemoryStream());
+
+                    new XStreamingElement(string.Empty).Save(new MemoryStream());
+                ")
+                .Build();
+
+            // Act and assert
+            VerifyFileSystemDiagnostic(source);
+        }
+
+        [Fact]
+        private void When_invoking_external_constructor_with_path_it_must_be_reported()
+        {
+            // Arrange
+            ParsedSourceCode source = new BlockSourceCodeBuilder()
+                .WithReference(typeof(IFileSystem).Assembly)
+                .Using(typeof(StreamReader).Namespace)
+                .WithReference(typeof(XmlDocument).Assembly)
+                .Using(typeof(XmlDocument).Namespace)
+                .WithReference(typeof(XDocument).Assembly)
+                .Using(typeof(XDocument).Namespace)
+                .Using(typeof(Encoding).Namespace)
+                .InDefaultMethod(@"
+                    new [|StreamReader|](string.Empty);
+                    new [|StreamReader|](string.Empty, false);
+                    new [|StreamReader|](string.Empty, Encoding.UTF8);
+                    new [|StreamReader|](string.Empty, Encoding.UTF8, false);
+                    new [|StreamReader|](string.Empty, Encoding.UTF8, false, 1024);
+
+                    new [|StreamWriter|](string.Empty);
+                    new [|StreamWriter|](string.Empty, true);
+                    new [|StreamWriter|](string.Empty, true, Encoding.UTF8);
+                    new [|StreamWriter|](string.Empty, true, Encoding.UTF8, 1024);
+
+                    new XmlDocument().[|Load|](string.Empty);
+                    new XmlDocument().[|Save|](string.Empty);
+
+                    XmlWriter.[|Create|](string.Empty);
+                    XmlWriter.[|Create|](string.Empty, new XmlWriterSettings());
+
+                    new [|XmlTextWriter|](string.Empty, Encoding.UTF8);
+                    XmlTextWriter.[|Create|](string.Empty);
+                    XmlTextWriter.[|Create|](string.Empty, new XmlWriterSettings());
+
+                    new XDocument().[|Save|](string.Empty);
+                    new XDocument().[|Save|](string.Empty, SaveOptions.None);
+
+                    new XElement(string.Empty).[|Save|](string.Empty);
+                    new XElement(string.Empty).[|Save|](string.Empty, SaveOptions.None);
+
+                    new XStreamingElement(string.Empty).[|Save|](string.Empty);
+                    new XStreamingElement(string.Empty).[|Save|](string.Empty, SaveOptions.None);
+                ")
+                .Build();
+
+            // Act and assert
+            VerifyFileSystemDiagnostic(source,
+                "Constructor of 'System.IO.StreamReader' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.IO.StreamReader' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.IO.StreamReader' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.IO.StreamReader' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.IO.StreamReader' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.IO.StreamWriter' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.IO.StreamWriter' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.IO.StreamWriter' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.IO.StreamWriter' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.XmlDocument.Load' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.XmlDocument.Save' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.XmlWriter.Create' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.XmlWriter.Create' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Constructor of 'System.Xml.XmlTextWriter' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.XmlWriter.Create' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.XmlWriter.Create' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.Linq.XDocument.Save' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.Linq.XDocument.Save' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.Linq.XElement.Save' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.Linq.XElement.Save' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.Linq.XStreamingElement.Save' should be passed a 'System.IO.Stream' instead of a file path.",
+                "Member 'System.Xml.Linq.XStreamingElement.Save' should be passed a 'System.IO.Stream' instead of a file path.");
         }
     }
 }

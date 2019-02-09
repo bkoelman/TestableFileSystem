@@ -14,22 +14,23 @@ namespace TestableFileSystem.Analyzer
     {
         public const string DiagnosticId = "FS01";
         private const string Title = "Usage of non-testable file system.";
-        private const string UsageMessageFormat = "Usage of '{0}' should be replaced by '{1}'.";
-        private const string ConstructionMessageFormat = "Construction of '{0}' should be replaced by '{1}'.";
+        private const string InternMessageFormat = "{0} of '{1}' should be replaced by '{2}'.";
+        private const string ExternMessageFormat = "{0} '{1}' should be passed a 'System.IO.Stream' instead of a file path.";
+        private const string Category = "API Usage";
         private const string Description = "A file system API is being used for which a testable alternative exists.";
+        private const string HelpLinkUri = "https://github.com/bkoelman/TestableFileSystem";
 
         [NotNull]
-        private static readonly DiagnosticDescriptor UsageRule = new DiagnosticDescriptor(DiagnosticId, Title, UsageMessageFormat,
-            "API Usage", DiagnosticSeverity.Warning, true, Description, "https://github.com/bkoelman/TestableFileSystem");
+        private static readonly DiagnosticDescriptor InternRule = new DiagnosticDescriptor(DiagnosticId, Title,
+            InternMessageFormat, Category, DiagnosticSeverity.Warning, true, Description, HelpLinkUri);
 
         [NotNull]
-        private static readonly DiagnosticDescriptor ConstructionRule = new DiagnosticDescriptor(DiagnosticId, Title,
-            ConstructionMessageFormat, "API Usage", DiagnosticSeverity.Warning, true, Description,
-            "https://github.com/bkoelman/TestableFileSystem");
+        private static readonly DiagnosticDescriptor ExternRule = new DiagnosticDescriptor(DiagnosticId, Title,
+            ExternMessageFormat, Category, DiagnosticSeverity.Warning, true, Description, HelpLinkUri);
 
         [ItemNotNull]
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(UsageRule, ConstructionRule);
+            ImmutableArray.Create(InternRule, ExternRule);
 
         public override void Initialize([NotNull] AnalysisContext context)
         {
@@ -43,7 +44,8 @@ namespace TestableFileSystem.Analyzer
 
                 var memberRegistry = new MemberRegistry(typeRegistry);
 
-                startContext.RegisterSyntaxNodeAction(syntaxContext => AnalyzeMemberAccessSyntax(syntaxContext, memberRegistry),
+                startContext.RegisterSyntaxNodeAction(
+                    syntaxContext => AnalyzeMemberAccessSyntax(syntaxContext, typeRegistry, memberRegistry),
                     SyntaxKind.SimpleMemberAccessExpression);
 
                 startContext.RegisterSyntaxNodeAction(syntaxContext => AnalyzeObjectCreationSyntax(syntaxContext, memberRegistry),
@@ -66,9 +68,12 @@ namespace TestableFileSystem.Analyzer
             });
         }
 
-        private void AnalyzeMemberAccessSyntax(SyntaxNodeAnalysisContext context, [NotNull] MemberRegistry memberRegistry)
+        private void AnalyzeMemberAccessSyntax(SyntaxNodeAnalysisContext context, [NotNull] TypeRegistry typeRegistry,
+            [NotNull] MemberRegistry memberRegistry)
         {
-            ISymbol symbol = context.SemanticModel.GetSymbolInfo(context.Node).Symbol;
+            var memberAccessSyntax = (MemberAccessExpressionSyntax)context.Node;
+
+            ISymbol symbol = context.SemanticModel.GetSymbolInfo(memberAccessSyntax).Symbol;
             if (symbol == null)
             {
                 return;
@@ -79,9 +84,22 @@ namespace TestableFileSystem.Analyzer
 
             if (testableMemberName != null)
             {
-                ReportUsageDiagnosticAt(context.Node.GetLocation(), systemMemberName, testableMemberName,
-                    context.ReportDiagnostic);
+                Location location = GetMemberInvocationLocation(memberAccessSyntax);
+                ReportInternDiagnosticAt(location, systemMemberName, testableMemberName, false, context.ReportDiagnostic);
             }
+            else if (symbol is IMethodSymbol methodSymbol && !typeRegistry.SystemTypes.Contains(methodSymbol.ContainingType) &&
+                ExternMemberHeuristic.HasFilePathParameter(methodSymbol))
+            {
+                Location location = GetMemberInvocationLocation(memberAccessSyntax);
+                ReportExternDiagnosticAt(location, systemMemberName, false, context.ReportDiagnostic);
+            }
+        }
+
+        [NotNull]
+        private Location GetMemberInvocationLocation([NotNull] MemberAccessExpressionSyntax memberAccessSyntax)
+        {
+            SyntaxNode lastChild = memberAccessSyntax.ChildNodes().LastOrDefault();
+            return lastChild != null ? lastChild.GetLocation() : memberAccessSyntax.GetLocation();
         }
 
         private void AnalyzeObjectCreationSyntax(SyntaxNodeAnalysisContext context, [NotNull] MemberRegistry memberRegistry)
@@ -99,8 +117,12 @@ namespace TestableFileSystem.Analyzer
             string testableMemberName = memberRegistry.TryResolveSystemConstructor(systemTypeName);
             if (testableMemberName != null)
             {
-                ReportConstructionDiagnosticAt(objectCreationSyntax.Type.GetLocation(), systemTypeName, testableMemberName,
+                ReportInternDiagnosticAt(objectCreationSyntax.Type.GetLocation(), systemTypeName, testableMemberName, true,
                     context.ReportDiagnostic);
+            }
+            else if (ExternMemberHeuristic.HasFilePathParameter(methodSymbol))
+            {
+                ReportExternDiagnosticAt(objectCreationSyntax.Type.GetLocation(), systemTypeName, true, context.ReportDiagnostic);
             }
         }
 
@@ -123,7 +145,7 @@ namespace TestableFileSystem.Analyzer
                         string systemTypeName = fileSystemInfoTypeSymbol.GetCompleteTypeName();
                         string testableTypeName = testableTypeSymbol.GetCompleteTypeName();
 
-                        ReportUsageDiagnosticAt(location, systemTypeName, testableTypeName, context.ReportDiagnostic);
+                        ReportInternDiagnosticAt(location, systemTypeName, testableTypeName, false, context.ReportDiagnostic);
                     }
                 }
             }
@@ -175,21 +197,23 @@ namespace TestableFileSystem.Analyzer
 
             if (testableTypeSymbol != null)
             {
-                ReportUsageDiagnosticAt(memberSymbol.Locations.First(), memberTypeSymbol.GetCompleteTypeName(),
-                    testableTypeSymbol.GetCompleteTypeName(), reportDiagnostic);
+                ReportInternDiagnosticAt(memberSymbol.Locations.First(), memberTypeSymbol.GetCompleteTypeName(),
+                    testableTypeSymbol.GetCompleteTypeName(), false, reportDiagnostic);
             }
         }
 
-        private void ReportUsageDiagnosticAt([NotNull] Location location, [NotNull] string typeOrMemberName,
-            [NotNull] string replacementName, [NotNull] Action<Diagnostic> reportDiagnostic)
+        private void ReportInternDiagnosticAt([NotNull] Location location, [NotNull] string typeOrMemberName,
+            [NotNull] string replacementName, bool isConstruction, [NotNull] Action<Diagnostic> reportDiagnostic)
         {
-            reportDiagnostic(Diagnostic.Create(UsageRule, location, typeOrMemberName, replacementName));
+            string text = isConstruction ? "Construction" : "Usage";
+            reportDiagnostic(Diagnostic.Create(InternRule, location, text, typeOrMemberName, replacementName));
         }
 
-        private void ReportConstructionDiagnosticAt([NotNull] Location location, [NotNull] string typeOrMemberName,
-            [NotNull] string replacementName, [NotNull] Action<Diagnostic> reportDiagnostic)
+        private void ReportExternDiagnosticAt([NotNull] Location location, [NotNull] string memberName, bool isConstruction,
+            [NotNull] Action<Diagnostic> reportDiagnostic)
         {
-            reportDiagnostic(Diagnostic.Create(ConstructionRule, location, typeOrMemberName, replacementName));
+            string text = isConstruction ? "Constructor of" : "Member";
+            reportDiagnostic(Diagnostic.Create(ExternRule, location, text, memberName));
         }
     }
 }
