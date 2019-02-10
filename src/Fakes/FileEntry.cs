@@ -31,6 +31,9 @@ namespace TestableFileSystem.Fakes
         private readonly IList<FakeFileStream> activeReaders = new List<FakeFileStream>();
 
         [NotNull]
+        private readonly LockTracker lockTracker;
+
+        [NotNull]
         private readonly object readerWriterLock = new object();
 
         private long creationTimeStampUtc;
@@ -87,6 +90,7 @@ namespace TestableFileSystem.Fakes
 
             Parent = parent;
             PathFormatter = new FileEntryPathFormatter(this);
+            lockTracker = new LockTracker(this);
 
             CreationTimeUtc = LastWriteTimeUtc = LastAccessTimeUtc = parent.SystemClock.UtcNow();
         }
@@ -204,7 +208,7 @@ namespace TestableFileSystem.Fakes
             }
 
             return new FileStreamWrapper(stream, path.GetText, () => false, () => throw new NotSupportedException(),
-                _ => stream.Flush());
+                _ => stream.Flush(), stream.Lock, stream.Unlock);
         }
 
         public void MoveTo([NotNull] string newName, [NotNull] DirectoryEntry newParent)
@@ -399,6 +403,8 @@ namespace TestableFileSystem.Fakes
                     return 0;
                 }
 
+                AssertRangeNotLocked(Position + offset, count);
+
                 int sumBytesRead = 0;
 
                 int blockIndex = (int)(Position / BlockSize);
@@ -492,6 +498,7 @@ namespace TestableFileSystem.Fakes
                             owner.HandleFileContentsAccessed(accessKinds, notifyTracker);
                         }
 
+                        owner.lockTracker.Release(this);
                         owner.CloseStream(this);
                     }
                 }
@@ -521,6 +528,41 @@ namespace TestableFileSystem.Fakes
                 {
                     throw new NotSupportedException("Stream does not support writing.");
                 }
+            }
+
+            [AssertionMethod]
+            private void AssertIsNotNegative(long value, [NotNull] [InvokerParameterName] string paramName)
+            {
+                if (value < 0L)
+                {
+                    throw new ArgumentOutOfRangeException(paramName, "Non-negative number required.");
+                }
+            }
+
+            private void AssertRangeNotLocked(long offset, long count)
+            {
+                if (owner.lockTracker.IsLocked(offset, count, this))
+                {
+                    throw ErrorFactory.System.CannotAccessFileProcessHasLocked();
+                }
+            }
+
+            public void Lock(long position, long length)
+            {
+                AssertNotClosed();
+                AssertIsNotNegative(position, nameof(position));
+                AssertIsNotNegative(length, nameof(length));
+
+                owner.lockTracker.Add(position, length, this);
+            }
+
+            public void Unlock(long position, long length)
+            {
+                AssertNotClosed();
+                AssertIsNotNegative(position, nameof(position));
+                AssertIsNotNegative(length, nameof(length));
+
+                owner.lockTracker.Remove(position, length, this);
             }
         }
 
@@ -557,6 +599,104 @@ namespace TestableFileSystem.Fakes
                 }
 
                 return string.Join("\\", componentStack);
+            }
+        }
+
+        private sealed class LockTracker
+        {
+            [NotNull]
+            private readonly FileEntry owner;
+
+            [NotNull]
+            [ItemNotNull]
+            private readonly List<LockRange> rangesLocked = new List<LockRange>();
+
+            public LockTracker([NotNull] FileEntry owner)
+            {
+                Guard.NotNull(owner, nameof(owner));
+                this.owner = owner;
+            }
+
+            public bool IsLocked(long position, long length, [NotNull] FakeFileStream stream)
+            {
+                Guard.NotNull(stream, nameof(stream));
+
+                lock (owner.readerWriterLock)
+                {
+                    return rangesLocked.Where(x => x.Owner != stream).Any(range => range.IntersectsWith(position, length));
+                }
+            }
+
+            public void Add(long position, long length, [NotNull] FakeFileStream stream)
+            {
+                Guard.NotNull(owner, nameof(owner));
+
+                lock (owner.readerWriterLock)
+                {
+                    if (rangesLocked.Any(range => range.IntersectsWith(position, length)))
+                    {
+                        throw ErrorFactory.System.CannotAccessFileProcessHasLocked();
+                    }
+
+                    rangesLocked.Add(new LockRange(position, length, stream));
+                }
+            }
+
+            public void Remove(long position, long length, [NotNull] FakeFileStream stream)
+            {
+                Guard.NotNull(stream, nameof(stream));
+
+                lock (owner.readerWriterLock)
+                {
+                    for (int index = rangesLocked.Count - 1; index >= 0; index--)
+                    {
+                        LockRange range = rangesLocked[index];
+                        if (range.Position == position && range.Length == length && range.Owner == stream)
+                        {
+                            rangesLocked.RemoveAt(index);
+                            return;
+                        }
+                    }
+                }
+
+                throw ErrorFactory.System.SegmentIsAlreadyUnlocked();
+            }
+
+            public void Release([NotNull] FakeFileStream stream)
+            {
+                Guard.NotNull(stream, nameof(stream));
+
+                lock (owner.readerWriterLock)
+                {
+                    for (int index = rangesLocked.Count - 1; index >= 0; index--)
+                    {
+                        if (rangesLocked[index].Owner == stream)
+                        {
+                            rangesLocked.RemoveAt(index);
+                        }
+                    }
+                }
+            }
+
+            private sealed class LockRange
+            {
+                public long Position { get; }
+                public long Length { get; }
+
+                [NotNull]
+                public FakeFileStream Owner { get; }
+
+                public LockRange(long position, long length, [NotNull] FakeFileStream owner)
+                {
+                    Position = position;
+                    Length = length;
+                    Owner = owner;
+                }
+
+                public bool IntersectsWith(long position, long length)
+                {
+                    return Position + Length > position && position + length > Position;
+                }
             }
         }
     }

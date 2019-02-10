@@ -251,6 +251,19 @@ namespace TestableFileSystem.Fakes
                 throw new ArgumentException($@"The directory specified, '{path}', is not a subdirectory of '{absolutePath}'.",
                     nameof(path));
             }
+
+            [NotNull]
+            public static Exception CannotAccessFileProcessHasLocked()
+            {
+                throw new IOException(
+                    "The process cannot access the file because another process has locked a portion of the file");
+            }
+
+            [NotNull]
+            public static Exception SegmentIsAlreadyUnlocked()
+            {
+                throw new IOException("The segment is already unlocked");
+            }
         }
 
         public static class Internal

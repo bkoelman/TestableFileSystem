@@ -62,6 +62,9 @@ namespace TestableFileSystem.Interfaces
             [CanBeNull] object stateObject);
 
         void EndWrite([NotNull] IAsyncResult asyncResult);
+
+        void Lock(long position, long length);
+        void Unlock(long position, long length);
 #endif
 
         void CopyTo([NotNull] Stream destination, int bufferSize = 81920);

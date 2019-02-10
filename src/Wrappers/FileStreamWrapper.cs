@@ -11,6 +11,9 @@ namespace TestableFileSystem.Wrappers
     public sealed class FileStreamWrapper : IFileStream
     {
         [NotNull]
+        private static readonly Action<long, long> EmptyAction = (_, __) => { };
+
+        [NotNull]
         private readonly Func<string> getName;
 
         [NotNull]
@@ -21,6 +24,12 @@ namespace TestableFileSystem.Wrappers
 
         [NotNull]
         private readonly Action<bool> doFlush;
+
+        [NotNull]
+        private readonly Action<long, long> lockRange;
+
+        [NotNull]
+        private readonly Action<long, long> unlockRange;
 
         [NotNull]
         private readonly Stream innerStream;
@@ -60,12 +69,18 @@ namespace TestableFileSystem.Wrappers
         public SafeFileHandle SafeFileHandle => getSafeFileHandle();
 
         public FileStreamWrapper([NotNull] FileStream source)
-            : this(source, () => source.Name, () => source.IsAsync, () => source.SafeFileHandle, source.Flush)
+            : this(source, () => source.Name, () => source.IsAsync, () => source.SafeFileHandle, source.Flush,
+#if !NETSTANDARD1_3
+                source.Lock, source.Unlock)
+#else
+                EmptyAction, EmptyAction)
+#endif
         {
         }
 
         internal FileStreamWrapper([NotNull] Stream source, [NotNull] Func<string> getName, [NotNull] Func<bool> getIsAsync,
-            [NotNull] Func<SafeFileHandle> getSafeFileHandle, [NotNull] Action<bool> doFlush)
+            [NotNull] Func<SafeFileHandle> getSafeFileHandle, [NotNull] Action<bool> doFlush,
+            [NotNull] Action<long, long> lockRange, [NotNull] Action<long, long> unlockRange)
         {
             Guard.NotNull(source, nameof(source));
             Guard.NotNull(getName, nameof(getName));
@@ -78,6 +93,8 @@ namespace TestableFileSystem.Wrappers
             this.getIsAsync = getIsAsync;
             this.getSafeFileHandle = getSafeFileHandle;
             this.doFlush = doFlush;
+            this.lockRange = lockRange;
+            this.unlockRange = unlockRange;
         }
 
         public long Seek(long offset, SeekOrigin origin)
@@ -149,6 +166,16 @@ namespace TestableFileSystem.Wrappers
         public void EndWrite(IAsyncResult asyncResult)
         {
             innerStream.EndWrite(asyncResult);
+        }
+
+        public void Lock(long position, long length)
+        {
+            lockRange(position, length);
+        }
+
+        public void Unlock(long position, long length)
+        {
+            unlockRange(position, length);
         }
 #endif
 
