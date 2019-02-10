@@ -186,6 +186,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_writing_large_buffer_with_offset_to_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            const int size = 4096 * 16;
+            byte[] writeBuffer = CreateBuffer(size);
+            const int offset = 5;
+
+            using (IFileStream stream = fileSystem.File.Create(path, 2048))
+            {
+                stream.Seek(offset, SeekOrigin.Begin);
+
+                // Act
+                stream.Write(writeBuffer, 0, writeBuffer.Length);
+
+                // Assert
+                stream.Length.Should().Be(size + offset);
+                stream.Position.Should().Be(size + offset);
+            }
+
+            byte[] contents = fileSystem.File.ReadAllBytes(path).Skip(offset).ToArray();
+            contents.SequenceEqual(writeBuffer).Should().BeTrue();
+        }
+
+        [Fact]
         private void When_async_writing_buffer_to_file_using_TPL_it_must_succeed()
         {
             // Arrange
@@ -333,6 +362,38 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
                 numBytesRead.Should().Be(size);
                 buffer.Take(size).SequenceEqual(contents).Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        private void When_reading_large_buffer_with_offset_from_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            const int size = 4096 * 16;
+            byte[] contents = CreateBuffer(size);
+            const int offset = 5;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, contents)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                stream.Seek(offset, SeekOrigin.Begin);
+
+                var buffer = new byte[size * 2];
+
+                // Act
+                int numBytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                // Assert
+                stream.Length.Should().Be(size);
+                stream.Position.Should().Be(size);
+
+                numBytesRead.Should().Be(size - offset);
+                buffer.Take(size - offset).SequenceEqual(contents.Skip(offset)).Should().BeTrue();
             }
         }
 
