@@ -403,32 +403,35 @@ namespace TestableFileSystem.Fakes
                     return 0;
                 }
 
-                AssertRangeNotLocked(Position + offset, count);
-
-                int sumBytesRead = 0;
-
-                int blockIndex = (int)(Position / BlockSize);
-                int offsetInCurrentBlock = (int)(Position % BlockSize);
-
-                while (count > 0 && Position < Length)
+                lock (owner.readerWriterLock)
                 {
-                    int bytesToRead = Math.Min(BlockSize - offsetInCurrentBlock, count);
-                    bytesToRead = Math.Min(bytesToRead, (int)(Length - Position));
+                    UnsafeAssertRangeNotLocked(Position + offset, count);
 
-                    Buffer.BlockCopy(owner.blocks[blockIndex], offsetInCurrentBlock, buffer, offset, bytesToRead);
+                    int sumBytesRead = 0;
 
-                    offset += bytesToRead;
-                    count -= bytesToRead;
+                    int blockIndex = (int)(Position / BlockSize);
+                    int offsetInCurrentBlock = (int)(Position % BlockSize);
 
-                    Position += bytesToRead;
-                    sumBytesRead += bytesToRead;
+                    while (count > 0 && Position < Length)
+                    {
+                        int bytesToRead = Math.Min(BlockSize - offsetInCurrentBlock, count);
+                        bytesToRead = Math.Min(bytesToRead, (int)(Length - Position));
 
-                    blockIndex++;
-                    offsetInCurrentBlock = 0;
+                        Buffer.BlockCopy(owner.blocks[blockIndex], offsetInCurrentBlock, buffer, offset, bytesToRead);
+
+                        offset += bytesToRead;
+                        count -= bytesToRead;
+
+                        Position += bytesToRead;
+                        sumBytesRead += bytesToRead;
+
+                        blockIndex++;
+                        offsetInCurrentBlock = 0;
+                    }
+
+                    accessKinds |= FileAccessKinds.Read;
+                    return sumBytesRead;
                 }
-
-                accessKinds |= FileAccessKinds.Read;
-                return sumBytesRead;
             }
 
             public override void Write(byte[] buffer, int offset, int count)
@@ -539,9 +542,9 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            private void AssertRangeNotLocked(long offset, long count)
+            private void UnsafeAssertRangeNotLocked(long offset, long count)
             {
-                if (owner.lockTracker.IsLocked(offset, count, this))
+                if (owner.lockTracker.UnsafeIsLocked(offset, count, this))
                 {
                     throw ErrorFactory.System.CannotAccessFileProcessHasLocked();
                 }
@@ -617,14 +620,11 @@ namespace TestableFileSystem.Fakes
                 this.owner = owner;
             }
 
-            public bool IsLocked(long position, long length, [NotNull] FakeFileStream stream)
+            public bool UnsafeIsLocked(long position, long length, [NotNull] FakeFileStream stream)
             {
                 Guard.NotNull(stream, nameof(stream));
 
-                lock (owner.readerWriterLock)
-                {
-                    return rangesLocked.Where(x => x.Owner != stream).Any(range => range.IntersectsWith(position, length));
-                }
+                return rangesLocked.Where(x => x.Owner != stream).Any(range => range.IntersectsWith(position, length));
             }
 
             public void Add(long position, long length, [NotNull] FakeFileStream stream)
