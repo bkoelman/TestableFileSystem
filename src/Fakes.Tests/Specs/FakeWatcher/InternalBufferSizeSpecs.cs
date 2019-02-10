@@ -276,15 +276,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         }
                     }
 
-                    timedOut = startTime + SpecTimeout <= DateTime.UtcNow;
+                    timedOut = startTime + TimeSpan.FromSeconds(10) <= DateTime.UtcNow;
                 }
 
-                if (timedOut)
-                {
-                    throw new Exception($"Exception in test: changeCount={changeCount}, sleepCount={sleepCount}.");
-                }
-
-                timedOut.Should().BeFalse();
+                timedOut.Should().BeFalse($"Timeout in test: changeCount={changeCount}, sleepCount={sleepCount}.");
 
                 lock (lockObject)
                 {
