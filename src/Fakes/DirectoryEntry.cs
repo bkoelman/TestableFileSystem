@@ -144,7 +144,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
 
-            var fileEntry = new FileEntry(fileName, this, ChangeTracker, LoggedOnAccount);
+            var fileEntry = new FileEntry(fileName, this);
             contents.Add(fileEntry);
 
             UpdateLastWriteLastAccessTime();

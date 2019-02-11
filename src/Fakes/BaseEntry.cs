@@ -17,7 +17,7 @@ namespace TestableFileSystem.Fakes
         public string EncryptorAccountName { get; set; }
 
         [NotNull]
-        protected FakeFileSystemChangeTracker ChangeTracker { get; }
+        public FakeFileSystemChangeTracker ChangeTracker { get; }
 
         [NotNull]
         internal abstract IPathFormatter PathFormatter { get; }

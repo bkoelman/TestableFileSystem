@@ -81,9 +81,8 @@ namespace TestableFileSystem.Fakes
             set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
         }
 
-        public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent,
-            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] ILoggedOnUserAccount loggedOnAccount)
-            : base(name, FileAttributes.Archive, changeTracker, loggedOnAccount)
+        public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)
+            : base(name, FileAttributes.Archive, parent.ChangeTracker, parent.LoggedOnAccount)
         {
             Guard.NotNull(parent, nameof(parent));
             AssertParentIsValid(parent);
@@ -260,7 +259,7 @@ namespace TestableFileSystem.Fakes
 
             private readonly bool notifyTracker;
 
-            private long position;
+            private long absolutePosition;
             private FileAccessKinds accessKinds = FileAccessKinds.None;
             private bool isClosed;
 
@@ -280,7 +279,7 @@ namespace TestableFileSystem.Fakes
 
             public override long Position
             {
-                get => position;
+                get => absolutePosition;
                 set
                 {
                     AssertNotClosed();
@@ -300,7 +299,7 @@ namespace TestableFileSystem.Fakes
                         SetLength(value);
                     }
 
-                    position = value;
+                    absolutePosition = value;
                 }
             }
 
@@ -450,7 +449,7 @@ namespace TestableFileSystem.Fakes
                 int blockIndex = (int)(Position / BlockSize);
                 int bytesFreeInCurrentBlock = BlockSize - (int)(Position % BlockSize);
 
-                long newPosition = position;
+                long newPosition = absolutePosition;
 
                 while (count > 0)
                 {
