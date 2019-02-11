@@ -25,13 +25,10 @@ namespace TestableFileSystem.Fakes.Handlers
         // - encrypted folders can be accessed by another user (you can add your own encrypted files to it)
         // - when creating new file (or copy an unencrypted file) in an encrypted folder, the file will also be encrypted
         //   - rename/move-into-on-same-drive does not change file encryption status; move into-from-other-drive behaves the same as copy
-        // - calling encrypt on file/folder multiple times (as encrypting user) does nothing
         // - calling decrypt on non-encrypted file/folder does nothing
-        // - calling encrypt/decrypt on file that was encrypted by another user throws System.UnauthorizedAccessException: 'Access to the path 'd:\FileSystemTests\file.txt' is denied.'
         // - calling encrypt/decrypt on folder that was encrypted by another user just works (encrypt: does not change who encrypted the folder)
         // - an encrypted folder is accessible by everyone
         // - when adding file to a directory that was encrypted by another user, your file will be encrypted with you as crypto owner
-        // - reading/writing from/to file that was encrypted by another user throws System.UnauthorizedAccessException: 'Access to the path 'd:\FileSystemTests\file.txt' is denied.'
         // - file attributes includes Encrypted flag for encrypted file/folder
         // - the type of exception thrown for missing drive varies per runtime
         // - when encrypting a file that is in use (even if file was already encrypted), throws System.IO.IOException: 'The process cannot access the file 'd:\FileSystemTests\file.txt' because it is being used by another process.'
@@ -40,7 +37,6 @@ namespace TestableFileSystem.Fakes.Handlers
         // - when encrypting readonly file, it throws System.IO.IOException: "The specified file is read only."
 
         // TODO: Check for empty path etc...
-        // TODO: Test the various operations on files/folders, such as Delete, Create, Copy etc...
 
         public override Missing Handle(FileCryptoArguments arguments)
         {
@@ -49,9 +45,21 @@ namespace TestableFileSystem.Fakes.Handlers
             var resolver = new FileResolver(Root);
             FileEntry fileEntry = resolver.ResolveExistingFile(arguments.Path);
 
+            AssertIsNotExternallyEncrypted(fileEntry, arguments.Path);
+
             fileEntry.EncryptorAccountName = arguments.IsEncrypt ? fileEntry.LoggedOnAccount.UserName : null;
 
             return Missing.Value;
         }
+
+        [AssertionMethod]
+        private static void AssertIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
+        {
+            if (file.IsExternallyEncrypted)
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
+            }
+        }
+
     }
 }

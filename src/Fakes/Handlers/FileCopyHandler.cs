@@ -32,9 +32,8 @@ namespace TestableFileSystem.Fakes.Handlers
             pendingContentChanges.Clear();
             pendingContentChanges.Add(FileAccessKinds.Write);
 
-            FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath);
-
-            FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath, arguments.Overwrite, sourceFile);
+            FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath, arguments.IsCopyAfterMoveFailed);
+            FileEntry destinationFile = ResolveDestinationFile(sourceFile, arguments);
 
             foreach (FileAccessKinds change in pendingContentChanges)
             {
@@ -62,7 +61,7 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [NotNull]
-        private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath)
+        private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath, bool isCopyAfterMoveFailed)
         {
             var sourceResolver = new FileResolver(Root)
             {
@@ -71,10 +70,23 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileEntry sourceFile = sourceResolver.ResolveExistingFile(sourcePath);
 
+            AssertIsNotExternallyEncrypted(sourceFile, sourcePath, isCopyAfterMoveFailed);
             AssertHasExclusiveAccess(sourceFile);
             AddChangesForSourceFile(sourceFile);
 
             return sourceFile;
+        }
+
+        [AssertionMethod]
+        private static void AssertIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath,
+            bool isCopyAfterMoveFailed)
+        {
+            if (file.IsExternallyEncrypted)
+            {
+                throw isCopyAfterMoveFailed
+                    ? ErrorFactory.System.UnauthorizedAccess()
+                    : ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
+            }
         }
 
         private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
@@ -99,14 +111,13 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [NotNull]
-        private FileEntry ResolveDestinationFile([NotNull] AbsolutePath destinationPath, bool overwrite,
-            [NotNull] FileEntry sourceFile)
+        private FileEntry ResolveDestinationFile([NotNull] FileEntry sourceFile, [NotNull] FileCopyArguments arguments)
         {
             var destinationResolver = new FileResolver(Root)
             {
                 ErrorFileFoundAsDirectory = ErrorFactory.System.TargetIsNotFile
             };
-            FileResolveResult resolveResult = destinationResolver.TryResolveFile(destinationPath);
+            FileResolveResult resolveResult = destinationResolver.TryResolveFile(arguments.DestinationPath);
 
             DateTime utcNow = Root.SystemClock.UtcNow();
 
@@ -114,8 +125,10 @@ namespace TestableFileSystem.Fakes.Handlers
             bool isNewlyCreated;
             if (resolveResult.ExistingFileOrNull != null)
             {
-                AssertCanOverwriteFile(overwrite, destinationPath);
-                AssertIsNotHiddenOrReadOnly(resolveResult.ExistingFileOrNull, destinationPath);
+                AssertCanOverwriteFile(arguments.Overwrite, arguments.DestinationPath);
+                AssertIsNotHiddenOrReadOnly(resolveResult.ExistingFileOrNull, arguments.DestinationPath);
+                AssertIsNotExternallyEncrypted(resolveResult.ExistingFileOrNull, arguments.DestinationPath,
+                    arguments.IsCopyAfterMoveFailed);
 
                 destinationFile = ResolveExistingDestinationFile(resolveResult);
                 isNewlyCreated = false;
@@ -127,8 +140,8 @@ namespace TestableFileSystem.Fakes.Handlers
                 isNewlyCreated = true;
             }
 
-            using (IFileStream createStream =
-                destinationFile.Open(FileMode.Truncate, FileAccess.Write, destinationPath, isNewlyCreated, false))
+            using (IFileStream createStream = destinationFile.Open(FileMode.Truncate, FileAccess.Write, arguments.DestinationPath,
+                isNewlyCreated, false))
             {
                 createStream.SetLength(sourceFile.Size);
             }

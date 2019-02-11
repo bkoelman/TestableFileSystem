@@ -7,6 +7,8 @@ namespace TestableFileSystem.Fakes
 {
     internal abstract class BaseEntry
     {
+        private FileAttributes innerAttributes;
+
         [NotNull]
         public string Name { get; protected set; }
 
@@ -16,13 +18,19 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         public string EncryptorAccountName { get; set; }
 
+        public bool IsExternallyEncrypted => EncryptorAccountName != null && LoggedOnAccount.UserName != EncryptorAccountName;
+
         [NotNull]
         public FakeFileSystemChangeTracker ChangeTracker { get; }
 
         [NotNull]
         internal abstract IPathFormatter PathFormatter { get; }
 
-        public FileAttributes Attributes { get; private set; }
+        public FileAttributes Attributes
+        {
+            get => EncryptorAccountName != null ? innerAttributes | FileAttributes.Encrypted : innerAttributes;
+            private set => innerAttributes = value & ~FileAttributes.Encrypted;
+        }
 
         public abstract DateTime CreationTime { get; set; }
         public abstract DateTime CreationTimeUtc { get; set; }

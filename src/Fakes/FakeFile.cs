@@ -81,6 +81,11 @@ namespace TestableFileSystem.Fakes
             AssertFileNameIsNotEmpty(sourceFileName);
             AssertFileNameIsNotEmpty(destFileName);
 
+            InnerCopy(sourceFileName, destFileName, overwrite, false);
+        }
+
+        private void InnerCopy([NotNull] string sourceFileName, [NotNull] string destFileName, bool overwrite, bool isCopyAfterMoveFailed)
+        {
             FileCopyResult copyResult = null;
 
             try
@@ -91,7 +96,7 @@ namespace TestableFileSystem.Fakes
                     AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
 
                     var handler = new FileCopyHandler(root, owner.ChangeTracker);
-                    var arguments = new FileCopyArguments(sourcePath, destinationPath, overwrite);
+                    var arguments = new FileCopyArguments(sourcePath, destinationPath, overwrite, isCopyAfterMoveFailed);
 
                     copyResult = handler.Handle(arguments);
                 }
@@ -136,7 +141,7 @@ namespace TestableFileSystem.Fakes
 
             if (handler.IsCopyRequired)
             {
-                Copy(sourceFileName, destFileName);
+                InnerCopy(sourceFileName, destFileName, false, true);
 
                 if (handler.IsSourceReadOnly)
                 {

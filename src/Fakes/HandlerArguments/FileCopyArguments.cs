@@ -12,8 +12,10 @@ namespace TestableFileSystem.Fakes.HandlerArguments
         public AbsolutePath DestinationPath { get; }
 
         public bool Overwrite { get; }
+        public bool IsCopyAfterMoveFailed { get; }
 
-        public FileCopyArguments([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath, bool overwrite)
+        public FileCopyArguments([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath, bool overwrite,
+            bool isCopyAfterMoveFailed)
         {
             Guard.NotNull(sourcePath, nameof(sourcePath));
             Guard.NotNull(destinationPath, nameof(destinationPath));
@@ -21,6 +23,7 @@ namespace TestableFileSystem.Fakes.HandlerArguments
             SourcePath = sourcePath;
             DestinationPath = destinationPath;
             Overwrite = overwrite;
+            IsCopyAfterMoveFailed = isCopyAfterMoveFailed;
         }
     }
 }

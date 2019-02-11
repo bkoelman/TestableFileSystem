@@ -81,7 +81,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 }
             }
 
-            AssertIsNotEncrypted(file, arguments.Path);
+            AssertIsNotExternallyEncrypted(file, arguments.Path);
 
             IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, false, true);
 
@@ -109,9 +109,9 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private static void AssertIsNotEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
+        private static void AssertIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
         {
-            if (file.EncryptorAccountName != null && file.LoggedOnAccount.UserName != file.EncryptorAccountName)
+            if (file.IsExternallyEncrypted)
             {
                 throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }

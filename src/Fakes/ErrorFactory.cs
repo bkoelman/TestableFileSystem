@@ -88,6 +88,12 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
+            public static Exception UnauthorizedAccess()
+            {
+                return new UnauthorizedAccessException("Access to the path is denied.");
+            }
+
+            [NotNull]
             public static Exception EmptyPathIsNotLegal([NotNull] [InvokerParameterName] string paramName)
             {
                 return new ArgumentException("Empty path name is not legal.", paramName);

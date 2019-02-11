@@ -26,12 +26,11 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertTimeValueIsInRange(arguments);
             AssertIsNotVolumeRoot(arguments.Path);
 
-            var resolver = new EntryResolver(Root);
-            BaseEntry entry = resolver.ResolveEntry(arguments.Path);
+            FileEntry file = ResolveFile(arguments);
 
-            AssertIsNotDirectory(entry, arguments.Path);
-            AssertFileIsNotReadOnly(entry, arguments.Path);
-            AssertHasExclusiveAccessToFile(entry, arguments.Path);
+            AssertIsNotReadOnly(file, arguments.Path);
+            AssertIsNotExternallyEncrypted(file, arguments.Path);
+            AssertHasExclusiveAccessToFile(file, arguments.Path);
 
             switch (arguments.Kind)
             {
@@ -39,42 +38,42 @@ namespace TestableFileSystem.Fakes.Handlers
                 {
                     if (arguments.IsInUtc)
                     {
-                        entry.CreationTimeUtc = arguments.TimeValue;
+                        file.CreationTimeUtc = arguments.TimeValue;
                     }
                     else
                     {
-                        entry.CreationTime = arguments.TimeValue;
+                        file.CreationTime = arguments.TimeValue;
                     }
 
-                    changeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Create);
+                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Create);
                     break;
                 }
                 case FileTimeKind.LastWriteTime:
                 {
                     if (arguments.IsInUtc)
                     {
-                        entry.LastWriteTimeUtc = arguments.TimeValue;
+                        file.LastWriteTimeUtc = arguments.TimeValue;
                     }
                     else
                     {
-                        entry.LastWriteTime = arguments.TimeValue;
+                        file.LastWriteTime = arguments.TimeValue;
                     }
 
-                    changeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Write);
+                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
                     break;
                 }
                 case FileTimeKind.LastAccessTime:
                 {
                     if (arguments.IsInUtc)
                     {
-                        entry.LastAccessTimeUtc = arguments.TimeValue;
+                        file.LastAccessTimeUtc = arguments.TimeValue;
                     }
                     else
                     {
-                        entry.LastAccessTime = arguments.TimeValue;
+                        file.LastAccessTime = arguments.TimeValue;
                     }
 
-                    changeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Read);
+                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
                     break;
                 }
                 default:
@@ -109,6 +108,17 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
+        [NotNull]
+        private FileEntry ResolveFile([NotNull] EntrySetTimeArguments arguments)
+        {
+            var resolver = new EntryResolver(Root);
+            BaseEntry entry = resolver.ResolveEntry(arguments.Path);
+
+            AssertIsNotDirectory(entry, arguments.Path);
+
+            return (FileEntry)entry;
+        }
+
         [AssertionMethod]
         private void AssertIsNotDirectory([NotNull] BaseEntry entry, [NotNull] AbsolutePath path)
         {
@@ -119,17 +129,26 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private void AssertFileIsNotReadOnly([NotNull] BaseEntry entry, [NotNull] AbsolutePath absolutePath)
+        private void AssertIsNotReadOnly([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
         {
-            if (entry is FileEntry file && file.Attributes.HasFlag(FileAttributes.ReadOnly))
+            if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
                 throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
         }
 
-        private static void AssertHasExclusiveAccessToFile([NotNull] BaseEntry entry, [NotNull] AbsolutePath absolutePath)
+        [AssertionMethod]
+        private static void AssertIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
         {
-            if (entry is FileEntry file && file.IsOpen())
+            if (file.IsExternallyEncrypted)
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
+            }
+        }
+
+        private static void AssertHasExclusiveAccessToFile([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
+        {
+            if (file.IsOpen())
             {
                 throw ErrorFactory.System.FileIsInUse(absolutePath.GetText());
             }
