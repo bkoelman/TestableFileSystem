@@ -54,8 +54,8 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new FileCreateHandler(root);
-            var arguments = new FileCreateArguments(absolutePath, options);
+            var handler = new FileOpenHandler(root);
+            var arguments = new FileOpenArguments(absolutePath, FileMode.Create, FileAccess.ReadWrite, options);
 
             return handler.Handle(arguments);
         }
@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new FileOpenHandler(root);
-            var arguments = new FileOpenArguments(absolutePath, mode, access);
+            var arguments = new FileOpenArguments(absolutePath, mode, access, null);
 
             return handler.Handle(arguments);
         }

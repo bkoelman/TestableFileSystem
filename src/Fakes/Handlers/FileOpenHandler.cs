@@ -19,6 +19,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileAccess fileAccess = DetectFileAccess(arguments);
             AssertValidCombinationOfModeWithAccess(arguments.Mode, fileAccess);
+            AssertValidCreationOptions(arguments);
 
             var resolver = new FileResolver(Root);
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
@@ -51,6 +52,16 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
+        [AssertionMethod]
+        private static void AssertValidCreationOptions([NotNull] FileOpenArguments arguments)
+        {
+            if (arguments.CreateOptions != null && arguments.CreateOptions.Value.HasFlag(FileOptions.Encrypted))
+            {
+                // TODO: Update for encryption support.
+                throw ErrorFactory.System.UnauthorizedAccess(arguments.Path.GetText());
+            }
+        }
+
         [NotNull]
         private IFileStream HandleExistingFile([NotNull] FileEntry file, FileAccess fileAccess,
             [NotNull] FileOpenArguments arguments)
@@ -72,7 +83,11 @@ namespace TestableFileSystem.Fakes.Handlers
 
             AssertIsNotEncrypted(file, arguments.Path);
 
-            return file.Open(arguments.Mode, fileAccess, arguments.Path, false, true);
+            IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, false, true);
+
+            ApplyOptions(file, arguments.CreateOptions);
+
+            return stream;
         }
 
         [AssertionMethod]
@@ -112,7 +127,23 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             FileEntry file = containingDirectory.CreateFile(fileName);
-            return file.Open(arguments.Mode, fileAccess, arguments.Path, true, true);
+
+            IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, true, true);
+
+            ApplyOptions(file, arguments.CreateOptions);
+
+            return stream;
+        }
+
+        private static void ApplyOptions([NotNull] FileEntry file, [CanBeNull] FileOptions? options)
+        {
+            if (options != null)
+            {
+                if ((options.Value & FileOptions.DeleteOnClose) != 0)
+                {
+                    file.EnableDeleteOnClose();
+                }
+            }
         }
     }
 }
