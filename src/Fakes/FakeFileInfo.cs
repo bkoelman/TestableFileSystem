@@ -82,6 +82,20 @@ namespace TestableFileSystem.Fakes
             ChangePath(destinationPath);
         }
 
+#if !NETSTANDARD1_3
+        public void Encrypt()
+        {
+            // TODO: Implement
+            throw new NotImplementedException();
+        }
+
+        public void Decrypt()
+        {
+            // TODO: Implement
+            throw new NotImplementedException();
+        }
+#endif
+
         public override void Delete()
         {
             Owner.File.Delete(FullName);

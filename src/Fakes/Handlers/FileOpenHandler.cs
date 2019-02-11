@@ -70,7 +70,18 @@ namespace TestableFileSystem.Fakes.Handlers
                 }
             }
 
+            AssertIsNotEncrypted(file, arguments.Path);
+
             return file.Open(arguments.Mode, fileAccess, arguments.Path, false, true);
+        }
+
+        [AssertionMethod]
+        private void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        {
+            if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
+            }
         }
 
         [AssertionMethod]
@@ -83,9 +94,9 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        private static void AssertIsNotEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
         {
-            if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
+            if (file.EncryptorAccountName != null && file.LoggedOnAccount.UserName != file.EncryptorAccountName)
             {
                 throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }

@@ -11,6 +11,12 @@ namespace TestableFileSystem.Fakes
         public string Name { get; protected set; }
 
         [NotNull]
+        public ILoggedOnUserAccount LoggedOnAccount { get; }
+
+        [CanBeNull]
+        public string EncryptorAccountName { get; set; }
+
+        [NotNull]
         protected FakeFileSystemChangeTracker ChangeTracker { get; }
 
         [NotNull]
@@ -25,14 +31,17 @@ namespace TestableFileSystem.Fakes
         public abstract DateTime LastWriteTime { get; set; }
         public abstract DateTime LastWriteTimeUtc { get; set; }
 
-        protected BaseEntry([NotNull] string name, FileAttributes attributes, [NotNull] FakeFileSystemChangeTracker changeTracker)
+        protected BaseEntry([NotNull] string name, FileAttributes attributes, [NotNull] FakeFileSystemChangeTracker changeTracker,
+            [NotNull] ILoggedOnUserAccount loggedOnAccount)
         {
             Guard.NotNullNorWhiteSpace(name, nameof(name));
             Guard.NotNull(changeTracker, nameof(changeTracker));
+            Guard.NotNull(loggedOnAccount, nameof(loggedOnAccount));
 
             Name = name;
             Attributes = attributes;
             ChangeTracker = changeTracker;
+            LoggedOnAccount = loggedOnAccount;
         }
 
         public void SetAttributes(FileAttributes newAttributes, FileAccessKinds accessKinds = FileAccessKinds.Attributes)

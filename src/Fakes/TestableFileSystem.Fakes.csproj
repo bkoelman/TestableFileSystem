@@ -30,6 +30,16 @@
     <PackageReference Include="jetbrains.annotations" Version="2018.3.0" PrivateAssets="all" />
     <PackageReference Include="resharpercodecontractnullability" Version="1.0.9" PrivateAssets="all" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Security.Principal.Windows">
+      <Version>4.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Security.Principal.Windows">
+      <Version>4.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Interfaces\TestableFileSystem.Interfaces.csproj" />
   </ItemGroup>

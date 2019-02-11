@@ -27,6 +27,11 @@ namespace TestableFileSystem.Interfaces
 
         void MoveTo([NotNull] string destFileName);
 
+#if !NETSTANDARD1_3
+        void Encrypt();
+        void Decrypt();
+#endif
+
         [NotNull]
         string ToString();
     }

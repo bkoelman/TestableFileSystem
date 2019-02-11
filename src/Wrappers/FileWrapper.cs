@@ -106,5 +106,17 @@ namespace TestableFileSystem.Wrappers
         {
             File.SetLastWriteTimeUtc(path, lastWriteTimeUtc);
         }
+
+#if !NETSTANDARD1_3
+        public void Encrypt(string path)
+        {
+            File.Encrypt(path);
+        }
+
+        public void Decrypt(string path)
+        {
+            File.Decrypt(path);
+        }
+#endif
     }
 }

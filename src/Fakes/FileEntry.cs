@@ -82,8 +82,8 @@ namespace TestableFileSystem.Fakes
         }
 
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent,
-            [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(name, FileAttributes.Archive, changeTracker)
+            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] ILoggedOnUserAccount loggedOnAccount)
+            : base(name, FileAttributes.Archive, changeTracker, loggedOnAccount)
         {
             Guard.NotNull(parent, nameof(parent));
             AssertParentIsValid(parent);

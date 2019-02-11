@@ -17,9 +17,6 @@ namespace TestableFileSystem.Fakes
             FileAttributes.Directory | FileAttributes.System | FileAttributes.Hidden;
 
         [NotNull]
-        internal readonly SystemClock SystemClock;
-
-        [NotNull]
         private readonly DirectoryContents contents = new DirectoryContents();
 
         [NotNull]
@@ -28,12 +25,15 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.Directories;
 
-        internal override IPathFormatter PathFormatter { get; }
-
         [CanBeNull]
         public DirectoryEntry Parent { get; private set; }
 
         public bool IsEmpty => contents.IsEmpty;
+
+        [NotNull]
+        internal SystemClock SystemClock { get; }
+
+        internal override IPathFormatter PathFormatter { get; }
 
         private long creationTimeStampUtc;
         private long lastWriteTimeStampUtc;
@@ -76,8 +76,10 @@ namespace TestableFileSystem.Fakes
         }
 
         private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent,
-            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock)
-            : base(name, AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory, changeTracker)
+            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock,
+            [NotNull] ILoggedOnUserAccount loggedOnAccount)
+            : base(name, AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory, changeTracker,
+                loggedOnAccount)
         {
             Parent = parent;
             PathFormatter = new DirectoryEntryPathFormatter(this);
@@ -112,12 +114,12 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         public static DirectoryEntry CreateRoot([NotNull] FakeFileSystemChangeTracker changeTracker,
-            [NotNull] SystemClock systemClock)
+            [NotNull] SystemClock systemClock, [NotNull] ILoggedOnUserAccount loggedOnAccount)
         {
             Guard.NotNull(changeTracker, nameof(changeTracker));
             Guard.NotNull(systemClock, nameof(systemClock));
 
-            return new DirectoryEntry("My Computer", null, changeTracker, systemClock);
+            return new DirectoryEntry("My Computer", null, changeTracker, systemClock, loggedOnAccount);
         }
 
         [NotNull]
@@ -142,7 +144,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
 
-            var fileEntry = new FileEntry(fileName, this, ChangeTracker);
+            var fileEntry = new FileEntry(fileName, this, ChangeTracker, LoggedOnAccount);
             contents.Add(fileEntry);
 
             UpdateLastWriteLastAccessTime();
@@ -203,7 +205,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
-            var directoryEntry = new DirectoryEntry(directoryName, this, ChangeTracker, SystemClock);
+            var directoryEntry = new DirectoryEntry(directoryName, this, ChangeTracker, SystemClock, LoggedOnAccount);
             contents.Add(directoryEntry);
 
             UpdateLastWriteLastAccessTime();

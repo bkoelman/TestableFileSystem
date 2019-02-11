@@ -331,6 +331,32 @@ namespace TestableFileSystem.Fakes
             handler.Handle(arguments);
         }
 
+#if !NETSTANDARD1_3
+        public void Encrypt(string path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new FileCryptoHandler(root, owner);
+            var arguments = new FileCryptoArguments(absolutePath, true);
+
+            handler.Handle(arguments);
+        }
+
+        public void Decrypt(string path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+
+            var handler = new FileCryptoHandler(root, owner);
+            var arguments = new FileCryptoArguments(absolutePath, false);
+
+            handler.Handle(arguments);
+        }
+#endif
+
         private static void AssertPathIsNotEmpty([NotNull] string path)
         {
             if (path.Length == 0)

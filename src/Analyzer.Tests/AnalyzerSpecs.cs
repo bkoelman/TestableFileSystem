@@ -33,7 +33,7 @@ namespace TestableFileSystem.Analyzer.Tests
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
-                    File.Encrypt(null);
+                    File.GetAccessControl(null);
                     Directory.GetAccessControl(null);
                 ")
                 .Build();
@@ -91,7 +91,7 @@ namespace TestableFileSystem.Analyzer.Tests
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
                     FileInfo fileInfo = null;
-                    fileInfo.Encrypt();
+                    fileInfo.GetAccessControl();
 
                     DirectoryInfo directoryInfo = null;
                     directoryInfo.GetAccessControl();

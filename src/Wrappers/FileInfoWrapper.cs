@@ -48,6 +48,18 @@ namespace TestableFileSystem.Wrappers
             source.MoveTo(destFileName);
         }
 
+#if !NETSTANDARD1_3
+        public void Encrypt()
+        {
+            source.Encrypt();
+        }
+
+        public void Decrypt()
+        {
+            source.Decrypt();
+        }
+#endif
+
         public override string ToString()
         {
             return source.ToString();

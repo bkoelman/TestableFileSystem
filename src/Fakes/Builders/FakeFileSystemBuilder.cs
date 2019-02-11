@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,6 +17,9 @@ namespace TestableFileSystem.Fakes.Builders
         [NotNull]
         private static readonly SystemClock DefaultTestClock = new SystemClock(() => DefaultTestTime);
 
+        [NotNull]
+        private static readonly FakeLoggedOnUserAccount DefaultUserAccount = new FakeLoggedOnUserAccount("DefaultUser");
+
         private bool includeDriveC = true;
 
         [NotNull]
@@ -34,15 +36,26 @@ namespace TestableFileSystem.Fakes.Builders
         private WaitIndicator copyWaitIndicator = WaitIndicator.None;
 
         public FakeFileSystemBuilder()
-            : this(DefaultTestClock)
+            : this(DefaultTestClock, DefaultUserAccount)
         {
         }
 
         public FakeFileSystemBuilder([NotNull] SystemClock systemClock)
+            : this(systemClock, DefaultUserAccount)
+        {
+        }
+
+        public FakeFileSystemBuilder([NotNull] ILoggedOnUserAccount userAccount)
+            : this(DefaultTestClock, userAccount)
+        {
+        }
+
+        public FakeFileSystemBuilder([NotNull] SystemClock systemClock, [NotNull] ILoggedOnUserAccount userAccount)
         {
             Guard.NotNull(systemClock, nameof(systemClock));
+            Guard.NotNull(userAccount, nameof(userAccount));
 
-            root = DirectoryEntry.CreateRoot(changeTracker, systemClock);
+            root = DirectoryEntry.CreateRoot(changeTracker, systemClock, userAccount);
         }
 
         public FakeFileSystem Build()

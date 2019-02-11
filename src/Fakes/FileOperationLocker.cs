@@ -118,5 +118,17 @@ namespace TestableFileSystem.Fakes
         {
             ExecuteInLock(() => target.SetLastWriteTimeUtc(path, lastWriteTimeUtc));
         }
+
+#if !NETSTANDARD1_3
+        public void Encrypt(string path)
+        {
+            ExecuteInLock(() => target.Encrypt(path));
+        }
+
+        public void Decrypt(string path)
+        {
+            ExecuteInLock(() => target.Decrypt(path));
+        }
+#endif
     }
 }
