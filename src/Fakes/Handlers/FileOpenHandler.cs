@@ -19,7 +19,6 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileAccess fileAccess = DetectFileAccess(arguments);
             AssertValidCombinationOfModeWithAccess(arguments.Mode, fileAccess);
-            AssertValidCreationOptions(arguments);
 
             var resolver = new FileResolver(Root);
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
@@ -52,16 +51,6 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        [AssertionMethod]
-        private static void AssertValidCreationOptions([NotNull] FileOpenArguments arguments)
-        {
-            if (arguments.CreateOptions != null && arguments.CreateOptions.Value.HasFlag(FileOptions.Encrypted))
-            {
-                // TODO: Update for encryption support.
-                throw ErrorFactory.System.UnauthorizedAccess(arguments.Path.GetText());
-            }
-        }
-
         [NotNull]
         private IFileStream HandleExistingFile([NotNull] FileEntry file, FileAccess fileAccess,
             [NotNull] FileOpenArguments arguments)
@@ -85,7 +74,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, false, true);
 
-            ApplyOptions(file, arguments.CreateOptions);
+            FileOptions options = AdjustOptions(arguments.CreateOptions, file.Parent);
+            ApplyOptions(file, options);
 
             return stream;
         }
@@ -130,19 +120,29 @@ namespace TestableFileSystem.Fakes.Handlers
 
             IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, true, true);
 
-            ApplyOptions(file, arguments.CreateOptions);
+            FileOptions options = AdjustOptions(arguments.CreateOptions, containingDirectory);
+            ApplyOptions(file, options);
 
             return stream;
         }
 
-        private static void ApplyOptions([NotNull] FileEntry file, [CanBeNull] FileOptions? options)
+        private static FileOptions AdjustOptions(FileOptions options, [NotNull] DirectoryEntry containingDirectory)
         {
-            if (options != null)
+            return options.HasFlag(FileOptions.Encrypted) || containingDirectory.Attributes.HasFlag(FileAttributes.Encrypted)
+                ? options | FileOptions.Encrypted
+                : options;
+        }
+
+        private static void ApplyOptions([NotNull] FileEntry file, FileOptions options)
+        {
+            if (options.HasFlag(FileOptions.Encrypted))
             {
-                if ((options.Value & FileOptions.DeleteOnClose) != 0)
-                {
-                    file.EnableDeleteOnClose();
-                }
+                file.SetEncrypted();
+            }
+
+            if (options.HasFlag(FileOptions.DeleteOnClose))
+            {
+                file.EnableDeleteOnClose();
             }
         }
     }

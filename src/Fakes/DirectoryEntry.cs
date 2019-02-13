@@ -262,7 +262,7 @@ namespace TestableFileSystem.Fakes
 
         protected override FileAttributes FilterAttributes(FileAttributes attributes)
         {
-            if ((attributes & FileAttributes.Temporary) != 0)
+            if (attributes.HasFlag(FileAttributes.Temporary))
             {
                 throw new ArgumentException("Invalid File or Directory attributes value.", nameof(attributes));
             }

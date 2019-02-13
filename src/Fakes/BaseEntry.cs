@@ -7,6 +7,9 @@ namespace TestableFileSystem.Fakes
 {
     internal abstract class BaseEntry
     {
+        [CanBeNull]
+        private string encryptorAccountName;
+
         private FileAttributes innerAttributes;
 
         [NotNull]
@@ -15,10 +18,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public ILoggedOnUserAccount LoggedOnAccount { get; }
 
-        [CanBeNull]
-        public string EncryptorAccountName { get; set; }
-
-        public bool IsExternallyEncrypted => EncryptorAccountName != null && LoggedOnAccount.UserName != EncryptorAccountName;
+        public bool IsExternallyEncrypted => encryptorAccountName != null && LoggedOnAccount.UserName != encryptorAccountName;
 
         [NotNull]
         public FakeFileSystemChangeTracker ChangeTracker { get; }
@@ -28,10 +28,11 @@ namespace TestableFileSystem.Fakes
 
         public FileAttributes Attributes
         {
-            get => EncryptorAccountName != null ? innerAttributes | FileAttributes.Encrypted : innerAttributes;
+            get => encryptorAccountName != null ? innerAttributes | FileAttributes.Encrypted : innerAttributes;
             private set => innerAttributes = value & ~FileAttributes.Encrypted;
         }
 
+        // TODO: Move identical implementations into base class.
         public abstract DateTime CreationTime { get; set; }
         public abstract DateTime CreationTimeUtc { get; set; }
         public abstract DateTime LastAccessTime { get; set; }
@@ -62,6 +63,19 @@ namespace TestableFileSystem.Fakes
             {
                 ChangeTracker.NotifyContentsAccessed(PathFormatter, accessKinds);
             }
+        }
+
+        public void SetEncrypted()
+        {
+            if (encryptorAccountName == null)
+            {
+                encryptorAccountName = LoggedOnAccount.UserName;
+            }
+        }
+
+        public void ClearEncrypted()
+        {
+            encryptorAccountName = null;
         }
 
         protected abstract FileAttributes FilterAttributes(FileAttributes attributes);

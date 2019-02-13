@@ -118,17 +118,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_creating_local_file_with_encryption_it_must_fail()
+        private void When_creating_local_file_with_encryption_it_must_succeed()
         {
             // Arrange
+            const string path = @"c:\doc.txt";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.Encrypted);
+            using (fileSystem.File.Create(path, 1, FileOptions.Encrypted))
+            {
+            }
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\doc.txt' is denied.");
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Encrypted | FileAttributes.Archive);
         }
 
         [Fact]

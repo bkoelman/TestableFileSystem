@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
             var handler = new FileOpenHandler(root);
-            var arguments = new FileOpenArguments(absolutePath, mode, access, null);
+            var arguments = new FileOpenArguments(absolutePath, mode, access, FileOptions.None);
 
             return handler.Handle(arguments);
         }

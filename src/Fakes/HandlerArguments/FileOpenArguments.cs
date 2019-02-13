@@ -14,11 +14,10 @@ namespace TestableFileSystem.Fakes.HandlerArguments
         [CanBeNull]
         public FileAccess? Access { get; }
 
-        [CanBeNull]
-        public FileOptions? CreateOptions { get; }
+        public FileOptions CreateOptions { get; }
 
         public FileOpenArguments([NotNull] AbsolutePath path, FileMode mode, [CanBeNull] FileAccess? access,
-            [CanBeNull] FileOptions? createOptions)
+            FileOptions createOptions)
         {
             Guard.NotNull(path, nameof(path));
 
