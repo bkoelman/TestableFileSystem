@@ -47,7 +47,7 @@ namespace TestableFileSystem.Fakes
             {
                 lock (owner.TreeLock)
                 {
-                    var volume = GetVolume();
+                    FakeVolume volume = GetVolume();
                     volume.Label = value;
                 }
             }

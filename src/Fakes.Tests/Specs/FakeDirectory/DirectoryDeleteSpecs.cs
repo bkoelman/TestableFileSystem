@@ -177,7 +177,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_deleting_local_nonempty_directory_recursively_that_contains_open_files_it_must_delete_all_others_and_it_fail_on_first_open_file()
+        private void
+            When_deleting_local_nonempty_directory_recursively_that_contains_open_files_it_must_delete_all_others_and_it_fail_on_first_open_file()
         {
             // Arrange
             const string subdirectory = @"C:\some\folder\deeper";
@@ -211,7 +212,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_deleting_local_nonempty_directory_recursively_that_contains_readonly_files_it_must_delete_all_others_and_fail_on_first_readonly_file()
+        private void
+            When_deleting_local_nonempty_directory_recursively_that_contains_readonly_files_it_must_delete_all_others_and_fail_on_first_readonly_file()
         {
             // Arrange
             const string subdirectory = @"C:\some\folder\deeper";
@@ -237,7 +239,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_deleting_local_nonempty_directory_recursively_that_contains_readonly_subdirectories_it_must_delete_all_others_and_fail_on_first_readonly_subdirectory()
+        private void
+            When_deleting_local_nonempty_directory_recursively_that_contains_readonly_subdirectories_it_must_delete_all_others_and_fail_on_first_readonly_subdirectory()
         {
             // Arrange
             const string subdirectory = @"C:\some\folder\deeper";

@@ -84,7 +84,8 @@ namespace TestableFileSystem.Fakes
             InnerCopy(sourceFileName, destFileName, overwrite, false);
         }
 
-        private void InnerCopy([NotNull] string sourceFileName, [NotNull] string destFileName, bool overwrite, bool isCopyAfterMoveFailed)
+        private void InnerCopy([NotNull] string sourceFileName, [NotNull] string destFileName, bool overwrite,
+            bool isCopyAfterMoveFailed)
         {
             FileCopyResult copyResult = null;
 

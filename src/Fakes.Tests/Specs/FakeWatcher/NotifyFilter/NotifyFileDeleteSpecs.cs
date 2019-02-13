@@ -114,7 +114,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 }
             }
         }
-
     }
 }
 #endif

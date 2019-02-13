@@ -18,7 +18,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
         public bool IsFileMoveRequired { get; private set; }
 
-        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager, [NotNull] FakeFileSystemChangeTracker changeTracker)
+        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager,
+            [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));

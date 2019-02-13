@@ -13,7 +13,8 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker;
 
-        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
+        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root,
+            [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(root)
         {
             Guard.NotNull(changeTracker, nameof(changeTracker));

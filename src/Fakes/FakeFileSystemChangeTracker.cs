@@ -42,12 +42,14 @@ namespace TestableFileSystem.Fakes
 
         partial void ProcessFileRenamed([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter);
 
-        public void NotifyDirectoryRenamed([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter)
+        public void NotifyDirectoryRenamed([NotNull] IPathFormatter sourceFormatter,
+            [NotNull] IPathFormatter destinationFormatter)
         {
             ProcessDirectoryRenamed(sourceFormatter, destinationFormatter);
         }
 
-        partial void ProcessDirectoryRenamed([NotNull] IPathFormatter sourceFormatter, [NotNull] IPathFormatter destinationFormatter);
+        partial void ProcessDirectoryRenamed([NotNull] IPathFormatter sourceFormatter,
+            [NotNull] IPathFormatter destinationFormatter);
 
         public void NotifyContentsAccessed([NotNull] IPathFormatter formatter, FileAccessKinds accessKinds)
         {
@@ -109,8 +111,8 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(sourceFormatter, nameof(sourceFormatter));
             Guard.NotNull(destinationFormatter, nameof(destinationFormatter));
 
-            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Renamed, NotifyFilters.DirectoryName, destinationFormatter,
-                sourceFormatter);
+            var args = new FakeSystemChangeEventArgs(WatcherChangeTypes.Renamed, NotifyFilters.DirectoryName,
+                destinationFormatter, sourceFormatter);
             OnFileSystemChanged(args);
         }
 

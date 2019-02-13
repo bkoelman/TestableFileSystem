@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Handlers
             Guard.NotNull(arguments, nameof(arguments));
 
             var resolver = new EntryResolver(Root);
-            var entry = resolver.ResolveEntry(arguments.Path);
+            BaseEntry entry = resolver.ResolveEntry(arguments.Path);
 
             if (entry is FileEntry fileEntry)
             {

@@ -55,7 +55,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             + file.txt                                      @ FileName
             - file.txt                                      @ FileName
         ")]
-        private void When_creating_file_with_delete_on_close_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
+        private void When_creating_file_with_delete_on_close_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
         {
             // Arrange
             const string directoryToWatch = @"c:\some";
@@ -87,7 +88,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 }
             }
         }
-
 
         [Theory]
         [WatcherNotifyTestData(@"

@@ -12,7 +12,8 @@ namespace TestableFileSystem.Fakes.HandlerArguments
         public FileAttributes Attributes { get; }
         public FileAccessKinds AccessKinds { get; }
 
-        public FileSetAttributesArguments([NotNull] AbsolutePath path, FileAttributes attributes, FileAccessKinds accessKinds = FileAccessKinds.Attributes)
+        public FileSetAttributesArguments([NotNull] AbsolutePath path, FileAttributes attributes,
+            FileAccessKinds accessKinds = FileAccessKinds.Attributes)
         {
             Guard.NotNull(path, nameof(path));
 

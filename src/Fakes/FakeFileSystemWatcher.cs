@@ -535,7 +535,8 @@ namespace TestableFileSystem.Fakes
         {
             if (timeout < 0 && timeout != Timeout.Infinite)
             {
-                throw new ArgumentOutOfRangeException(nameof(timeout), "Specified argument was out of the range of valid values.");
+                throw new ArgumentOutOfRangeException(nameof(timeout),
+                    "Specified argument was out of the range of valid values.");
             }
         }
 
