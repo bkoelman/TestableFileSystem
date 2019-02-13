@@ -526,10 +526,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             userAccount.RunImpersonated("SecondaryUser", () =>
             {
                 // Act
-                Action action = () => fileSystem.File.SetCreationTimeUtc(path, 1.January(2002));
+                Action action1 = () => fileSystem.File.SetCreationTimeUtc(path, 1.January(2002));
+                Action action2 = () => fileSystem.Directory.SetCreationTimeUtc(path, 1.January(2002));
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action1.Should().Throw<UnauthorizedAccessException>()
+                    .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
+                action2.Should().Throw<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -596,10 +599,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             userAccount.RunImpersonated("SecondaryUser", () =>
             {
                 // Act
-                Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, 1.January(2002));
+                Action action1 = () => fileSystem.File.SetLastAccessTimeUtc(path, 1.January(2002));
+                Action action2 = () => fileSystem.Directory.SetLastAccessTimeUtc(path, 1.January(2002));
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action1.Should().Throw<UnauthorizedAccessException>()
+                    .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
+                action2.Should().Throw<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -666,10 +672,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             userAccount.RunImpersonated("SecondaryUser", () =>
             {
                 // Act
-                Action action = () => fileSystem.File.SetLastWriteTimeUtc(path, 1.January(2002));
+                Action action1 = () => fileSystem.File.SetLastWriteTimeUtc(path, 1.January(2002));
+                Action action2 = () => fileSystem.Directory.SetLastWriteTimeUtc(path, 1.January(2002));
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action1.Should().Throw<UnauthorizedAccessException>()
+                    .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
+                action2.Should().Throw<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -1135,10 +1144,260 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
         #region Multi-user operations on directories
 
-        // TODO: Existence of directory encrypted by other => returns True
-        // TODO: Enumerate directory encrypted by other => works (shows unencrypted entries, encrypted entries by me and encrypted entries by other)
-        // TODO: Change attributes of directory encrypted by other => updates attributes, but folder remains encrypted by other user
-        // TODO: Get/set timings of directory encrypted by other => Get works, set FAILS!
+        [Fact]
+        private void When_getting_existence_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                bool found = fileSystem.Directory.Exists(path);
+
+                // Assert
+                found.Should().BeTrue();
+            });
+        }
+
+        [Fact]
+        private void When_enumerating_entries_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(Path.Combine(path, "subfolder"))
+                .IncludingDirectory(Path.Combine(path, "pri-subfolder"))
+                .IncludingDirectory(Path.Combine(path, "sec-subfolder"))
+                .IncludingEmptyFile(Path.Combine(path, "file.txt"))
+                .IncludingEmptyFile(Path.Combine(path, "pri-file.txt"))
+                .IncludingEmptyFile(Path.Combine(path, "sec-file.txt"))
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+            fileSystem.File.Encrypt(Path.Combine(path, "pri-subfolder"));
+            fileSystem.File.Encrypt(Path.Combine(path, "pri-file.txt"));
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                fileSystem.File.Encrypt(Path.Combine(path, "sec-subfolder"));
+                fileSystem.File.Encrypt(Path.Combine(path, "sec-file.txt"));
+
+                // Act
+                string[] entries = fileSystem.Directory.GetFileSystemEntries(path);
+
+                // Assert
+                entries.Should().HaveCount(6);
+                entries.Should().Contain(Path.Combine(path, "subfolder"));
+                entries.Should().Contain(Path.Combine(path, "pri-subfolder"));
+                entries.Should().Contain(Path.Combine(path, "sec-subfolder"));
+                entries.Should().Contain(Path.Combine(path, "file.txt"));
+                entries.Should().Contain(Path.Combine(path, "pri-file.txt"));
+                entries.Should().Contain(Path.Combine(path, "sec-file.txt"));
+            });
+        }
+
+        [Fact]
+        private void When_changing_attributes_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.File.SetAttributes(path, FileAttributes.ReadOnly);
+
+                // Assert
+                fileSystem.File.GetAttributes(path).Should().Be(
+                    FileAttributes.Directory | FileAttributes.Encrypted | FileAttributes.ReadOnly);
+            });
+        }
+
+        [Fact]
+        private void When_getting_creation_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var clock = new SystemClock(() => 1.January(2002));
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock, userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                DateTime time = fileSystem.Directory.GetCreationTimeUtc(path);
+
+                // Assert
+                time.Should().Be(1.January(2002));
+            });
+        }
+
+        [Fact]
+        private void When_setting_creation_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.Directory.SetCreationTimeUtc(path, 1.January(2002));
+
+                Action action = () => fileSystem.File.SetCreationTimeUtc(path, 1.January(2002));
+
+                // Assert
+                fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(1.January(2002));
+
+                action.Should().Throw<UnauthorizedAccessException>()
+                    .WithMessage(@"Access to the path 'c:\folder' is denied.");
+            });
+        }
+
+        [Fact]
+        private void When_getting_last_access_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var clock = new SystemClock(() => 1.January(2002));
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock, userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                DateTime time = fileSystem.Directory.GetLastAccessTimeUtc(path);
+
+                // Assert
+                time.Should().Be(1.January(2002));
+            });
+        }
+
+        [Fact]
+        private void When_setting_last_access_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.Directory.SetLastAccessTimeUtc(path, 1.January(2002));
+
+                Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, 1.January(2002));
+
+                // Assert
+                fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(1.January(2002));
+
+                action.Should().Throw<UnauthorizedAccessException>()
+                    .WithMessage(@"Access to the path 'c:\folder' is denied.");
+            });
+        }
+
+        [Fact]
+        private void When_getting_last_write_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var clock = new SystemClock(() => 1.January(2002));
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock, userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                DateTime time = fileSystem.Directory.GetLastWriteTimeUtc(path);
+
+                // Assert
+                time.Should().Be(1.January(2002));
+            });
+        }
+
+        [Fact]
+        private void When_setting_last_write_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.Directory.SetLastWriteTimeUtc(path, 1.January(2002));
+
+                Action action = () => fileSystem.File.SetLastWriteTimeUtc(path, 1.January(2002));
+
+                // Assert
+                fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(1.January(2002));
+
+                action.Should().Throw<UnauthorizedAccessException>()
+                    .WithMessage(@"Access to the path 'c:\folder' is denied.");
+            });
+        }
+
         // TODO: Rename/move where source directory is encrypted by other (same drive) => works (no changes in crypto owner)
         // TODO: Delete directory encrypted by other => deletes directory (when recursive, even works if it contains files encrypted by other)
         // TODO: Create subdirectory in directory encrypted by other => gets encrypted for me

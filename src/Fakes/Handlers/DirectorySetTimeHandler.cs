@@ -28,6 +28,11 @@ namespace TestableFileSystem.Fakes.Handlers
             var resolver = new EntryResolver(Root);
             BaseEntry entry = resolver.ResolveEntry(arguments.Path);
 
+            if (entry is FileEntry fileEntry)
+            {
+                AssertFileIsNotExternallyEncrypted(fileEntry, arguments.Path);
+            }
+
             switch (arguments.Kind)
             {
                 case FileTimeKind.CreationTime:
@@ -96,6 +101,15 @@ namespace TestableFileSystem.Fakes.Handlers
             if (path.IsVolumeRoot && path.IsOnLocalDrive)
             {
                 throw ErrorFactory.System.PathMustNotBeDrive(nameof(path));
+            }
+        }
+
+        [AssertionMethod]
+        private static void AssertFileIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
+        {
+            if (file.IsExternallyEncrypted)
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
         }
     }
