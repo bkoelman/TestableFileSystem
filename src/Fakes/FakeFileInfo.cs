@@ -85,14 +85,12 @@ namespace TestableFileSystem.Fakes
 #if !NETSTANDARD1_3
         public void Encrypt()
         {
-            // TODO: Implement
-            throw new NotImplementedException();
+            Owner.File.Encrypt(FullName);
         }
 
         public void Decrypt()
         {
-            // TODO: Implement
-            throw new NotImplementedException();
+            Owner.File.Decrypt(FullName);
         }
 #endif
 
