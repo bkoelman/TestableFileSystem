@@ -238,6 +238,14 @@ namespace TestableFileSystem.Fakes.Builders
         }
 
         [NotNull]
+        public FakeFileSystemBuilder WithTempDirectory([NotNull] string path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            return this;
+        }
+
+        [NotNull]
         public FakeFileSystemBuilder WithCopyWaitIndicator([NotNull] WaitIndicator waitIndicator)
         {
             Guard.NotNull(waitIndicator, nameof(waitIndicator));

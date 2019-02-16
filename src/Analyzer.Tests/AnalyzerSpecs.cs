@@ -35,6 +35,7 @@ namespace TestableFileSystem.Analyzer.Tests
                 .InDefaultMethod(@"
                     File.GetAccessControl(null);
                     Directory.GetAccessControl(null);
+                    Path.GetExtension(null);
                 ")
                 .Build();
 
@@ -52,13 +53,17 @@ namespace TestableFileSystem.Analyzer.Tests
                 .InDefaultMethod(@"
                     var stream = File.[|Create|](null);
                     var files = Directory.[|GetFiles|](null);
+                    var path = Path.[|GetTempPath|]();
+                    var fileName = Path.[|GetTempFileName|]();
                 ")
                 .Build();
 
             // Act and assert
             VerifyFileSystemDiagnostic(source,
                 "Usage of 'System.IO.File.Create' should be replaced by 'TestableFileSystem.Interfaces.IFile.Create'.",
-                "Usage of 'System.IO.Directory.GetFiles' should be replaced by 'TestableFileSystem.Interfaces.IDirectory.GetFiles'.");
+                "Usage of 'System.IO.Directory.GetFiles' should be replaced by 'TestableFileSystem.Interfaces.IDirectory.GetFiles'.",
+                "Usage of 'System.IO.Path.GetTempPath' should be replaced by 'TestableFileSystem.Interfaces.IPath.GetTempPath'.",
+                "Usage of 'System.IO.Path.GetTempFileName' should be replaced by 'TestableFileSystem.Interfaces.IPath.GetTempFileName'.");
         }
 
         [Fact]

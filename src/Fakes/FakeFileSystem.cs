@@ -27,6 +27,7 @@ namespace TestableFileSystem.Fakes
         public IFile File { get; }
         public IDirectory Directory { get; }
         public IDrive Drive { get; }
+        public IPath Path { get; }
 
         [NotNull]
         internal FakeFileSystemChangeTracker ChangeTracker { get; }
@@ -46,6 +47,7 @@ namespace TestableFileSystem.Fakes
             File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
             Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
             Drive = new DriveOperationLocker<FakeDrive>(this, new FakeDrive(root, this));
+            Path = new PathOperationLocker<FakePath>(this, new FakePath());
             CurrentDirectoryManager = new CurrentDirectoryManager(root);
             relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
         }

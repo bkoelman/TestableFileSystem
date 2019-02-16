@@ -28,10 +28,11 @@ namespace TestableFileSystem.Analyzer
         {
             var builder = new RegistryBuilder(compilation);
 
-            builder.IncludePair("Directory", "IDirectory");
-            builder.IncludePair("DirectoryInfo", "IDirectoryInfo");
             builder.IncludePair("File", "IFile");
+            builder.IncludePair("Directory", "IDirectory");
+            builder.IncludePair("Path", "IPath");
             builder.IncludePair("FileInfo", "IFileInfo");
+            builder.IncludePair("DirectoryInfo", "IDirectoryInfo");
             builder.IncludePair("FileSystemInfo", "IFileSystemInfo");
             builder.IncludePair("DriveInfo", "IDriveInfo");
             builder.IncludePair("FileStream", "IFileStream");

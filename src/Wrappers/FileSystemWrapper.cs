@@ -9,11 +9,13 @@ namespace TestableFileSystem.Wrappers
         [NotNull]
         public static readonly IFileSystem Default = new FileSystemWrapper();
 
-        public IFile File => new FileWrapper();
+        public IFile File { get; } = new FileWrapper();
 
-        public IDirectory Directory => new DirectoryWrapper();
+        public IDirectory Directory { get; } = new DirectoryWrapper();
 
-        public IDrive Drive => new DriveWrapper();
+        public IDrive Drive { get; } = new DriveWrapper();
+
+        public IPath Path { get; } = new PathWrapper();
 
         public IFileInfo ConstructFileInfo(string fileName)
         {

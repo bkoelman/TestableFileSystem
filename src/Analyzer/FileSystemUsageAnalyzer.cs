@@ -43,12 +43,14 @@ namespace TestableFileSystem.Analyzer
                 }
 
                 var memberRegistry = new MemberRegistry(typeRegistry);
+                var heuristic = new ExternMemberHeuristic(startContext.Compilation);
 
                 startContext.RegisterSyntaxNodeAction(
-                    syntaxContext => AnalyzeMemberAccessSyntax(syntaxContext, typeRegistry, memberRegistry),
+                    syntaxContext => AnalyzeMemberAccessSyntax(syntaxContext, typeRegistry, memberRegistry, heuristic),
                     SyntaxKind.SimpleMemberAccessExpression);
 
-                startContext.RegisterSyntaxNodeAction(syntaxContext => AnalyzeObjectCreationSyntax(syntaxContext, memberRegistry),
+                startContext.RegisterSyntaxNodeAction(
+                    syntaxContext => AnalyzeObjectCreationSyntax(syntaxContext, memberRegistry, heuristic),
                     SyntaxKind.ObjectCreationExpression);
 
                 startContext.RegisterSyntaxNodeAction(syntaxContext => AnalyzeClassDeclarationSyntax(syntaxContext, typeRegistry),
@@ -69,7 +71,7 @@ namespace TestableFileSystem.Analyzer
         }
 
         private void AnalyzeMemberAccessSyntax(SyntaxNodeAnalysisContext context, [NotNull] TypeRegistry typeRegistry,
-            [NotNull] MemberRegistry memberRegistry)
+            [NotNull] MemberRegistry memberRegistry, [NotNull] ExternMemberHeuristic heuristic)
         {
             var memberAccessSyntax = (MemberAccessExpressionSyntax)context.Node;
 
@@ -88,7 +90,7 @@ namespace TestableFileSystem.Analyzer
                 ReportInternDiagnosticAt(location, systemMemberName, testableMemberName, false, context.ReportDiagnostic);
             }
             else if (symbol is IMethodSymbol methodSymbol && !typeRegistry.SystemTypes.Contains(methodSymbol.ContainingType) &&
-                ExternMemberHeuristic.HasFilePathParameter(methodSymbol))
+                heuristic.HasPathAsStringParameter(methodSymbol))
             {
                 Location location = GetMemberInvocationLocation(memberAccessSyntax);
                 ReportExternDiagnosticAt(location, systemMemberName, false, context.ReportDiagnostic);
@@ -102,7 +104,8 @@ namespace TestableFileSystem.Analyzer
             return lastChild != null ? lastChild.GetLocation() : memberAccessSyntax.GetLocation();
         }
 
-        private void AnalyzeObjectCreationSyntax(SyntaxNodeAnalysisContext context, [NotNull] MemberRegistry memberRegistry)
+        private void AnalyzeObjectCreationSyntax(SyntaxNodeAnalysisContext context, [NotNull] MemberRegistry memberRegistry,
+            [NotNull] ExternMemberHeuristic heuristic)
         {
             var objectCreationSyntax = (ObjectCreationExpressionSyntax)context.Node;
 
@@ -120,7 +123,7 @@ namespace TestableFileSystem.Analyzer
                 ReportInternDiagnosticAt(objectCreationSyntax.Type.GetLocation(), systemTypeName, testableMemberName, true,
                     context.ReportDiagnostic);
             }
-            else if (ExternMemberHeuristic.HasFilePathParameter(methodSymbol))
+            else if (heuristic.HasPathAsStringParameter(methodSymbol))
             {
                 ReportExternDiagnosticAt(objectCreationSyntax.Type.GetLocation(), systemTypeName, true, context.ReportDiagnostic);
             }
