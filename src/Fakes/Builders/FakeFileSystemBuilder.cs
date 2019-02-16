@@ -32,6 +32,9 @@ namespace TestableFileSystem.Fakes.Builders
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker = new FakeFileSystemChangeTracker();
 
+        [CanBeNull]
+        private string tempDirectory;
+
         [NotNull]
         private WaitIndicator copyWaitIndicator = WaitIndicator.None;
 
@@ -65,8 +68,28 @@ namespace TestableFileSystem.Fakes.Builders
                 IncludingDirectory("C:");
             }
 
+            string effectiveTempDirectory = CreateTempDirectory();
+
             copyWaitIndicator.Reset();
-            return new FakeFileSystem(root, volumes, changeTracker, copyWaitIndicator);
+            return new FakeFileSystem(root, volumes, changeTracker, effectiveTempDirectory, copyWaitIndicator);
+        }
+
+        [NotNull]
+        private string CreateTempDirectory()
+        {
+            string directory = tempDirectory ?? GetTempDirectoryOnFirstDrive()?.GetText();
+            if (directory != null)
+            {
+                IncludingDirectory(directory);
+            }
+
+            return directory ?? string.Empty;
+        }
+
+        [CanBeNull]
+        private AbsolutePath GetTempDirectoryOnFirstDrive()
+        {
+            return root.Directories.Any() ? root.Directories.First().Value.PathFormatter.GetPath().Append("Temp") : null;
         }
 
         [NotNull]
@@ -242,6 +265,7 @@ namespace TestableFileSystem.Fakes.Builders
         {
             Guard.NotNull(path, nameof(path));
 
+            tempDirectory = path;
             return this;
         }
 

@@ -22,6 +22,9 @@ namespace TestableFileSystem.Fakes
         private readonly RelativePathConverter relativePathConverter;
 
         [NotNull]
+        internal string TempDirectory { get; private set; }
+
+        [NotNull]
         internal WaitIndicator CopyWaitIndicator { get; }
 
         public IFile File { get; }
@@ -33,7 +36,7 @@ namespace TestableFileSystem.Fakes
         internal FakeFileSystemChangeTracker ChangeTracker { get; }
 
         internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] IDictionary<string, FakeVolume> volumes,
-            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] WaitIndicator copyWaitIndicator)
+            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] string tempDirectory, [NotNull] WaitIndicator copyWaitIndicator)
         {
             Guard.NotNull(root, nameof(root));
             Guard.NotNull(changeTracker, nameof(changeTracker));
@@ -42,12 +45,13 @@ namespace TestableFileSystem.Fakes
             this.root = root;
             this.volumes = volumes;
             ChangeTracker = changeTracker;
+            TempDirectory = tempDirectory;
             CopyWaitIndicator = copyWaitIndicator;
 
             File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
             Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
             Drive = new DriveOperationLocker<FakeDrive>(this, new FakeDrive(root, this));
-            Path = new PathOperationLocker<FakePath>(this, new FakePath());
+            Path = new PathOperationLocker<FakePath>(this, new FakePath(this));
             CurrentDirectoryManager = new CurrentDirectoryManager(root);
             relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
         }

@@ -1,18 +1,23 @@
 ﻿using System;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
     public sealed class FakePath : IPath
     {
-        internal FakePath()
+        [NotNull]
+        private readonly FakeFileSystem owner;
+
+        internal FakePath([NotNull] FakeFileSystem owner)
         {
+            Guard.NotNull(owner, nameof(owner));
+            this.owner = owner;
         }
 
         public string GetTempPath()
         {
-            // TODO: Implement fake for System.IO.Path.GetTempPath
-            throw new NotImplementedException();
+            return owner.TempDirectory;
         }
 
         public string GetTempFileName()
