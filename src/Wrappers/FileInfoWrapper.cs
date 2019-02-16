@@ -4,7 +4,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class FileInfoWrapper : FileSystemInfoWrapper, IFileInfo
+    internal sealed class FileInfoWrapper : FileSystemInfoWrapper, IFileInfo
     {
         [NotNull]
         private readonly FileInfo source;

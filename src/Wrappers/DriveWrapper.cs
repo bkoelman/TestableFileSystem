@@ -4,7 +4,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class DriveWrapper : IDrive
+    internal sealed class DriveWrapper : IDrive
     {
 #if !NETSTANDARD1_3
         public IDriveInfo[] GetDrives()

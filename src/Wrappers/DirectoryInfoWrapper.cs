@@ -6,7 +6,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class DirectoryInfoWrapper : FileSystemInfoWrapper, IDirectoryInfo
+    internal sealed class DirectoryInfoWrapper : FileSystemInfoWrapper, IDirectoryInfo
     {
         [NotNull]
         private readonly DirectoryInfo source;

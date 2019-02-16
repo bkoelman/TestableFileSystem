@@ -5,7 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class DirectoryWrapper : IDirectory
+    internal sealed class DirectoryWrapper : IDirectory
     {
         public IDirectoryInfo GetParent(string path)
         {

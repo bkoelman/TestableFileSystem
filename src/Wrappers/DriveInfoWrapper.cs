@@ -8,7 +8,7 @@ using TestableFileSystem.Interfaces;
 namespace TestableFileSystem.Wrappers
 {
     [Serializable]
-    public sealed class DriveInfoWrapper : IDriveInfo, ISerializable
+    internal sealed class DriveInfoWrapper : IDriveInfo, ISerializable
     {
         [NotNull]
         private readonly DriveInfo source;

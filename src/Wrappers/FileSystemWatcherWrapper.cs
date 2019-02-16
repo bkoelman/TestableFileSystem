@@ -5,7 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class FileSystemWatcherWrapper : IFileSystemWatcher
+    internal sealed class FileSystemWatcherWrapper : IFileSystemWatcher
     {
         [NotNull]
         private readonly FileSystemWatcher source;

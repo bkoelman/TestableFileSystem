@@ -5,7 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public static class FileSystemInfoWrapperFactory
+    internal static class FileSystemInfoWrapperFactory
     {
         [CanBeNull]
         public static IFileSystemInfo CreateWrapper([CanBeNull] FileSystemInfo source)

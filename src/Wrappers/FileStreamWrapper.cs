@@ -8,7 +8,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class FileStreamWrapper : IFileStream
+    internal sealed class FileStreamWrapper : IFileStream
     {
         [NotNull]
         private static readonly Action<long, long> EmptyAction = (_, __) => { };

@@ -4,7 +4,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class FileWrapper : IFile
+    internal sealed class FileWrapper : IFile
     {
         public bool Exists(string path)
         {
