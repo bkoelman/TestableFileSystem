@@ -21,7 +21,6 @@ namespace TestableFileSystem.Fakes.Handlers
         // TODO: How encrypt/decrypt works...
         // - when using on non-NTFS-formatted drive, throws System.NotSupportedException: 'File encryption support only works on NTFS partitions.'
         // - when running on non-windows or Windows Home Edition, throws System.NotSupportedException: "File encryption is not supported on this platform."
-        // - file attributes includes Encrypted flag for encrypted file/folder
         // - the type of exception thrown for missing drive varies per runtime
         // - when encrypting a file that is in use (even if file was already encrypted), throws System.IO.IOException: 'The process cannot access the file 'd:\FileSystemTests\file.txt' because it is being used by another process.'
         // - when encrypting readonly directory, it succeeds

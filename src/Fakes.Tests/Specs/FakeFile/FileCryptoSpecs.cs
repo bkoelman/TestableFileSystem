@@ -9,7 +9,7 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    public sealed class FileEncryptSpecs
+    public sealed class FileCryptoSpecs
     {
         #region Multi-user operations on files
 
@@ -1631,8 +1631,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         #endregion
-
-        // TODO: Add more tests...
     }
 }
 #endif
