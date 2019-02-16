@@ -591,7 +591,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetLastWriteTime(path);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -607,7 +607,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTime(path, DefaultTime);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]

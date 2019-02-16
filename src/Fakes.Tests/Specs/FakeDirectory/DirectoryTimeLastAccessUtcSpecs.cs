@@ -586,7 +586,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetLastAccessTimeUtc(path);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -602,7 +602,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastAccessTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]

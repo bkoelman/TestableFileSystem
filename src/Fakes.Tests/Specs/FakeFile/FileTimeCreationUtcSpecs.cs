@@ -590,7 +590,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetCreationTimeUtc(path);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -606,7 +606,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetCreationTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]

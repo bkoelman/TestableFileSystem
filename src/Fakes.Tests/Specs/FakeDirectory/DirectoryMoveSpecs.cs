@@ -692,7 +692,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.Should().Throw<IOException>()
-                .WithMessage(@"The filename, directory name, or volume label syntax is incorrect");
+                .WithMessage(@"The filename, directory name, or volume label syntax is incorrect.");
         }
 
         [Fact]
@@ -856,7 +856,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found");
+            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]

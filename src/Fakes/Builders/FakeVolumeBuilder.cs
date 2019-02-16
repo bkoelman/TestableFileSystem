@@ -16,7 +16,7 @@ namespace TestableFileSystem.Fakes.Builders
         private string volumeLabel = string.Empty;
 
         [NotNull]
-        private string driveFormat = "NTFS";
+        private string driveFormat = FakeVolume.NtFs;
 
         public FakeVolume Build()
         {

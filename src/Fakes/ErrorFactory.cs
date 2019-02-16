@@ -42,7 +42,7 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception FileOrDirectoryOrVolumeIsIncorrect()
             {
-                return new IOException("The filename, directory name, or volume label syntax is incorrect");
+                return new IOException("The filename, directory name, or volume label syntax is incorrect.");
             }
 
             [NotNull]
@@ -54,7 +54,7 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception NetworkPathNotFound()
             {
-                return new IOException("The network path was not found");
+                return new IOException("The network path was not found.");
             }
 
             [NotNull]
@@ -269,6 +269,12 @@ namespace TestableFileSystem.Fakes
             public static Exception SegmentIsAlreadyUnlocked()
             {
                 throw new IOException("The segment is already unlocked");
+            }
+
+            [NotNull]
+            public static Exception FileIsReadOnly()
+            {
+                throw new IOException("The specified file is read only.");
             }
         }
 

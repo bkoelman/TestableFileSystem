@@ -7,6 +7,8 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeVolume
     {
+        internal const string NtFs = "NTFS";
+
         [NotNull]
         private string label;
 

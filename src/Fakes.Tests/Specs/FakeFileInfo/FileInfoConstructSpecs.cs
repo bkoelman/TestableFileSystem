@@ -558,24 +558,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.DirectoryName.Should().Be(@"\\server\share");
             fileInfo.Exists.Should().BeFalse();
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => fileInfo.IsReadOnly).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => fileInfo.Attributes).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
 
             ActionFactory.IgnoreReturnValue(() => fileInfo.CreationTime).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => fileInfo.CreationTimeUtc).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => fileInfo.LastAccessTime).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => fileInfo.LastAccessTimeUtc).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => fileInfo.LastWriteTime).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => fileInfo.LastWriteTimeUtc).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
 
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
             directoryInfo.FullName.Should().Be(@"\\server\share");

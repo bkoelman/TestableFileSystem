@@ -226,7 +226,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(@"c:\folder", @"fol*\*.*");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect");
+            action.Should().Throw<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect.");
         }
 
         [Fact]
@@ -241,7 +241,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(@"c:\folder", @"fol?er\*.*");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect");
+            action.Should().Throw<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect.");
         }
 
         [Fact]
@@ -842,7 +842,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(@"\\server\share\team");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"The network path was not found");
+            action.Should().Throw<IOException>().WithMessage(@"The network path was not found.");
         }
 
         [Fact]

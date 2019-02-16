@@ -548,20 +548,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.FullName.Should().Be(path);
             dirInfo.Exists.Should().BeFalse();
             ActionFactory.IgnoreReturnValue(() => dirInfo.Attributes).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
 
             ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTime).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTimeUtc).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTime).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTimeUtc).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTime).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
             ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTimeUtc).Should().Throw<IOException>()
-                .WithMessage("The network path was not found");
+                .WithMessage("The network path was not found.");
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"\\server\share");

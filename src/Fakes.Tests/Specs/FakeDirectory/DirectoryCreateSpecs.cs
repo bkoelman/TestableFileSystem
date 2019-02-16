@@ -416,7 +416,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"\\server\share\team");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"The network path was not found");
+            action.Should().Throw<IOException>().WithMessage(@"The network path was not found.");
         }
 
         [Fact]
