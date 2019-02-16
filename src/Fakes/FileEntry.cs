@@ -36,50 +36,10 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly object readerWriterLock = new object();
 
-        private long creationTimeStampUtc;
-        private long lastWriteTimeStampUtc;
-        private long lastAccessTimeStampUtc;
-
         internal override IPathFormatter PathFormatter { get; }
 
         [NotNull]
         public DirectoryEntry Parent { get; private set; }
-
-        public override DateTime CreationTime
-        {
-            get => DateTime.FromFileTime(creationTimeStampUtc);
-            set => creationTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime CreationTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(creationTimeStampUtc);
-            set => creationTimeStampUtc = value.ToFileTimeUtc();
-        }
-
-        public override DateTime LastAccessTime
-        {
-            get => DateTime.FromFileTime(lastAccessTimeStampUtc);
-            set => lastAccessTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime LastAccessTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
-            set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
-        }
-
-        public override DateTime LastWriteTime
-        {
-            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
-            set => lastWriteTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime LastWriteTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
-            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
-        }
 
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)
             : base(name, FileAttributes.Archive, parent.ChangeTracker, parent.LoggedOnAccount)

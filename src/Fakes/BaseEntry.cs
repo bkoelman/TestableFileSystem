@@ -34,13 +34,45 @@ namespace TestableFileSystem.Fakes
             private set => innerAttributes = value & ~FileAttributes.Encrypted;
         }
 
-        // TODO: Move identical implementations into base class.
-        public abstract DateTime CreationTime { get; set; }
-        public abstract DateTime CreationTimeUtc { get; set; }
-        public abstract DateTime LastAccessTime { get; set; }
-        public abstract DateTime LastAccessTimeUtc { get; set; }
-        public abstract DateTime LastWriteTime { get; set; }
-        public abstract DateTime LastWriteTimeUtc { get; set; }
+        private long creationTimeStampUtc;
+        private long lastWriteTimeStampUtc;
+        private long lastAccessTimeStampUtc;
+
+        public DateTime CreationTime
+        {
+            get => DateTime.FromFileTime(creationTimeStampUtc);
+            set => creationTimeStampUtc = value.ToFileTime();
+        }
+
+        public DateTime CreationTimeUtc
+        {
+            get => DateTime.FromFileTimeUtc(creationTimeStampUtc);
+            set => creationTimeStampUtc = value.ToFileTimeUtc();
+        }
+
+        public DateTime LastAccessTime
+        {
+            get => DateTime.FromFileTime(lastAccessTimeStampUtc);
+            set => lastAccessTimeStampUtc = value.ToFileTime();
+        }
+
+        public DateTime LastAccessTimeUtc
+        {
+            get => DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
+            set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
+        }
+
+        public DateTime LastWriteTime
+        {
+            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTime();
+        }
+
+        public DateTime LastWriteTimeUtc
+        {
+            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
+        }
 
         protected BaseEntry([NotNull] string name, FileAttributes attributes, [NotNull] FakeFileSystemChangeTracker changeTracker,
             [NotNull] ILoggedOnUserAccount loggedOnAccount)
