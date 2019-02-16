@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -13,6 +12,8 @@ namespace TestableFileSystem.Wrappers
         public IFile File => new FileWrapper();
 
         public IDirectory Directory => new DirectoryWrapper();
+
+        public IDrive Drive => new DriveWrapper();
 
         public IFileInfo ConstructFileInfo(string fileName)
         {
@@ -28,11 +29,6 @@ namespace TestableFileSystem.Wrappers
         public IDriveInfo ConstructDriveInfo(string driveName)
         {
             return new DriveInfoWrapper(new DriveInfo(driveName));
-        }
-
-        public IDriveInfo[] GetDrives()
-        {
-            return DriveInfo.GetDrives().Select(x => (IDriveInfo)new DriveInfoWrapper(x)).ToArray();
         }
 
         public IFileSystemWatcher ConstructFileSystemWatcher(string path = "", string filter = "*.*")

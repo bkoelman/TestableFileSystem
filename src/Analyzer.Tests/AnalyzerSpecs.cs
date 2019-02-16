@@ -79,7 +79,7 @@ namespace TestableFileSystem.Analyzer.Tests
             VerifyFileSystemDiagnostic(source,
                 "Usage of 'System.IO.Directory.GetLogicalDrives' should be replaced by 'TestableFileSystem.Interfaces.IDirectory.GetLogicalDrives'.",
                 "Usage of 'System.Environment.GetLogicalDrives' should be replaced by 'TestableFileSystem.Interfaces.IDirectory.GetLogicalDrives'.",
-                "Usage of 'System.IO.DriveInfo.GetDrives' should be replaced by 'TestableFileSystem.Interfaces.IFileSystem.GetDrives'.");
+                "Usage of 'System.IO.DriveInfo.GetDrives' should be replaced by 'TestableFileSystem.Interfaces.IDrive.GetDrives'.");
         }
 
         [Fact]

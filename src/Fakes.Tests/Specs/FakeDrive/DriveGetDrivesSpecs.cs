@@ -4,9 +4,9 @@ using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
-namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
+namespace TestableFileSystem.Fakes.Tests.Specs.FakeDrive
 {
-    public sealed class FileSystemGetDrivesSpecs
+    public sealed class DriveGetDrivesSpecs
     {
         [Fact]
         private void When_getting_drives_it_must_succeed()
@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
                 .Build();
 
             // Act
-            IDriveInfo[] driveInfos = fileSystem.GetDrives();
+            IDriveInfo[] driveInfos = fileSystem.Drive.GetDrives();
 
             // Assert
             driveInfos.Should().NotBeNull();

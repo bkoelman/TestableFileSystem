@@ -58,7 +58,7 @@ namespace TestableFileSystem.Analyzer
 
             // Additional redirects that do not match earlier conventions.
             memberMap["System.Environment.GetLogicalDrives"] = "TestableFileSystem.Interfaces.IDirectory.GetLogicalDrives";
-            memberMap["System.IO.DriveInfo.GetDrives"] = "TestableFileSystem.Interfaces.IFileSystem.GetDrives";
+            memberMap["System.IO.DriveInfo.GetDrives"] = "TestableFileSystem.Interfaces.IDrive.GetDrives";
             constructorMap["System.IO.FileStream"] = "TestableFileSystem.Interfaces.IFile.Open";
         }
 
