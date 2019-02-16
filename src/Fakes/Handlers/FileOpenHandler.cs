@@ -74,8 +74,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, false, true);
 
-            FileOptions options = AdjustOptions(arguments.CreateOptions, file.Parent);
-            ApplyOptions(file, options);
+            ApplyOptions(file, arguments.CreateOptions);
 
             return stream;
         }
@@ -120,17 +119,9 @@ namespace TestableFileSystem.Fakes.Handlers
 
             IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, true, true);
 
-            FileOptions options = AdjustOptions(arguments.CreateOptions, containingDirectory);
-            ApplyOptions(file, options);
+            ApplyOptions(file, arguments.CreateOptions);
 
             return stream;
-        }
-
-        private static FileOptions AdjustOptions(FileOptions options, [NotNull] DirectoryEntry containingDirectory)
-        {
-            return options.HasFlag(FileOptions.Encrypted) || containingDirectory.Attributes.HasFlag(FileAttributes.Encrypted)
-                ? options | FileOptions.Encrypted
-                : options;
         }
 
         private static void ApplyOptions([NotNull] FileEntry file, FileOptions options)

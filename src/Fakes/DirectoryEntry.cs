@@ -85,6 +85,11 @@ namespace TestableFileSystem.Fakes
             PathFormatter = new DirectoryEntryPathFormatter(this);
             SystemClock = systemClock;
 
+            if (parent?.IsEncrypted == true)
+            {
+                SetEncrypted();
+            }
+
             CreationTimeUtc = systemClock.UtcNow();
             UpdateLastWriteLastAccessTime();
         }

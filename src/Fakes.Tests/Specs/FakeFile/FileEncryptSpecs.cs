@@ -823,7 +823,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_recreating_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        private void When_recreating_unencrypted_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
             const string path = @"c:\folder\file.txt";
@@ -845,7 +845,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
                 // Assert
                 fileSystem.File.Exists(path).Should().BeTrue();
-                fileSystem.File.GetAttributes(path).Should().HaveFlag(FileAttributes.Encrypted);
+                fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
                 fileSystem.File.ReadAllText(path).Should().BeEmpty();
             });
         }
@@ -1209,6 +1209,136 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_renaming_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\sourceFolder";
+            const string targetPath = @"c:\targetFolder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            fileSystem.File.Encrypt(sourcePath);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.Directory.Move(sourcePath, targetPath);
+
+                // Assert
+                fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+                fileSystem.Directory.Exists(targetPath).Should().BeTrue();
+                fileSystem.File.GetAttributes(targetPath).Should().HaveFlag(FileAttributes.Encrypted);
+            });
+        }
+
+        [Fact]
+        private void When_moving_directory_that_was_encrypted_by_other_user_to_same_volume_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\parent\sourceFolder";
+            const string targetPath = @"c:\targetFolder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(sourcePath)
+                .Build();
+
+            fileSystem.File.Encrypt(sourcePath);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.Directory.Move(sourcePath, targetPath);
+
+                // Assert
+                fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+                fileSystem.Directory.Exists(targetPath).Should().BeTrue();
+                fileSystem.File.GetAttributes(targetPath).Should().HaveFlag(FileAttributes.Encrypted);
+            });
+        }
+
+        [Fact]
+        private void When_deleting_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.Directory.Delete(path);
+
+                // Assert
+                fileSystem.Directory.Exists(path).Should().BeFalse();
+            });
+        }
+
+        [Fact]
+        private void When_deleting_directory_recursively_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .IncludingDirectory(Path.Combine(path, "subfolder"))
+                .IncludingTextFile(Path.Combine(path, "file.txt"), "Created_by_Primary_User")
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.Directory.Delete(path, true);
+
+                // Assert
+                fileSystem.Directory.Exists(path).Should().BeFalse();
+            });
+        }
+
+        [Fact]
+        private void When_creating_subdirectory_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string parentFath = @"c:\folder";
+            string subFolder = Path.Combine(parentFath, "subfolder");
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(parentFath)
+                .Build();
+
+            fileSystem.File.Encrypt(parentFath);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.Directory.CreateDirectory(subFolder);
+
+                // Assert
+                fileSystem.Directory.Exists(subFolder).Should().BeTrue();
+                fileSystem.File.GetAttributes(subFolder).Should().HaveFlag(FileAttributes.Encrypted);
+            });
+        }
+
+        [Fact]
         private void When_changing_attributes_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1398,13 +1528,107 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        // TODO: Rename/move where source directory is encrypted by other (same drive) => works (no changes in crypto owner)
-        // TODO: Delete directory encrypted by other => deletes directory (when recursive, even works if it contains files encrypted by other)
-        // TODO: Create subdirectory in directory encrypted by other => gets encrypted for me
-        // TODO: Encrypt directory encrypted by other => works, but does nothing (not change owner)
-        // TODO: Encrypt directory encrypted by self => works, but does nothing
-        // TODO: Decrypt directory encrypted by other => un-marks directory encrypted (does not touch files/subdirectories)
-        // TODO: Decrypt directory encrypted by self => un-marks directory encrypted (does not touch files/subdirectories)
+        [Fact]
+        private void When_encrypting_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.File.Encrypt(path);
+
+                // Assert
+                fileSystem.File.GetAttributes(path).Should().HaveFlag(FileAttributes.Encrypted);
+            });
+        }
+
+        [Fact]
+        private void When_encrypting_directory_that_was_encrypted_by_self_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            // Act
+            fileSystem.File.Encrypt(path);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().HaveFlag(FileAttributes.Encrypted);
+        }
+
+        [Fact]
+        private void When_decrypting_directory_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .IncludingDirectory(Path.Combine(path, "subfolder"))
+                .IncludingEmptyFile(Path.Combine(path, "file.txt"))
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+            fileSystem.File.Encrypt(Path.Combine(path, "subfolder"));
+            fileSystem.File.Encrypt(Path.Combine(path, "file.txt"));
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.File.Decrypt(path);
+
+                // Assert
+                fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
+                fileSystem.File.GetAttributes(Path.Combine(path, "subfolder")).Should().HaveFlag(FileAttributes.Encrypted);
+                fileSystem.File.GetAttributes(Path.Combine(path, "file.txt")).Should().HaveFlag(FileAttributes.Encrypted);
+            });
+        }
+
+        [Fact]
+        private void When_decrypting_directory_that_was_encrypted_by_self_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\folder";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingDirectory(path)
+                .IncludingDirectory(Path.Combine(path, "subfolder"))
+                .IncludingEmptyFile(Path.Combine(path, "file.txt"))
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+            fileSystem.File.Encrypt(Path.Combine(path, "subfolder"));
+            fileSystem.File.Encrypt(Path.Combine(path, "file.txt"));
+
+            // Act
+            fileSystem.File.Decrypt(path);
+
+            // Assert
+            fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
+            fileSystem.File.GetAttributes(Path.Combine(path, "subfolder")).Should().HaveFlag(FileAttributes.Encrypted);
+            fileSystem.File.GetAttributes(Path.Combine(path, "file.txt")).Should().HaveFlag(FileAttributes.Encrypted);
+        }
 
         #endregion
 

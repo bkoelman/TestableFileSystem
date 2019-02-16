@@ -91,6 +91,11 @@ namespace TestableFileSystem.Fakes
             PathFormatter = new FileEntryPathFormatter(this);
             lockTracker = new LockTracker(this);
 
+            if (parent.IsEncrypted)
+            {
+                SetEncrypted();
+            }
+
             CreationTimeUtc = LastWriteTimeUtc = LastAccessTimeUtc = parent.SystemClock.UtcNow();
         }
 

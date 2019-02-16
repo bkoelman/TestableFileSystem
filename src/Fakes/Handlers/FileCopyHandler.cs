@@ -148,11 +148,6 @@ namespace TestableFileSystem.Fakes.Handlers
 
             destinationFile.SetAttributes(sourceFile.Attributes);
 
-            if (isNewlyCreated && resolveResult.ContainingDirectory.Attributes.HasFlag(FileAttributes.Encrypted))
-            {
-                destinationFile.SetEncrypted();
-            }
-
             destinationFile.LastAccessTimeUtc = utcNow;
             destinationFile.LastWriteTimeUtc = sourceFile.LastWriteTimeUtc;
 

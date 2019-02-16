@@ -18,7 +18,9 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public ILoggedOnUserAccount LoggedOnAccount { get; }
 
-        public bool IsExternallyEncrypted => encryptorAccountName != null && LoggedOnAccount.UserName != encryptorAccountName;
+        public bool IsEncrypted => encryptorAccountName != null;
+
+        public bool IsExternallyEncrypted => IsEncrypted && LoggedOnAccount.UserName != encryptorAccountName;
 
         [NotNull]
         public FakeFileSystemChangeTracker ChangeTracker { get; }
