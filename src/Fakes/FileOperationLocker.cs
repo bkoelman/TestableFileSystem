@@ -129,6 +129,13 @@ namespace TestableFileSystem.Fakes
         {
             ExecuteInLock(() => target.Decrypt(path));
         }
+
+        public void Replace(string sourceFileName, string destinationFileName, string destinationBackupFileName,
+            bool ignoreMetadataErrors = false)
+        {
+            ExecuteInLock(() =>
+                target.Replace(sourceFileName, destinationFileName, destinationBackupFileName, ignoreMetadataErrors));
+        }
 #endif
     }
 }

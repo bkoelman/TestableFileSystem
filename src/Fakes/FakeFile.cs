@@ -361,6 +361,13 @@ namespace TestableFileSystem.Fakes
 
             handler.Handle(arguments);
         }
+
+        public void Replace(string sourceFileName, string destinationFileName, string destinationBackupFileName,
+            bool ignoreMetadataErrors = false)
+        {
+            // TODO: Implement file replace.
+            throw new NotImplementedException();
+        }
 #endif
 
         private static void AssertPathIsNotEmpty([NotNull] string path)

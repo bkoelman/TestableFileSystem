@@ -92,6 +92,12 @@ namespace TestableFileSystem.Fakes
         {
             Owner.File.Decrypt(FullName);
         }
+
+        public IFileInfo Replace(string destinationFileName, string destinationBackupFileName, bool ignoreMetadataErrors = false)
+        {
+            // TODO: Implement file replace.
+            throw new NotImplementedException();
+        }
 #endif
 
         public override void Delete()

@@ -30,6 +30,10 @@ namespace TestableFileSystem.Interfaces
 #if !NETSTANDARD1_3
         void Encrypt();
         void Decrypt();
+
+        [NotNull]
+        IFileInfo Replace([NotNull] string destinationFileName, [CanBeNull] string destinationBackupFileName,
+            bool ignoreMetadataErrors = false);
 #endif
 
         [NotNull]

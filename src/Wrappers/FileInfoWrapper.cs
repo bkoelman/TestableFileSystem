@@ -58,6 +58,12 @@ namespace TestableFileSystem.Wrappers
         {
             source.Decrypt();
         }
+
+        public IFileInfo Replace(string destinationFileName, string destinationBackupFileName, bool ignoreMetadataErrors = false)
+        {
+            FileInfo fileInfo = source.Replace(destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
+            return new FileInfoWrapper(fileInfo);
+        }
 #endif
 
         public override string ToString()

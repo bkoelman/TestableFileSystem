@@ -117,6 +117,12 @@ namespace TestableFileSystem.Wrappers
         {
             File.Decrypt(path);
         }
+
+        public void Replace(string sourceFileName, string destinationFileName, string destinationBackupFileName,
+            bool ignoreMetadataErrors = false)
+        {
+            File.Replace(sourceFileName, destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
+        }
 #endif
     }
 }
