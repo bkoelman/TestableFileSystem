@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -46,7 +45,7 @@ namespace TestableFileSystem.Fakes
 
             File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
             Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
-            Drive = new DriveOperationLocker<FakeDrive>(this, new FakeDrive(this));
+            Drive = new DriveOperationLocker<FakeDrive>(this, new FakeDrive(root, this));
             CurrentDirectoryManager = new CurrentDirectoryManager(root);
             relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
         }
@@ -137,13 +136,6 @@ namespace TestableFileSystem.Fakes
         internal FakeVolume GetVolume([NotNull] string driveName)
         {
             return volumes.ContainsKey(driveName) ? volumes[driveName] : null;
-        }
-
-        [NotNull]
-        [ItemNotNull]
-        internal string[] GetDrives()
-        {
-            return volumes.Keys.Where(AbsolutePath.IsDriveLetter).OrderBy(x => x).ToArray();
         }
     }
 }
