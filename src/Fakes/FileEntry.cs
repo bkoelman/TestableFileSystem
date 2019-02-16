@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Win32.SafeHandles;
 using TestableFileSystem.Interfaces;
 using TestableFileSystem.Wrappers;
 
@@ -171,8 +173,8 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            return new FileStreamWrapper(stream, path.GetText, () => false, () => throw new NotSupportedException(),
-                _ => stream.Flush(), stream.Lock, stream.Unlock);
+            return new FileStreamWrapper(stream, path.GetText, () => false, () => stream.LazyHandle.Value, _ => stream.Flush(),
+                stream.Lock, stream.Unlock);
         }
 
         public void MoveTo([NotNull] string newName, [NotNull] DirectoryEntry newParent)
@@ -221,6 +223,11 @@ namespace TestableFileSystem.Fakes
 
             [NotNull]
             private readonly FileEntry owner;
+
+            [NotNull]
+            [ItemNotNull]
+            public readonly Lazy<SafeFileHandle> LazyHandle = new Lazy<SafeFileHandle>(() => new SafeFileHandle((IntPtr)(-2), true),
+                LazyThreadSafetyMode.ExecutionAndPublication);
 
             private readonly bool notifyTracker;
 
@@ -463,6 +470,11 @@ namespace TestableFileSystem.Fakes
                         if (accessKinds != FileAccessKinds.None)
                         {
                             owner.HandleFileContentsAccessed(accessKinds, notifyTracker);
+                        }
+
+                        if (LazyHandle.IsValueCreated)
+                        {
+                            LazyHandle.Value.Dispose();
                         }
 
                         owner.lockTracker.Release(this);

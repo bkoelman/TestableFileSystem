@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using JetBrains.Annotations;
+using Microsoft.Win32.SafeHandles;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -1719,6 +1720,73 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 #endif
+
+        [Fact]
+        private void When_getting_handle_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                // Act
+                SafeFileHandle handle = stream.SafeFileHandle;
+
+                // Assert
+                handle.IsInvalid.Should().BeFalse();
+                handle.IsClosed.Should().BeFalse();
+            }
+        }
+
+        [Fact]
+        private void When_closing_handle_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                SafeFileHandle handle = stream.SafeFileHandle;
+
+                // Act
+                handle.Dispose();
+
+                // Assert
+                handle.IsInvalid.Should().BeFalse();
+                handle.IsClosed.Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        private void When_closing_stream_it_must_release_handle()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            SafeFileHandle handle;
+
+            // Act
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                handle = stream.SafeFileHandle;
+            }
+
+            // Assert
+            handle.IsInvalid.Should().BeFalse();
+            handle.IsClosed.Should().BeTrue();
+        }
 
         [NotNull]
         private static byte[] CreateBuffer(int size)
