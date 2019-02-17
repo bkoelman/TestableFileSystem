@@ -104,6 +104,13 @@ namespace TestableFileSystem.Fakes
                 .Select(x => x.Value).ToArray();
         }
 
+        public bool ContainsFile([NotNull] string fileName)
+        {
+            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
+
+            return contents.ContainsFile(fileName);
+        }
+
         [NotNull]
         public FileEntry CreateFile([NotNull] string fileName)
         {
@@ -163,6 +170,13 @@ namespace TestableFileSystem.Fakes
             {
                 ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
             }
+        }
+
+        public bool ContainsDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
+
+            return contents.ContainsDirectory(directoryName);
         }
 
         [NotNull]

@@ -276,6 +276,12 @@ namespace TestableFileSystem.Fakes
             {
                 throw new IOException("The specified file is read only.");
             }
+
+            [NotNull]
+            public static Exception FileExists()
+            {
+                throw new IOException("The file exists.");
+            }
         }
 
         public static class Internal

@@ -225,7 +225,7 @@ namespace TestableFileSystem.Fakes.Builders
             string fileName = absolutePath.Components.Last();
             AssertIsNotDirectory(fileName, directory, absolutePath);
 
-            FileEntry file = directory.Files.ContainsKey(fileName) ? directory.Files[fileName] : directory.CreateFile(fileName);
+            FileEntry file = directory.ContainsFile(fileName) ? directory.Files[fileName] : directory.CreateFile(fileName);
 
             using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath, true, false))
             {
@@ -254,7 +254,7 @@ namespace TestableFileSystem.Fakes.Builders
         private static void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory,
             [NotNull] AbsolutePath absolutePath)
         {
-            if (directory.Directories.ContainsKey(fileName))
+            if (directory.ContainsDirectory(fileName))
             {
                 throw ErrorFactory.System.CannotCreateBecauseFileOrDirectoryAlreadyExists(absolutePath.GetText());
             }

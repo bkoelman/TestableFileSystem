@@ -25,6 +25,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
+                // TODO: Rebuilding the cache is time-consuming on large directories with many changes. Investigate optimizing upstream callers.
+
                 if (fileMapCached != null)
                 {
                     return fileMapCached;
@@ -40,6 +42,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
+                // TODO: Rebuilding the cache is time-consuming on large directories with many changes. Investigate optimizing upstream callers.
+
                 if (directoryMapCached != null)
                 {
                     return directoryMapCached;
@@ -75,6 +79,20 @@ namespace TestableFileSystem.Fakes
             }
         }
 
+        public bool ContainsFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+
+            return entries.ContainsKey(fileName) && entries[fileName] is FileEntry;
+        }
+
+        public bool ContainsDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNull(directoryName, nameof(directoryName));
+
+            return entries.ContainsKey(directoryName) && entries[directoryName] is DirectoryEntry;
+        }
+
         public void Add<T>([NotNull] T entry)
             where T : BaseEntry
         {
@@ -89,8 +107,6 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private void AssertEntryDoesNotExist([NotNull] string name)
         {
-            Guard.NotNull(name, nameof(name));
-
             if (entries.ContainsKey(name))
             {
                 throw entries[name] is DirectoryEntry
@@ -116,9 +132,7 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private void AssertDirectoryExists([NotNull] string directoryName)
         {
-            Guard.NotNull(directoryName, nameof(directoryName));
-
-            if (!Directories.ContainsKey(directoryName))
+            if (!ContainsDirectory(directoryName))
             {
                 throw ErrorFactory.Internal.UnknownError($"Expected to find an existing directory named '{directoryName}'.");
             }
@@ -131,7 +145,6 @@ namespace TestableFileSystem.Fakes
             AssertFileExists(fileName);
 
             FileEntry fileToRemove = Files[fileName];
-
             entries.Remove(fileName);
 
             InvalidateCache();
@@ -142,9 +155,7 @@ namespace TestableFileSystem.Fakes
         [AssertionMethod]
         private void AssertFileExists([NotNull] string fileName)
         {
-            Guard.NotNull(fileName, nameof(fileName));
-
-            if (!Files.ContainsKey(fileName))
+            if (!ContainsFile(fileName))
             {
                 throw ErrorFactory.Internal.UnknownError($"Expected to find an existing file named '{fileName}'.");
             }

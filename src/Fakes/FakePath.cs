@@ -1,5 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
+using TestableFileSystem.Fakes.HandlerArguments;
+using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
@@ -7,12 +9,29 @@ namespace TestableFileSystem.Fakes
     public sealed class FakePath : IPath
     {
         [NotNull]
+        private readonly DirectoryEntry root;
+
+        [NotNull]
         private readonly FakeFileSystem owner;
 
-        internal FakePath([NotNull] FakeFileSystem owner)
+        [NotNull]
+        private readonly Random randomNumberGenerator;
+
+        internal FakePath([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner)
         {
+            Guard.NotNull(root, nameof(root));
             Guard.NotNull(owner, nameof(owner));
+
+            this.root = root;
             this.owner = owner;
+            randomNumberGenerator = CreateRandomNumberGenerator(root.SystemClock);
+        }
+
+        [NotNull]
+        private static Random CreateRandomNumberGenerator([NotNull] SystemClock systemClock)
+        {
+            int seed = (int)(systemClock.UtcNow().Ticks % int.MaxValue);
+            return new Random(seed);
         }
 
         public string GetTempPath()
@@ -22,8 +41,14 @@ namespace TestableFileSystem.Fakes
 
         public string GetTempFileName()
         {
-            // TODO: Implement fake for System.IO.Path.GetTempFileName
-            throw new NotImplementedException();
+            string tempDirectory = GetTempPath();
+            AbsolutePath absoluteTempDirectory = owner.ToAbsolutePath(tempDirectory);
+
+            var handler = new PathGetTempFileNameHandler(root, randomNumberGenerator);
+            var arguments = new PathGetTempFileNameArguments(absoluteTempDirectory);
+
+            var tempFilePath = handler.Handle(arguments);
+            return tempFilePath.GetText();
         }
     }
 }
