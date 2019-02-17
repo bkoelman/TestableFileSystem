@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             {
                 AssertIsNotFile(component, directory, completePath);
 
-                if (!directory.Directories.ContainsKey(component.Name))
+                if (!directory.ContainsDirectory(component.Name))
                 {
                     return null;
                 }
@@ -86,7 +86,7 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             foreach (AbsolutePathComponent component in path.EnumerateComponents())
             {
-                if (!directory.Directories.ContainsKey(component.Name))
+                if (!directory.ContainsDirectory(component.Name))
                 {
                     return null;
                 }
@@ -108,14 +108,14 @@ namespace TestableFileSystem.Fakes.Resolvers
 
         private bool IsNetworkShareMissing([NotNull] AbsolutePath path)
         {
-            return !path.IsOnLocalDrive && !root.Directories.ContainsKey(path.Components.First());
+            return !path.IsOnLocalDrive && !root.ContainsDirectory(path.Components.First());
         }
 
         [AssertionMethod]
         private void AssertIsNotFile([NotNull] AbsolutePathComponent component, [NotNull] DirectoryEntry directory,
             [NotNull] string incomingPath)
         {
-            if (directory.Files.ContainsKey(component.Name))
+            if (directory.ContainsFile(component.Name))
             {
                 if (component.IsAtEnd)
                 {

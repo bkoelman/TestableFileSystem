@@ -59,12 +59,12 @@ namespace TestableFileSystem.Fakes.Resolvers
             {
                 string entryName = path.Components.Last();
 
-                if (directory.Files.ContainsKey(entryName))
+                if (directory.ContainsFile(entryName))
                 {
                     return directory.Files[entryName];
                 }
 
-                if (directory.Directories.ContainsKey(entryName))
+                if (directory.ContainsDirectory(entryName))
                 {
                     return directory.Directories[entryName];
                 }
@@ -81,12 +81,12 @@ namespace TestableFileSystem.Fakes.Resolvers
             DirectoryEntry directory = ResolveContainingDirectory(path);
             string entryName = path.Components.Last();
 
-            if (directory.Files.ContainsKey(entryName))
+            if (directory.ContainsFile(entryName))
             {
                 return directory.Files[entryName];
             }
 
-            if (directory.Directories.ContainsKey(entryName))
+            if (directory.ContainsDirectory(entryName))
             {
                 return directory.Directories[entryName];
             }

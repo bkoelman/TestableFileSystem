@@ -27,7 +27,7 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 AssertIsNotFile(component, directory);
 
-                if (!directory.Directories.ContainsKey(component.Name))
+                if (!directory.ContainsDirectory(component.Name))
                 {
                     string name = GetDirectoryName(component);
                     directory = directory.CreateDirectory(name);
@@ -44,7 +44,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [AssertionMethod]
         private void AssertVolumeRootExists([NotNull] AbsolutePath path)
         {
-            if (!Root.Directories.ContainsKey(path.Components.First()))
+            if (!Root.ContainsDirectory(path.Components.First()))
             {
                 if (!path.IsOnLocalDrive && !path.IsVolumeRoot)
                 {
@@ -58,7 +58,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [AssertionMethod]
         private static void AssertIsNotFile([NotNull] AbsolutePathComponent component, [NotNull] DirectoryEntry directory)
         {
-            if (directory.Files.ContainsKey(component.Name))
+            if (directory.ContainsFile(component.Name))
             {
                 AbsolutePath pathUpToHere = component.GetPathUpToHere();
                 throw ErrorFactory.System.CannotCreateBecauseFileOrDirectoryAlreadyExists(pathUpToHere.GetText());

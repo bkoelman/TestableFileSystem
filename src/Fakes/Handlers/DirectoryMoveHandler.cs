@@ -89,12 +89,12 @@ namespace TestableFileSystem.Fakes.Handlers
 
             string fileOrDirectoryName = path.Components.Last();
 
-            if (parentDirectory.Directories.ContainsKey(fileOrDirectoryName))
+            if (parentDirectory.ContainsDirectory(fileOrDirectoryName))
             {
                 return parentDirectory.Directories[fileOrDirectoryName];
             }
 
-            if (parentDirectory.Files.ContainsKey(fileOrDirectoryName))
+            if (parentDirectory.ContainsFile(fileOrDirectoryName))
             {
                 return parentDirectory.Files[fileOrDirectoryName];
             }
@@ -156,7 +156,7 @@ namespace TestableFileSystem.Fakes.Handlers
         private static void AssertDestinationDoesNotExist([NotNull] string directoryName,
             [NotNull] DirectoryEntry parentDirectory)
         {
-            if (parentDirectory.Directories.ContainsKey(directoryName) || parentDirectory.Files.ContainsKey(directoryName))
+            if (parentDirectory.ContainsDirectory(directoryName) || parentDirectory.ContainsFile(directoryName))
             {
                 throw ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists();
             }
