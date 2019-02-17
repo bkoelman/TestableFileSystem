@@ -33,7 +33,7 @@ namespace TestableFileSystem.Fakes
                     return fileSetCached;
                 }
 
-                return fileSetCached = GetEntries(EnumerationFilter.Files).Cast<FileEntry>().ToArray();
+                return fileSetCached = GetEntries(EnumerationFilter.Files).Cast<FileEntry>().OrderBy(x => x.Name).ToArray();
             }
         }
 
@@ -48,7 +48,8 @@ namespace TestableFileSystem.Fakes
                     return directorySetCached;
                 }
 
-                return directorySetCached = GetEntries(EnumerationFilter.Directories).Cast<DirectoryEntry>().ToArray();
+                return directorySetCached = GetEntries(EnumerationFilter.Directories).Cast<DirectoryEntry>().OrderBy(x => x.Name)
+                    .ToArray();
             }
         }
 

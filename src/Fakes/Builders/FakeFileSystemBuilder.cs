@@ -89,7 +89,8 @@ namespace TestableFileSystem.Fakes.Builders
         [CanBeNull]
         private AbsolutePath GetTempDirectoryOnFirstDrive()
         {
-            return root.Directories.Any() ? root.Directories.First().PathFormatter.GetPath().Append("Temp") : null;
+            return root.Directories.Where(directory => AbsolutePath.IsDriveLetter(directory.Name))
+                .Select(directory => directory.PathFormatter.GetPath().Append("Temp")).FirstOrDefault();
         }
 
         [NotNull]

@@ -67,7 +67,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 if (searchOption == SearchOption.AllDirectories)
                 {
-                    foreach (DirectoryEntry subdirectory in directory.Directories.OrderBy(x => x.Name))
+                    foreach (DirectoryEntry subdirectory in directory.Directories)
                     {
                         AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
                         foreach (string nextPath in EnumerateEntriesInDirectory(subdirectory, pattern, subdirectoryPath,

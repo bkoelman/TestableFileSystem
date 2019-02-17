@@ -27,6 +27,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .WithoutDefaultDriveC()
+                .IncludingDirectory(@"\\server\share")
                 .IncludingDirectory(@"x:\data")
                 .Build();
 

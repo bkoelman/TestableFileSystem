@@ -102,7 +102,7 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         public ICollection<DirectoryEntry> FilterDrives()
         {
-            return Directories.Where(x => AbsolutePath.IsDriveLetter(x.Name)).OrderBy(x => x.Name.ToUpperInvariant()).ToArray();
+            return Directories.Where(x => AbsolutePath.IsDriveLetter(x.Name)).ToArray();
         }
 
         public bool ContainsFile([NotNull] string fileName)
