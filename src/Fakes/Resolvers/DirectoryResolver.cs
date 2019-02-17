@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes.Resolvers
                     return null;
                 }
 
-                directory = directory.Directories[component.Name];
+                directory = directory.GetDirectory(component.Name);
             }
 
             return directory;
@@ -91,7 +91,7 @@ namespace TestableFileSystem.Fakes.Resolvers
                     return null;
                 }
 
-                directory = directory.Directories[component.Name];
+                directory = directory.GetDirectory(component.Name);
             }
 
             return directory;

@@ -112,6 +112,14 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
+        public FileEntry GetFile([NotNull] string fileName)
+        {
+            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
+
+            return contents.GetFile(fileName);
+        }
+
+        [NotNull]
         public FileEntry CreateFile([NotNull] string fileName)
         {
             Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
@@ -177,6 +185,14 @@ namespace TestableFileSystem.Fakes
             Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
             return contents.ContainsDirectory(directoryName);
+        }
+
+        [NotNull]
+        public DirectoryEntry GetDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
+
+            return contents.GetDirectory(directoryName);
         }
 
         [NotNull]

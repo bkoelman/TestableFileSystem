@@ -91,12 +91,12 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (parentDirectory.ContainsDirectory(fileOrDirectoryName))
             {
-                return parentDirectory.Directories[fileOrDirectoryName];
+                return parentDirectory.GetDirectory(fileOrDirectoryName);
             }
 
             if (parentDirectory.ContainsFile(fileOrDirectoryName))
             {
-                return parentDirectory.Files[fileOrDirectoryName];
+                return parentDirectory.GetFile(fileOrDirectoryName);
             }
 
             throw ErrorFactory.System.DirectoryNotFound(path.GetText());

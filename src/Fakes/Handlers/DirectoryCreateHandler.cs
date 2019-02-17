@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 }
                 else
                 {
-                    directory = directory.Directories[component.Name];
+                    directory = directory.GetDirectory(component.Name);
                 }
             }
 

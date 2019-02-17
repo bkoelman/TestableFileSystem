@@ -74,7 +74,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             AssertIsNotDirectory(fileName, directory, path);
             AssertFileExists(fileName, directory, path);
 
-            return directory.Files[fileName];
+            return directory.GetFile(fileName);
         }
 
         [NotNull]
@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             AssertIsNotDirectory(fileName, directory, path);
 
-            FileEntry fileEntry = !directory.ContainsFile(fileName) ? null : directory.Files[fileName];
+            FileEntry fileEntry = !directory.ContainsFile(fileName) ? null : directory.GetFile(fileName);
             return new FileResolveResult(directory, fileEntry, fileName);
         }
 

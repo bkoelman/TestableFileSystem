@@ -157,7 +157,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveExistingDestinationFile([NotNull] FileResolveResult resolveResult)
         {
-            FileEntry destinationFile = resolveResult.ContainingDirectory.Files[resolveResult.FileName];
+            FileEntry destinationFile = resolveResult.ContainingDirectory.GetFile(resolveResult.FileName);
 
             AddChangeForExistingDestinationFile(destinationFile);
 

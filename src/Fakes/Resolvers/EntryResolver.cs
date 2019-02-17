@@ -61,12 +61,12 @@ namespace TestableFileSystem.Fakes.Resolvers
 
                 if (directory.ContainsFile(entryName))
                 {
-                    return directory.Files[entryName];
+                    return directory.GetFile(entryName);
                 }
 
                 if (directory.ContainsDirectory(entryName))
                 {
-                    return directory.Directories[entryName];
+                    return directory.GetDirectory(entryName);
                 }
             }
 
@@ -83,12 +83,12 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             if (directory.ContainsFile(entryName))
             {
-                return directory.Files[entryName];
+                return directory.GetFile(entryName);
             }
 
             if (directory.ContainsDirectory(entryName))
             {
-                return directory.Directories[entryName];
+                return directory.GetDirectory(entryName);
             }
 
             throw ErrorFactory.System.FileNotFound(path.GetText());

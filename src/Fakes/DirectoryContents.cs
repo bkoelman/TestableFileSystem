@@ -86,11 +86,29 @@ namespace TestableFileSystem.Fakes
             return entries.ContainsKey(fileName) && entries[fileName] is FileEntry;
         }
 
+        [NotNull]
+        public FileEntry GetFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+            AssertFileExists(fileName);
+
+            return (FileEntry)entries[fileName];
+        }
+
         public bool ContainsDirectory([NotNull] string directoryName)
         {
             Guard.NotNull(directoryName, nameof(directoryName));
 
             return entries.ContainsKey(directoryName) && entries[directoryName] is DirectoryEntry;
+        }
+
+        [NotNull]
+        public DirectoryEntry GetDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNull(directoryName, nameof(directoryName));
+            AssertDirectoryExists(directoryName);
+
+            return (DirectoryEntry)entries[directoryName];
         }
 
         public void Add<T>([NotNull] T entry)
