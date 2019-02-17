@@ -67,7 +67,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 if (searchOption == SearchOption.AllDirectories)
                 {
-                    foreach (DirectoryEntry subdirectory in directory.Directories.Values.OrderBy(x => x.Name))
+                    foreach (DirectoryEntry subdirectory in directory.Directories.OrderBy(x => x.Name))
                     {
                         AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
                         foreach (string nextPath in EnumerateEntriesInDirectory(subdirectory, pattern, subdirectoryPath,
@@ -80,7 +80,7 @@ namespace TestableFileSystem.Fakes.Handlers
             }
             else
             {
-                foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+                foreach (DirectoryEntry subdirectory in directory.Directories)
                 {
                     if (pattern.IsMatch(subdirectory.Name))
                     {

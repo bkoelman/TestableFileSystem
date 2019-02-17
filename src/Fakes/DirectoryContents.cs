@@ -15,42 +15,40 @@ namespace TestableFileSystem.Fakes
         public bool IsEmpty => !entries.Any();
 
         [CanBeNull]
-        private IReadOnlyDictionary<string, FileEntry> fileMapCached;
+        [ItemNotNull]
+        private IReadOnlyCollection<FileEntry> fileSetCached;
 
         [CanBeNull]
-        private IReadOnlyDictionary<string, DirectoryEntry> directoryMapCached;
+        [ItemNotNull]
+        private IReadOnlyCollection<DirectoryEntry> directorySetCached;
 
         [NotNull]
-        public IReadOnlyDictionary<string, FileEntry> Files
+        [ItemNotNull]
+        public IReadOnlyCollection<FileEntry> Files
         {
             get
             {
-                // TODO: Rebuilding the cache is time-consuming on large directories with many changes. Investigate optimizing upstream callers.
-
-                if (fileMapCached != null)
+                if (fileSetCached != null)
                 {
-                    return fileMapCached;
+                    return fileSetCached;
                 }
 
-                return fileMapCached = GetEntries(EnumerationFilter.Files).Cast<FileEntry>()
-                    .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+                return fileSetCached = GetEntries(EnumerationFilter.Files).Cast<FileEntry>().ToArray();
             }
         }
 
         [NotNull]
-        public IReadOnlyDictionary<string, DirectoryEntry> Directories
+        [ItemNotNull]
+        public IReadOnlyCollection<DirectoryEntry> Directories
         {
             get
             {
-                // TODO: Rebuilding the cache is time-consuming on large directories with many changes. Investigate optimizing upstream callers.
-
-                if (directoryMapCached != null)
+                if (directorySetCached != null)
                 {
-                    return directoryMapCached;
+                    return directorySetCached;
                 }
 
-                return directoryMapCached = GetEntries(EnumerationFilter.Directories).Cast<DirectoryEntry>()
-                    .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+                return directorySetCached = GetEntries(EnumerationFilter.Directories).Cast<DirectoryEntry>().ToArray();
             }
         }
 
@@ -137,9 +135,8 @@ namespace TestableFileSystem.Fakes
         public DirectoryEntry RemoveDirectory([NotNull] string directoryName)
         {
             Guard.NotNull(directoryName, nameof(directoryName));
-            AssertDirectoryExists(directoryName);
 
-            DirectoryEntry directoryToRemove = Directories[directoryName];
+            DirectoryEntry directoryToRemove = GetDirectory(directoryName);
             entries.Remove(directoryName);
 
             InvalidateCache();
@@ -160,9 +157,8 @@ namespace TestableFileSystem.Fakes
         public FileEntry RemoveFile([NotNull] string fileName)
         {
             Guard.NotNull(fileName, nameof(fileName));
-            AssertFileExists(fileName);
 
-            FileEntry fileToRemove = Files[fileName];
+            FileEntry fileToRemove = GetFile(fileName);
             entries.Remove(fileName);
 
             InvalidateCache();
@@ -181,8 +177,8 @@ namespace TestableFileSystem.Fakes
 
         private void InvalidateCache()
         {
-            fileMapCached = null;
-            directoryMapCached = null;
+            fileSetCached = null;
+            directorySetCached = null;
         }
 
         public override string ToString()

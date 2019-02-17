@@ -20,10 +20,12 @@ namespace TestableFileSystem.Fakes
         private readonly DirectoryContents contents = new DirectoryContents();
 
         [NotNull]
-        public IReadOnlyDictionary<string, FileEntry> Files => contents.Files;
+        [ItemNotNull]
+        public IReadOnlyCollection<FileEntry> Files => contents.Files;
 
         [NotNull]
-        public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.Directories;
+        [ItemNotNull]
+        public IReadOnlyCollection<DirectoryEntry> Directories => contents.Directories;
 
         [CanBeNull]
         public DirectoryEntry Parent { get; private set; }
@@ -100,8 +102,7 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         public ICollection<DirectoryEntry> FilterDrives()
         {
-            return Directories.Where(x => AbsolutePath.IsDriveLetter(x.Key)).OrderBy(x => x.Key.ToUpperInvariant())
-                .Select(x => x.Value).ToArray();
+            return Directories.Where(x => AbsolutePath.IsDriveLetter(x.Name)).OrderBy(x => x.Name.ToUpperInvariant()).ToArray();
         }
 
         public bool ContainsFile([NotNull] string fileName)
