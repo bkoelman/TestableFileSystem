@@ -7,19 +7,19 @@ namespace TestableFileSystem.Fakes
     internal abstract class OperationLocker
     {
         [NotNull]
-        private readonly FakeFileSystem owner;
+        private readonly object treeLock;
 
-        protected OperationLocker([NotNull] FakeFileSystem owner)
+        protected OperationLocker([NotNull] object treeLock)
         {
-            this.owner = owner;
-            Guard.NotNull(owner, nameof(owner));
+            Guard.NotNull(treeLock, nameof(treeLock));
+            this.treeLock = treeLock;
         }
 
         protected void ExecuteInLock([NotNull] Action operation)
         {
             Guard.NotNull(operation, nameof(operation));
 
-            lock (owner.TreeLock)
+            lock (treeLock)
             {
                 operation();
             }
@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(operation, nameof(operation));
 
-            lock (owner.TreeLock)
+            lock (treeLock)
             {
                 return operation();
             }

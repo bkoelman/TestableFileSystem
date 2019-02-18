@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly TDrive target;
 
-        public DriveOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TDrive target)
-            : base(owner)
+        public DriveOperationLocker([NotNull] object treeLock, [NotNull] TDrive target)
+            : base(treeLock)
         {
             Guard.NotNull(target, nameof(target));
             this.target = target;

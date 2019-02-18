@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly TPath target;
 
-        public PathOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TPath target)
-            : base(owner)
+        public PathOperationLocker([NotNull] object treeLock, [NotNull] TPath target)
+            : base(treeLock)
         {
             Guard.NotNull(target, nameof(target));
             this.target = target;

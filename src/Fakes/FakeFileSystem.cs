@@ -49,10 +49,10 @@ namespace TestableFileSystem.Fakes
             TempDirectory = tempDirectory;
             CopyWaitIndicator = copyWaitIndicator;
 
-            File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
-            Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
-            Drive = new DriveOperationLocker<FakeDrive>(this, new FakeDrive(root, this));
-            Path = new PathOperationLocker<FakePath>(this, new FakePath(root, this));
+            File = new FileOperationLocker<FakeFile>(TreeLock, new FakeFile(root, this));
+            Directory = new DirectoryOperationLocker<FakeDirectory>(TreeLock, new FakeDirectory(root, this));
+            Drive = new DriveOperationLocker<FakeDrive>(TreeLock, new FakeDrive(root, this));
+            Path = new PathOperationLocker<FakePath>(TreeLock, new FakePath(root, this));
             CurrentDirectoryManager = new CurrentDirectoryManager(root);
             relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
         }

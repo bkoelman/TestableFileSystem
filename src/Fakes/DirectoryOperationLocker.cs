@@ -12,8 +12,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly TDirectory target;
 
-        public DirectoryOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TDirectory target)
-            : base(owner)
+        public DirectoryOperationLocker([NotNull] object treeLock, [NotNull] TDirectory target)
+            : base(treeLock)
         {
             Guard.NotNull(target, nameof(target));
             this.target = target;

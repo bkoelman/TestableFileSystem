@@ -11,8 +11,8 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly TFile target;
 
-        public FileOperationLocker([NotNull] FakeFileSystem owner, [NotNull] TFile target)
-            : base(owner)
+        public FileOperationLocker([NotNull] object treeLock, [NotNull] TFile target)
+            : base(treeLock)
         {
             Guard.NotNull(target, nameof(target));
             this.target = target;
