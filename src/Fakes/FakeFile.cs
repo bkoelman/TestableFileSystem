@@ -344,7 +344,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new FileCryptoHandler(root, owner);
+            var handler = new FileCryptoHandler(root, owner.GetVolume);
             var arguments = new FileCryptoArguments(absolutePath, true);
 
             handler.Handle(arguments);
@@ -356,7 +356,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new FileCryptoHandler(root, owner);
+            var handler = new FileCryptoHandler(root, owner.GetVolume);
             var arguments = new FileCryptoArguments(absolutePath, false);
 
             handler.Handle(arguments);

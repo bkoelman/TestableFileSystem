@@ -12,13 +12,13 @@ namespace TestableFileSystem.Fakes.Handlers
     internal sealed class FileCryptoHandler : FakeOperationHandler<FileCryptoArguments, Missing>
     {
         [NotNull]
-        private readonly FakeFileSystem owner;
+        private readonly Func<string, FakeVolume> getVolumeCallback;
 
-        public FileCryptoHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner)
+        public FileCryptoHandler([NotNull] DirectoryEntry root, [NotNull] Func<string, FakeVolume> getVolumeCallback)
             : base(root)
         {
-            Guard.NotNull(owner, nameof(owner));
-            this.owner = owner;
+            Guard.NotNull(getVolumeCallback, nameof(getVolumeCallback));
+            this.getVolumeCallback = getVolumeCallback;
         }
 
         public override Missing Handle(FileCryptoArguments arguments)
@@ -52,7 +52,7 @@ namespace TestableFileSystem.Fakes.Handlers
             if (arguments.IsEncrypt)
             {
                 string volumeRoot = arguments.Path.Components.First();
-                FakeVolume volume = owner.GetVolume(volumeRoot);
+                FakeVolume volume = getVolumeCallback(volumeRoot);
                 if (volume != null && volume.Format != FakeVolume.NtFs)
                 {
                     throw new NotSupportedException("File encryption support only works on NTFS partitions.");
@@ -72,6 +72,7 @@ namespace TestableFileSystem.Fakes.Handlers
                         : ErrorFactory.System.FileNotFound(path)
                 }
                 : new EntryResolver(Root);
+
             return resolver.ResolveEntry(arguments.Path);
         }
 
@@ -79,7 +80,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var absolutePath = new AbsolutePath(path);
             string volumeRoot = absolutePath.Components.First();
-            FakeVolume volume = owner.GetVolume(volumeRoot);
+            FakeVolume volume = getVolumeCallback(volumeRoot);
             return volume != null;
         }
 

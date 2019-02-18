@@ -22,6 +22,18 @@ namespace TestableFileSystem.Fakes.Handlers
 
         public override AbsolutePath Handle(PathGetTempFileNameArguments arguments)
         {
+            DirectoryEntry tempDirectory = ResolveDirectory(arguments.TempDirectory);
+
+            int startIndex = randomNumberGenerator.Next(0, MaxNumber + 1);
+
+            string tempFileName = GetFirstAvailableFileName(tempDirectory, startIndex);
+            FileEntry file = tempDirectory.CreateFile(tempFileName);
+            return file.PathFormatter.GetPath();
+        }
+
+        [NotNull]
+        private DirectoryEntry ResolveDirectory([NotNull] AbsolutePath tempDirectory)
+        {
             var resolver = new DirectoryResolver(Root)
             {
                 ErrorDirectoryNotFound = _ => ErrorFactory.System.DirectoryNameIsInvalid(),
@@ -29,19 +41,21 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNameIsInvalid(),
                 ErrorNetworkShareNotFound = _ => ErrorFactory.System.DirectoryNameIsInvalid()
             };
-            DirectoryEntry directory = resolver.ResolveDirectory(arguments.TempDirectory);
 
-            int startIndex = randomNumberGenerator.Next(0, MaxNumber + 1);
+            return resolver.ResolveDirectory(tempDirectory);
+        }
 
+        [NotNull]
+        private string GetFirstAvailableFileName([NotNull] DirectoryEntry tempDirectory, int startIndex)
+        {
             int index = startIndex;
             do
             {
                 string fileName = "tmp" + index.ToString("X") + ".tmp";
 
-                if (!directory.ContainsFile(fileName))
+                if (!tempDirectory.ContainsFile(fileName))
                 {
-                    FileEntry file = directory.CreateFile(fileName);
-                    return file.PathFormatter.GetPath();
+                    return fileName;
                 }
 
                 index = (index + 1) % MaxNumber;
