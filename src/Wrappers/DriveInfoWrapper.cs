@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Wrappers
 {

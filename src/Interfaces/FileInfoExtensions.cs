@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using JetBrains.Annotations;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Interfaces
 {

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace TestableFileSystem.Interfaces
+namespace TestableFileSystem.Utilities
 {
     /// <summary>
     /// Member precondition checks.
     /// </summary>
-    public static class Guard
+    internal static class Guard
     {
         [AssertionMethod]
         [ContractAnnotation("value: null => halt")]

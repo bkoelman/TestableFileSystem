@@ -7,6 +7,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Win32.SafeHandles;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 using TestableFileSystem.Wrappers;
 
 namespace TestableFileSystem.Fakes

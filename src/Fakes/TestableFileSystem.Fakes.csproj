@@ -24,6 +24,7 @@
     <DefineConstants>TRACE;RELEASE;JETBRAINS_ANNOTATIONS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Guard.cs" Link="Guard.cs" />
     <Compile Include="..\Wrappers\FileStreamWrapper.cs" Link="FileStreamWrapper.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -18,8 +18,6 @@ namespace TestableFileSystem.Demo
 
         public FileSystemChangeDumper(IFileSystem fileSystem)
         {
-            Guard.NotNull(fileSystem, nameof(fileSystem));
-
             watcher = fileSystem.ConstructFileSystemWatcher();
             watcher.Created += (sender, args) => DisplayChange(args.ChangeType, args.Name);
             watcher.Deleted += (sender, args) => DisplayChange(args.ChangeType, args.Name);
@@ -30,8 +28,6 @@ namespace TestableFileSystem.Demo
 
         public void Start(string path, NotifyFilters filters = NotifyFiltersAll)
         {
-            Guard.NotNull(path, nameof(path));
-
             watcher.EnableRaisingEvents = false;
             SetupWatcher(path, filters);
             watcher.EnableRaisingEvents = true;

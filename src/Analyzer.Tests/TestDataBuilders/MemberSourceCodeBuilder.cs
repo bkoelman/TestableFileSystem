@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
 {

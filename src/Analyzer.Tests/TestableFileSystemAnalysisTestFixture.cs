@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.Diagnostics;
 using RoslynTestFramework;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Analyzer.Tests
 {

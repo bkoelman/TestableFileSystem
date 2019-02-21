@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 using Xunit.Sdk;
 
 namespace TestableFileSystem.Fakes.Tests.Specs

@@ -12,6 +12,9 @@
     <None Remove="TestableFileSystem.Fakes.Tests.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Guard.cs" Link="Guard.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.6.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.3.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />

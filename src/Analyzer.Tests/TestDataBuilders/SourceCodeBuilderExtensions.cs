@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Analyzer.Tests.TestDataBuilders
 {

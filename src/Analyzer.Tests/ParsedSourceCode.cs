@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 using RoslynTestFramework;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Analyzer.Tests
 {
