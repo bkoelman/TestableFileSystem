@@ -24,7 +24,10 @@
     <PackageReference Include="JetBrains.ExternalAnnotations" Version="10.2.29" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="1.0.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="1.1.0" PrivateAssets="all" />
-    <PackageReference Include="ResharperCodeContractNullability" Version="1.0.9" />
+    <PackageReference Include="ResharperCodeContractNullability" Version="1.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <!--
     To bypass the NuGet cache during install/uninstall debugging, uncomment the target below.
