@@ -48,7 +48,7 @@ namespace TestableFileSystem.Fakes
             var handler = new PathGetTempFileNameHandler(root, randomNumberGenerator);
             var arguments = new PathGetTempFileNameArguments(absoluteTempDirectory);
 
-            var tempFilePath = handler.Handle(arguments);
+            AbsolutePath tempFilePath = handler.Handle(arguments);
             return tempFilePath.GetText();
         }
     }

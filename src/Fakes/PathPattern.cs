@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
 using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes

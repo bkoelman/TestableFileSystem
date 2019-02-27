@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
 using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes

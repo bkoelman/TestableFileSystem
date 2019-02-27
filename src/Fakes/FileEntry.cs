@@ -227,8 +227,9 @@ namespace TestableFileSystem.Fakes
 
             [NotNull]
             [ItemNotNull]
-            public readonly Lazy<SafeFileHandle> LazyHandle = new Lazy<SafeFileHandle>(() => new SafeFileHandle((IntPtr)(-2), true),
-                LazyThreadSafetyMode.ExecutionAndPublication);
+            public readonly Lazy<SafeFileHandle> LazyHandle =
+                new Lazy<SafeFileHandle>(() => new SafeFileHandle((IntPtr)(-2), true),
+                    LazyThreadSafetyMode.ExecutionAndPublication);
 
             private readonly bool notifyTracker;
 
