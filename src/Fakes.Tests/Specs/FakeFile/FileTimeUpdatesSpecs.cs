@@ -9,6 +9,8 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
+    // TODO: When a file in directory changes, its directory timestamps must also be updated. Ensure we have tests for that.
+
     public sealed class FileTimeUpdatesSpecs
     {
         private const string DefaultContents = "ABC";
@@ -413,5 +415,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 copyThread.Join();
             }
         }
+
+        // TODO: Add extra specs for operations added in NetStandard20.
     }
 }
