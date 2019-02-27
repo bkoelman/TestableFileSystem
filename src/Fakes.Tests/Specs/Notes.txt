@@ -8,4 +8,4 @@
 - Have tests for extended paths (\\?\C:\folder)
 - Have tests for ignoring case
 - Have tests for filesystem entry type mismatches (directory that exists as file etc)
-- Have tests for readonly files/directories
+- Have tests for readonly/hidden files/directories
