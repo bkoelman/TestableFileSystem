@@ -9,7 +9,7 @@
     <Version>1.0.0</Version>
     <Authors>Bart Koelman</Authors>
     <Company />
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/bkoelman/TestableFileSystem</PackageProjectUrl>
     <Description>Implements TestableFileSystem.Interfaces using a blazingly fast in-memory File System.</Description>
     <PackageReleaseNotes>First stable version.</PackageReleaseNotes>
