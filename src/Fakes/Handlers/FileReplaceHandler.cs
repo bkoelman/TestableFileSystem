@@ -17,6 +17,9 @@ namespace TestableFileSystem.Fakes.Handlers
         public override Missing Handle(FileReplaceArguments arguments)
         {
             FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath);
+
+            AssertNoDuplicatePaths(arguments);
+
             FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath);
 
             DirectoryEntry beforeDestinationDirectory = destinationFile.Parent;
@@ -78,6 +81,24 @@ namespace TestableFileSystem.Fakes.Handlers
 
             var destinationResolver = new DirectoryResolver(Root);
             return destinationResolver.ResolveDirectory(parentDirectory);
+        }
+
+        private static void AssertNoDuplicatePaths([NotNull] FileReplaceArguments arguments)
+        {
+            if (AbsolutePath.AreEquivalent(arguments.SourcePath, arguments.DestinationPath))
+            {
+                throw ErrorFactory.System.FileIsInUse();
+            }
+
+            if (AbsolutePath.AreEquivalent(arguments.SourcePath, arguments.BackupDestinationPath))
+            {
+                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
+            }
+
+            if (AbsolutePath.AreEquivalent(arguments.DestinationPath, arguments.BackupDestinationPath))
+            {
+                throw ErrorFactory.System.UnableToMoveReplacementFile();
+            }
         }
     }
 }

@@ -282,6 +282,19 @@ namespace TestableFileSystem.Fakes
             {
                 throw new IOException("The file exists.");
             }
+
+            [NotNull]
+            public static Exception UnableToRemoveFileToBeReplaced()
+            {
+                throw new IOException("Unable to remove the file to be replaced.");
+            }
+
+            [NotNull]
+            public static Exception UnableToMoveReplacementFile()
+            {
+                throw new IOException(
+                    "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
+            }
         }
 
         public static class Internal
