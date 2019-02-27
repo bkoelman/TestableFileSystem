@@ -110,7 +110,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 lock (lockObject)
                 {
                     // Assert
-                    argsAfterRestart.Name.Should().Be("file3.txt");
+                    FileSystemEventArgs argsAfterRestartNotNull = argsAfterRestart.ShouldNotBeNull();
+                    argsAfterRestartNotNull.Name.Should().Be("file3.txt");
                 }
             }
         }
