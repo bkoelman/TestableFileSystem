@@ -193,8 +193,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             bool isFirstEventInvocation = true;
             FileSystemEventArgs argsAfterRestart = null;
 
-            var resumeEventHandlerEvent = new ManualResetEvent(false);
-            var testCompletionEvent = new ManualResetEvent(false);
+            var resumeEventHandlerEvent = new ManualResetEventSlim(false);
+            var testCompletionEvent = new ManualResetEventSlim(false);
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
@@ -206,7 +206,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         if (isFirstEventInvocation)
                         {
                             // Wait for all change notifications on file1.txt and file2.txt to queue up.
-                            resumeEventHandlerEvent.WaitOne(Timeout.Infinite);
+                            resumeEventHandlerEvent.Wait(Timeout.Infinite);
                             isFirstEventInvocation = false;
                         }
                         else
@@ -232,7 +232,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
 
                 resumeEventHandlerEvent.Set();
-                testCompletionEvent.WaitOne(Timeout.Infinite);
+                testCompletionEvent.Wait(Timeout.Infinite);
 
                 lock (lockObject)
                 {

@@ -281,7 +281,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             byte[] buffer = Encoding.ASCII.GetBytes(content);
             IAsyncResult outerAsyncResult;
             Exception error = null;
-            var completionWaitHandle = new AutoResetEvent(false);
+            var completionWaitHandle = new ManualResetEventSlim(false);
             bool wasSignaled;
 
             using (IFileStream stream = fileSystem.File.Create(path))
@@ -304,7 +304,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     completionWaitHandle.Set();
                 }
 
-                wasSignaled = completionWaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                wasSignaled = completionWaitHandle.Wait(TimeSpan.FromSeconds(1));
             }
 
             // Assert
@@ -466,7 +466,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             var buffer = new byte[1024];
             int numBytesRead = -1;
             Exception error = null;
-            var completionWaitHandle = new AutoResetEvent(false);
+            var completionWaitHandle = new ManualResetEventSlim(false);
 
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
             {
@@ -488,7 +488,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     completionWaitHandle.Set();
                 }
 
-                bool wasSignaled = completionWaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                bool wasSignaled = completionWaitHandle.Wait(TimeSpan.FromSeconds(1));
 
                 // Assert
                 wasSignaled.Should().BeTrue();

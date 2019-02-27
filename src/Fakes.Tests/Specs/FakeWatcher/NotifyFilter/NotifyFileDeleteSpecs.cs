@@ -68,8 +68,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             bool isFirstEventInvocation = true;
             FileSystemEventArgs argsAfterRestart = null;
 
-            var resumeEventHandlerEvent = new ManualResetEvent(false);
-            var testCompletionEvent = new ManualResetEvent(false);
+            var resumeEventHandlerEvent = new ManualResetEventSlim(false);
+            var testCompletionEvent = new ManualResetEventSlim(false);
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
@@ -81,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                         if (isFirstEventInvocation)
                         {
                             // Wait for delete notifications on all files to queue up.
-                            resumeEventHandlerEvent.WaitOne(Timeout.Infinite);
+                            resumeEventHandlerEvent.Wait(Timeout.Infinite);
                             isFirstEventInvocation = false;
                         }
                         else
@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                 fileSystem.File.Delete(pathToFileToDelete3);
 
                 resumeEventHandlerEvent.Set();
-                testCompletionEvent.WaitOne(Timeout.Infinite);
+                testCompletionEvent.Wait(Timeout.Infinite);
 
                 lock (lockObject)
                 {
