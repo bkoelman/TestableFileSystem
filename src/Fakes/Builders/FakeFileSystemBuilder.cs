@@ -13,6 +13,8 @@ namespace TestableFileSystem.Fakes.Builders
 {
     public sealed class FakeFileSystemBuilder : ITestDataBuilder<FakeFileSystem>
     {
+        // TODO: Consider a switch on Builder that drives NtfsDisableLastAccessUpdate registry setting.
+
         private static readonly DateTime DefaultTestTime = new DateTime(1900, 1, 2, 3, 44, 55);
 
         [NotNull]

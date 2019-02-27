@@ -9,6 +9,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileCreateSpecs
     {
+        // TODO: When a file in directory changes, its directory timestamps must also be updated. Ensure we have tests for that.
+
         [Fact]
         private void When_creating_file_for_null_it_must_fail()
         {

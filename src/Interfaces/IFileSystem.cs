@@ -2,6 +2,8 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Interfaces
 {
+    // TODO: Copy documentation comments from MSDN and add to public API surface (for convenience).
+
     [PublicAPI]
     public interface IFileSystem
     {
