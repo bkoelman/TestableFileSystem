@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using FluentAssertions;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -11,6 +12,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     public sealed class FileReplaceSpecs
     {
         // TODO: Basic null/empty/whitespace/... checks
+
+        [Fact]
+        private void When_replacing_file_with_missing_source_location_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(targetPath, "TargetText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
+
+            // Assert
+            action.Should().Throw<FileNotFoundException>().WithMessage("Unable to find the specified file.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_missing_destination_location_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
+
+            // Assert
+            action.Should().Throw<FileNotFoundException>().WithMessage("Unable to find the specified file.");
+        }
 
         [Fact]
         private void When_replacing_file_with_same_location_without_backup_it_must_fail()
@@ -167,10 +204,87 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         // TODO: Absolute/relative paths
-        // TODO: Paths on same/different volumes and parent/child directories
-        // TODO: Files that exist as directory and directories that exist as file
 
-        // TODO: Existing/non-existing files where unexpected
+        [Fact]
+        private void When_replacing_file_to_parent_directory_with_existing_backup_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\top\parent\sub\source.txt";
+            const string targetPath = @"C:\top\parent\target.txt";
+            const string backupPath = @"C:\top\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            // Act
+            fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+            fileSystem.File.Exists(backupPath).Should().BeTrue();
+            fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
+            fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
+        }
+
+        [Fact]
+        private void When_replacing_file_to_subdirectory_with_existing_backup_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\top\source.txt";
+            const string targetPath = @"C:\top\parent\target.txt";
+            const string backupPath = @"C:\top\parent\sub\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            // Act
+            fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+            fileSystem.File.Exists(backupPath).Should().BeTrue();
+            fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
+            fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
+        }
+
+        [Theory]
+        [InlineData("C", "D", "E", 1175)]
+        [InlineData("C", "C", "D", 1175)]
+        [InlineData("C", "D", "D", 1176)]
+        [InlineData("C", "D", "C", 1175)]
+        [InlineData("C", "D", null, 1176)]
+        private void When_replacing_file_to_different_drive_it_must_fail([NotNull] string sourceDrive,
+            [NotNull] string targetDrive, [CanBeNull] string backupDrive, int nativeErrorCode)
+        {
+            // Arrange
+            string sourcePath = sourceDrive + @":\source.txt";
+            string targetPath = targetDrive + @":\target.txt";
+            string backupPath = (backupDrive ?? "X") + @":\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupDrive != null ? backupPath : null);
+
+            // Assert
+            action.Should().Throw<IOException>().WithMessage(nativeErrorCode == 1175
+                ? "Unable to remove the file to be replaced."
+                : "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
+        }
+
+        // TODO: Files that exist as directory and directories that exist as file
         // TODO: Missing parent and parent-parent directories
         // TODO: Root of drive cannot be used
         // TODO: Readonly/hidden files

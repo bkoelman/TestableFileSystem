@@ -19,6 +19,7 @@ namespace TestableFileSystem.Fakes.Handlers
             FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath);
 
             AssertNoDuplicatePaths(arguments);
+            AssertAllOnSameDrive(arguments);
 
             FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath);
 
@@ -59,14 +60,20 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath)
         {
-            var sourceResolver = new FileResolver(Root);
+            var sourceResolver = new FileResolver(Root)
+            {
+                ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile()
+            };
             return sourceResolver.ResolveExistingFile(sourcePath);
         }
 
         [NotNull]
         private FileEntry ResolveDestinationFile([NotNull] AbsolutePath destinationPath)
         {
-            var destinationResolver = new FileResolver(Root);
+            var destinationResolver = new FileResolver(Root)
+            {
+                ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile()
+            };
             return destinationResolver.ResolveExistingFile(destinationPath);
         }
 
@@ -96,6 +103,20 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             if (AbsolutePath.AreEquivalent(arguments.DestinationPath, arguments.BackupDestinationPath))
+            {
+                throw ErrorFactory.System.UnableToMoveReplacementFile();
+            }
+        }
+
+        private void AssertAllOnSameDrive([NotNull] FileReplaceArguments arguments)
+        {
+            if (arguments.BackupDestinationPath != null &&
+                !arguments.DestinationPath.IsOnSameVolume(arguments.BackupDestinationPath))
+            {
+                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
+            }
+
+            if (!arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath))
             {
                 throw ErrorFactory.System.UnableToMoveReplacementFile();
             }

@@ -295,6 +295,12 @@ namespace TestableFileSystem.Fakes
                 throw new IOException(
                     "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
             }
+
+            [NotNull]
+            public static Exception UnableToFindSpecifiedFile()
+            {
+                throw new FileNotFoundException("Unable to find the specified file.");
+            }
         }
 
         public static class Internal
