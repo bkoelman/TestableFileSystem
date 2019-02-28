@@ -34,7 +34,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
         private void MoveDestinationFileToBackupFile([NotNull] FileEntry destinationFile, [CanBeNull] AbsolutePath backupPath)
         {
-            destinationFile.Parent.DeleteFile(destinationFile.Name);
+            DirectoryEntry beforeDestinationDirectory = destinationFile.Parent;
+            string beforeDestinationFileName = destinationFile.Name;
 
             if (backupPath != null)
             {
@@ -48,6 +49,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 backupDirectory.MoveFileToHere(destinationFile, backupFileName);
             }
+
+            beforeDestinationDirectory.DeleteFile(beforeDestinationFileName);
         }
 
         private void MoveSourceFileToDestinationFile([NotNull] FileEntry sourceFile,
@@ -62,7 +65,8 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var sourceResolver = new FileResolver(Root)
             {
-                ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile()
+                ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile(),
+                ErrorFileFoundAsDirectory = _ => ErrorFactory.System.UnauthorizedAccess()
             };
             return sourceResolver.ResolveExistingFile(sourcePath);
         }
@@ -72,7 +76,8 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             var destinationResolver = new FileResolver(Root)
             {
-                ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile()
+                ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile(),
+                ErrorFileFoundAsDirectory = _ => ErrorFactory.System.UnauthorizedAccess()
             };
             return destinationResolver.ResolveExistingFile(destinationPath);
         }
@@ -86,8 +91,16 @@ namespace TestableFileSystem.Fakes.Handlers
                 throw new Exception("TODO: Handle missing parent.");
             }
 
-            var destinationResolver = new DirectoryResolver(Root);
-            return destinationResolver.ResolveDirectory(parentDirectory);
+            var backupResolver = new DirectoryResolver(Root);
+            DirectoryEntry backupDirectory = backupResolver.ResolveDirectory(parentDirectory);
+
+            string backupFileName = backupPath.Components.Last();
+            if (backupDirectory.ContainsDirectory(backupFileName))
+            {
+                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
+            }
+
+            return backupDirectory;
         }
 
         private static void AssertNoDuplicatePaths([NotNull] FileReplaceArguments arguments)

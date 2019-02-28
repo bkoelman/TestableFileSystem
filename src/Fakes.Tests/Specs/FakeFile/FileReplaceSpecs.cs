@@ -284,7 +284,67 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 : "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
         }
 
-        // TODO: Files that exist as directory and directories that exist as file
+        [Fact]
+        private void When_replacing_file_with_source_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\sourceDir";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(sourcePath)
+                .IncludingTextFile(targetPath, "TargetText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().Throw<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_destination_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\targetDir";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingDirectory(targetPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().Throw<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_backup_that_exists_as_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backupDir";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingDirectory(backupPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().Throw<IOException>().WithMessage("Unable to remove the file to be replaced.");
+        }
+
         // TODO: Missing parent and parent-parent directories
         // TODO: Root of drive cannot be used
         // TODO: Readonly/hidden files
