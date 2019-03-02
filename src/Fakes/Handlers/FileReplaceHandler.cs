@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -42,10 +42,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 DirectoryEntry backupDirectory = ResolveBackupDirectory(backupPath);
                 string backupFileName = backupPath.Components.Last();
 
-                if (backupDirectory.ContainsFile(backupFileName))
-                {
-                    backupDirectory.DeleteFile(backupFileName);
-                }
+                DeleteBackupFile(backupDirectory, backupFileName);
 
                 backupDirectory.MoveFileToHere(destinationFile, backupFileName);
             }
@@ -68,9 +65,23 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile(),
                 ErrorFileFoundAsDirectory = _ => ErrorFactory.System.UnauthorizedAccess(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
-                ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound()
+                ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
+                ErrorPathIsVolumeRoot = _ => ErrorFactory.System.UnauthorizedAccess()
             };
-            return resolver.ResolveExistingFile(sourcePath);
+
+            FileEntry file = resolver.ResolveExistingFile(sourcePath);
+            AssertFileIsNotReadOnly(file);
+
+            return file;
+        }
+
+        [AssertionMethod]
+        private static void AssertFileIsNotReadOnly([NotNull] FileEntry fileEntry)
+        {
+            if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                throw ErrorFactory.System.UnauthorizedAccess();
+            }
         }
 
         [NotNull]
@@ -79,7 +90,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AbsolutePath parentDirectory = backupPath.TryGetParentPath();
             if (parentDirectory == null)
             {
-                throw new Exception("TODO: Handle missing parent.");
+                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
             }
 
             var backupResolver = new DirectoryResolver(Root)
@@ -96,6 +107,28 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             return backupDirectory;
+        }
+
+        private static void DeleteBackupFile([NotNull] DirectoryEntry backupDirectory, [NotNull] string backupFileName)
+        {
+            if (backupDirectory.ContainsFile(backupFileName))
+            {
+                AssertBackupFileIsNotReadOnly(backupDirectory, backupFileName);
+
+                backupDirectory.DeleteFile(backupFileName);
+            }
+        }
+
+        [AssertionMethod]
+        private static void AssertBackupFileIsNotReadOnly([NotNull] DirectoryEntry backupDirectory,
+            [NotNull] string backupFileName)
+        {
+            FileEntry backupFile = backupDirectory.GetFile(backupFileName);
+
+            if (backupFile.Attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
+            }
         }
 
         private static void AssertNoDuplicatePaths([NotNull] FileReplaceArguments arguments)

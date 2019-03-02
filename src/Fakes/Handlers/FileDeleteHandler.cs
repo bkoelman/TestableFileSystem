@@ -29,7 +29,7 @@ namespace TestableFileSystem.Fakes.Handlers
             return Missing.Value;
         }
 
-        private void DeleteFile([NotNull] FileEntry existingFile, [NotNull] DirectoryEntry containingDirectory,
+        private static void DeleteFile([NotNull] FileEntry existingFile, [NotNull] DirectoryEntry containingDirectory,
             [NotNull] FileDeleteArguments arguments)
         {
             AssertIsNotReadOnly(existingFile, arguments.Path);
@@ -39,7 +39,7 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        private static void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
         {
             if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
             {

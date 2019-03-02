@@ -607,8 +607,208 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        // TODO: Root of drive cannot be used
-        // TODO: Readonly/hidden files
+        [Fact]
+        private void When_replacing_file_with_source_that_is_root_of_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(targetPath, "TargetText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_destination_that_is_root_of_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_backup_that_is_root_of_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_readonly_source_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText", attributes: FileAttributes.ReadOnly)
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_readonly_destination_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText", attributes: FileAttributes.ReadOnly)
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_readonly_backup_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText", attributes: FileAttributes.ReadOnly)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_replacing_file_with_hidden_source_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText", attributes: FileAttributes.Hidden)
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            // Act
+            fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+            fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
+            fileSystem.File.GetAttributes(targetPath).Should().NotHaveFlag(FileAttributes.Hidden);
+            fileSystem.File.Exists(backupPath).Should().BeTrue();
+            fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
+            fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Hidden);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_replacing_file_with_hidden_destination_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText", attributes: FileAttributes.Hidden)
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            // Act
+            fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+            fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
+            fileSystem.File.GetAttributes(targetPath).Should().HaveFlag(FileAttributes.Hidden);
+            fileSystem.File.Exists(backupPath).Should().BeTrue();
+            fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
+            fileSystem.File.GetAttributes(backupPath).Should().HaveFlag(FileAttributes.Hidden);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_replacing_file_with_hidden_backup_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText", attributes: FileAttributes.Hidden)
+                .Build();
+
+            // Act
+            fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+            fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
+            fileSystem.File.GetAttributes(targetPath).Should().NotHaveFlag(FileAttributes.Hidden);
+            fileSystem.File.Exists(backupPath).Should().BeTrue();
+            fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
+            fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Hidden);
+        }
+
         // TODO: Files that are in use
         // TODO: UNC paths
         // TODO: Reserved names
