@@ -485,7 +485,128 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        // TODO: Missing parent and parent-parent directories
+        [Fact]
+        private void When_replacing_file_with_source_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\file.txt\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\file.txt")
+                .IncludingTextFile(targetPath, "TargetText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_destination_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\file.txt\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_backup_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\file.txt\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingEmptyFile(@"c:\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_source_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\file.txt\other.txt\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\file.txt")
+                .IncludingTextFile(targetPath, "TargetText")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_destination_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\file.txt\other.txt\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingEmptyFile(@"C:\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_backup_parent_parent_directory_that_exists_as_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\file.txt\other.txt\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingEmptyFile(@"c:\file.txt")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
+        }
+
         // TODO: Root of drive cannot be used
         // TODO: Readonly/hidden files
         // TODO: Files that are in use

@@ -16,12 +16,12 @@ namespace TestableFileSystem.Fakes.Handlers
 
         public override Missing Handle(FileReplaceArguments arguments)
         {
-            FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath);
+            FileEntry sourceFile = ResolveExistingFile(arguments.SourcePath);
 
             AssertNoDuplicatePaths(arguments);
             AssertAllOnSameDrive(arguments);
 
-            FileEntry destinationFile = ResolveDestinationFile(arguments.DestinationPath);
+            FileEntry destinationFile = ResolveExistingFile(arguments.DestinationPath);
 
             DirectoryEntry beforeDestinationDirectory = destinationFile.Parent;
             string beforeDestinationFileName = destinationFile.Name;
@@ -61,25 +61,16 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [NotNull]
-        private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath)
+        private FileEntry ResolveExistingFile([NotNull] AbsolutePath sourcePath)
         {
-            var sourceResolver = new FileResolver(Root)
+            var resolver = new FileResolver(Root)
             {
                 ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile(),
-                ErrorFileFoundAsDirectory = _ => ErrorFactory.System.UnauthorizedAccess()
+                ErrorFileFoundAsDirectory = _ => ErrorFactory.System.UnauthorizedAccess(),
+                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
+                ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound()
             };
-            return sourceResolver.ResolveExistingFile(sourcePath);
-        }
-
-        [NotNull]
-        private FileEntry ResolveDestinationFile([NotNull] AbsolutePath destinationPath)
-        {
-            var destinationResolver = new FileResolver(Root)
-            {
-                ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile(),
-                ErrorFileFoundAsDirectory = _ => ErrorFactory.System.UnauthorizedAccess()
-            };
-            return destinationResolver.ResolveExistingFile(destinationPath);
+            return resolver.ResolveExistingFile(sourcePath);
         }
 
         [NotNull]
@@ -91,7 +82,11 @@ namespace TestableFileSystem.Fakes.Handlers
                 throw new Exception("TODO: Handle missing parent.");
             }
 
-            var backupResolver = new DirectoryResolver(Root);
+            var backupResolver = new DirectoryResolver(Root)
+            {
+                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.UnableToRemoveFileToBeReplaced(),
+                ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.UnableToRemoveFileToBeReplaced()
+            };
             DirectoryEntry backupDirectory = backupResolver.ResolveDirectory(parentDirectory);
 
             string backupFileName = backupPath.Components.Last();
