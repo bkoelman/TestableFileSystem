@@ -184,16 +184,31 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_creating_path_with_whitespace_directory_it_must_fail()
+        private void When_creating_path_with_whitespace_directory_it_must_succeed()
         {
             // Arrange
-            var fileSystemBuilder = new FakeFileSystemBuilder();
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
 
             // Act
-            Action action = () => fileSystemBuilder.IncludingEmptyFile(@"c:\some\  \other");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some\  \other");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Illegal characters in path.*");
+            info.FullName.Should().Be(@"c:\some\other");
+        }
+
+        [Fact]
+        private void When_creating_path_with_multiple_separators_it_must_succeed()
+        {
+            // Arrange
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some\\\\\other");
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\other");
         }
 
         [Fact]
@@ -217,7 +232,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs\.\games");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs\. \games\.");
 
             // Assert
             info.FullName.Should().Be(@"C:\docs\games");
@@ -231,14 +246,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs\..\games");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs\.. \games\other\..");
 
             // Assert
             info.FullName.Should().Be(@"C:\games");
         }
 
         [Fact]
-        private void When_using_parent_references_on_root_it_must_ignore_them()
+        private void When_using_parent_reference_above_root_it_must_ignore_them()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -259,7 +274,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs/in/sub\folder/");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs/in/sub/\folder/");
 
             // Assert
             info.FullName.Should().Be(@"C:\docs\in\sub\folder");
@@ -319,6 +334,65 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
             // Assert
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_using_trailing_space_it_must_trim()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some \a ");
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\a");
+        }
+
+        [Fact]
+        private void When_using_trailing_thin_space_it_must_preserve()
+        {
+            // Arrange
+            const char thinSpace = (char)0x2009;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some\a" + thinSpace);
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\a" + thinSpace);
+        }
+
+        [Fact]
+        private void When_using_trailing_dot_it_must_trim()
+        {
+            // Arrange
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some.\a.");
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\a");
+        }
+
+        [Fact]
+        private void When_using_trailing_dots_and_spaces_it_must_trim()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some\. . \a. . ");
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\a");
         }
     }
 }
