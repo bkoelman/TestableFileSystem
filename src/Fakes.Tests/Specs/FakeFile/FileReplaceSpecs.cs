@@ -11,7 +11,147 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileReplaceSpecs
     {
-        // TODO: Basic null/empty/whitespace/... checks
+        [Fact]
+        private void When_replacing_file_with_null_source_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Action action = () => fileSystem.File.Replace(null, @"c:\destination.txt", @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        private void When_replacing_file_with_null_destination_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            // ReSharper disable once AssignNullToNotNullAttribute
+            Action action = () => fileSystem.File.Replace(@"c:\source.txt", null, @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        private void When_replacing_file_with_empty_string_source_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(string.Empty, @"c:\destination.txt", @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_empty_string_destination_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(@"c:\source.txt", string.Empty, @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_whitespace_source_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(" ", @"c:\destination.txt", @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_whitespace_destination_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(@"c:\source.txt", " ", @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_invalid_source_root_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace("_:", @"c:\destination.txt", @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_invalid_destination_root_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(@"c:\source.txt", "_:", @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_invalid_characters_in_source_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace("some?.txt", @"c:\destination.txt", @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+        }
+
+        [Fact]
+        private void When_replacing_file_with_invalid_characters_in_destination_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(@"c:\source.txt", "some?.txt", @"c:\backup.txt");
+
+            // Assert
+            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+        }
 
         [Fact]
         private void When_replacing_file_with_missing_source_location_it_must_fail()
