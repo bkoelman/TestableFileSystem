@@ -11,6 +11,9 @@ namespace TestableFileSystem.Fakes
 {
     internal sealed class AbsolutePath
     {
+        // https://blogs.msdn.microsoft.com/jeremykuhne/2016/04/21/path-format-overview/
+        // https://blogs.msdn.microsoft.com/jeremykuhne/2016/04/21/path-normalization/
+
         [NotNull]
         private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
 
@@ -337,6 +340,10 @@ namespace TestableFileSystem.Fakes
             {
                 Guard.NotNullNorWhiteSpace(path, nameof(path));
 
+                // TODO: If the path doesn't end in a separator, all trailing periods and spaces (character code 32 only) will be removed.
+                // If the last segment is simply a single or double period it falls under the relative components rule.
+                // This rule leads to the possibly surprising ability to create a directory with a trailing space. You simply need to add a trailing separator to do so.
+
                 string trimmed = path.TrimEnd();
                 string withoutSeparator = WithoutTrailingSeparator(trimmed);
                 string withoutPrefix = WithoutPrefixForExtendedLength(withoutSeparator);
@@ -419,6 +426,8 @@ namespace TestableFileSystem.Fakes
                         throw ErrorFactory.System.UncPathIsInvalid();
                     }
 
+                    // TODO: Add support for IPv4 and IPv6 network addresses for hostname.
+
                     AssertDirectoryNameOrFileNameIsValid(components[2]);
                     AssertDirectoryNameOrFileNameIsValid(components[3]);
 
@@ -461,9 +470,13 @@ namespace TestableFileSystem.Fakes
 
             private void AdjustComponentsForSelfOrParentIndicators([NotNull] [ItemNotNull] List<string> components)
             {
+                // TODO: Runs of slashes are collapsed into a single slash, after the first two slashes if present.
                 for (int index = 1; index < components.Count; index++)
                 {
                     string component = components[index];
+
+                    // TODO: If a segment ends in a single period, that period will be removed. A segment of a single or double period falls under the relative component rule above.
+                    // A segment of three periods (or more) doesn't hit any of these rules and is actually a valid file/directory name.
 
                     if (component == ".")
                     {
