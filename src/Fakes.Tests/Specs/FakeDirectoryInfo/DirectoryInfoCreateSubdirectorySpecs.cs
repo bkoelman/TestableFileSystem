@@ -83,7 +83,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory("::");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -175,7 +176,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"d:\some\other");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -194,7 +196,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"d:sub");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -213,7 +216,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"\\server\share\folder");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -232,7 +236,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"\other");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -270,8 +275,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"..");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>()
-                .WithMessage(@"The directory specified, '..', is not a subdirectory of 'd:\some'.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                @"The directory specified, '..', is not a subdirectory of 'd:\some'.*");
         }
 
         [Fact]
@@ -290,8 +295,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"..\..\more");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>()
-                .WithMessage(@"The directory specified, '..\..\more', is not a subdirectory of 'd:\some\folder'.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                @"The directory specified, '..\..\more', is not a subdirectory of 'd:\some\folder'.*");
         }
 
         [Fact]
@@ -310,8 +315,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"..\some2\more");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>()
-                .WithMessage(@"The directory specified, '..\some2\more', is not a subdirectory of 'd:\some'.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                @"The directory specified, '..\some2\more', is not a subdirectory of 'd:\some'.*");
         }
 
         [Fact]

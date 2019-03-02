@@ -474,8 +474,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastAccessTime(@"C:\some\folder", DefaultTime);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\folder'.");
         }
 
         [Fact]
@@ -541,8 +541,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastAccessTime(@"c:\some\file.txt\nested", DefaultTime);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested'.");
         }
 
         [Fact]
@@ -572,8 +572,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetLastAccessTime(@"c:\some\file.txt\nested\more", DefaultTime);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested\more'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested\more'.");
         }
 
         [Fact]

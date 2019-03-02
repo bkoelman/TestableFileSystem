@@ -196,7 +196,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(drive);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\folder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'X:\folder'.");
         }
 
         [Fact]
@@ -336,8 +337,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(path);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]
@@ -352,8 +353,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"C:\some\file.txt\sub");
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]
@@ -368,8 +369,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"C:\some\file.txt\sub\deeper");
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]
@@ -401,8 +402,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(path);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path '\\fileserver\documents'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path '\\fileserver\documents'.");
         }
 
         [Fact]

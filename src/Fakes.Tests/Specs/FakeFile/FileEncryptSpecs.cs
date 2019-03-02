@@ -129,7 +129,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Encrypt(path);
 
             // Assert
-            action.Should().ThrowExactly<NotSupportedException>().WithMessage("File encryption support only works on NTFS partitions.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage(
+                "File encryption support only works on NTFS partitions.");
         }
 
         [Fact]
@@ -267,8 +268,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Encrypt(@"C:\some\subfolder");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\subfolder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\subfolder'.");
         }
 
         [Fact]
@@ -318,8 +319,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Encrypt(@"c:\some\file.txt\nested.txt");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
         [Fact]
@@ -334,8 +335,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Encrypt(@"c:\some\file.txt\nested.txt\more.txt");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
         [Fact]
@@ -348,8 +349,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             Action action = () => fileSystem.File.Encrypt(@"\\server\share\file.txt");
 
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage("The filename, directory name, or volume label syntax is incorrect.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                "The filename, directory name, or volume label syntax is incorrect.");
         }
 
         [Fact]

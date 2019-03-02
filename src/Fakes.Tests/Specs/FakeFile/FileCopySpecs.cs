@@ -183,9 +183,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(path, path, true);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(
-                    @"The process cannot access the file 'c:\some\file.txt' because it is being used by another process.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"The process cannot access the file 'c:\some\file.txt' because it is being used by another process.");
         }
 
         [Fact]
@@ -316,7 +315,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(sourcePath, destinationPath, true);
 
             // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\copy.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\copy.txt' is denied.");
         }
 
         [Fact]
@@ -335,7 +335,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(sourcePath, destinationPath, true);
 
             // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\copy.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\copy.txt' is denied.");
         }
 
         [Fact]
@@ -467,8 +468,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(@"C:\some\subfolder", "newname.doc");
 
             // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>()
-                .WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\subfolder' is denied.");
         }
 
         [Fact]
@@ -487,7 +488,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(sourcePath, destinationDirectory);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage(@"The target file 'C:\some\folder' is a directory, not a file.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"The target file 'C:\some\folder' is a directory, not a file.");
         }
 
         [Fact]
@@ -502,8 +504,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(@"C:\some\file.txt\other.txt", "newname.doc");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\other.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\file.txt\other.txt'.");
         }
 
         [Fact]
@@ -519,8 +521,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(@"C:\some\file.txt", @"C:\some\newname.doc\other.doc");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\newname.doc\other.doc'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\newname.doc\other.doc'.");
         }
 
         [Fact]
@@ -535,8 +537,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(@"C:\some\file.txt\other.txt\deeper.txt", "newname.doc");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\other.txt\deeper.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\file.txt\other.txt\deeper.txt'.");
         }
 
         [Fact]
@@ -552,8 +554,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(@"C:\some\file.txt", @"C:\some\newname.doc\other.doc\deeper.doc");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\newname.doc\other.doc\deeper.doc'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\newname.doc\other.doc\deeper.doc'.");
         }
 
         [Fact]
@@ -567,8 +569,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(@"C:\some\file.txt", @"C:\some\newname.doc");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -586,8 +588,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Copy(sourcePath, destinationPath);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\other\newname.doc'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\other\newname.doc'.");
         }
 
         [Fact]
@@ -673,8 +675,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Copy(sourcePath, destinationPath);
 
                 // Assert
-                action.Should().ThrowExactly<IOException>()
-                    .WithMessage("The process cannot access the file because it is being used by another process.");
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "The process cannot access the file because it is being used by another process.");
+
                 fileSystem.File.Exists(sourcePath).Should().BeTrue();
                 fileSystem.File.Exists(destinationPath).Should().BeFalse();
             }

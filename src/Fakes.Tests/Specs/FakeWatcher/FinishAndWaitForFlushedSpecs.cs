@@ -27,8 +27,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.FinishAndWaitForFlushed(-5);
 
                 // Assert
-                action.Should().ThrowExactly<ArgumentOutOfRangeException>()
-                    .WithMessage("Specified argument was out of the range of valid values.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
+                    "Specified argument was out of the range of valid values.*");
             }
         }
 
@@ -56,8 +56,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.FinishAndWaitForFlushed(1);
 
                 // Assert
-                action.Should().ThrowExactly<TimeoutException>()
-                    .WithMessage("Timed out waiting for notification event handlers to finish.");
+                action.Should().ThrowExactly<TimeoutException>().WithMessage(
+                    "Timed out waiting for notification event handlers to finish.");
             }
         }
     }

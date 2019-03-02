@@ -452,8 +452,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
                 // Assert
-                action.Should().ThrowExactly<IOException>()
-                    .WithMessage("The process cannot access the file because it is being used by another process.");
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "The process cannot access the file because it is being used by another process.");
             }
         }
 
@@ -568,8 +568,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\source\missing-folder", @"c:\new-folder");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\source\missing-folder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\source\missing-folder'.");
         }
 
         [Fact]
@@ -602,8 +602,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"C:\some\folder", @"c:\newname");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\folder'.");
         }
 
         [Fact]
@@ -637,8 +637,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Act
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage("The process cannot access the file because it is being used by another process.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                "The process cannot access the file because it is being used by another process.");
         }
 
         [Fact]
@@ -656,8 +656,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"Source and destination path must have identical roots. Move will not work across volumes.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Source and destination path must have identical roots. Move will not work across volumes.");
         }
 
         [Fact]
@@ -691,8 +691,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, @"c:\");
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"The filename, directory name, or volume label syntax is incorrect.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"The filename, directory name, or volume label syntax is incorrect.");
         }
 
         [Fact]
@@ -733,8 +733,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"The process cannot access the file because it is being used by another process.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"The process cannot access the file because it is being used by another process.");
         }
 
         [Fact]
@@ -754,8 +754,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"The process cannot access the file because it is being used by another process.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"The process cannot access the file because it is being used by another process.");
         }
 
         [Fact]
@@ -775,8 +775,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\store\current", destinationPath);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"The process cannot access the file because it is being used by another process.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"The process cannot access the file because it is being used by another process.");
         }
 
         [Fact]
@@ -796,8 +796,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"\\server\share\documents", destinationPath);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"The process cannot access the file because it is being used by another process.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"The process cannot access the file because it is being used by another process.");
         }
 
         [Fact]

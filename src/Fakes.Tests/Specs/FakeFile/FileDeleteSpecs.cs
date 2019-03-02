@@ -146,7 +146,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(path);
 
             // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -163,8 +164,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(path);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\other\file.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\other\file.txt'.");
         }
 
         [Fact]
@@ -183,9 +184,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Delete(path);
 
                 // Assert
-                action.Should().ThrowExactly<IOException>()
-                    .WithMessage(
-                        @"The process cannot access the file 'C:\some\file.txt' because it is being used by another process.");
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    @"The process cannot access the file 'C:\some\file.txt' because it is being used by another process.");
             }
         }
 
@@ -253,8 +253,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(path);
 
             // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>()
-                .WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\subfolder' is denied.");
         }
 
         [Fact]
@@ -269,8 +269,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(@"c:\some\file.txt\nested.txt");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
         [Fact]
@@ -285,8 +285,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(@"c:\some\file.txt\nested.txt\other.txt");
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\other.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt\other.txt'.");
         }
 
         [Fact]

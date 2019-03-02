@@ -266,8 +266,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(path, DefaultContents);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"Cannot create 'C:\some\subfolder' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'C:\some\subfolder' because a file or directory with the same name already exists.");
         }
 
         [Fact]
@@ -281,8 +281,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(@"c:\some\file.txt\nested.txt", DefaultContents);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]
@@ -296,8 +296,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(@"c:\some\file.txt\nested.txt\deeper.txt", DefaultContents);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]

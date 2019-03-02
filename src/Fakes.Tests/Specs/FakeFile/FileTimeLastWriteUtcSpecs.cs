@@ -230,7 +230,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTimeUtc(@"C:\some.txt", DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>()
+                .WithMessage(@"Access to the path 'C:\some.txt' is denied.");
         }
 
         [Fact]
@@ -284,8 +285,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTimeUtc(path, DateTime.MinValue);
 
             // Assert
-            action.Should().ThrowExactly<ArgumentOutOfRangeException>()
-                .WithMessage("The UTC time represented when the offset is applied must be between year 0 and 10,000.*");
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
+                "The UTC time represented when the offset is applied must be between year 0 and 10,000.*");
         }
 
         [Fact]
@@ -474,8 +475,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTimeUtc(@"C:\some\file.txt", DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -511,8 +512,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\subfolder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\subfolder'.");
         }
 
         [Fact]
@@ -542,8 +543,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTimeUtc(@"c:\some\file.txt\nested.txt", DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
         [Fact]
@@ -573,8 +574,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTimeUtc(@"c:\some\file.txt\nested.txt\more.txt", DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
         [Fact]
@@ -642,7 +643,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path '\\server\share' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>()
+                .WithMessage(@"Access to the path '\\server\share' is denied.");
         }
 
         [Fact]
@@ -676,7 +678,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetLastWriteTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing.docx'.");
+            action.Should().ThrowExactly<FileNotFoundException>()
+                .WithMessage(@"Could not find file '\\server\share\missing.docx'.");
         }
 
         [Fact]

@@ -32,8 +32,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.WaitForChanged(WatcherChangeTypes.All, -5);
 
                 // Assert
-                action.Should().ThrowExactly<ArgumentOutOfRangeException>()
-                    .WithMessage("Specified argument was out of the range of valid values.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
+                    "Specified argument was out of the range of valid values.*");
             }
         }
 

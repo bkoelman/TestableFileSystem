@@ -709,9 +709,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-1, SeekOrigin.Current);
 
                 // Assert
-                action.Should().ThrowExactly<IOException>()
-                    .WithMessage(
-                        "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
             }
         }
 
@@ -732,8 +731,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Position = -1;
 
                 // Assert
-                action.Should().ThrowExactly<ArgumentOutOfRangeException>()
-                    .WithMessage("Specified argument was out of the range of valid values.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
+                    "Specified argument was out of the range of valid values.*");
             }
         }
 

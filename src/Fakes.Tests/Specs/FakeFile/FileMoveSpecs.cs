@@ -369,7 +369,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(@"C:\some\file.txt\other.txt", "newname.doc");
 
             // Assert
-            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt\other.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>()
+                .WithMessage(@"Could not find file 'C:\some\file.txt\other.txt'.");
         }
 
         [Fact]
@@ -400,8 +401,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(@"C:\some\file.txt\other.txt\missing.txt", "newname.doc");
 
             // Assert
-            action.Should().ThrowExactly<FileNotFoundException>()
-                .WithMessage(@"Could not find file 'C:\some\file.txt\other.txt\missing.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(
+                @"Could not find file 'C:\some\file.txt\other.txt\missing.txt'.");
         }
 
         [Fact]
@@ -577,8 +578,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(sourcePath, @"C:\");
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage("The filename, directory name, or volume label syntax is incorrect.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                "The filename, directory name, or volume label syntax is incorrect.");
         }
 
         [Fact]
@@ -618,8 +619,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
 
                 // Assert
-                action.Should().ThrowExactly<IOException>()
-                    .WithMessage("The process cannot access the file because it is being used by another process.");
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "The process cannot access the file because it is being used by another process.");
+
                 fileSystem.File.Exists(sourcePath).Should().BeTrue();
                 fileSystem.File.Exists(destinationPath).Should().BeFalse();
             }
@@ -643,8 +645,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
 
                 // Assert
-                action.Should().ThrowExactly<IOException>()
-                    .WithMessage("The process cannot access the file because it is being used by another process.");
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "The process cannot access the file because it is being used by another process.");
+
                 fileSystem.File.Exists(sourcePath).Should().BeTrue();
                 fileSystem.File.Exists(destinationPath).Should().BeFalse();
             }
@@ -665,8 +668,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().ThrowExactly<FileNotFoundException>()
-                .WithMessage(@"Could not find file '\\teamserver\documents\for-all.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(
+                @"Could not find file '\\teamserver\documents\for-all.txt'.");
         }
 
         [Fact]

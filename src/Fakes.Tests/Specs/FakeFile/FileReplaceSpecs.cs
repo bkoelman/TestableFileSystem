@@ -204,8 +204,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
 
             // Assert
-            action.Should().ThrowExactly<IOException>()
-                .WithMessage("The process cannot access the file because it is being used by another process.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                "The process cannot access the file because it is being used by another process.");
         }
 
         [Fact]

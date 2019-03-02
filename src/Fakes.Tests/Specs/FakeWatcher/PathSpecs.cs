@@ -394,7 +394,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = path + @"\nested";
 
                 // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\some\file.txt\nested is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                    @"The directory name c:\some\file.txt\nested is invalid.");
             }
         }
 
@@ -493,8 +494,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = path;
 
                 // Assert
-                action.Should().ThrowExactly<ArgumentException>()
-                    .WithMessage(@"The directory name \\server\share\MissingFolder is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                    @"The directory name \\server\share\MissingFolder is invalid.");
             }
         }
 
