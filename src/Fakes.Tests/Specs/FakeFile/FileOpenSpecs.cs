@@ -25,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(null, FileMode.Create);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(string.Empty, FileMode.Create);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Empty path name is not legal.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty path name is not legal.*");
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(" ", FileMode.Create);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open("::", FileMode.Create);
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open("some?.txt", FileMode.Create);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.CreateNew, FileAccess.Read);
 
             // Assert
-            action.Should().Throw<ArgumentException>()
+            action.Should().ThrowExactly<ArgumentException>()
                 .WithMessage(@"Combining FileMode: CreateNew with FileAccess: Read is invalid.*");
         }
 
@@ -115,7 +115,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.CreateNew);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"The file 'C:\some\sheet.xls' already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"The file 'C:\some\sheet.xls' already exists.");
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Create, FileAccess.Read);
 
             // Assert
-            action.Should().Throw<ArgumentException>()
+            action.Should().ThrowExactly<ArgumentException>()
                 .WithMessage(@"Combining FileMode: Create with FileAccess: Read is invalid.*");
         }
 
@@ -190,7 +190,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Create);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -207,7 +207,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Create);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -270,7 +270,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Open);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -303,7 +303,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(@"C:\some\sheet.xls", FileMode.Open);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\sheet.xls'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\sheet.xls'.");
         }
 
         [Fact]
@@ -343,7 +343,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.OpenOrCreate);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -399,7 +399,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Truncate, FileAccess.Read);
 
             // Assert
-            action.Should().Throw<ArgumentException>()
+            action.Should().ThrowExactly<ArgumentException>()
                 .WithMessage(@"Combining FileMode: Truncate with FileAccess: Read is invalid.*");
         }
 
@@ -415,7 +415,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(@"C:\some\sheet.xls", FileMode.Truncate);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\sheet.xls'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\sheet.xls'.");
         }
 
         [Fact]
@@ -456,7 +456,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Truncate);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -472,7 +472,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Append, FileAccess.Read);
 
             // Assert
-            action.Should().Throw<ArgumentException>()
+            action.Should().ThrowExactly<ArgumentException>()
                 .WithMessage(@"Combining FileMode: Append with FileAccess: Read is invalid.*");
         }
 
@@ -542,7 +542,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Append);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -630,7 +630,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open("D:child.txt", FileMode.Open);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file 'D:\child.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'D:\child.txt'.");
         }
 
         [Fact]
@@ -687,7 +687,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open("D:child.txt", FileMode.Open);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file 'D:\other\child.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'D:\other\child.txt'.");
         }
 
         [Fact]
@@ -704,7 +704,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(path, FileMode.Open);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>()
+            action.Should().ThrowExactly<UnauthorizedAccessException>()
                 .WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
         }
 
@@ -720,7 +720,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(@"C:\some\file.txt\nested.txt", FileMode.Open);
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\nested.txt'.");
         }
 
@@ -736,7 +736,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(@"C:\some\file.txt\nested.txt\more.txt", FileMode.Open);
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\nested.txt\more.txt'.");
         }
 
@@ -751,7 +751,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(@"C:\some\doc.txt", FileMode.Open);
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\doc.txt'.");
         }
 
@@ -766,7 +766,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(@"\\server\share\file.txt", FileMode.Open);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -781,7 +781,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open(@"\\server\share\file.txt", FileMode.Open);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\file.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\file.txt'.");
         }
 
         [Fact]
@@ -813,7 +813,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Open("COM1", FileMode.Open);
 
             // Assert
-            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

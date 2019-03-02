@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(string.Empty);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(" ");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete("::");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"c:\dir?i");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"C:\some\folder");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
         }
 
@@ -139,7 +139,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"C:\some\folder");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The directory is not empty.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The directory is not empty.");
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(path);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Access to the path 'c:\some\folder' is denied.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"Access to the path 'c:\some\folder' is denied.");
         }
 
         [Fact]
@@ -198,7 +198,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                     Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
 
                     // Assert
-                    action.Should().Throw<IOException>()
+                    action.Should().ThrowExactly<IOException>()
                         .WithMessage(
                             @"The process cannot access the file 'C:\some\folder\deeper\fileB.txt' because it is being used by another process.");
 
@@ -229,7 +229,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path 'fileB.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path 'fileB.txt' is denied.");
 
             fileSystem.File.Exists(Path.Combine(subdirectory, "fileA.txt")).Should().BeFalse();
             fileSystem.File.Exists(Path.Combine(subdirectory, "fileB.txt")).Should().BeTrue();
@@ -256,7 +256,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"C:\some\folder", true);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Access to the path 'C:\some\folder\deeper\subfolderB' is denied.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"Access to the path 'C:\some\folder\deeper\subfolderB' is denied.");
 
             fileSystem.Directory.Exists(Path.Combine(subdirectory, "subfolderA")).Should().BeFalse();
             fileSystem.Directory.Exists(Path.Combine(subdirectory, "subfolderB")).Should().BeTrue();
@@ -280,7 +280,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"D:\");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The directory is not empty.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The directory is not empty.");
         }
 
         [Fact]
@@ -298,7 +298,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"D:\", true);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file 'd:\'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'd:\'.");
         }
 
         [Fact]
@@ -334,7 +334,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(path, true);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"The process cannot access the file 'C:\store' because it is being used by another process.");
         }
 
@@ -354,7 +354,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(path, true);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(
                     @"The process cannot access the file '\\server\share\documents' because it is being used by another process.");
         }
@@ -373,7 +373,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"C:\store", true);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"The process cannot access the file 'C:\store' because it is being used by another process.");
         }
 
@@ -391,7 +391,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"\\server\share\documents", true);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(
                     @"The process cannot access the file '\\server\share\documents' because it is being used by another process.");
         }
@@ -475,7 +475,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(path);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"The directory name is invalid.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"The directory name is invalid.");
         }
 
         [Fact]
@@ -490,7 +490,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"c:\some\file.txt\subfolder");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
         }
 
@@ -506,7 +506,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"c:\some\file.txt\subfolder\deeper");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder\deeper'.");
         }
 
@@ -541,7 +541,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(path);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(
                     @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
         }
@@ -560,7 +560,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(path, true);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(
                     @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
         }
@@ -576,7 +576,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Delete(@"\\server\share\team");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
         [Fact]

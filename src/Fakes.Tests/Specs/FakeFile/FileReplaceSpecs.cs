@@ -23,7 +23,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(null, @"c:\destination.txt", @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(@"c:\source.txt", null, @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(string.Empty, @"c:\destination.txt", @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(@"c:\source.txt", string.Empty, @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(" ", @"c:\destination.txt", @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(@"c:\source.txt", " ", @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace("_:", @"c:\destination.txt", @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(@"c:\source.txt", "_:", @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace("some?.txt", @"c:\destination.txt", @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(@"c:\source.txt", "some?.txt", @"c:\backup.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -168,7 +168,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage("Unable to find the specified file.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Unable to find the specified file.");
         }
 
         [Fact]
@@ -186,7 +186,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage("Unable to find the specified file.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Unable to find the specified file.");
         }
 
         [Fact]
@@ -204,7 +204,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage("The process cannot access the file because it is being used by another process.");
         }
 
@@ -225,7 +225,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("Unable to remove the file to be replaced.");
+            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
         [Fact]
@@ -245,7 +245,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(
+            action.Should().ThrowExactly<IOException>().WithMessage(
                 "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
         }
 
@@ -419,7 +419,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupDrive != null ? backupPath : null);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(nativeErrorCode == 1175
+            action.Should().ThrowExactly<IOException>().WithMessage(nativeErrorCode == 1175
                 ? "Unable to remove the file to be replaced."
                 : "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
         }
@@ -441,7 +441,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
         }
 
         [Fact]
@@ -461,7 +461,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
 
             // Assert
-            action.Should().Throw<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
         }
 
         [Fact]
@@ -482,7 +482,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("Unable to remove the file to be replaced.");
+            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
         // TODO: Missing parent and parent-parent directories

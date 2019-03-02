@@ -24,7 +24,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(null, DefaultContents);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(@"c:\file.txt", null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(string.Empty, DefaultContents);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("'path' cannot be empty or contain only whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("'path' cannot be empty or contain only whitespace.*");
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(@"c:\file.txt", string.Empty);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("'contents' cannot be empty.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("'contents' cannot be empty.*");
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(" ", DefaultContents);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("'path' cannot be empty or contain only whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("'path' cannot be empty or contain only whitespace.*");
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile("::", DefaultContents);
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile("some?.txt", DefaultContents);
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -234,7 +234,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(@"some\file.txt", DefaultContents);
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -250,7 +250,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(path, DefaultContents);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Could not find a part of the path 'C:\'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\'.");
         }
 
         [Fact]
@@ -266,7 +266,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(path, DefaultContents);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"Cannot create 'C:\some\subfolder' because a file or directory with the same name already exists.");
         }
 
@@ -281,7 +281,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(@"c:\some\file.txt\nested.txt", DefaultContents);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
@@ -296,7 +296,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile(@"c:\some\file.txt\nested.txt\deeper.txt", DefaultContents);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
@@ -348,7 +348,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingTextFile("COM1", DefaultContents);
 
             // Assert
-            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

@@ -83,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             Action action = () => fileSystem.Path.GetTempFileName();
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The directory name is invalid.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The directory name is invalid.");
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             Action action = () => fileSystem.Path.GetTempFileName();
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The directory name is invalid.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The directory name is invalid.");
         }
 
         [Fact]
@@ -121,7 +121,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             Action action = () => fileSystem.Path.GetTempFileName();
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The directory name is invalid.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The directory name is invalid.");
         }
 
         [Fact]
@@ -172,7 +172,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             Action action = () => fileSystem.Path.GetTempFileName();
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The file exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The file exists.");
         }
     }
 

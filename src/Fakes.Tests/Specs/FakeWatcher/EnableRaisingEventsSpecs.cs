@@ -24,7 +24,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.EnableRaisingEvents = true;
 
                 // Assert
-                action.Should().Throw<FileNotFoundException>().WithMessage(@"Error reading the  directory.");
+                action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Error reading the  directory.");
             }
         }
 
@@ -47,7 +47,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.EnableRaisingEvents = true;
 
                 // Assert
-                action.Should().Throw<FileNotFoundException>().WithMessage(@"Error reading the c:\some directory.");
+                action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Error reading the c:\some directory.");
             }
         }
 
@@ -311,7 +311,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => watcher.EnableRaisingEvents = true;
 
             // Assert
-            action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a disposed object.*")
+            action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a disposed object.*")
                 .And.ObjectName.Should().Be("FileSystemWatcher");
         }
     }

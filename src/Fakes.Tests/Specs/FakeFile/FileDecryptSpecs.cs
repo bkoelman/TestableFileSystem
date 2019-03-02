@@ -22,7 +22,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(string.Empty);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(" ");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt("_:");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt("some?.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(path);
 
             // Assert
-            action.Should().Throw<FileNotFoundException>().WithMessage(@"Could not find file 'c:\file.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'c:\file.txt'.");
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(path);
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'z:\folder\file.txt'.");
         }
 
@@ -207,7 +207,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(path);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The specified file is read only.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The specified file is read only.");
         }
 
         [Fact]
@@ -228,7 +228,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Decrypt(path);
 
                 // Assert
-                action.Should().Throw<IOException>().WithMessage(
+                action.Should().ThrowExactly<IOException>().WithMessage(
                     @"The process cannot access the file 'C:\some\file.txt' because it is being used by another process.");
             }
         }
@@ -283,7 +283,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(@"C:\some\subfolder");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\subfolder'.");
         }
 
@@ -338,7 +338,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(@"c:\some\file.txt\nested.txt");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
@@ -354,7 +354,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt(@"c:\some\file.txt\nested.txt\more.txt");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
@@ -368,7 +368,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Act
             Action action = () => fileSystem.File.Decrypt(@"\\server\share\file.txt");
 
-            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -401,7 +401,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Decrypt("COM1");
 
             // Assert
-            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

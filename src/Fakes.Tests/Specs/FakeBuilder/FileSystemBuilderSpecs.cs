@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.WithoutDefaultDriveC().Build();
 
             // Assert
-            action.Should().Throw<InvalidOperationException>().WithMessage("System contains no drives.");
+            action.Should().ThrowExactly<InvalidOperationException>().WithMessage("System contains no drives.");
         }
 
         [Fact]

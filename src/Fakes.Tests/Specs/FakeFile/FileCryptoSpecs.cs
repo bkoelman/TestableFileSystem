@@ -59,7 +59,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Create(path);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -104,7 +104,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.OpenRead(path);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -149,7 +149,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.OpenWrite(path);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -194,7 +194,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Open(path, FileMode.Append);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -240,7 +240,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Copy(sourcePath, targetPath);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\source.txt' is denied.");
             });
         }
@@ -287,7 +287,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Copy(sourcePath, targetPath, true);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\target.txt' is denied.");
             });
         }
@@ -388,7 +388,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Move(sourcePath, targetPath);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>().WithMessage(@"Access to the path is denied.");
+                action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path is denied.");
             });
         }
 
@@ -532,9 +532,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action2 = () => fileSystem.Directory.SetCreationTimeUtc(path, 1.January(2002));
 
                 // Assert
-                action1.Should().Throw<UnauthorizedAccessException>()
+                action1.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
-                action2.Should().Throw<UnauthorizedAccessException>()
+                action2.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -605,9 +605,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action2 = () => fileSystem.Directory.SetLastAccessTimeUtc(path, 1.January(2002));
 
                 // Assert
-                action1.Should().Throw<UnauthorizedAccessException>()
+                action1.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
-                action2.Should().Throw<UnauthorizedAccessException>()
+                action2.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -678,9 +678,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action2 = () => fileSystem.Directory.SetLastWriteTimeUtc(path, 1.January(2002));
 
                 // Assert
-                action1.Should().Throw<UnauthorizedAccessException>()
+                action1.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
-                action2.Should().Throw<UnauthorizedAccessException>()
+                action2.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -724,7 +724,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Encrypt(path);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -768,7 +768,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Decrypt(path);
 
                 // Assert
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder\file.txt' is denied.");
             });
         }
@@ -1415,7 +1415,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 // Assert
                 fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(1.January(2002));
 
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder' is denied.");
             });
         }
@@ -1470,7 +1470,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 // Assert
                 fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(1.January(2002));
 
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder' is denied.");
             });
         }
@@ -1525,7 +1525,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 // Assert
                 fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(1.January(2002));
 
-                action.Should().Throw<UnauthorizedAccessException>()
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
                     .WithMessage(@"Access to the path 'c:\folder' is denied.");
             });
         }

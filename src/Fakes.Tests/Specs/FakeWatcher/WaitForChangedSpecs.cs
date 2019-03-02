@@ -32,7 +32,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.WaitForChanged(WatcherChangeTypes.All, -5);
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>()
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>()
                     .WithMessage("Specified argument was out of the range of valid values.*");
             }
         }
@@ -418,7 +418,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => watcher.WaitForChanged(WatcherChangeTypes.All);
 
             // Assert
-            action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a disposed object.*")
+            action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a disposed object.*")
                 .And.ObjectName.Should().Be("FileSystemWatcher");
         }
     }

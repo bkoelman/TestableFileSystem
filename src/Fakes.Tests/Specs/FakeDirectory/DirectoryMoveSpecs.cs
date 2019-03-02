@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(null, @"c:\newdir");
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\missing", null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(string.Empty, @"c:\newdir");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Empty file name is not legal.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\missing", string.Empty);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Empty file name is not legal.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(" ", @"c:\newdir");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\missing", " ");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -106,7 +106,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move("::", @"c:\newdir");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\missing", "::");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -134,7 +134,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\dir?i", @"c:\newdir");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\missing", @"c:\dir?i");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -166,7 +166,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Source and destination path must be different.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"Source and destination path must be different.");
         }
 
         [Fact]
@@ -184,7 +184,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Source and destination path must be different.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"Source and destination path must be different.");
         }
 
         [Fact]
@@ -361,7 +361,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(path, @"C:\SOME\FILE.TXT");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("Source and destination path must be different.");
+            action.Should().ThrowExactly<IOException>().WithMessage("Source and destination path must be different.");
         }
 
         [Fact]
@@ -414,7 +414,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("Cannot create a file when that file already exists");
+            action.Should().ThrowExactly<IOException>().WithMessage("Cannot create a file when that file already exists");
         }
 
         [Fact]
@@ -432,7 +432,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
         [Fact]
@@ -452,7 +452,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
                 // Assert
-                action.Should().Throw<IOException>()
+                action.Should().ThrowExactly<IOException>()
                     .WithMessage("The process cannot access the file because it is being used by another process.");
             }
         }
@@ -473,7 +473,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourceDirectory, destinationFile);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("Cannot create a file when that file already exists");
+            action.Should().ThrowExactly<IOException>().WithMessage("Cannot create a file when that file already exists");
         }
 
         [Fact]
@@ -488,7 +488,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"C:\some\file.txt\other", "newname.doc");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
         }
 
         [Fact]
@@ -504,7 +504,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"C:\some\folder", @"C:\some\newname.doc\other");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The parameter is incorrect");
+            action.Should().ThrowExactly<IOException>().WithMessage("The parameter is incorrect");
         }
 
         [Fact]
@@ -519,7 +519,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"C:\some\file.txt\other.txt\missing", @"c:\newname");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
         [Fact]
@@ -535,7 +535,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"C:\some\folder", @"C:\some\newname.doc\other.doc\more");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
         [Fact]
@@ -554,7 +554,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Cannot create a file when that file already exists");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"Cannot create a file when that file already exists");
         }
 
         [Fact]
@@ -568,7 +568,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\source\missing-folder", @"c:\new-folder");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'c:\source\missing-folder'.");
         }
 
@@ -587,7 +587,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
         }
 
         [Fact]
@@ -602,7 +602,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"C:\some\folder", @"c:\newname");
 
             // Assert
-            action.Should().Throw<DirectoryNotFoundException>()
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
                 .WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
         }
 
@@ -621,7 +621,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Cannot create a file when that file already exists");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"Cannot create a file when that file already exists");
         }
 
         [Fact]
@@ -637,7 +637,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Act
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage("The process cannot access the file because it is being used by another process.");
         }
 
@@ -656,7 +656,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"Source and destination path must have identical roots. Move will not work across volumes.");
         }
 
@@ -674,7 +674,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, @"e:\new-folder");
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage(@"Access to the path 'e:\' is denied.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"Access to the path 'e:\' is denied.");
         }
 
         [Fact]
@@ -691,7 +691,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, @"c:\");
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"The filename, directory name, or volume label syntax is incorrect.");
         }
 
@@ -733,7 +733,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"The process cannot access the file because it is being used by another process.");
         }
 
@@ -754,7 +754,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"The process cannot access the file because it is being used by another process.");
         }
 
@@ -775,7 +775,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\store\current", destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"The process cannot access the file because it is being used by another process.");
         }
 
@@ -796,7 +796,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"\\server\share\documents", destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>()
+            action.Should().ThrowExactly<IOException>()
                 .WithMessage(@"The process cannot access the file because it is being used by another process.");
         }
 
@@ -838,7 +838,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 Action action = () => fileSystem.Directory.Move(sourceDirectory, @"c:\new-folder");
 
                 // Assert
-                action.Should().Throw<IOException>().WithMessage(@"Access to the path 'c:\existing-folder' is denied.");
+                action.Should().ThrowExactly<IOException>().WithMessage(@"Access to the path 'c:\existing-folder' is denied.");
             }
         }
 
@@ -856,7 +856,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().Throw<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -890,7 +890,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move("com1", @"c:\moved");
 
             // Assert
-            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -904,7 +904,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(@"c:\src", "com1");
 
             // Assert
-            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

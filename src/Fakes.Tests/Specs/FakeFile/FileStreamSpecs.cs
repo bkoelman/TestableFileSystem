@@ -549,7 +549,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-1, SeekOrigin.Begin);
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>();
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>();
             }
         }
 
@@ -572,7 +572,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-3, SeekOrigin.Current);
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>();
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>();
             }
         }
 
@@ -593,7 +593,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-4, SeekOrigin.End);
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>();
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>();
             }
         }
 
@@ -688,7 +688,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(10, SeekOrigin.End);
 
                 // Assert
-                action.Should().Throw<NotSupportedException>();
+                action.Should().ThrowExactly<NotSupportedException>();
             }
         }
 
@@ -709,7 +709,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-1, SeekOrigin.Current);
 
                 // Assert
-                action.Should().Throw<IOException>()
+                action.Should().ThrowExactly<IOException>()
                     .WithMessage(
                         "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
             }
@@ -732,7 +732,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Position = -1;
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>()
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>()
                     .WithMessage("Specified argument was out of the range of valid values.*");
             }
         }
@@ -782,7 +782,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(0, SeekOrigin.Begin);
 
                 // Assert
-                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -805,7 +805,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.SetLength(2);
 
                 // Assert
-                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -830,7 +830,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Read(buffer, 0, buffer.Length);
 
                 // Assert
-                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -853,7 +853,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Write(BufferFactory.SingleByte(0xFF), 0, 1);
 
                 // Assert
-                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -874,7 +874,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Write(BufferFactory.SingleByte(0xFF), 0, 1);
 
                 // Assert
-                action.Should().Throw<NotSupportedException>().WithMessage("Stream does not support writing.");
+                action.Should().ThrowExactly<NotSupportedException>().WithMessage("Stream does not support writing.");
             }
         }
 
@@ -895,7 +895,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.ReadByte();
 
                 // Assert
-                action.Should().Throw<NotSupportedException>().WithMessage("Stream does not support reading.");
+                action.Should().ThrowExactly<NotSupportedException>().WithMessage("Stream does not support reading.");
             }
         }
 
@@ -915,7 +915,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Read);
 
                 // Assert
-                action.Should().Throw<IOException>().WithMessage(
+                action.Should().ThrowExactly<IOException>().WithMessage(
                     @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
             }
         }
@@ -938,7 +938,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Write);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
                 }
             }
@@ -962,7 +962,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Lock(-1, LockBlockSize);
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
             }
         }
 
@@ -983,7 +983,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Unlock(-1, LockBlockSize);
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
             }
         }
 
@@ -1004,7 +1004,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Lock(0, -1);
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
             }
         }
 
@@ -1025,7 +1025,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Unlock(0, -1);
 
                 // Assert
-                action.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
             }
         }
 
@@ -1048,7 +1048,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Lock(0, 1024);
 
                 // Assert
-                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -1071,7 +1071,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Unlock(0, 1024);
 
                 // Assert
-                action.Should().Throw<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -1203,7 +1203,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Read(buffer, 0, buffer.Length);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         "The process cannot access the file because another process has locked a portion of the file");
                 }
             }
@@ -1237,7 +1237,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Read(buffer, 0, buffer.Length);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         "The process cannot access the file because another process has locked a portion of the file");
                 }
             }
@@ -1271,7 +1271,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Read(buffer, 0, buffer.Length);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         "The process cannot access the file because another process has locked a portion of the file");
                 }
             }
@@ -1305,7 +1305,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Read(buffer, 0, buffer.Length);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         "The process cannot access the file because another process has locked a portion of the file");
                 }
             }
@@ -1397,7 +1397,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Read(buffer, 0, buffer.Length);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         "The process cannot access the file because another process has locked a portion of the file");
                 }
             }
@@ -1431,7 +1431,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Read(buffer, 0, buffer.Length);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         "The process cannot access the file because another process has locked a portion of the file");
                 }
             }
@@ -1476,7 +1476,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Lock(0, LockBlockSize);
 
                 // Assert
-                action.Should().Throw<IOException>().WithMessage(
+                action.Should().ThrowExactly<IOException>().WithMessage(
                     "The process cannot access the file because another process has locked a portion of the file");
             }
         }
@@ -1502,7 +1502,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Lock(0, LockBlockSize);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         "The process cannot access the file because another process has locked a portion of the file");
                 }
             }
@@ -1527,7 +1527,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Lock(1024, LockBlockSize);
 
                 // Assert
-                action.Should().Throw<IOException>().WithMessage(
+                action.Should().ThrowExactly<IOException>().WithMessage(
                     "The process cannot access the file because another process has locked a portion of the file");
             }
         }
@@ -1553,7 +1553,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Lock(1024, LockBlockSize);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         "The process cannot access the file because another process has locked a portion of the file");
                 }
             }
@@ -1667,7 +1667,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => innerStream.Unlock(LockBlockSize, LockBlockSize);
 
                     // Assert
-                    action.Should().Throw<IOException>().WithMessage("The segment is already unlocked");
+                    action.Should().ThrowExactly<IOException>().WithMessage("The segment is already unlocked");
                 }
             }
         }
@@ -1692,7 +1692,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Unlock(LockBlockSize, LockBlockSize);
 
                 // Assert
-                action.Should().Throw<IOException>().WithMessage("The segment is already unlocked");
+                action.Should().ThrowExactly<IOException>().WithMessage("The segment is already unlocked");
             }
         }
 
@@ -1716,7 +1716,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Unlock(0, LockBlockSize * 2);
 
                 // Assert
-                action.Should().Throw<IOException>().WithMessage("The segment is already unlocked");
+                action.Should().ThrowExactly<IOException>().WithMessage("The segment is already unlocked");
             }
         }
 #endif

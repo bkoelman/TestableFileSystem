@@ -120,7 +120,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"\\teamserver\");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
         [Fact]
@@ -166,7 +166,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"\\team*server");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");
         }
 
         [Fact]
@@ -180,7 +180,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"c:\games\try?me");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage(@"Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Illegal characters in path.*");
         }
 
         [Fact]
@@ -193,7 +193,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystemBuilder.IncludingEmptyFile(@"c:\some\  \other");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage(@"Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Illegal characters in path.*");
         }
 
         [Fact]
@@ -206,7 +206,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystemBuilder.IncludingEmptyFile(@"docs\work");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.*");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.*");
         }
 
         [Fact]
@@ -276,7 +276,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"\\.\COM56");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
 
         [Fact]
@@ -290,7 +290,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"\\?\GLOBALROOT");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
 
         [Fact]
@@ -304,7 +304,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"c:\nul\documents");
 
             // Assert
-            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -318,7 +318,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"com1");
 
             // Assert
-            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
     }
 }

@@ -29,7 +29,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 // Assert
                 watcher.Path.Should().Be(string.Empty);
-                action.Should().Throw<FileNotFoundException>().WithMessage("Error reading the  directory.");
+                action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Error reading the  directory.");
             }
         }
 
@@ -50,7 +50,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 // Assert
                 watcher.Path.Should().Be(string.Empty);
-                action.Should().Throw<FileNotFoundException>().WithMessage("Error reading the  directory.");
+                action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Error reading the  directory.");
             }
         }
 
@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = " ";
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage("The directory name   is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name   is invalid.");
             }
         }
 
@@ -86,7 +86,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = "::";
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage("The directory name :: is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name :: is invalid.");
             }
         }
 
@@ -104,7 +104,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = @"c:\?";
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage(@"The directory name c:\? is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\? is invalid.");
             }
         }
 
@@ -122,7 +122,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = @"c:\missing";
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage(@"The directory name c:\missing is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\missing is invalid.");
             }
         }
 
@@ -373,7 +373,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = path;
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage(@"The directory name c:\some\file.txt is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\some\file.txt is invalid.");
             }
         }
 
@@ -394,7 +394,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = path + @"\nested";
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage(@"The directory name c:\some\file.txt\nested is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\some\file.txt\nested is invalid.");
             }
         }
 
@@ -414,7 +414,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = path;
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage(@"The directory name c:\some\folder is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\some\folder is invalid.");
             }
         }
 
@@ -434,7 +434,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = path;
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage(@"The directory name \\server\share is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name \\server\share is invalid.");
             }
         }
 
@@ -493,7 +493,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = path;
 
                 // Assert
-                action.Should().Throw<ArgumentException>()
+                action.Should().ThrowExactly<ArgumentException>()
                     .WithMessage(@"The directory name \\server\share\MissingFolder is invalid.");
             }
         }
@@ -550,7 +550,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Action action = () => watcher.Path = "LPT1";
 
                 // Assert
-                action.Should().Throw<ArgumentException>().WithMessage(@"The directory name LPT1 is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name LPT1 is invalid.");
             }
         }
 

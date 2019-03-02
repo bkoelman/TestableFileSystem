@@ -59,7 +59,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.InFormat(null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.Labeled(null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.Build();
 
             // Assert
-            action.Should().Throw<ArgumentOutOfRangeException>().WithMessage("Volume capacity cannot be negative.*");
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Volume capacity cannot be negative.*");
         }
 
         [Fact]
@@ -101,7 +101,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.Build();
 
             // Assert
-            action.Should().Throw<ArgumentOutOfRangeException>()
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>()
                 .WithMessage("Available space cannot be negative or exceed volume capacity.*");
         }
 
@@ -117,7 +117,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.Build();
 
             // Assert
-            action.Should().Throw<ArgumentOutOfRangeException>()
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>()
                 .WithMessage("Available space cannot be negative or exceed volume capacity.*");
         }
     }

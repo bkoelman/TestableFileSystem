@@ -25,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => fileSystem.ConstructDirectoryInfo(null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => fileSystem.ConstructDirectoryInfo(string.Empty);
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => fileSystem.ConstructDirectoryInfo(" ");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => fileSystem.ConstructDirectoryInfo("::");
 
             // Assert
-            action.Should().Throw<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => fileSystem.ConstructDirectoryInfo("some?.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -547,20 +547,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Extension.Should().BeEmpty();
             dirInfo.FullName.Should().Be(path);
             dirInfo.Exists.Should().BeFalse();
-            ActionFactory.IgnoreReturnValue(() => dirInfo.Attributes).Should().Throw<IOException>()
+            ActionFactory.IgnoreReturnValue(() => dirInfo.Attributes).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
 
-            ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTime).Should().Throw<IOException>()
+            ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTime).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
-            ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTimeUtc).Should().Throw<IOException>()
+            ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTimeUtc).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
-            ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTime).Should().Throw<IOException>()
+            ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTime).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
-            ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTimeUtc).Should().Throw<IOException>()
+            ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTimeUtc).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
-            ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTime).Should().Throw<IOException>()
+            ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTime).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
-            ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTimeUtc).Should().Throw<IOException>()
+            ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTimeUtc).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
@@ -662,7 +662,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => fileSystem.ConstructDirectoryInfo("COM1");
 
             // Assert
-            action.Should().Throw<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

@@ -42,7 +42,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => fileSystem.ConstructFileSystemWatcher(null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => fileSystem.ConstructFileSystemWatcher(string.Empty, "*.txt");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The directory name  is invalid.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name  is invalid.");
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => fileSystem.ConstructFileSystemWatcher(" ");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The directory name   is invalid.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name   is invalid.");
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => fileSystem.ConstructFileSystemWatcher("::");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage("The directory name :: is invalid.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name :: is invalid.");
         }
 
         [Fact]
@@ -98,7 +98,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\SomeFolder?");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage(@"The directory name c:\SomeFolder? is invalid.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\SomeFolder? is invalid.");
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => fileSystem.ConstructFileSystemWatcher(@"e:\MissingFolder");
 
             // Assert
-            action.Should().Throw<ArgumentException>().WithMessage(@"The directory name e:\MissingFolder is invalid.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name e:\MissingFolder is invalid.");
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\", null);
 
             // Assert
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
