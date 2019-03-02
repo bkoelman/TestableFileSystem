@@ -57,10 +57,47 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_creating_network_share_it_must_succeed()
+        private void When_creating_network_share_with_hostname_it_must_succeed()
         {
             // Arrange
             const string path = @"\\teamserver\management";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+
+            // Assert
+            info.FullName.Should().Be(path);
+        }
+
+        [Fact]
+        private void When_creating_network_share_with_IPv4_address_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\192.168.0.1\management";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+
+            // Assert
+            info.FullName.Should().Be(path);
+        }
+
+        [Fact]
+        private void When_creating_network_share_with_escaped_IPv6_address_it_must_succeed()
+        {
+            // https://msdn.microsoft.com/en-us/library/aa385353.aspx
+            // The IPv6 literal format must be used so that the IPv6 address is parsed correctly. An IPv6 literal address is of the form:
+            // ipv6-address with the ':' characters replaced by '-' characters, followed by the ".ipv6-literal.net" string.
+
+            // Arrange
+            string address = "fe80::ddad:d5e:41a2:43e7%5".Replace(":", "-") + ".ipv6-literal.net";
+            string path = @"\\" + address + @"\management";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();

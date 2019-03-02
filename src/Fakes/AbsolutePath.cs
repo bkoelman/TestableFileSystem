@@ -426,8 +426,6 @@ namespace TestableFileSystem.Fakes
                         throw ErrorFactory.System.UncPathIsInvalid();
                     }
 
-                    // TODO: Add support for IPv4 and IPv6 network addresses for hostname.
-
                     AssertDirectoryNameOrFileNameIsValid(components[2]);
                     AssertDirectoryNameOrFileNameIsValid(components[3]);
 
