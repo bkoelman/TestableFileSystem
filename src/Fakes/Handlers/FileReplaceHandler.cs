@@ -23,38 +23,40 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileEntry destinationFile = ResolveExistingFile(arguments.DestinationPath);
 
-            DirectoryEntry beforeDestinationDirectory = destinationFile.Parent;
-            string beforeDestinationFileName = destinationFile.Name;
+            if (arguments.BackupDestinationPath != null)
+            {
+                TransferDestinationFileToBackupFile(destinationFile, arguments.BackupDestinationPath);
+            }
 
-            MoveDestinationFileToBackupFile(destinationFile, arguments.BackupDestinationPath);
-            MoveSourceFileToDestinationFile(sourceFile, beforeDestinationDirectory, beforeDestinationFileName);
+            TransferSourceContentsToDestinationFile(sourceFile, destinationFile);
 
             return Missing.Value;
         }
 
-        private void MoveDestinationFileToBackupFile([NotNull] FileEntry destinationFile, [CanBeNull] AbsolutePath backupPath)
+        private void TransferDestinationFileToBackupFile([NotNull] FileEntry destinationFile, [NotNull] AbsolutePath backupPath)
         {
-            DirectoryEntry beforeDestinationDirectory = destinationFile.Parent;
-            string beforeDestinationFileName = destinationFile.Name;
+            DirectoryEntry backupDirectory = ResolveBackupDirectory(backupPath);
+            string backupFileName = backupPath.Components.Last();
 
-            if (backupPath != null)
+            FileEntry backupFile;
+
+            if (backupDirectory.ContainsFile(backupFileName))
             {
-                DirectoryEntry backupDirectory = ResolveBackupDirectory(backupPath);
-                string backupFileName = backupPath.Components.Last();
-
-                DeleteBackupFile(backupDirectory, backupFileName);
-
-                backupDirectory.MoveFileToHere(destinationFile, backupFileName);
+                backupFile = backupDirectory.GetFile(backupFileName);
+                AssertBackupFileIsNotReadOnly(backupFile);
+            }
+            else
+            {
+                backupFile = backupDirectory.CreateFile(backupFileName);
             }
 
-            beforeDestinationDirectory.DeleteFile(beforeDestinationFileName);
+            backupFile.TransferFrom(destinationFile);
         }
 
-        private void MoveSourceFileToDestinationFile([NotNull] FileEntry sourceFile,
-            [NotNull] DirectoryEntry destinationDirectory, [NotNull] string destinationFileName)
+        private void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile, [NotNull] FileEntry destinationFile)
         {
+            destinationFile.TransferContentsFrom(sourceFile);
             sourceFile.Parent.DeleteFile(sourceFile.Name);
-            destinationDirectory.MoveFileToHere(sourceFile, destinationFileName);
         }
 
         [NotNull]
@@ -109,22 +111,9 @@ namespace TestableFileSystem.Fakes.Handlers
             return backupDirectory;
         }
 
-        private static void DeleteBackupFile([NotNull] DirectoryEntry backupDirectory, [NotNull] string backupFileName)
-        {
-            if (backupDirectory.ContainsFile(backupFileName))
-            {
-                AssertBackupFileIsNotReadOnly(backupDirectory, backupFileName);
-
-                backupDirectory.DeleteFile(backupFileName);
-            }
-        }
-
         [AssertionMethod]
-        private static void AssertBackupFileIsNotReadOnly([NotNull] DirectoryEntry backupDirectory,
-            [NotNull] string backupFileName)
+        private static void AssertBackupFileIsNotReadOnly([NotNull] FileEntry backupFile)
         {
-            FileEntry backupFile = backupDirectory.GetFile(backupFileName);
-
             if (backupFile.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
                 throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();

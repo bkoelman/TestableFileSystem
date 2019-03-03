@@ -112,6 +112,18 @@ namespace TestableFileSystem.Fakes
             encryptorAccountName = null;
         }
 
+        protected void CopyPropertiesFrom([NotNull] BaseEntry otherEntry)
+        {
+            Guard.NotNull(otherEntry, nameof(otherEntry));
+
+            encryptorAccountName = otherEntry.encryptorAccountName;
+            innerAttributes = otherEntry.innerAttributes;
+
+            creationTimeStampUtc = otherEntry.creationTimeStampUtc;
+            lastWriteTimeStampUtc = otherEntry.lastWriteTimeStampUtc;
+            lastAccessTimeStampUtc = otherEntry.lastAccessTimeStampUtc;
+        }
+
         protected abstract FileAttributes FilterAttributes(FileAttributes attributes);
     }
 }

@@ -728,7 +728,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_replacing_file_with_hidden_source_it_must_succeed()
         {
             // Arrange
@@ -755,7 +755,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Hidden);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_replacing_file_with_hidden_destination_it_must_succeed()
         {
             // Arrange
@@ -782,7 +782,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(backupPath).Should().HaveFlag(FileAttributes.Hidden);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         private void When_replacing_file_with_hidden_backup_it_must_succeed()
         {
             // Arrange

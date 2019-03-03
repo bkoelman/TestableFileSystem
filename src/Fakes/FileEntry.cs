@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        private readonly List<byte[]> blocks = new List<byte[]>();
+        private List<byte[]> blocks = new List<byte[]>();
 
         public long Size { get; private set; }
 
@@ -676,6 +676,22 @@ namespace TestableFileSystem.Fakes
                     return Position + Length > position && position + length > Position;
                 }
             }
+        }
+
+        public void TransferContentsFrom([NotNull] FileEntry otherFile)
+        {
+            Guard.NotNull(otherFile, nameof(otherFile));
+
+            blocks = otherFile.blocks;
+            Size = otherFile.Size;
+        }
+
+        public void TransferFrom([NotNull] FileEntry otherFile)
+        {
+            Guard.NotNull(otherFile, nameof(otherFile));
+
+            TransferContentsFrom(otherFile);
+            CopyPropertiesFrom(otherFile);
         }
     }
 }
