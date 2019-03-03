@@ -54,7 +54,8 @@ namespace TestableFileSystem.Fakes.Handlers
             backupFile.TransferFrom(destinationFile);
         }
 
-        private static void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile, [NotNull] FileEntry destinationFile)
+        private static void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile,
+            [NotNull] FileEntry destinationFile)
         {
             destinationFile.TransferContentsFrom(sourceFile);
             sourceFile.Parent.DeleteFile(sourceFile.Name);
@@ -75,6 +76,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             AssertFileIsNotReadOnly(file);
             AssertHasExclusiveAccess(file);
+            AssertIsNotExternallyEncrypted(file);
 
             return file;
         }
@@ -93,6 +95,15 @@ namespace TestableFileSystem.Fakes.Handlers
             if (file.IsOpen())
             {
                 throw ErrorFactory.System.FileIsInUse();
+            }
+        }
+
+        [AssertionMethod]
+        private static void AssertIsNotExternallyEncrypted([NotNull] FileEntry file)
+        {
+            if (file.IsExternallyEncrypted)
+            {
+                throw ErrorFactory.System.UnauthorizedAccess();
             }
         }
 

@@ -11,8 +11,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileCryptoSpecs
     {
-        // TODO: Add specs for File.Replace.
-
         #region Multi-user operations on files
 
         [Fact]
@@ -411,6 +409,122 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             fileSystem.File.Exists(targetPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_replacing_file_with_source_that_was_encrypted_by_other_user_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\folder\source.txt";
+            const string targetPath = @"c:\folder\target.txt";
+            const string backupPath = @"c:\folder\backup.txt";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            fileSystem.File.Encrypt(sourcePath);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+                // Assert
+                action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path is denied.");
+            });
+        }
+
+        [Fact]
+        private void When_replacing_file_with_destination_that_was_encrypted_by_other_user_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"c:\folder\source.txt";
+            const string targetPath = @"c:\folder\target.txt";
+            const string backupPath = @"c:\folder\backup.txt";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            fileSystem.File.Encrypt(targetPath);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+                // Assert
+                action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(@"Access to the path is denied.");
+            });
+        }
+
+        [Fact]
+        private void When_replacing_file_with_backup_that_was_encrypted_by_other_user_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\folder\source.txt";
+            const string targetPath = @"c:\folder\target.txt";
+            const string backupPath = @"c:\folder\backup.txt";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            fileSystem.File.Encrypt(backupPath);
+
+            userAccount.RunImpersonated("SecondaryUser", () =>
+            {
+                // Act
+                fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+                // Assert
+                fileSystem.File.Exists(sourcePath).Should().BeFalse();
+                fileSystem.File.Exists(targetPath).Should().BeTrue();
+                fileSystem.File.Exists(backupPath).Should().BeTrue();
+                fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Encrypted);
+            });
+        }
+
+        [Fact]
+        private void When_replacing_file_that_was_encrypted_by_self_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\folder\source.txt";
+            const string targetPath = @"c:\folder\target.txt";
+            const string backupPath = @"c:\folder\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            fileSystem.File.Encrypt(sourcePath);
+            fileSystem.File.Encrypt(targetPath);
+            fileSystem.File.Encrypt(backupPath);
+
+            // Act
+            fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+            fileSystem.File.GetAttributes(targetPath).Should().HaveFlag(FileAttributes.Encrypted);
+            fileSystem.File.Exists(backupPath).Should().BeTrue();
+            fileSystem.File.GetAttributes(backupPath).Should().HaveFlag(FileAttributes.Encrypted);
         }
 
         [Fact]
@@ -925,6 +1039,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(targetPath).Should().BeTrue();
             fileSystem.File.GetAttributes(targetPath).Should().HaveFlag(FileAttributes.Encrypted);
             fileSystem.File.ReadAllText(targetPath).Should().NotBeEmpty();
+        }
+
+        [Fact]
+        private void When_replacing_file_in_directory_that_was_encrypted_by_other_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"c:\folder\source.txt";
+            const string targetPath = @"c:\folder\target.txt";
+            const string backupPath = @"c:\folder\backup.txt";
+
+            var userAccount = new FakeLoggedOnUserAccount("PrimaryUser");
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(userAccount)
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            userAccount.RunImpersonated("SecondaryUser", () => { fileSystem.File.Encrypt(@"c:\folder"); });
+
+            // Act
+            fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+            fileSystem.File.GetAttributes(targetPath).Should().NotHaveFlag(FileAttributes.Encrypted);
+            fileSystem.File.Exists(backupPath).Should().BeTrue();
+            fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Encrypted);
         }
 
         [Fact]
