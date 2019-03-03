@@ -809,7 +809,80 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Hidden);
         }
 
-        // TODO: Files that are in use
+        [Fact]
+        private void When_replacing_file_with_open_source_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            using (fileSystem.File.OpenRead(sourcePath))
+            {
+                // Act
+                Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "The process cannot access the file because it is being used by another process.");
+            }
+        }
+
+        [Fact]
+        private void When_replacing_file_with_open_destination_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            using (fileSystem.File.OpenRead(targetPath))
+            {
+                // Act
+                Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "The process cannot access the file because it is being used by another process.");
+            }
+        }
+
+        [Fact]
+        private void When_replacing_file_with_open_backup_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingTextFile(backupPath, "BackupText")
+                .Build();
+
+            using (fileSystem.File.OpenRead(backupPath))
+            {
+                // Act
+                Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
+            }
+        }
+
         // TODO: UNC paths
         // TODO: Reserved names
         // TODO: Extended paths

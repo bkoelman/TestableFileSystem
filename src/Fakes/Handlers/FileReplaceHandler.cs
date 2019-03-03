@@ -44,6 +44,7 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 backupFile = backupDirectory.GetFile(backupFileName);
                 AssertBackupFileIsNotReadOnly(backupFile);
+                AssertHasExclusiveAccessToBackupFile(backupFile);
             }
             else
             {
@@ -53,7 +54,7 @@ namespace TestableFileSystem.Fakes.Handlers
             backupFile.TransferFrom(destinationFile);
         }
 
-        private void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile, [NotNull] FileEntry destinationFile)
+        private static void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile, [NotNull] FileEntry destinationFile)
         {
             destinationFile.TransferContentsFrom(sourceFile);
             sourceFile.Parent.DeleteFile(sourceFile.Name);
@@ -70,9 +71,10 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
                 ErrorPathIsVolumeRoot = _ => ErrorFactory.System.UnauthorizedAccess()
             };
-
             FileEntry file = resolver.ResolveExistingFile(sourcePath);
+
             AssertFileIsNotReadOnly(file);
+            AssertHasExclusiveAccess(file);
 
             return file;
         }
@@ -83,6 +85,14 @@ namespace TestableFileSystem.Fakes.Handlers
             if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
                 throw ErrorFactory.System.UnauthorizedAccess();
+            }
+        }
+
+        private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
+        {
+            if (file.IsOpen())
+            {
+                throw ErrorFactory.System.FileIsInUse();
             }
         }
 
@@ -120,6 +130,14 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
+        private static void AssertHasExclusiveAccessToBackupFile([NotNull] FileEntry backupFile)
+        {
+            if (backupFile.IsOpen())
+            {
+                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
+            }
+        }
+
         private static void AssertNoDuplicatePaths([NotNull] FileReplaceArguments arguments)
         {
             if (AbsolutePath.AreEquivalent(arguments.SourcePath, arguments.DestinationPath))
@@ -138,7 +156,7 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        private void AssertAllOnSameDrive([NotNull] FileReplaceArguments arguments)
+        private static void AssertAllOnSameDrive([NotNull] FileReplaceArguments arguments)
         {
             if (arguments.BackupDestinationPath != null &&
                 !arguments.DestinationPath.IsOnSameVolume(arguments.BackupDestinationPath))
