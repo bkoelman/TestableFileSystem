@@ -95,8 +95,8 @@ namespace TestableFileSystem.Fakes
 
         public IFileInfo Replace(string destinationFileName, string destinationBackupFileName, bool ignoreMetadataErrors = false)
         {
-            // TODO: Implement file replace.
-            throw new NotImplementedException();
+            Owner.File.Replace(FullName, destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
+            return Owner.ConstructFileInfo(destinationFileName);
         }
 #endif
 
