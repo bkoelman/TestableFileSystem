@@ -7,6 +7,8 @@ namespace TestableFileSystem.Analyzer
 {
     internal sealed class ExternMemberHeuristic
     {
+        // TODO: Add heuristic to not report on overloads with ReadOnlySpan<char> arguments from NetCore21.
+
         [CanBeNull]
         private readonly INamedTypeSymbol streamType;
 

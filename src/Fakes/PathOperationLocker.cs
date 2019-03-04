@@ -17,6 +17,11 @@ namespace TestableFileSystem.Fakes
             this.target = target;
         }
 
+        public string GetFullPath(string path)
+        {
+            return ExecuteInLock(() => target.GetFullPath(path));
+        }
+
         public string GetTempPath()
         {
             return ExecuteInLock(() => target.GetTempPath());

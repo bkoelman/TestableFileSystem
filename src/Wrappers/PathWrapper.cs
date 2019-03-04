@@ -5,6 +5,11 @@ namespace TestableFileSystem.Wrappers
 {
     internal sealed class PathWrapper : IPath
     {
+        public string GetFullPath(string path)
+        {
+            return Path.GetFullPath(path);
+        }
+
         public string GetTempPath()
         {
             return Path.GetTempPath();

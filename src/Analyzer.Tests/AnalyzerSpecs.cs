@@ -17,7 +17,7 @@ namespace TestableFileSystem.Analyzer.Tests
             ParsedSourceCode source = new BlockSourceCodeBuilder()
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
-                    var stream = File.Create(null);
+                    var stream = File.Create(string.Empty);
                 ")
                 .Build();
 
@@ -29,13 +29,44 @@ namespace TestableFileSystem.Analyzer.Tests
         private void When_invoking_non_fakeable_static_member_it_must_be_skipped()
         {
             // Arrange
-            ParsedSourceCode source = new BlockSourceCodeBuilder()
+            ParsedSourceCode source = new TypeSourceCodeBuilder()
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
-                .InDefaultMethod(@"
-                    File.GetAccessControl(null);
-                    Directory.GetAccessControl(null);
-                    Path.GetExtension(null);
+                .InGlobalScope(
+#if NET452 || NET472
+                    @"
+                        namespace System.IO
+                        {
+                            public static class Path
+                            {
+                                // This overload was added to NetCore21. It never uses the current directory.
+                                public static string GetFullPath (string path, string basePath)
+                                {
+                                    throw null;
+                                }
+
+                                public static string GetExtension (string path)
+                                {
+                                    throw null;
+                                }
+                            }
+                        }
+                    " +
+#endif
+                    @"
+                        namespace TestNamespace
+                        {
+                            public class TestClass
+                            {
+                                public void TestMethod()
+                                {
+                                    File.GetAccessControl(string.Empty);
+                                    Directory.GetAccessControl(string.Empty);
+                                    Path.GetFullPath(string.Empty, string.Empty);
+                                    Path.GetExtension(string.Empty);
+                                }
+                            }
+                        }
                 ")
                 .Build();
 
@@ -51,9 +82,10 @@ namespace TestableFileSystem.Analyzer.Tests
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
-                    var stream = File.[|Create|](null);
-                    var files = Directory.[|GetFiles|](null);
-                    var path = Path.[|GetTempPath|]();
+                    var stream = File.[|Create|](string.Empty);
+                    var files = Directory.[|GetFiles|](string.Empty);
+                    var path1 = Path.[|GetFullPath|](string.Empty);
+                    var path2 = Path.[|GetTempPath|]();
                     var fileName = Path.[|GetTempFileName|]();
                 ")
                 .Build();
@@ -62,6 +94,7 @@ namespace TestableFileSystem.Analyzer.Tests
             VerifyFileSystemDiagnostic(source,
                 "Usage of 'System.IO.File.Create' should be replaced by 'TestableFileSystem.Interfaces.IFile.Create'.",
                 "Usage of 'System.IO.Directory.GetFiles' should be replaced by 'TestableFileSystem.Interfaces.IDirectory.GetFiles'.",
+                "Usage of 'System.IO.Path.GetFullPath' should be replaced by 'TestableFileSystem.Interfaces.IPath.GetFullPath'.",
                 "Usage of 'System.IO.Path.GetTempPath' should be replaced by 'TestableFileSystem.Interfaces.IPath.GetTempPath'.",
                 "Usage of 'System.IO.Path.GetTempFileName' should be replaced by 'TestableFileSystem.Interfaces.IPath.GetTempFileName'.");
         }
@@ -197,11 +230,11 @@ namespace TestableFileSystem.Analyzer.Tests
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
-                    var fileInfo = new [|FileInfo|](null);
-                    var directoryInfo = new [|DirectoryInfo|](null);
-                    var driveInfo = new [|DriveInfo|](null);
-                    var stream = new [|FileStream|](null, FileMode.Create);
-                    var watcher = new [|FileSystemWatcher|](null);
+                    var fileInfo = new [|FileInfo|](string.Empty);
+                    var directoryInfo = new [|DirectoryInfo|](string.Empty);
+                    var driveInfo = new [|DriveInfo|](string.Empty);
+                    var stream = new [|FileStream|](string.Empty, FileMode.Create);
+                    var watcher = new [|FileSystemWatcher|](string.Empty);
                 ")
                 .Build();
 
@@ -440,7 +473,7 @@ namespace TestableFileSystem.Analyzer.Tests
                 .WithReference(typeof(IFileSystem).Assembly)
                 .Using(typeof(File).Namespace)
                 .InDefaultMethod(@"
-                    var stream1 = File.[|OpenRead|](null);
+                    var stream1 = File.[|OpenRead|](string.Empty);
 
                     FileInfo info = null;
                     var stream2 = info.[|OpenRead|]();

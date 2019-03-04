@@ -35,6 +35,14 @@ namespace TestableFileSystem.Fakes
             return new Random(seed);
         }
 
+        public string GetFullPath(string path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = owner.ToAbsolutePath(path);
+            return absolutePath.GetText();
+        }
+
         public string GetTempPath()
         {
             return owner.TempDirectory;

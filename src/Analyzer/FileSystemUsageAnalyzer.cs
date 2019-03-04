@@ -76,7 +76,7 @@ namespace TestableFileSystem.Analyzer
             var memberAccessSyntax = (MemberAccessExpressionSyntax)context.Node;
 
             ISymbol symbol = context.SemanticModel.GetSymbolInfo(memberAccessSyntax).Symbol;
-            if (symbol == null)
+            if (symbol == null || symbol.ToDisplayString() == "System.IO.Path.GetFullPath(string, string)")
             {
                 return;
             }
