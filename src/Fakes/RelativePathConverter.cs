@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Utilities;
@@ -75,7 +76,7 @@ namespace TestableFileSystem.Fakes
 
         private static bool IsAbsolutePathWithoutVolumeRoot([NotNull] string path)
         {
-            if (PathFacts.DirectorySeparatorChars.Contains(path[0]))
+            if (path.Length > 0 && PathFacts.DirectorySeparatorChars.Contains(path[0]))
             {
                 return path.Length == 1 || !PathFacts.DirectorySeparatorChars.Contains(path[1]);
             }
@@ -91,17 +92,18 @@ namespace TestableFileSystem.Fakes
                 return path;
             }
 
-            char pathDriveLetter = path[0];
-            char currentDriveLetter = currentVolumeRoot[0];
+            string pathDriveLetter = path[0].ToString();
+            string currentDriveLetter = currentVolumeRoot[0].ToString();
 
-            return pathDriveLetter == currentDriveLetter
+            return string.Equals(pathDriveLetter, currentDriveLetter, StringComparison.OrdinalIgnoreCase)
                 ? path.Substring(2)
-                : path.Substring(0, 2) + Path.DirectorySeparatorChar + path.Substring(2);
+                : path.Substring(0, 2).ToUpperInvariant() + Path.DirectorySeparatorChar + path.Substring(2);
         }
 
         private static bool IsPathWithRelativeDriveReference([NotNull] string path)
         {
-            return path.Length >= 3 && path[1] == ':' && !IsPathSeparator(path[2]);
+            bool hasVolumeSeparator = path.Length >= 2 && path[1] == Path.VolumeSeparatorChar;
+            return path.Length >= 3 ? hasVolumeSeparator && !IsPathSeparator(path[2]) : hasVolumeSeparator;
         }
 
         private static bool IsPathSeparator(char ch)

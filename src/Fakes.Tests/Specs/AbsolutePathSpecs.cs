@@ -110,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_creating_only_server_part_of_network_share_it_must_fail()
+        private void When_creating_network_host_without_share_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -370,7 +370,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_using_trailing_dot_it_must_trim()
         {
             // Arrange
-
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 

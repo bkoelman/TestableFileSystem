@@ -264,7 +264,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         }
 
         [Fact]
-        private void When_including_only_server_part_of_network_share_it_must_fail()
+        private void When_including_network_host_without_share_it_must_fail()
         {
             // Arrange
             var builder = new FakeFileSystemBuilder();

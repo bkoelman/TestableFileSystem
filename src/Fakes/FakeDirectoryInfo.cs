@@ -116,7 +116,7 @@ namespace TestableFileSystem.Fakes
 
         private static void AssertPathIsRelative([NotNull] string path)
         {
-            if (PathFacts.DirectorySeparatorChars.Contains(path[0]) || path.Contains(":"))
+            if (PathFacts.DirectorySeparatorChars.Contains(path[0]) || path.Contains(Path.VolumeSeparatorChar))
             {
                 throw ErrorFactory.System.PathFragmentMustNotBeDriveOrUncName(nameof(path));
             }
