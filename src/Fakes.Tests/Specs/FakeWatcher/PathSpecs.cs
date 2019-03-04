@@ -73,7 +73,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_setting_path_to_invalid_path_it_must_fail()
+        private void When_setting_path_to_invalid_drive_it_must_fail()
         {
             // Arrange
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -83,15 +83,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             {
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = "::";
+                Action action = () => watcher.Path = "_:";
 
                 // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name :: is invalid.");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name _: is invalid.");
             }
         }
 
         [Fact]
-        private void When_setting_path_to_invalid_characters_it_must_fail()
+        private void When_setting_path_to_wildcard_characters_it_must_fail()
         {
             // Arrange
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()

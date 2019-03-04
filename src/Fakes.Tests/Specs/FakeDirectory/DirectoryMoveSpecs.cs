@@ -96,35 +96,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_moving_directory_for_invalid_root_source_it_must_fail()
+        private void When_moving_directory_for_invalid_drive_source_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.Move("::", @"c:\newdir");
+            Action action = () => fileSystem.Directory.Move("_:", @"c:\newdir");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_moving_directory_for_invalid_root_destination_it_must_fail()
+        private void When_moving_directory_for_invalid_drive_destination_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.Move(@"c:\missing", "::");
+            Action action = () => fileSystem.Directory.Move(@"c:\missing", "_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_moving_directory_for_invalid_characters_in_source_it_must_fail()
+        private void When_moving_directory_for_wildcard_characters_in_source_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -138,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_moving_directory_for_invalid_characters_in_destination_it_must_fail()
+        private void When_moving_directory_for_wildcard_characters_in_destination_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

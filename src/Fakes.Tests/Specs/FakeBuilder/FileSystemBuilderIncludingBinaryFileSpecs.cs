@@ -85,20 +85,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         }
 
         [Fact]
-        private void When_including_binary_file_for_invalid_root_path_it_must_fail()
+        private void When_including_binary_file_for_invalid_drive_path_it_must_fail()
         {
             // Arrange
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingBinaryFile("::", DefaultContents);
+            Action action = () => builder.IncludingBinaryFile("_:", DefaultContents);
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_including_binary_file_for_invalid_characters_in_path_it_must_fail()
+        private void When_including_binary_file_for_wildcard_characters_in_path_it_must_fail()
         {
             // Arrange
             var builder = new FakeFileSystemBuilder();

@@ -55,7 +55,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
         [InlineData(@"\\?\c")]
         [InlineData(@"\\?\c:")]
         [InlineData(@"\\?\c:\")]
-        private void When_constructing_drive_info_for_invalid_value_it_must_fail([NotNull] string driveName)
+        private void When_constructing_drive_info_for_invalid_name_it_must_fail([NotNull] string driveName)
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

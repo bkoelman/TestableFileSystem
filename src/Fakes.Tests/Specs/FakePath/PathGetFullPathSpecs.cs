@@ -6,8 +6,6 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
 {
-    // TODO: Rename test methods: _invalid_characters_ to: _wildcard_characters_
-
     public sealed class PathGetFullPathSpecs
     {
         [Fact]
@@ -54,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
         }
 
         [Fact]
-        private void When_getting_full_path_for_invalid_root_it_must_fail()
+        private void When_getting_full_path_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -68,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
         }
 
         [Fact]
-        private void When_getting_full_path_for_invalid_characters_it_must_fail()
+        private void When_getting_full_path_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

@@ -102,35 +102,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_creation_time_in_local_zone_for_invalid_root_it_must_fail()
+        private void When_getting_creation_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetCreationTime("::");
+            Action action = () => fileSystem.Directory.GetCreationTime("_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_setting_creation_time_in_local_zone_for_invalid_root_it_must_fail()
+        private void When_setting_creation_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.SetCreationTime("::", DefaultTime);
+            Action action = () => fileSystem.Directory.SetCreationTime("_:", DefaultTime);
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_getting_creation_time_in_local_zone_for_invalid_characters_it_must_fail()
+        private void When_getting_creation_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -144,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_setting_creation_time_in_local_zone_for_invalid_characters_it_must_fail()
+        private void When_setting_creation_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

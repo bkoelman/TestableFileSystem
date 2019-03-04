@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
         }
 
         [Fact]
-        private void When_creating_subdirectory_for_invalid_root_it_must_fail()
+        private void When_creating_subdirectory_for_invalid_drive_it_must_fail()
         {
             // Arrange
             const string path = @"d:\some";
@@ -80,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
             // Act
-            Action action = () => dirInfo.CreateSubdirectory("::");
+            Action action = () => dirInfo.CreateSubdirectory("_:");
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(
@@ -88,7 +88,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
         }
 
         [Fact]
-        private void When_creating_subdirectory_for_invalid_characters_it_must_fail()
+        private void When_creating_subdirectory_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             const string path = @"d:\some";

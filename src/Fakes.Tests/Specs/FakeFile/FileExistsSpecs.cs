@@ -50,21 +50,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_file_existence_for_invalid_root_it_must_succeed()
+        private void When_getting_file_existence_for_invalid_drive_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            bool found = fileSystem.File.Exists("::");
+            bool found = fileSystem.File.Exists("_:");
 
             // Assert
             found.Should().BeFalse();
         }
 
         [Fact]
-        private void When_getting_file_existence_for_invalid_characters_it_must_succeed()
+        private void When_getting_file_existence_for_wildcard_characters_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

@@ -96,35 +96,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_attributes_for_invalid_root_it_must_fail()
+        private void When_getting_attributes_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.GetAttributes("::");
+            Action action = () => fileSystem.File.GetAttributes("_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_setting_attributes_for_invalid_root_it_must_fail()
+        private void When_setting_attributes_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.SetAttributes("::", FileAttributes.Archive);
+            Action action = () => fileSystem.File.SetAttributes("_:", FileAttributes.Archive);
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_getting_atributes_for_invalid_characters_it_must_fail()
+        private void When_getting_atributes_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -138,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_atributes_for_invalid_characters_it_must_fail()
+        private void When_setting_atributes_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

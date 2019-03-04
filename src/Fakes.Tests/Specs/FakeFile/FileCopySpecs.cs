@@ -97,35 +97,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_copying_file_for_invalid_source_root_it_must_fail()
+        private void When_copying_file_for_invalid_drive_source_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Copy("::", @"c:\destination.txt");
+            Action action = () => fileSystem.File.Copy("_:", @"c:\destination.txt");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_copying_file_for_invalid_destination_root_it_must_fail()
+        private void When_copying_file_for_invalid_drive_destination_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Copy(@"c:\source.txt", "::");
+            Action action = () => fileSystem.File.Copy(@"c:\source.txt", "_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_copying_file_for_invalid_characters_in_source_it_must_fail()
+        private void When_copying_file_for_wildcard_characters_in_source_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -139,7 +139,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_copying_file_for_invalid_characters_in_destination_it_must_fail()
+        private void When_copying_file_for_wildcard_characters_in_destination_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

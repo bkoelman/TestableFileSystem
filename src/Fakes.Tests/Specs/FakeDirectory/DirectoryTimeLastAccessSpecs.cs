@@ -102,35 +102,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_last_access_time_in_local_zone_for_invalid_root_it_must_fail()
+        private void When_getting_last_access_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetLastAccessTime("::");
+            Action action = () => fileSystem.Directory.GetLastAccessTime("_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_setting_last_access_time_in_local_zone_for_invalid_root_it_must_fail()
+        private void When_setting_last_access_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.SetLastAccessTime("::", DefaultTime);
+            Action action = () => fileSystem.Directory.SetLastAccessTime("_:", DefaultTime);
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_getting_last_access_time_in_local_zone_for_invalid_characters_it_must_fail()
+        private void When_getting_last_access_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -144,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_setting_last_access_time_in_local_zone_for_invalid_characters_it_must_fail()
+        private void When_setting_last_access_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

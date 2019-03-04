@@ -58,21 +58,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         }
 
         [Fact]
-        private void When_constructing_file_info_for_invalid_root_it_must_fail()
+        private void When_constructing_file_info_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.ConstructFileInfo("::");
+            Action action = () => fileSystem.ConstructFileInfo("_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_constructing_file_info_for_invalid_characters_it_must_fail()
+        private void When_constructing_file_info_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

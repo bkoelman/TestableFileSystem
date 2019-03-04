@@ -101,35 +101,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_getting_creation_time_in_UTC_for_invalid_root_it_must_fail()
+        private void When_getting_creation_time_in_UTC_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.GetCreationTimeUtc("::");
+            Action action = () => fileSystem.File.GetCreationTimeUtc("_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_setting_creation_time_in_UTC_for_invalid_root_it_must_fail()
+        private void When_setting_creation_time_in_UTC_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.SetCreationTimeUtc("::", DefaultTimeUtc);
+            Action action = () => fileSystem.File.SetCreationTimeUtc("_:", DefaultTimeUtc);
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_getting_creation_time_in_UTC_for_invalid_characters_it_must_fail()
+        private void When_getting_creation_time_in_UTC_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -143,7 +143,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_setting_creation_time_in_UTC_for_invalid_characters_it_must_fail()
+        private void When_setting_creation_time_in_UTC_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

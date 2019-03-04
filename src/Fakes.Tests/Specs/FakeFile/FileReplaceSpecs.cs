@@ -98,7 +98,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_replacing_file_with_invalid_source_root_it_must_fail()
+        private void When_replacing_file_with_invalid_drive_source_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -112,7 +112,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_replacing_file_with_invalid_destination_root_it_must_fail()
+        private void When_replacing_file_with_invalid_drive_destination_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -126,7 +126,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_replacing_file_with_invalid_characters_in_source_it_must_fail()
+        private void When_replacing_file_with_wildcard_characters_in_source_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -140,7 +140,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_replacing_file_with_invalid_characters_in_destination_it_must_fail()
+        private void When_replacing_file_with_wildcard_characters_in_destination_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

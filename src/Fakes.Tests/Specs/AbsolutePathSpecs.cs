@@ -156,7 +156,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_network_share_has_invalid_name_it_must_fail()
+        private void When_network_share_has_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -170,7 +170,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_directory_has_invalid_name_it_must_fail()
+        private void When_directory_has_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

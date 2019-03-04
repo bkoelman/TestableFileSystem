@@ -53,21 +53,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_setting_current_directory_to_invalid_root_it_must_fail()
+        private void When_setting_current_directory_to_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.SetCurrentDirectory("::");
+            Action action = () => fileSystem.Directory.SetCurrentDirectory("_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_setting_current_directory_to_invalid_characters_it_must_fail()
+        private void When_setting_current_directory_to_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

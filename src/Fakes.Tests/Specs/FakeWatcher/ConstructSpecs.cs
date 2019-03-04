@@ -74,21 +74,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_constructing_watcher_for_invalid_path_it_must_fail()
+        private void When_constructing_watcher_for_invalid_drive_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.ConstructFileSystemWatcher("::");
+            Action action = () => fileSystem.ConstructFileSystemWatcher("_:");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name :: is invalid.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name _: is invalid.");
         }
 
         [Fact]
-        private void When_constructing_watcher_for_invalid_characters_in_path_it_must_fail()
+        private void When_constructing_watcher_for_wildcard_characters_in_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -167,13 +167,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         }
 
         [Fact]
-        private void When_constructing_watcher_for_invalid_filter_it_must_succeed()
+        private void When_constructing_watcher_for_invalid_drive_filter_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
-            const string filter = "::";
+            const string filter = "_:";
 
             // Act
             using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(@"c:\", filter))

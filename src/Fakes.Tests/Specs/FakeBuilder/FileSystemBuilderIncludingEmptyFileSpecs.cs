@@ -50,20 +50,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         }
 
         [Fact]
-        private void When_including_empty_file_for_invalid_root_it_must_fail()
+        private void When_including_empty_file_for_invalid_drive_it_must_fail()
         {
             // Arrange
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingEmptyFile("::");
+            Action action = () => builder.IncludingEmptyFile("_:");
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_including_empty_file_for_invalid_characters_it_must_fail()
+        private void When_including_empty_file_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             var builder = new FakeFileSystemBuilder();
