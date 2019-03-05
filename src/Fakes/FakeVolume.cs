@@ -42,12 +42,12 @@ namespace TestableFileSystem.Fakes
 
         private static void AssertNotNegativeAndInRange(long capacityInBytes, long freeSpaceInBytes)
         {
-            if (capacityInBytes < 0)
+            if (capacityInBytes < 0L)
             {
                 throw new ArgumentOutOfRangeException(nameof(capacityInBytes), "Volume capacity cannot be negative.");
             }
 
-            if (freeSpaceInBytes < 0 || freeSpaceInBytes > capacityInBytes)
+            if (freeSpaceInBytes < 0L || freeSpaceInBytes > capacityInBytes)
             {
                 throw new ArgumentOutOfRangeException(nameof(freeSpaceInBytes),
                     "Available space cannot be negative or exceed volume capacity.");

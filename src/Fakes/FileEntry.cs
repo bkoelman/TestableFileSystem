@@ -24,20 +24,20 @@ namespace TestableFileSystem.Fakes
 
         public long Size { get; private set; }
 
+        private bool deleteOnClose;
+
         [CanBeNull]
         private FakeFileStream activeWriter;
-
-        private bool deleteOnClose;
 
         [NotNull]
         [ItemNotNull]
         private readonly IList<FakeFileStream> activeReaders = new List<FakeFileStream>();
 
         [NotNull]
-        private readonly LockTracker lockTracker;
+        private readonly object readerWriterLock = new object();
 
         [NotNull]
-        private readonly object readerWriterLock = new object();
+        private readonly LockTracker lockTracker;
 
         internal override IPathFormatter PathFormatter { get; }
 
@@ -349,7 +349,7 @@ namespace TestableFileSystem.Fakes
             public override void SetLength(long value)
             {
                 AssertNotClosed();
-                AssertIsWriteable();
+                AssertIsWritable();
 
                 if (value == Length)
                 {
@@ -410,7 +410,7 @@ namespace TestableFileSystem.Fakes
             public override void Write(byte[] buffer, int offset, int count)
             {
                 AssertNotClosed();
-                AssertIsWriteable();
+                AssertIsWritable();
 
                 var segment = new ArraySegment<byte>(buffer, offset, count);
                 if (segment.Count == 0)
@@ -503,7 +503,7 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            private void AssertIsWriteable()
+            private void AssertIsWritable()
             {
                 if (!CanWrite)
                 {
@@ -561,25 +561,9 @@ namespace TestableFileSystem.Fakes
 
             public AbsolutePath GetPath()
             {
-                string text = GetText();
-                return new AbsolutePath(text);
-            }
-
-            [NotNull]
-            private string GetText()
-            {
-                var componentStack = new Stack<string>();
-                componentStack.Push(fileEntry.Name);
-
-                DirectoryEntry directory = fileEntry.Parent;
-                while (directory.Parent != null)
-                {
-                    componentStack.Push(directory.Name);
-
-                    directory = directory.Parent;
-                }
-
-                return string.Join("\\", componentStack);
+                AbsolutePath parentDirectoryPath = fileEntry.Parent.PathFormatter.GetPath();
+                AbsolutePath filePath = parentDirectoryPath.Append(fileEntry.Name);
+                return filePath;
             }
         }
 

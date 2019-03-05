@@ -43,9 +43,11 @@ namespace TestableFileSystem.Fakes
             : base(name, AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory, changeTracker,
                 loggedOnAccount)
         {
+            Guard.NotNull(systemClock, nameof(systemClock));
+
             Parent = parent;
-            PathFormatter = new DirectoryEntryPathFormatter(this);
             SystemClock = systemClock;
+            PathFormatter = new DirectoryEntryPathFormatter(this);
 
             if (parent?.IsEncrypted == true)
             {
@@ -294,11 +296,10 @@ namespace TestableFileSystem.Fakes
                 while (directory.Parent != null)
                 {
                     componentStack.Push(directory.Name);
-
                     directory = directory.Parent;
                 }
 
-                return string.Join("\\", componentStack);
+                return string.Join(PathFacts.PrimaryDirectorySeparatorString, componentStack);
             }
         }
     }

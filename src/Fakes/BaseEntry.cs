@@ -16,14 +16,14 @@ namespace TestableFileSystem.Fakes
         public string Name { get; protected set; }
 
         [NotNull]
+        public FakeFileSystemChangeTracker ChangeTracker { get; }
+
+        [NotNull]
         public ILoggedOnUserAccount LoggedOnAccount { get; }
 
         public bool IsEncrypted => encryptorAccountName != null;
 
         public bool IsExternallyEncrypted => IsEncrypted && LoggedOnAccount.UserName != encryptorAccountName;
-
-        [NotNull]
-        public FakeFileSystemChangeTracker ChangeTracker { get; }
 
         [NotNull]
         internal abstract IPathFormatter PathFormatter { get; }

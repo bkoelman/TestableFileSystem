@@ -15,5 +15,8 @@ namespace TestableFileSystem.Fakes
             Path.DirectorySeparatorChar,
             Path.AltDirectorySeparatorChar
         };
+
+        [NotNull]
+        public static readonly string PrimaryDirectorySeparatorString = Path.DirectorySeparatorChar.ToString();
     }
 }
