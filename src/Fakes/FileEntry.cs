@@ -429,30 +429,32 @@ namespace TestableFileSystem.Fakes
                     bytesFreeInCurrentBlock = BlockSize;
                 }
 
-                Position = newPosition;
+                if (newPosition > Length)
+                {
+                    newLength = newPosition;
+                }
+
+                absolutePosition = newPosition;
+
                 accessKinds |= FileAccessKinds.Write | FileAccessKinds.Read;
             }
 
             private void EnsureCapacity(long bytesNeeded)
             {
-                long bytesAvailable = owner.blocks.Count * BlockSize;
-
-                if (bytesAvailable < bytesNeeded)
+                if (Length != bytesNeeded)
                 {
-                    // TODO: Should we allocate the exact space needed, or use blocks?
-                    if (!owner.Parent.Root.TryAllocateSpace(bytesNeeded - bytesAvailable))
+                    if (!owner.Parent.Root.TryAllocateSpace(bytesNeeded - Length))
                     {
                         throw ErrorFactory.System.NotEnoughSpaceOnDisk();
                     }
-
-                    while (bytesAvailable < bytesNeeded)
-                    {
-                        owner.blocks.Add(new byte[BlockSize]);
-                        bytesAvailable += BlockSize;
-                    }
                 }
 
-                // TODO: Deallocate space. At least notify the volume.
+                long bytesAvailable = owner.blocks.Count * BlockSize;
+                while (bytesAvailable < bytesNeeded)
+                {
+                    owner.blocks.Add(new byte[BlockSize]);
+                    bytesAvailable += BlockSize;
+                }
             }
 
             protected override void Dispose(bool disposing)
@@ -665,6 +667,11 @@ namespace TestableFileSystem.Fakes
         public void TransferContentsFrom([NotNull] FileEntry otherFile)
         {
             Guard.NotNull(otherFile, nameof(otherFile));
+
+            if (!Parent.Root.TryAllocateSpace(otherFile.Size - Size))
+            {
+                throw ErrorFactory.System.NotEnoughSpaceOnDisk();
+            }
 
             blocks = otherFile.blocks;
             Size = otherFile.Size;

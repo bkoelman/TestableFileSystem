@@ -124,6 +124,11 @@ namespace TestableFileSystem.Fakes
 
             FileEntry fileEntry = contents.RemoveFile(fileName);
 
+            if (!Root.TryAllocateSpace(-fileEntry.Size))
+            {
+                throw ErrorFactory.Internal.UnknownError($"Disk space on drive '{Root.Name}' would become negative.");
+            }
+
             UpdateLastWriteLastAccessTime();
             ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
         }

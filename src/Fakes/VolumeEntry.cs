@@ -21,6 +21,7 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         private string label;
+
         private long freeSpaceInBytes;
 
         public long CapacityInBytes { get; }
@@ -68,7 +69,8 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(format, nameof(format));
             Guard.NotNull(label, nameof(label));
-            AssertNotNegativeAndInRange(capacityInBytes, freeSpaceInBytes);
+            AssertCapacityIsNotNegative(capacityInBytes);
+            AssertFreeSpaceIsNotNegativeAndInRange(capacityInBytes, freeSpaceInBytes);
 
             CapacityInBytes = capacityInBytes;
             this.freeSpaceInBytes = freeSpaceInBytes;
@@ -79,13 +81,18 @@ namespace TestableFileSystem.Fakes
             PathFormatter = new VolumeEntryPathFormatter(this);
         }
 
-        private static void AssertNotNegativeAndInRange(long capacityInBytes, long freeSpaceInBytes)
+        [AssertionMethod]
+        private static void AssertCapacityIsNotNegative(long capacityInBytes)
         {
             if (capacityInBytes < 0L)
             {
                 throw new ArgumentOutOfRangeException(nameof(capacityInBytes), "Volume capacity cannot be negative.");
             }
+        }
 
+        [AssertionMethod]
+        private static void AssertFreeSpaceIsNotNegativeAndInRange(long capacityInBytes, long freeSpaceInBytes)
+        {
             if (freeSpaceInBytes < 0L || freeSpaceInBytes > capacityInBytes)
             {
                 throw new ArgumentOutOfRangeException(nameof(freeSpaceInBytes),
@@ -110,6 +117,8 @@ namespace TestableFileSystem.Fakes
                 long newFreeSpace = freeSpaceInBytes - sizeInBytes;
                 if (newFreeSpace >= 0L)
                 {
+                    AssertFreeSpaceIsNotNegativeAndInRange(CapacityInBytes, newFreeSpace);
+
                     freeSpaceInBytes = newFreeSpace;
                     return true;
                 }

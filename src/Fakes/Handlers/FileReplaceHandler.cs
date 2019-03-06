@@ -51,6 +51,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 backupFile = backupDirectory.CreateFile(backupFileName);
             }
 
+            // TODO: This call fails on insufficient disk space. Should we keep the empty backup file in that case?
             backupFile.TransferFrom(destinationFile);
         }
 
