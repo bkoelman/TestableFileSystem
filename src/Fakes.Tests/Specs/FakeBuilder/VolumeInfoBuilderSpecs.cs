@@ -26,14 +26,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         }
 
         [Fact]
-        private void When_setting_properties_it_must_succeed()
+        private void When_setting_properties_with_free_space_it_must_succeed()
         {
             // Arrange
             var builder = new FakeVolumeInfoBuilder();
 
             // Act
             FakeVolumeInfo volume = builder
-                .OfCapacity(1024)
+                .OfCapacity(2048)
                 .WithFreeSpace(512)
                 .OfType(DriveType.Ram)
                 .InFormat("FAT16")
@@ -41,11 +41,86 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
                 .Build();
 
             // Assert
-            volume.CapacityInBytes.Should().Be(1024);
+            volume.CapacityInBytes.Should().Be(2048);
             volume.FreeSpaceInBytes.Should().Be(512);
             volume.Type.Should().Be(DriveType.Ram);
             volume.Format.Should().Be("FAT16");
             volume.Label.Should().Be("DataDisk");
+        }
+
+        [Fact]
+        private void When_setting_properties_with_used_space_it_must_succeed()
+        {
+            // Arrange
+            var builder = new FakeVolumeInfoBuilder();
+
+            // Act
+            FakeVolumeInfo volume = builder
+                .OfCapacity(2048)
+                .WithUsedSpace(512)
+                .OfType(DriveType.Ram)
+                .InFormat("FAT16")
+                .Labeled("DataDisk")
+                .Build();
+
+            // Assert
+            volume.CapacityInBytes.Should().Be(2048);
+            volume.FreeSpaceInBytes.Should().Be(1536);
+            volume.Type.Should().Be(DriveType.Ram);
+            volume.Format.Should().Be("FAT16");
+            volume.Label.Should().Be("DataDisk");
+        }
+
+        [Fact]
+        private void When_setting_free_space_it_must_override()
+        {
+            // Arrange
+            var builder = new FakeVolumeInfoBuilder();
+
+            // Act
+            FakeVolumeInfo volume = builder
+                .OfCapacity(2048)
+                .WithUsedSpace(12345678)
+                .WithFreeSpace(512)
+                .Build();
+
+            // Assert
+            volume.CapacityInBytes.Should().Be(2048);
+            volume.FreeSpaceInBytes.Should().Be(512);
+        }
+
+        [Fact]
+        private void When_setting_used_space_it_must_override()
+        {
+            // Arrange
+            var builder = new FakeVolumeInfoBuilder();
+
+            // Act
+            FakeVolumeInfo volume = builder
+                .OfCapacity(2048)
+                .WithFreeSpace(12345678)
+                .WithUsedSpace(512)
+                .Build();
+
+            // Assert
+            volume.CapacityInBytes.Should().Be(2048);
+            volume.FreeSpaceInBytes.Should().Be(1536);
+        }
+
+        [Fact]
+        private void When_setting_only_capacity_it_must_succeed()
+        {
+            // Arrange
+            var builder = new FakeVolumeInfoBuilder();
+
+            // Act
+            FakeVolumeInfo volume = builder
+                .OfCapacity(2048)
+                .Build();
+
+            // Assert
+            volume.CapacityInBytes.Should().Be(2048);
+            volume.FreeSpaceInBytes.Should().Be(2048);
         }
 
         [Fact]
@@ -119,6 +194,37 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             // Assert
             action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
                 "Available space cannot be negative or exceed volume capacity.*");
+        }
+
+        [Fact]
+        private void When_setting_negative_used_space_it_must_fail()
+        {
+            // Arrange
+            FakeVolumeInfoBuilder builder = new FakeVolumeInfoBuilder()
+                .WithUsedSpace(-1);
+
+            // Act
+            Action action = () => builder.Build();
+
+            // Assert
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
+                "Used space cannot be negative or exceed volume capacity.*");
+        }
+
+        [Fact]
+        private void When_setting_used_space_higher_than_available_space_it_must_fail()
+        {
+            // Arrange
+            FakeVolumeInfoBuilder builder = new FakeVolumeInfoBuilder()
+                .OfCapacity(1000)
+                .WithUsedSpace(1001);
+
+            // Act
+            Action action = () => builder.Build();
+
+            // Assert
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
+                "Used space cannot be negative or exceed volume capacity.*");
         }
     }
 }

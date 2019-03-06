@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Utilities;
 
@@ -6,12 +7,16 @@ namespace TestableFileSystem.Fakes.Builders
 {
     public sealed class FakeVolumeInfoBuilder : ITestDataBuilder<FakeVolumeInfo>
     {
-        // TODO: Allow caller to choose between setting free space -or- used space.
-
         private const long OneGigabyte = 1024 * 1024 * 1024;
 
         private long capacityInBytes = OneGigabyte;
-        private long freeSpaceInBytes = OneGigabyte;
+
+        [CanBeNull]
+        private long? freeSpaceInBytes;
+
+        [CanBeNull]
+        private long? usedSpaceInBytes;
+
         private DriveType driveType = DriveType.Fixed;
 
         [NotNull]
@@ -22,7 +27,58 @@ namespace TestableFileSystem.Fakes.Builders
 
         public FakeVolumeInfo Build()
         {
-            return new FakeVolumeInfo(capacityInBytes, freeSpaceInBytes, driveType, driveFormat, volumeLabel);
+            long effectiveFreeSpaceInBytes = CalculateFreeSpaceInBytes();
+            return new FakeVolumeInfo(capacityInBytes, effectiveFreeSpaceInBytes, driveType, driveFormat, volumeLabel);
+        }
+
+        private long CalculateFreeSpaceInBytes()
+        {
+            AssertCapacityIsNotNegative(capacityInBytes);
+
+            if (freeSpaceInBytes != null)
+            {
+                AssertFreeSpaceIsNotNegativeAndInRange(freeSpaceInBytes.Value, capacityInBytes);
+
+                return freeSpaceInBytes.Value;
+            }
+
+            if (usedSpaceInBytes != null)
+            {
+                AssertUsedSpaceIsNotNegativeAndInRange(usedSpaceInBytes.Value, capacityInBytes);
+
+                return capacityInBytes - usedSpaceInBytes.Value;
+            }
+
+            return capacityInBytes;
+        }
+
+        [AssertionMethod]
+        private static void AssertCapacityIsNotNegative(long capacityInBytes)
+        {
+            if (capacityInBytes < 0L)
+            {
+                throw new ArgumentOutOfRangeException(nameof(capacityInBytes), "Volume capacity cannot be negative.");
+            }
+        }
+
+        [AssertionMethod]
+        private static void AssertFreeSpaceIsNotNegativeAndInRange(long freeSpaceInBytes, long capacityInBytes)
+        {
+            if (freeSpaceInBytes < 0L || freeSpaceInBytes > capacityInBytes)
+            {
+                throw new ArgumentOutOfRangeException(nameof(freeSpaceInBytes),
+                    "Available space cannot be negative or exceed volume capacity.");
+            }
+        }
+
+        [AssertionMethod]
+        private static void AssertUsedSpaceIsNotNegativeAndInRange(long usedSpaceInBytes, long capacityInBytes)
+        {
+            if (usedSpaceInBytes < 0L || usedSpaceInBytes > capacityInBytes)
+            {
+                throw new ArgumentOutOfRangeException(nameof(usedSpaceInBytes),
+                    "Used space cannot be negative or exceed volume capacity.");
+            }
         }
 
         [NotNull]
@@ -35,7 +91,16 @@ namespace TestableFileSystem.Fakes.Builders
         [NotNull]
         public FakeVolumeInfoBuilder WithFreeSpace(long bytes)
         {
+            usedSpaceInBytes = null;
             freeSpaceInBytes = bytes;
+            return this;
+        }
+
+        [NotNull]
+        public FakeVolumeInfoBuilder WithUsedSpace(long bytes)
+        {
+            freeSpaceInBytes = null;
+            usedSpaceInBytes = bytes;
             return this;
         }
 
