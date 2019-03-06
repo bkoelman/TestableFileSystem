@@ -17,10 +17,25 @@ namespace TestableFileSystem.Fakes
         internal override IPathFormatter PathFormatter { get; }
 
         [NotNull]
+        private readonly object volumeLock = new object();
+
+        [NotNull]
         private string label;
+        private long freeSpaceInBytes;
 
         public long CapacityInBytes { get; }
-        public long FreeSpaceInBytes { get; }
+
+        public long FreeSpaceInBytes
+        {
+            get
+            {
+                lock (volumeLock)
+                {
+                    return freeSpaceInBytes;
+                }
+            }
+        }
+
         public DriveType Type { get; }
 
         [NotNull]
@@ -29,14 +44,26 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string Label
         {
-            get => label;
-            internal set => label = string.IsNullOrEmpty(value) ? string.Empty : value;
+            get
+            {
+                lock (volumeLock)
+                {
+                    return label;
+                }
+            }
+            internal set
+            {
+                lock (volumeLock)
+                {
+                    label = string.IsNullOrEmpty(value) ? string.Empty : value;
+                }
+            }
         }
 
         public VolumeEntry([NotNull] string name, long capacityInBytes, long freeSpaceInBytes, DriveType type,
             [NotNull] string format, [NotNull] string label, [NotNull] FakeFileSystemChangeTracker changeTracker,
             [NotNull] SystemClock systemClock, [NotNull] ILoggedOnUserAccount loggedOnAccount)
-            : base(name, AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory, null,
+            : base(name, AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory, null, null,
                 changeTracker, systemClock, loggedOnAccount)
         {
             Guard.NotNull(format, nameof(format));
@@ -44,7 +71,7 @@ namespace TestableFileSystem.Fakes
             AssertNotNegativeAndInRange(capacityInBytes, freeSpaceInBytes);
 
             CapacityInBytes = capacityInBytes;
-            FreeSpaceInBytes = freeSpaceInBytes;
+            this.freeSpaceInBytes = freeSpaceInBytes;
             Type = type;
             Format = format;
             this.label = label;
@@ -74,6 +101,21 @@ namespace TestableFileSystem.Fakes
             }
 
             return (attributes & ~DriveAttributesToDiscard) | MinimumDriveAttributes;
+        }
+
+        internal bool TryAllocateSpace(long sizeInBytes)
+        {
+            lock (volumeLock)
+            {
+                long newFreeSpace = freeSpaceInBytes - sizeInBytes;
+                if (newFreeSpace >= 0L)
+                {
+                    freeSpaceInBytes = newFreeSpace;
+                    return true;
+                }
+
+                return false;
+            }
         }
 
         public override string ToString()

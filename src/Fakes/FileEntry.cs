@@ -436,11 +436,23 @@ namespace TestableFileSystem.Fakes
             private void EnsureCapacity(long bytesNeeded)
             {
                 long bytesAvailable = owner.blocks.Count * BlockSize;
-                while (bytesAvailable < bytesNeeded)
+
+                if (bytesAvailable < bytesNeeded)
                 {
-                    owner.blocks.Add(new byte[BlockSize]);
-                    bytesAvailable += BlockSize;
+                    // TODO: Should we allocate the exact space needed, or use blocks?
+                    if (!owner.Parent.Root.TryAllocateSpace(bytesNeeded - bytesAvailable))
+                    {
+                        throw ErrorFactory.System.NotEnoughSpaceOnDisk();
+                    }
+
+                    while (bytesAvailable < bytesNeeded)
+                    {
+                        owner.blocks.Add(new byte[BlockSize]);
+                        bytesAvailable += BlockSize;
+                    }
                 }
+
+                // TODO: Deallocate space. At least notify the volume.
             }
 
             protected override void Dispose(bool disposing)

@@ -26,6 +26,9 @@ namespace TestableFileSystem.Fakes
         [CanBeNull]
         public DirectoryEntry Parent { get; private set; }
 
+        [NotNull]
+        public VolumeEntry Root { get; }
+
         public bool IsEmpty => contents.IsEmpty;
 
         [NotNull]
@@ -33,7 +36,7 @@ namespace TestableFileSystem.Fakes
 
         internal override IPathFormatter PathFormatter { get; }
 
-        protected DirectoryEntry([NotNull] string name, FileAttributes attributes, [CanBeNull] DirectoryEntry parent,
+        protected DirectoryEntry([NotNull] string name, FileAttributes attributes, [CanBeNull] DirectoryEntry parent, [CanBeNull] VolumeEntry root,
             [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock,
             [NotNull] ILoggedOnUserAccount loggedOnAccount)
             : base(name, attributes, changeTracker, loggedOnAccount)
@@ -41,6 +44,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(systemClock, nameof(systemClock));
 
             Parent = parent;
+            Root = root ?? (VolumeEntry)this;
             SystemClock = systemClock;
             PathFormatter = new DirectoryEntryPathFormatter(this);
 
@@ -181,8 +185,8 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
-            var directoryEntry = new DirectoryEntry(directoryName, FileAttributes.Directory, this, ChangeTracker, SystemClock,
-                LoggedOnAccount);
+            var directoryEntry = new DirectoryEntry(directoryName, FileAttributes.Directory, this, Root, ChangeTracker,
+                SystemClock, LoggedOnAccount);
             contents.Add(directoryEntry);
 
             UpdateLastWriteLastAccessTime();

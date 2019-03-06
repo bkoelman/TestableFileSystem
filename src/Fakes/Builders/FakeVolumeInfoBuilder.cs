@@ -6,6 +6,8 @@ namespace TestableFileSystem.Fakes.Builders
 {
     public sealed class FakeVolumeInfoBuilder : ITestDataBuilder<FakeVolumeInfo>
     {
+        // TODO: Allow caller to choose between setting free space -or- used space.
+
         private const long OneGigabyte = 1024 * 1024 * 1024;
 
         private long capacityInBytes = OneGigabyte;

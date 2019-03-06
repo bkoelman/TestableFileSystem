@@ -301,6 +301,12 @@ namespace TestableFileSystem.Fakes
             {
                 throw new FileNotFoundException("Unable to find the specified file.");
             }
+
+            [NotNull]
+            public static Exception NotEnoughSpaceOnDisk()
+            {
+                throw new IOException("There is not enough space on the disk.");
+            }
         }
 
         public static class Internal

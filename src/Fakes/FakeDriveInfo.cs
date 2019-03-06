@@ -21,8 +21,6 @@ namespace TestableFileSystem.Fakes
         public string Name => driveLetter + Path.VolumeSeparatorChar.ToString() + Path.DirectorySeparatorChar;
         public bool IsReady => TryGetVolume() != null;
 
-        // TODO: Update free space during various file system operations. Throw on insufficient space.
-
         public long AvailableFreeSpace => GetVolume().FreeSpaceInBytes;
         public long TotalFreeSpace => GetVolume().FreeSpaceInBytes;
         public long TotalSize => GetVolume().CapacityInBytes;
@@ -40,21 +38,8 @@ namespace TestableFileSystem.Fakes
 
         public string VolumeLabel
         {
-            get
-            {
-                lock (owner.TreeLock)
-                {
-                    return GetVolume().Label;
-                }
-            }
-            set
-            {
-                lock (owner.TreeLock)
-                {
-                    VolumeEntry volume = GetVolume();
-                    volume.Label = value;
-                }
-            }
+            get => GetVolume().Label;
+            set => GetVolume().Label = value;
         }
 
         public IDirectoryInfo RootDirectory => owner.ConstructDirectoryInfo(Name);

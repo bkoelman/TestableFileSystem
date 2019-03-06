@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
@@ -9,9 +9,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 {
     public sealed class DiskSpaceSpecs
     {
+        // TODO: Add specs for the various I/O operations that influence available disk space.
+
 #if !NETSTANDARD1_3
         [Fact]
-        private void When_writing_to_file_with_sufficient_space_it_must_succeed()
+        private void When_writing_to_file_with_sufficient_disk_space_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -31,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 #endif
 
         [Fact]
-        private void When_writing_to_file_with_insufficient_space_it_must_fail()
+        private void When_writing_to_file_with_insufficient_disk_space_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -50,4 +52,4 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             fileInfo.Length.Should().Be(0);
         }
     }
-}*/
+}
