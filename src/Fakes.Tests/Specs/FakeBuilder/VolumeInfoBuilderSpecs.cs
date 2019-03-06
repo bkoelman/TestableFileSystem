@@ -177,11 +177,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Assert
             action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
-                "Available space cannot be negative or exceed volume capacity.*");
+                "Free space cannot be negative or exceed volume capacity.*");
         }
 
         [Fact]
-        private void When_setting_free_space_higher_than_available_space_it_must_fail()
+        private void When_setting_free_space_higher_than_capacity_it_must_fail()
         {
             // Arrange
             FakeVolumeInfoBuilder builder = new FakeVolumeInfoBuilder()
@@ -193,7 +193,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Assert
             action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
-                "Available space cannot be negative or exceed volume capacity.*");
+                "Free space cannot be negative or exceed volume capacity.*");
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         }
 
         [Fact]
-        private void When_setting_used_space_higher_than_available_space_it_must_fail()
+        private void When_setting_used_space_higher_than_capacity_it_must_fail()
         {
             // Arrange
             FakeVolumeInfoBuilder builder = new FakeVolumeInfoBuilder()
