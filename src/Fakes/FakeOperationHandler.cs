@@ -6,12 +6,12 @@ namespace TestableFileSystem.Fakes
     internal abstract class FakeOperationHandler<TArguments, TResult>
     {
         [NotNull]
-        protected DirectoryEntry Root { get; }
+        protected VolumeContainer Container { get; }
 
-        protected FakeOperationHandler([NotNull] DirectoryEntry root)
+        protected FakeOperationHandler([NotNull] VolumeContainer container)
         {
-            Guard.NotNull(root, nameof(root));
-            Root = root;
+            Guard.NotNull(container, nameof(container));
+            Container = container;
         }
 
         [NotNull]

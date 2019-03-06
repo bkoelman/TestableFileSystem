@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileReplaceHandler : FakeOperationHandler<FileReplaceArguments, Missing>
     {
-        public FileReplaceHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileReplaceHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -64,7 +64,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveExistingFile([NotNull] AbsolutePath sourcePath)
         {
-            var resolver = new FileResolver(Root)
+            var resolver = new FileResolver(Container)
             {
                 ErrorFileNotFound = _ => ErrorFactory.System.UnableToFindSpecifiedFile(),
                 ErrorFileFoundAsDirectory = _ => ErrorFactory.System.UnauthorizedAccess(),
@@ -116,7 +116,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
             }
 
-            var backupResolver = new DirectoryResolver(Root)
+            var backupResolver = new DirectoryResolver(Container)
             {
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.UnableToRemoveFileToBeReplaced(),
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.UnableToRemoveFileToBeReplaced()

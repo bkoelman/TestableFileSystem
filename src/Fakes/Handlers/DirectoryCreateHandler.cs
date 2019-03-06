@@ -7,23 +7,19 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class DirectoryCreateHandler : FakeOperationHandler<DirectoryCreateArguments, DirectoryEntry>
     {
-        public DirectoryCreateHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public DirectoryCreateHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
         public override DirectoryEntry Handle(DirectoryCreateArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
+            AssertVolumeExists(arguments.Path);
 
-            if (!arguments.CanCreateVolumeRoot)
-            {
-                AssertVolumeRootExists(arguments.Path);
-            }
+            DirectoryEntry directory = Container.GetVolume(arguments.Path.VolumeName);
 
-            DirectoryEntry directory = Root;
-
-            foreach (AbsolutePathComponent component in arguments.Path.EnumerateComponents())
+            foreach (AbsolutePathComponent component in arguments.Path.EnumerateComponents().Skip(1))
             {
                 AssertIsNotFile(component, directory);
 
@@ -41,10 +37,9 @@ namespace TestableFileSystem.Fakes.Handlers
             return directory;
         }
 
-        [AssertionMethod]
-        private void AssertVolumeRootExists([NotNull] AbsolutePath path)
+        private void AssertVolumeExists([NotNull] AbsolutePath path)
         {
-            if (!Root.ContainsDirectory(path.Components.First()))
+            if (!Container.ContainsVolume(path.VolumeName))
             {
                 if (!path.IsOnLocalDrive && !path.IsVolumeRoot)
                 {

@@ -121,7 +121,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             const string path = @"c:\folder\file.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingVolume("c:", new FakeVolumeBuilder()
+                .IncludingVolume("c:", new FakeVolumeInfoBuilder()
                     .InFormat("FAT16"))
                 .IncludingTextFile(path, "Contents")
                 .Build();

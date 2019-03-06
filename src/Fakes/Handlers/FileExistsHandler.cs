@@ -7,8 +7,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileExistsHandler : FakeOperationHandler<EntryExistsArguments, bool>
     {
-        public FileExistsHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileExistsHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 return false;
             }
 
-            var resolver = new FileResolver(Root);
+            var resolver = new FileResolver(Container);
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
             return resolveResult.ExistingFileOrNull != null;

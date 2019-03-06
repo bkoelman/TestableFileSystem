@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes
     public abstract class FakeFileSystemInfo : IFileSystemInfo
     {
         [NotNull]
-        private readonly DirectoryEntry root;
+        private readonly VolumeContainer container;
 
         [NotNull]
         internal FakeFileSystem Owner { get; }
@@ -107,13 +107,13 @@ namespace TestableFileSystem.Fakes
 
         public abstract bool Exists { get; }
 
-        internal FakeFileSystemInfo([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
+        internal FakeFileSystemInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
         {
-            Guard.NotNull(root, nameof(root));
+            Guard.NotNull(container, nameof(container));
             Guard.NotNull(owner, nameof(owner));
             Guard.NotNull(path, nameof(path));
 
-            this.root = root;
+            this.container = container;
             Owner = owner;
 
             AbsolutePath = path;
@@ -129,7 +129,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private EntryProperties RetrieveEntryProperties()
         {
-            var handler = new EntryGetPropertiesHandler(root);
+            var handler = new EntryGetPropertiesHandler(container);
             var arguments = new EntryGetPropertiesArguments(AbsolutePath);
 
             lock (Owner.TreeLock)

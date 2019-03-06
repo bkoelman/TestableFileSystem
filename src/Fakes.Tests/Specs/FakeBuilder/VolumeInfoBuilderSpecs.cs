@@ -6,16 +6,16 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 {
-    public sealed class VolumeBuilderSpecs
+    public sealed class VolumeInfoBuilderSpecs
     {
         [Fact]
         private void When_building_with_defaults_it_must_succeed()
         {
             // Arrange
-            var builder = new FakeVolumeBuilder();
+            var builder = new FakeVolumeInfoBuilder();
 
             // Act
-            FakeVolume volume = builder.Build();
+            FakeVolumeInfo volume = builder.Build();
 
             // Assert
             volume.CapacityInBytes.Should().Be(1073741824);
@@ -29,10 +29,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_setting_properties_it_must_succeed()
         {
             // Arrange
-            var builder = new FakeVolumeBuilder();
+            var builder = new FakeVolumeInfoBuilder();
 
             // Act
-            FakeVolume volume = builder
+            FakeVolumeInfo volume = builder
                 .OfCapacity(1024)
                 .WithFreeSpace(512)
                 .OfType(DriveType.Ram)
@@ -52,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_setting_null_format_it_must_fail()
         {
             // Arrange
-            var builder = new FakeVolumeBuilder();
+            var builder = new FakeVolumeInfoBuilder();
 
             // Act
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -66,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_setting_null_label_it_must_fail()
         {
             // Arrange
-            var builder = new FakeVolumeBuilder();
+            var builder = new FakeVolumeInfoBuilder();
 
             // Act
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -80,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_setting_negative_capacity_it_must_fail()
         {
             // Arrange
-            FakeVolumeBuilder builder = new FakeVolumeBuilder()
+            FakeVolumeInfoBuilder builder = new FakeVolumeInfoBuilder()
                 .OfCapacity(-1);
 
             // Act
@@ -94,7 +94,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_setting_negative_free_space_it_must_fail()
         {
             // Arrange
-            FakeVolumeBuilder builder = new FakeVolumeBuilder()
+            FakeVolumeInfoBuilder builder = new FakeVolumeInfoBuilder()
                 .WithFreeSpace(-1);
 
             // Act
@@ -109,7 +109,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_setting_free_space_higher_than_available_space_it_must_fail()
         {
             // Arrange
-            FakeVolumeBuilder builder = new FakeVolumeBuilder()
+            FakeVolumeInfoBuilder builder = new FakeVolumeInfoBuilder()
                 .OfCapacity(1000)
                 .WithFreeSpace(1001);
 

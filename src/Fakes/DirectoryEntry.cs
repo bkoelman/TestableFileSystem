@@ -2,19 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    internal sealed class DirectoryEntry : BaseEntry
+    internal class DirectoryEntry : BaseEntry
     {
         private const FileAttributes DirectoryAttributesToDiscard = FileAttributes.Device | FileAttributes.Normal |
             FileAttributes.SparseFile | FileAttributes.Compressed | FileAttributes.Encrypted | FileAttributes.IntegrityStream;
-
-        private const FileAttributes MinimumDriveAttributes =
-            FileAttributes.Directory | FileAttributes.System | FileAttributes.Hidden;
 
         [NotNull]
         private readonly DirectoryContents contents = new DirectoryContents();
@@ -37,11 +33,10 @@ namespace TestableFileSystem.Fakes
 
         internal override IPathFormatter PathFormatter { get; }
 
-        private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent,
+        protected DirectoryEntry([NotNull] string name, FileAttributes attributes, [CanBeNull] DirectoryEntry parent,
             [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock,
             [NotNull] ILoggedOnUserAccount loggedOnAccount)
-            : base(name, AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory, changeTracker,
-                loggedOnAccount)
+            : base(name, attributes, changeTracker, loggedOnAccount)
         {
             Guard.NotNull(systemClock, nameof(systemClock));
 
@@ -82,29 +77,12 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public static DirectoryEntry CreateRoot([NotNull] FakeFileSystemChangeTracker changeTracker,
-            [NotNull] SystemClock systemClock, [NotNull] ILoggedOnUserAccount loggedOnAccount)
-        {
-            Guard.NotNull(changeTracker, nameof(changeTracker));
-            Guard.NotNull(systemClock, nameof(systemClock));
-
-            return new DirectoryEntry("My Computer", null, changeTracker, systemClock, loggedOnAccount);
-        }
-
-        [NotNull]
         [ItemNotNull]
         public IEnumerable<BaseEntry> EnumerateEntries(EnumerationFilter filter)
         {
             UpdateLastAccessTime();
 
             return contents.GetEntries(filter);
-        }
-
-        [NotNull]
-        [ItemNotNull]
-        public ICollection<DirectoryEntry> FilterDrives()
-        {
-            return Directories.Where(x => AbsolutePath.IsDriveLetter(x.Name)).ToArray();
         }
 
         public bool ContainsFile([NotNull] string fileName)
@@ -203,7 +181,8 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
-            var directoryEntry = new DirectoryEntry(directoryName, this, ChangeTracker, SystemClock, LoggedOnAccount);
+            var directoryEntry = new DirectoryEntry(directoryName, FileAttributes.Directory, this, ChangeTracker, SystemClock,
+                LoggedOnAccount);
             contents.Add(directoryEntry);
 
             UpdateLastWriteLastAccessTime();
@@ -265,8 +244,7 @@ namespace TestableFileSystem.Fakes
                 throw new ArgumentException("Invalid File or Directory attributes value.", nameof(attributes));
             }
 
-            FileAttributes minimumAttributes = Parent?.Parent == null ? MinimumDriveAttributes : FileAttributes.Directory;
-            return (attributes & ~DirectoryAttributesToDiscard) | minimumAttributes;
+            return (attributes & ~DirectoryAttributesToDiscard) | FileAttributes.Directory;
         }
 
         [DebuggerDisplay("{GetPath().GetText()}")]
@@ -293,7 +271,7 @@ namespace TestableFileSystem.Fakes
                 var componentStack = new Stack<string>();
 
                 DirectoryEntry directory = directoryEntry;
-                while (directory.Parent != null)
+                while (directory != null)
                 {
                     componentStack.Push(directory.Name);
                     directory = directory.Parent;

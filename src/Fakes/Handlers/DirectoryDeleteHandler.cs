@@ -17,9 +17,9 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker;
 
-        public DirectoryDeleteHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager,
+        public DirectoryDeleteHandler([NotNull] VolumeContainer container, [NotNull] CurrentDirectoryManager currentDirectoryManager,
             [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root)
+            : base(container)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
             Guard.NotNull(changeTracker, nameof(changeTracker));
@@ -78,7 +78,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private DirectoryEntry ResolveDirectory([NotNull] AbsolutePath path)
         {
-            var resolver = new DirectoryResolver(Root)
+            var resolver = new DirectoryResolver(Container)
             {
                 ErrorLastDirectoryFoundAsFile = incomingPath => ErrorFactory.System.DirectoryNameIsInvalid()
             };

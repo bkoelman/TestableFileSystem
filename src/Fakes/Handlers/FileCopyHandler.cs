@@ -19,8 +19,8 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly List<FileAccessKinds> pendingContentChanges = new List<FileAccessKinds>();
 
-        public FileCopyHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root)
+        public FileCopyHandler([NotNull] VolumeContainer container, [NotNull] FakeFileSystemChangeTracker changeTracker)
+            : base(container)
         {
             Guard.NotNull(changeTracker, nameof(changeTracker));
             this.changeTracker = changeTracker;
@@ -64,7 +64,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath, bool isCopyAfterMoveFailed)
         {
-            var sourceResolver = new FileResolver(Root)
+            var sourceResolver = new FileResolver(Container)
             {
                 ErrorPathIsVolumeRoot = ErrorFactory.System.DirectoryNotFound
             };
@@ -114,13 +114,13 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveDestinationFile([NotNull] FileEntry sourceFile, [NotNull] FileCopyArguments arguments)
         {
-            var destinationResolver = new FileResolver(Root)
+            var destinationResolver = new FileResolver(Container)
             {
                 ErrorFileFoundAsDirectory = ErrorFactory.System.TargetIsNotFile
             };
             FileResolveResult resolveResult = destinationResolver.TryResolveFile(arguments.DestinationPath);
 
-            DateTime utcNow = Root.SystemClock.UtcNow();
+            DateTime utcNow = Container.SystemClock.UtcNow();
 
             FileEntry destinationFile;
             bool isNewlyCreated;

@@ -427,6 +427,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_setting_attributes_for_drive_to_Temporary_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(path, FileAttributes.Temporary);
+
+            // Assert
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Invalid File or Directory attributes value.*");
+        }
+
+        [Fact]
         private void When_setting_attributes_for_current_directory_it_must_succeed()
         {
             // Arrange

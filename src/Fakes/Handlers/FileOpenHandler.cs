@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileOpenHandler : FakeOperationHandler<FileOpenArguments, IFileStream>
     {
-        public FileOpenHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileOpenHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Handlers
             FileAccess fileAccess = DetectFileAccess(arguments);
             AssertValidCombinationOfModeWithAccess(arguments.Mode, fileAccess);
 
-            var resolver = new FileResolver(Root);
+            var resolver = new FileResolver(Container);
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
             return resolveResult.ExistingFileOrNull != null

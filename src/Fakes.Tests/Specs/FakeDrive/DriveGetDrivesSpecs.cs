@@ -13,8 +13,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDrive
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingVolume("D:", new FakeVolumeBuilder())
-                .IncludingVolume("m:", new FakeVolumeBuilder())
+                .IncludingVolume("D:", new FakeVolumeInfoBuilder())
+                .IncludingVolume("m:", new FakeVolumeInfoBuilder())
                 .IncludingDirectory(@"N:\")
                 .IncludingDirectory(@"e:\")
                 .IncludingDirectory(@"\\server\share")

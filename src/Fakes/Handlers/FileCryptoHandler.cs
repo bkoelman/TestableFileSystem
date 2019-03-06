@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
@@ -11,14 +10,9 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileCryptoHandler : FakeOperationHandler<FileCryptoArguments, Missing>
     {
-        [NotNull]
-        private readonly Func<string, FakeVolume> getVolumeCallback;
-
-        public FileCryptoHandler([NotNull] DirectoryEntry root, [NotNull] Func<string, FakeVolume> getVolumeCallback)
-            : base(root)
+        public FileCryptoHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
-            Guard.NotNull(getVolumeCallback, nameof(getVolumeCallback));
-            this.getVolumeCallback = getVolumeCallback;
         }
 
         public override Missing Handle(FileCryptoArguments arguments)
@@ -51,11 +45,13 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (arguments.IsEncrypt)
             {
-                string volumeRoot = arguments.Path.Components.First();
-                FakeVolume volume = getVolumeCallback(volumeRoot);
-                if (volume != null && volume.Format != FakeVolume.NtFs)
+                if (Container.ContainsVolume(arguments.Path.VolumeName))
                 {
-                    throw new NotSupportedException("File encryption support only works on NTFS partitions.");
+                    VolumeEntry volume = Container.GetVolume(arguments.Path.VolumeName);
+                    if (volume.Format != FakeVolumeInfo.NtFs)
+                    {
+                        throw new NotSupportedException("File encryption support only works on NTFS partitions.");
+                    }
                 }
             }
         }
@@ -64,14 +60,14 @@ namespace TestableFileSystem.Fakes.Handlers
         private BaseEntry ResolveEntry([NotNull] FileCryptoArguments arguments)
         {
             EntryResolver resolver = arguments.IsEncrypt
-                ? new EntryResolver(Root)
+                ? new EntryResolver(Container)
                 {
                     ErrorNetworkShareNotFound = _ => ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect(),
                     ErrorDirectoryNotFound = path => IsPathOnExistingVolume(path)
                         ? ErrorFactory.System.DirectoryNotFound(path)
                         : ErrorFactory.System.FileNotFound(path)
                 }
-                : new EntryResolver(Root);
+                : new EntryResolver(Container);
 
             return resolver.ResolveEntry(arguments.Path);
         }
@@ -79,9 +75,7 @@ namespace TestableFileSystem.Fakes.Handlers
         private bool IsPathOnExistingVolume([NotNull] string path)
         {
             var absolutePath = new AbsolutePath(path);
-            string volumeRoot = absolutePath.Components.First();
-            FakeVolume volume = getVolumeCallback(volumeRoot);
-            return volume != null;
+            return Container.ContainsVolume(absolutePath.VolumeName);
         }
 
         [AssertionMethod]

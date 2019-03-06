@@ -23,7 +23,10 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         public IReadOnlyList<string> Components { get; }
 
-        public bool IsOnLocalDrive => IsDriveLetter(Components.First());
+        [NotNull]
+        public string VolumeName => Components.First();
+
+        public bool IsOnLocalDrive => IsDriveLetter(VolumeName);
 
         public bool IsVolumeRoot => Components.Count == 1;
 

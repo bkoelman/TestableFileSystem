@@ -148,7 +148,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingVolume("P:", new FakeVolumeBuilder()
+                .IncludingVolume("P:", new FakeVolumeInfoBuilder()
                     .OfCapacity(8 * OneGigabyte)
                     .WithFreeSpace(3 * OneGigabyte)
                     .OfType(DriveType.Network)

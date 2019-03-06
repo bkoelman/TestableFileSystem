@@ -18,9 +18,9 @@ namespace TestableFileSystem.Fakes.Handlers
 
         public bool IsFileMoveRequired { get; private set; }
 
-        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager,
+        public DirectoryMoveHandler([NotNull] VolumeContainer container, [NotNull] CurrentDirectoryManager currentDirectoryManager,
             [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root)
+            : base(container)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
             Guard.NotNull(changeTracker, nameof(changeTracker));
@@ -78,7 +78,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private BaseEntry ResolveSourceFileOrDirectory([NotNull] AbsolutePath path)
         {
-            var resolver = new DirectoryResolver(Root)
+            var resolver = new DirectoryResolver(Container)
             {
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound()
@@ -126,7 +126,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             AbsolutePath parentPath = AssertDestinationIsNotVolumeRoot(path);
 
-            var resolver = new DirectoryResolver(Root)
+            var resolver = new DirectoryResolver(Container)
             {
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.ParameterIsIncorrect(),

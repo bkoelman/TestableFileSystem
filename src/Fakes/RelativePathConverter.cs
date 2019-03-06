@@ -65,7 +65,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private string GetCurrentVolumeRoot()
         {
-            return currentDirectoryManager.GetValue().Components.First();
+            return currentDirectoryManager.GetValue().VolumeName;
         }
 
         [NotNull]

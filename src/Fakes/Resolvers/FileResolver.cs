@@ -50,10 +50,10 @@ namespace TestableFileSystem.Fakes.Resolvers
         [NotNull]
         public Func<string, Exception> ErrorFileExists { get; set; }
 
-        public FileResolver([NotNull] DirectoryEntry root)
+        public FileResolver([NotNull] VolumeContainer container)
         {
-            Guard.NotNull(root, nameof(root));
-            directoryResolver = new DirectoryResolver(root);
+            Guard.NotNull(container, nameof(container));
+            directoryResolver = new DirectoryResolver(container);
 
             ErrorFileFoundAsDirectory = ErrorFactory.System.UnauthorizedAccess;
             ErrorFileNotFound = ErrorFactory.System.FileNotFound;

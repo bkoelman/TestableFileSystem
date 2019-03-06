@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes
     public sealed class FakePath : IPath
     {
         [NotNull]
-        private readonly DirectoryEntry root;
+        private readonly VolumeContainer container;
 
         [NotNull]
         private readonly FakeFileSystem owner;
@@ -18,14 +18,14 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly Random randomNumberGenerator;
 
-        internal FakePath([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner)
+        internal FakePath([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner)
         {
-            Guard.NotNull(root, nameof(root));
+            Guard.NotNull(container, nameof(container));
             Guard.NotNull(owner, nameof(owner));
 
-            this.root = root;
+            this.container = container;
             this.owner = owner;
-            randomNumberGenerator = CreateRandomNumberGenerator(root.SystemClock);
+            randomNumberGenerator = CreateRandomNumberGenerator(container.SystemClock);
         }
 
         [NotNull]
@@ -53,7 +53,7 @@ namespace TestableFileSystem.Fakes
             string tempDirectory = GetTempPath();
             AbsolutePath absoluteTempDirectory = owner.ToAbsolutePath(tempDirectory);
 
-            var handler = new PathGetTempFileNameHandler(root, randomNumberGenerator);
+            var handler = new PathGetTempFileNameHandler(container, randomNumberGenerator);
             var arguments = new PathGetTempFileNameArguments(absoluteTempDirectory);
 
             AbsolutePath tempFilePath = handler.Handle(arguments);

@@ -14,8 +14,8 @@ namespace TestableFileSystem.Fakes.Handlers
         public bool IsCopyRequired { get; private set; }
         public bool IsSourceReadOnly { get; private set; }
 
-        public FileMoveHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileMoveHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -44,7 +44,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath)
         {
-            var sourceResolver = new FileResolver(Root)
+            var sourceResolver = new FileResolver(Container)
             {
                 ErrorFileFoundAsDirectory = ErrorFactory.System.FileNotFound,
                 ErrorDirectoryFoundAsFile = ErrorFactory.System.FileNotFound,
@@ -66,7 +66,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 return sourceFile.Parent;
             }
 
-            var destinationResolver = new FileResolver(Root)
+            var destinationResolver = new FileResolver(Container)
             {
                 ErrorFileFoundAsDirectory = _ => ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists(),
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),

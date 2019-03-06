@@ -5,12 +5,9 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakeVolume
+    public sealed class FakeVolumeInfo
     {
         internal const string NtFs = "NTFS";
-
-        [NotNull]
-        private string label;
 
         public long CapacityInBytes { get; }
         public long FreeSpaceInBytes { get; }
@@ -20,13 +17,9 @@ namespace TestableFileSystem.Fakes
         public string Format { get; }
 
         [NotNull]
-        public string Label
-        {
-            get => label;
-            internal set => label = string.IsNullOrEmpty(value) ? string.Empty : value;
-        }
+        public string Label { get; }
 
-        internal FakeVolume(long capacityInBytes, long freeSpaceInBytes, DriveType type, [NotNull] string format,
+        internal FakeVolumeInfo(long capacityInBytes, long freeSpaceInBytes, DriveType type, [NotNull] string format,
             [NotNull] string label)
         {
             Guard.NotNull(format, nameof(format));
@@ -37,7 +30,7 @@ namespace TestableFileSystem.Fakes
             FreeSpaceInBytes = freeSpaceInBytes;
             Type = type;
             Format = format;
-            this.label = label;
+            Label = label;
         }
 
         private static void AssertNotNegativeAndInRange(long capacityInBytes, long freeSpaceInBytes)

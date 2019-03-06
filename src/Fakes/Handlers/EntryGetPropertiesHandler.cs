@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class EntryGetPropertiesHandler : FakeOperationHandler<EntryGetPropertiesArguments, EntryProperties>
     {
-        public EntryGetPropertiesHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public EntryGetPropertiesHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -18,7 +18,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            var resolver = new EntryResolver(Root)
+            var resolver = new EntryResolver(Container)
             {
                 ErrorDirectoryFoundAsFile = ErrorFactory.System.FileNotFound,
                 ErrorLastDirectoryFoundAsFile = ErrorFactory.System.FileNotFound,

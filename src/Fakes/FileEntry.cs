@@ -48,7 +48,6 @@ namespace TestableFileSystem.Fakes
             : base(name, FileAttributes.Archive, parent.ChangeTracker, parent.LoggedOnAccount)
         {
             Guard.NotNull(parent, nameof(parent));
-            AssertParentIsValid(parent);
 
             Parent = parent;
             PathFormatter = new FileEntryPathFormatter(this);
@@ -60,15 +59,6 @@ namespace TestableFileSystem.Fakes
             }
 
             CreationTimeUtc = LastWriteTimeUtc = LastAccessTimeUtc = parent.SystemClock.UtcNow();
-        }
-
-        [AssertionMethod]
-        private void AssertParentIsValid([NotNull] DirectoryEntry parent)
-        {
-            if (parent.Parent == null)
-            {
-                throw new InvalidOperationException("File cannot exist at the root of the filesystem.");
-            }
         }
 
         private void HandleFileContentsAccessed(FileAccessKinds accessKinds, bool notifyTracker)
@@ -182,8 +172,6 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNullNorWhiteSpace(newName, nameof(newName));
             Guard.NotNull(newParent, nameof(newParent));
-
-            AssertParentIsValid(newParent);
 
             Name = newName;
             Parent = newParent;

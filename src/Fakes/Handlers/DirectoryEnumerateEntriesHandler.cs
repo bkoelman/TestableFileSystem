@@ -13,9 +13,9 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker;
 
-        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root,
+        public DirectoryEnumerateEntriesHandler([NotNull] VolumeContainer container,
             [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root)
+            : base(container)
         {
             Guard.NotNull(changeTracker, nameof(changeTracker));
             this.changeTracker = changeTracker;
@@ -39,7 +39,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private DirectoryEntry ResolveDirectory([NotNull] AbsolutePath absolutePath)
         {
-            var resolver = new DirectoryResolver(Root)
+            var resolver = new DirectoryResolver(Container)
             {
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNameIsInvalid()
             };

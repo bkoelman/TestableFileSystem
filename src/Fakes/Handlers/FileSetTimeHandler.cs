@@ -13,8 +13,8 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly FakeFileSystemChangeTracker changeTracker;
 
-        public FileSetTimeHandler([NotNull] DirectoryEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker)
-            : base(root)
+        public FileSetTimeHandler([NotNull] VolumeContainer container, [NotNull] FakeFileSystemChangeTracker changeTracker)
+            : base(container)
         {
             Guard.NotNull(changeTracker, nameof(changeTracker));
             this.changeTracker = changeTracker;
@@ -26,7 +26,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertTimeValueIsInRange(arguments);
             AssertIsNotVolumeRoot(arguments.Path);
 
-            var resolver = new EntryResolver(Root);
+            var resolver = new EntryResolver(Container);
             BaseEntry entry = resolver.ResolveEntry(arguments.Path);
 
             AssertIsNotExternallyEncrypted(entry, arguments.Path);

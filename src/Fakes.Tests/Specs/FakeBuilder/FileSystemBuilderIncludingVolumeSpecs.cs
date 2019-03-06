@@ -17,7 +17,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Act
             // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => builder.IncludingVolume(null, new FakeVolumeBuilder());
+            Action action = () => builder.IncludingVolume(null, new FakeVolumeInfoBuilder());
 
             // Assert
             action.Should().ThrowExactly<ArgumentNullException>();
@@ -31,7 +31,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Act
             // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => builder.IncludingVolume("c:", (FakeVolume)null);
+            Action action = () => builder.IncludingVolume("c:", (FakeVolumeInfo)null);
 
             // Assert
             action.Should().ThrowExactly<ArgumentNullException>();
@@ -45,7 +45,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Act
             // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => builder.IncludingVolume("c:", (FakeVolumeBuilder)null);
+            Action action = () => builder.IncludingVolume("c:", (FakeVolumeInfoBuilder)null);
 
             // Assert
             action.Should().ThrowExactly<ArgumentNullException>();
@@ -58,7 +58,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingVolume(string.Empty, new FakeVolumeBuilder());
+            Action action = () => builder.IncludingVolume(string.Empty, new FakeVolumeInfoBuilder());
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage("'name' cannot be empty or contain only whitespace.*");
@@ -71,7 +71,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingVolume(" ", new FakeVolumeBuilder());
+            Action action = () => builder.IncludingVolume(" ", new FakeVolumeInfoBuilder());
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage("'name' cannot be empty or contain only whitespace.*");
@@ -90,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingVolume(driveName, new FakeVolumeBuilder());
+            Action action = () => builder.IncludingVolume(driveName, new FakeVolumeInfoBuilder());
 
             // Assert
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
@@ -109,7 +109,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Act
             IFileSystem fileSystem = builder
-                .IncludingVolume(driveName, new FakeVolumeBuilder())
+                .IncludingVolume(driveName, new FakeVolumeInfoBuilder())
                 .Build();
 
             // Assert
@@ -123,7 +123,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingVolume(@"\\fileserver", new FakeVolumeBuilder());
+            Action action = () => builder.IncludingVolume(@"\\fileserver", new FakeVolumeInfoBuilder());
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
@@ -136,10 +136,38 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingVolume(@"COM1", new FakeVolumeBuilder());
+            Action action = () => builder.IncludingVolume(@"COM1", new FakeVolumeInfoBuilder());
 
             // Assert
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_overwriting_volume_it_must_fail()
+        {
+            // Arrange
+            FakeFileSystemBuilder builder = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder());
+
+            // Act
+            Action action = () => builder.IncludingVolume("c:", new FakeVolumeInfoBuilder());
+
+            // Assert
+            action.Should().ThrowExactly<InvalidOperationException>().WithMessage("Volume 'c:' has already been created.");
+        }
+
+        [Fact]
+        private void When_overwriting_implicit_volume_it_must_fail()
+        {
+            // Arrange
+            FakeFileSystemBuilder builder = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(@"C:\folder\file.txt");
+
+            // Act
+            Action action = () => builder.IncludingVolume("c:", new FakeVolumeInfoBuilder());
+
+            // Assert
+            action.Should().ThrowExactly<InvalidOperationException>().WithMessage("Volume 'c:' has already been created.");
         }
     }
 }

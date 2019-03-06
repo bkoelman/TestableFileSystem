@@ -32,8 +32,8 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        internal FakeDirectoryInfo([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
-            : base(root, owner, path)
+        internal FakeDirectoryInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
+            : base(container, owner, path)
         {
         }
 

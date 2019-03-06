@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 using TestableFileSystem.Utilities;
 
@@ -8,10 +7,7 @@ namespace TestableFileSystem.Fakes
     public sealed class FakeFileSystem : IFileSystem
     {
         [NotNull]
-        private readonly DirectoryEntry root;
-
-        [NotNull]
-        private readonly IDictionary<string, FakeVolume> volumes;
+        private readonly VolumeContainer container;
 
         [NotNull]
         internal readonly object TreeLock = new object();
@@ -36,25 +32,23 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal FakeFileSystemChangeTracker ChangeTracker { get; }
 
-        internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] IDictionary<string, FakeVolume> volumes,
-            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] string tempDirectory,
-            [NotNull] WaitIndicator copyWaitIndicator)
+        internal FakeFileSystem([NotNull] VolumeContainer container, [NotNull] FakeFileSystemChangeTracker changeTracker,
+            [NotNull] string tempDirectory, [NotNull] WaitIndicator copyWaitIndicator)
         {
-            Guard.NotNull(root, nameof(root));
+            Guard.NotNull(container, nameof(container));
             Guard.NotNull(changeTracker, nameof(changeTracker));
             Guard.NotNull(copyWaitIndicator, nameof(copyWaitIndicator));
 
-            this.root = root;
-            this.volumes = volumes;
+            this.container = container;
             ChangeTracker = changeTracker;
             TempDirectory = tempDirectory;
             CopyWaitIndicator = copyWaitIndicator;
 
-            File = new FileOperationLocker<FakeFile>(TreeLock, new FakeFile(root, this));
-            Directory = new DirectoryOperationLocker<FakeDirectory>(TreeLock, new FakeDirectory(root, this));
-            Drive = new DriveOperationLocker<FakeDrive>(TreeLock, new FakeDrive(root, this));
-            Path = new PathOperationLocker<FakePath>(TreeLock, new FakePath(root, this));
-            CurrentDirectoryManager = new CurrentDirectoryManager(root);
+            File = new FileOperationLocker<FakeFile>(TreeLock, new FakeFile(container, this));
+            Directory = new DirectoryOperationLocker<FakeDirectory>(TreeLock, new FakeDirectory(container, this));
+            Drive = new DriveOperationLocker<FakeDrive>(TreeLock, new FakeDrive(container, this));
+            Path = new PathOperationLocker<FakePath>(TreeLock, new FakePath(container, this));
+            CurrentDirectoryManager = new CurrentDirectoryManager(container);
             relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
         }
 
@@ -64,7 +58,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(fileName, nameof(fileName));
 
             AbsolutePath absolutePath = ToAbsolutePathInLock(fileName);
-            return new FakeFileInfo(root, this, absolutePath);
+            return new FakeFileInfo(container, this, absolutePath);
         }
 
         IFileInfo IFileSystem.ConstructFileInfo(string fileName) => ConstructFileInfo(fileName);
@@ -83,7 +77,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(directoryPath, nameof(directoryPath));
 
-            return new FakeDirectoryInfo(root, this, directoryPath);
+            return new FakeDirectoryInfo(container, this, directoryPath);
         }
 
         IDirectoryInfo IFileSystem.ConstructDirectoryInfo(string path) => ConstructDirectoryInfo(path);
@@ -108,7 +102,7 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(driveName, nameof(driveName));
 
-            return new FakeDriveInfo(this, driveName);
+            return new FakeDriveInfo(container, this, driveName);
         }
 
         [NotNull]
@@ -139,11 +133,5 @@ namespace TestableFileSystem.Fakes
         IFileSystemWatcher IFileSystem.ConstructFileSystemWatcher(string path, string filter) =>
             ConstructFileSystemWatcher(path, filter);
 #endif
-
-        [CanBeNull]
-        internal FakeVolume GetVolume([NotNull] string driveName)
-        {
-            return volumes.ContainsKey(driveName) ? volumes[driveName] : null;
-        }
     }
 }

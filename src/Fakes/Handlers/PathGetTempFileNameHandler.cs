@@ -13,8 +13,8 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly Random randomNumberGenerator;
 
-        public PathGetTempFileNameHandler([NotNull] DirectoryEntry root, [NotNull] Random randomNumberGenerator)
-            : base(root)
+        public PathGetTempFileNameHandler([NotNull] VolumeContainer container, [NotNull] Random randomNumberGenerator)
+            : base(container)
         {
             Guard.NotNull(randomNumberGenerator, nameof(randomNumberGenerator));
             this.randomNumberGenerator = randomNumberGenerator;
@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private DirectoryEntry ResolveDirectory([NotNull] AbsolutePath tempDirectory)
         {
-            var resolver = new DirectoryResolver(Root)
+            var resolver = new DirectoryResolver(Container)
             {
                 ErrorDirectoryNotFound = _ => ErrorFactory.System.DirectoryNameIsInvalid(),
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNameIsInvalid(),

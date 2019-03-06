@@ -9,8 +9,8 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileDeleteHandler : FakeOperationHandler<FileDeleteArguments, Missing>
     {
-        public FileDeleteHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileDeleteHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -18,7 +18,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            var resolver = new FileResolver(Root);
+            var resolver = new FileResolver(Container);
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
             if (resolveResult.ExistingFileOrNull != null)

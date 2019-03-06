@@ -13,7 +13,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingVolume("x:", new FakeVolumeBuilder()
+                .IncludingVolume("x:", new FakeVolumeInfoBuilder()
                     .Labeled("StartName"))
                 .Build();
 
@@ -31,7 +31,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingVolume("x:", new FakeVolumeBuilder()
+                .IncludingVolume("x:", new FakeVolumeInfoBuilder()
                     .Labeled("StartName"))
                 .Build();
 

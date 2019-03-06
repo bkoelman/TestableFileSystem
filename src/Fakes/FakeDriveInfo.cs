@@ -11,6 +11,9 @@ namespace TestableFileSystem.Fakes
     internal sealed class FakeDriveInfo : IDriveInfo
     {
         [NotNull]
+        private readonly VolumeContainer container;
+
+        [NotNull]
         private readonly FakeFileSystem owner;
 
         private readonly char driveLetter;
@@ -28,7 +31,7 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                FakeVolume volume = TryGetVolume();
+                VolumeEntry volume = TryGetVolume();
                 return volume?.Type ?? DriveType.NoRootDirectory;
             }
         }
@@ -48,7 +51,7 @@ namespace TestableFileSystem.Fakes
             {
                 lock (owner.TreeLock)
                 {
-                    FakeVolume volume = GetVolume();
+                    VolumeEntry volume = GetVolume();
                     volume.Label = value;
                 }
             }
@@ -56,13 +59,15 @@ namespace TestableFileSystem.Fakes
 
         public IDirectoryInfo RootDirectory => owner.ConstructDirectoryInfo(Name);
 
-        public FakeDriveInfo([NotNull] FakeFileSystem owner, [NotNull] string driveName)
+        public FakeDriveInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner, [NotNull] string driveName)
         {
+            Guard.NotNull(container, nameof(container));
             Guard.NotNull(owner, nameof(owner));
             Guard.NotNull(driveName, nameof(driveName));
             AssertDriveNameIsNotEmpty(driveName);
             AssertDriveNameIsValid(driveName);
 
+            this.container = container;
             this.owner = owner;
             driveLetter = driveName[0];
         }
@@ -90,15 +95,16 @@ namespace TestableFileSystem.Fakes
         }
 
         [CanBeNull]
-        private FakeVolume TryGetVolume()
+        private VolumeEntry TryGetVolume()
         {
-            return owner.GetVolume(driveLetter + Path.VolumeSeparatorChar.ToString());
+            string driveName = driveLetter + Path.VolumeSeparatorChar.ToString();
+            return container.ContainsVolume(driveName) ? container.GetVolume(driveName) : null;
         }
 
         [NotNull]
-        private FakeVolume GetVolume()
+        private VolumeEntry GetVolume()
         {
-            FakeVolume volume = TryGetVolume();
+            VolumeEntry volume = TryGetVolume();
 
             if (volume == null)
             {
