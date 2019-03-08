@@ -258,6 +258,10 @@ namespace TestableFileSystem.Fakes
 
                     if (value > Length)
                     {
+                        // TODO: It must be possible to seek past the end of the file using Seek() or Position, even if we would run out of disk space.
+                        // This does not change Length and it allocates no disk capacity, until writing starts.
+                        // Reading a single byte past the end of a full disk returns -1. Reading into a buffer returns zero bytes.
+
                         SetLength(value);
                     }
 

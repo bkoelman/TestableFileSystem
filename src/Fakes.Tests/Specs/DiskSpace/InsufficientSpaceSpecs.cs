@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using FluentAssertions;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -9,10 +10,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
 {
     public sealed class InsufficientSpaceSpecs
     {
-        // TODO: Add specs for the various I/O operations that reduce available disk space.
-
         [Fact]
-        private void When_writing_to_file_with_insufficient_disk_space_it_must_fail()
+        private void When_writing_to_file_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -27,8 +26,123 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
 
-            IFileInfo fileInfo = fileSystem.ConstructFileInfo(@"C:\file.txt");
-            fileInfo.Length.Should().Be(0);
+            AssertFileSize(fileSystem, @"C:\file.txt", 0);
+            AssertFreeSpaceOnDrive(fileSystem, "C:", 512);
+        }
+
+        [Fact]
+        private void When_increasing_file_size_using_SetLength_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(512))
+                .IncludingBinaryFile(path, BufferFactory.Create(32))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenWrite(path))
+            {
+                byte[] buffer = BufferFactory.Create(64);
+                stream.Write(buffer, 0, buffer.Length);
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.SetLength(1280);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
+
+                AssertFreeSpaceOnDrive(fileSystem, "C:", 448);
+            }
+
+            AssertFileSize(fileSystem, @"C:\file.txt", 64);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_increasing_file_size_using_Seek_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(512))
+                .IncludingBinaryFile(path, BufferFactory.Create(32))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenWrite(path))
+            {
+                byte[] buffer = BufferFactory.Create(64);
+                stream.Write(buffer, 0, buffer.Length);
+
+                stream.Seek(1280, SeekOrigin.Begin);
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.WriteByte(0x33);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
+
+                AssertFreeSpaceOnDrive(fileSystem, "C:", 448);
+            }
+
+            AssertFileSize(fileSystem, @"C:\file.txt", 64);
+        }
+
+        [Fact(Skip = "TODO")]
+        private void When_increasing_file_size_using_Position_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(512))
+                .IncludingBinaryFile(path, BufferFactory.Create(32))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenWrite(path))
+            {
+                byte[] buffer = BufferFactory.Create(64);
+                stream.Write(buffer, 0, buffer.Length);
+
+                stream.Position = 1280;
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.WriteByte(0x33);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
+
+                AssertFreeSpaceOnDrive(fileSystem, "C:", 448);
+            }
+
+            AssertFileSize(fileSystem, @"C:\file.txt", 64);
+        }
+
+        // TODO: Add specs for the various I/O operations that reduce available disk space.
+
+        [AssertionMethod]
+        private static void AssertFileSize([NotNull] IFileSystem fileSystem, [NotNull] string path, long fileSize)
+        {
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
+            fileInfo.Length.Should().Be(fileSize);
+        }
+
+        [AssertionMethod]
+        private static void AssertFreeSpaceOnDrive([NotNull] IFileSystem fileSystem, [NotNull] string driveName, long freeSpace)
+        {
+#if !NETCOREAPP1_1
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo(driveName);
+            driveInfo.AvailableFreeSpace.Should().Be(freeSpace);
+#endif
         }
     }
 }

@@ -9,8 +9,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
 {
     public sealed class SufficientSpaceSpecs
     {
-        // TODO: Add specs for the various I/O operations that influence available disk space.
-
         [Fact]
         private void When_writing_to_new_file_it_must_succeed()
         {
@@ -27,6 +25,28 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             // Assert
             IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
             driveInfo.AvailableFreeSpace.Should().Be(3072);
+        }
+
+        [Fact]
+        private void When_writing_to_new_file_with_DeleteOnClose_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .Build();
+
+            // Act
+            using (IFileStream stream = fileSystem.File.Create(@"C:\file.txt", options: FileOptions.DeleteOnClose))
+            {
+                byte[] buffer = BufferFactory.Create(1024);
+                stream.Write(buffer, 0, buffer.Length);
+            }
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(4096);
         }
 
         [Fact]
@@ -70,10 +90,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             {
                 // Act
                 stream.Seek(1280, SeekOrigin.Begin);
+                stream.WriteByte(0x33);
 
                 // Assert
                 IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
-                driveInfo.AvailableFreeSpace.Should().Be(2816);
+                driveInfo.AvailableFreeSpace.Should().Be(2815);
             }
         }
 
@@ -94,10 +115,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             {
                 // Act
                 stream.Position = 1280;
+                stream.WriteByte(0x33);
 
                 // Assert
                 IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
-                driveInfo.AvailableFreeSpace.Should().Be(2816);
+                driveInfo.AvailableFreeSpace.Should().Be(2815);
             }
         }
 
@@ -219,10 +241,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
         }
 
         [Fact]
-        private void When_moving_file_to_same_drive_it_must_succeed()
+        private void When_renaming_file_it_must_succeed()
         {
             // Arrange
             const string sourcePath = @"C:\source.txt";
+            const string targetPath = @"C:\target.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(sourcePath, BufferFactory.Create(768))
+                .Build();
+
+            // Act
+            fileSystem.File.Move(sourcePath, targetPath);
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(3328);
+        }
+
+        [Fact]
+        private void When_moving_file_to_same_drive_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\src\source.txt";
             const string targetPath = @"C:\target.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -290,6 +334,50 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
         }
 
         [Fact]
+        private void When_encrypting_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(path, BufferFactory.Create(1024))
+                .Build();
+
+            // Act
+            fileSystem.File.Encrypt(path);
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(3072);
+        }
+
+        [Fact]
+        private void When_decrypting_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(path, BufferFactory.Create(1024))
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            // Act
+            fileSystem.File.Decrypt(path);
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(3072);
+        }
+
+        [Fact]
         private void When_replacing_file_without_backup_it_must_succeed()
         {
             // Arrange
@@ -335,6 +423,107 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             // Assert
             IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
             driveInfo.AvailableFreeSpace.Should().Be(2048);
+        }
+
+        [Fact]
+        private void When_creating_directory_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\some\folder\subtree";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .Build();
+
+            // Act
+            fileSystem.Directory.CreateDirectory(path);
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(4096);
+        }
+
+        [Fact]
+        private void When_deleting_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingDirectory(@"C:\some\folder\subtree")
+                .Build();
+
+            // Act
+            fileSystem.Directory.Delete(@"C:\some", true);
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(4096);
+        }
+
+        [Fact]
+        private void When_renaming_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(@"c:\source\src.txt", BufferFactory.Create(64))
+                .IncludingBinaryFile(@"c:\source\nested\src.txt", BufferFactory.Create(256))
+                .IncludingDirectory(@"c:\source\subfolder")
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(@"C:\source", @"C:\target");
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(3776);
+        }
+
+        [Fact]
+        private void When_moving_directory_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(@"c:\source\src.txt", BufferFactory.Create(64))
+                .IncludingBinaryFile(@"c:\source\nested\src.txt", BufferFactory.Create(256))
+                .IncludingDirectory(@"c:\source\subfolder")
+                .IncludingDirectory(@"c:\target\container")
+                .Build();
+
+            // Act
+            fileSystem.Directory.Move(@"C:\source", @"c:\target\container\newname");
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(3776);
+        }
+
+        [Fact]
+        private void When_creating_temporary_file_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .WithTempDirectory(@"c:\")
+                .Build();
+
+            // Act
+            fileSystem.Path.GetTempFileName();
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(4096);
         }
     }
 }

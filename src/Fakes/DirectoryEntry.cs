@@ -36,8 +36,8 @@ namespace TestableFileSystem.Fakes
 
         internal override IPathFormatter PathFormatter { get; }
 
-        protected DirectoryEntry([NotNull] string name, FileAttributes attributes, [CanBeNull] DirectoryEntry parent, [CanBeNull] VolumeEntry root,
-            [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock,
+        protected DirectoryEntry([NotNull] string name, FileAttributes attributes, [CanBeNull] DirectoryEntry parent,
+            [CanBeNull] VolumeEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock,
             [NotNull] ILoggedOnUserAccount loggedOnAccount)
             : base(name, attributes, changeTracker, loggedOnAccount)
         {
@@ -153,6 +153,12 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(file, nameof(file));
             Guard.NotNullNorWhiteSpace(newFileName, nameof(newFileName));
+
+            if (!Root.TryAllocateSpace(file.Size))
+            {
+                // TODO: File has already been removed from source directory. Throwing here makes the file inaccessible.
+                throw ErrorFactory.System.NotEnoughSpaceOnDisk();
+            }
 
             file.MoveTo(newFileName, this);
             contents.Add(file);
