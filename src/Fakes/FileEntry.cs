@@ -177,6 +177,27 @@ namespace TestableFileSystem.Fakes
             Parent = newParent;
         }
 
+        public void TransferContentsFrom([NotNull] FileEntry otherFile)
+        {
+            Guard.NotNull(otherFile, nameof(otherFile));
+
+            if (!Parent.Root.TryAllocateSpace(otherFile.Size - Size))
+            {
+                throw ErrorFactory.System.NotEnoughSpaceOnDisk();
+            }
+
+            blocks = otherFile.blocks;
+            Size = otherFile.Size;
+        }
+
+        public void TransferFrom([NotNull] FileEntry otherFile)
+        {
+            Guard.NotNull(otherFile, nameof(otherFile));
+
+            TransferContentsFrom(otherFile);
+            CopyPropertiesFrom(otherFile);
+        }
+
         private void CloseStream([NotNull] FakeFileStream stream)
         {
             lock (readerWriterLock)
@@ -254,15 +275,6 @@ namespace TestableFileSystem.Fakes
                     if (appendOffset != null && value < appendOffset)
                     {
                         throw ErrorFactory.System.CannotSeekToPositionBeforeAppend();
-                    }
-
-                    if (value > Length)
-                    {
-                        // TODO: It must be possible to seek past the end of the file using Seek() or Position, even if we would run out of disk space.
-                        // This does not change Length and it allocates no disk capacity, until writing starts.
-                        // Reading a single byte past the end of a full disk returns -1. Reading into a buffer returns zero bytes.
-
-                        SetLength(value);
                     }
 
                     absolutePosition = value;
@@ -363,7 +375,7 @@ namespace TestableFileSystem.Fakes
                 AssertIsReadable();
 
                 var segment = new ArraySegment<byte>(buffer, offset, count);
-                if (segment.Count == 0 || Position == Length)
+                if (segment.Count == 0 || Position >= Length)
                 {
                     return 0;
                 }
@@ -415,8 +427,6 @@ namespace TestableFileSystem.Fakes
                 int blockIndex = (int)(Position / BlockSize);
                 int bytesFreeInCurrentBlock = BlockSize - (int)(Position % BlockSize);
 
-                long newPosition = absolutePosition;
-
                 while (count > 0)
                 {
                     int bytesToWrite = Math.Min(bytesFreeInCurrentBlock, count);
@@ -427,18 +437,16 @@ namespace TestableFileSystem.Fakes
                     offset += bytesToWrite;
                     count -= bytesToWrite;
 
-                    newPosition += bytesToWrite;
+                    Position += bytesToWrite;
 
                     blockIndex++;
                     bytesFreeInCurrentBlock = BlockSize;
                 }
 
-                if (newPosition > Length)
+                if (Position > Length)
                 {
-                    newLength = newPosition;
+                    newLength = Position;
                 }
-
-                absolutePosition = newPosition;
 
                 accessKinds |= FileAccessKinds.Write | FileAccessKinds.Read;
             }
@@ -666,27 +674,6 @@ namespace TestableFileSystem.Fakes
                     return Position + Length > position && position + length > Position;
                 }
             }
-        }
-
-        public void TransferContentsFrom([NotNull] FileEntry otherFile)
-        {
-            Guard.NotNull(otherFile, nameof(otherFile));
-
-            if (!Parent.Root.TryAllocateSpace(otherFile.Size - Size))
-            {
-                throw ErrorFactory.System.NotEnoughSpaceOnDisk();
-            }
-
-            blocks = otherFile.blocks;
-            Size = otherFile.Size;
-        }
-
-        public void TransferFrom([NotNull] FileEntry otherFile)
-        {
-            Guard.NotNull(otherFile, nameof(otherFile));
-
-            TransferContentsFrom(otherFile);
-            CopyPropertiesFrom(otherFile);
         }
     }
 }

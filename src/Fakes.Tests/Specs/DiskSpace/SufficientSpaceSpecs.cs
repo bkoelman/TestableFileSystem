@@ -50,6 +50,27 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
         }
 
         [Fact]
+        private void When_overwriting_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(path, BufferFactory.Create(1024))
+                .Build();
+
+            // Act
+            fileSystem.File.WriteAllBytes(path, BufferFactory.Create(4000));
+
+            // Assert
+            IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+            driveInfo.AvailableFreeSpace.Should().Be(96);
+        }
+
+        [Fact]
         private void When_increasing_file_size_using_SetLength_it_must_succeed()
         {
             // Arrange
@@ -74,7 +95,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
         }
 
         [Fact]
-        private void When_increasing_file_size_using_Seek_it_must_succeed()
+        private void When_increasing_file_size_using_Seek_followed_by_write_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -99,7 +120,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
         }
 
         [Fact]
-        private void When_increasing_file_size_using_Position_it_must_succeed()
+        private void When_increasing_file_size_using_Position_followed_by_write_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\file.txt";

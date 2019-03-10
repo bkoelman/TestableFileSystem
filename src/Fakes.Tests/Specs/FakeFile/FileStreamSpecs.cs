@@ -189,7 +189,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_writing_large_buffer_with_offset_to_file_it_must_succeed()
+        private void When_writing_large_buffer_with_offset_to_file_using_Seek_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -204,6 +204,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Create(path, 2048))
             {
                 stream.Seek(offset, SeekOrigin.Begin);
+
+                // Act
+                stream.Write(writeBuffer, 0, writeBuffer.Length);
+
+                // Assert
+                stream.Length.Should().Be(size + offset);
+                stream.Position.Should().Be(size + offset);
+            }
+
+            byte[] contents = fileSystem.File.ReadAllBytes(path).Skip(offset).ToArray();
+            contents.SequenceEqual(writeBuffer).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_writing_large_buffer_with_offset_to_file_using_Position_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            const int size = 4096 * 16;
+            byte[] writeBuffer = CreateBuffer(size);
+            const int offset = 5;
+
+            using (IFileStream stream = fileSystem.File.Create(path, 2048))
+            {
+                stream.Position = offset;
 
                 // Act
                 stream.Write(writeBuffer, 0, writeBuffer.Length);
@@ -598,7 +627,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_seeking_from_begin_to_past_end_it_must_add_extra_zero_bytes()
+        private void When_seeking_from_begin_to_past_end_it_must_not_change_length()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -611,18 +640,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
             {
                 // Act
-                stream.Seek(data.Length + 10, SeekOrigin.Begin);
+                stream.Seek(13, SeekOrigin.Begin);
 
                 // Assert
-                stream.Length.Should().Be(data.Length + 10);
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
             }
 
-            string contents = fileSystem.File.ReadAllText(path);
-            contents.Substring(data.Length).Should().Be(new string('\0', 10));
+            fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
         [Fact]
-        private void When_seeking_from_current_to_past_end_it_must_add_extra_zero_bytes()
+        private void When_seeking_from_current_to_past_end_it_must_not_change_length()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -640,15 +669,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Seek(2 + 10, SeekOrigin.Current);
 
                 // Assert
-                stream.Length.Should().Be(data.Length + 10);
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
             }
 
-            string contents = fileSystem.File.ReadAllText(path);
-            contents.Substring(data.Length).Should().Be(new string('\0', 10));
+            fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
         [Fact]
-        private void When_seeking_from_end_to_past_end_it_must_add_extra_zero_bytes()
+        private void When_seeking_from_end_to_past_end_it_must_not_change_length()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -664,15 +693,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Seek(10, SeekOrigin.End);
 
                 // Assert
-                stream.Length.Should().Be(data.Length + 10);
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
             }
 
-            string contents = fileSystem.File.ReadAllText(path);
-            contents.Substring(data.Length).Should().Be(new string('\0', 10));
+            fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
         [Fact]
-        private void When_seeking_from_end_to_past_end_of_readonly_stream_it_must_fail()
+        private void When_seeking_from_end_to_past_end_of_readonly_stream_it_must_not_change_length()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -684,11 +713,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
             {
                 // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => stream.Seek(10, SeekOrigin.End);
+                stream.Seek(10, SeekOrigin.End);
 
                 // Assert
-                action.Should().ThrowExactly<NotSupportedException>();
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
             }
         }
 
@@ -734,6 +763,118 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
                     "Specified argument was out of the range of valid values.*");
             }
+        }
+
+        [Fact]
+        private void When_setting_position_to_past_end_it_must_not_change_length()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string data = "ABC";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, data)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
+            {
+                // Act
+                stream.Position = 13;
+
+                // Assert
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
+            }
+
+            fileSystem.File.ReadAllText(path).Should().Be(data);
+        }
+
+        [Fact]
+        private void When_setting_position_to_before_end_in_stream_opened_in_Append_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Append))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Position = 1;
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
+            }
+        }
+
+        [Fact]
+        private void When_reading_past_end_of_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string data = "ABC";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, data)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                stream.Seek(50, SeekOrigin.Begin);
+
+                // Act
+                int count = stream.Read(new byte[1024], 0, 1024);
+
+                // Assert
+                count.Should().Be(0);
+
+                stream.Position.Should().Be(50);
+            }
+        }
+
+        [Fact]
+        private void When_writing_past_end_of_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string data = "ABC";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, data)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
+            {
+                stream.Seek(50, SeekOrigin.Begin);
+
+                byte[] buffer =
+                {
+                    0x11,
+                    0x22,
+                    0x33
+                };
+
+                // Act
+                stream.Write(buffer, 0, buffer.Length);
+
+                // Assert
+                stream.Position.Should().Be(53);
+                stream.Length.Should().Be(53);
+            }
+
+            var expectedContents = new byte[53];
+            expectedContents[0] = (byte)'A';
+            expectedContents[1] = (byte)'B';
+            expectedContents[2] = (byte)'C';
+            expectedContents[50] = 0x11;
+            expectedContents[51] = 0x22;
+            expectedContents[52] = 0x33;
+
+            fileSystem.File.ReadAllBytes(path).Should().BeEquivalentTo(expectedContents);
         }
 
         [Fact]
