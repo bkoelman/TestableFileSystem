@@ -95,6 +95,54 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
         }
 
         [Fact]
+        private void When_seeking_past_end_of_file_it_must_not_allocate_disk_space()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(512))
+                .IncludingBinaryFile(path, BufferFactory.Create(32))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Act
+                stream.Seek(1024, SeekOrigin.Begin);
+
+                // Assert
+                IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+                driveInfo.AvailableFreeSpace.Should().Be(480);
+            }
+        }
+
+        [Fact]
+        private void When_moving_position_past_end_of_file_it_must_not_allocate_disk_space()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(512))
+                .IncludingBinaryFile(path, BufferFactory.Create(32))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Act
+                stream.Position = 1024;
+
+                // Assert
+                IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
+                driveInfo.AvailableFreeSpace.Should().Be(480);
+            }
+        }
+
+        [Fact]
         private void When_increasing_file_size_using_Seek_followed_by_write_it_must_succeed()
         {
             // Arrange
@@ -408,7 +456,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingVolume("C:", new FakeVolumeInfoBuilder()
                     .OfCapacity(8192)
-                    .WithFreeSpace(4096))
+                    .WithFreeSpace(2112))
                 .IncludingBinaryFile(sourcePath, BufferFactory.Create(768))
                 .IncludingBinaryFile(targetPath, BufferFactory.Create(1280))
                 .Build();
@@ -418,7 +466,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
 
             // Assert
             IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
-            driveInfo.AvailableFreeSpace.Should().Be(3328);
+            driveInfo.AvailableFreeSpace.Should().Be(1344);
         }
 
         [Fact]
@@ -432,7 +480,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingVolume("C:", new FakeVolumeInfoBuilder()
                     .OfCapacity(8192)
-                    .WithFreeSpace(4096))
+                    .WithFreeSpace(2240))
                 .IncludingBinaryFile(sourcePath, BufferFactory.Create(768))
                 .IncludingBinaryFile(targetPath, BufferFactory.Create(1280))
                 .IncludingBinaryFile(backupPath, BufferFactory.Create(128))
@@ -443,7 +491,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
 
             // Assert
             IDriveInfo driveInfo = fileSystem.ConstructDriveInfo("C:");
-            driveInfo.AvailableFreeSpace.Should().Be(2048);
+            driveInfo.AvailableFreeSpace.Should().Be(192);
         }
 
         [Fact]

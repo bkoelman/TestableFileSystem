@@ -130,12 +130,16 @@ namespace TestableFileSystem.Fakes.Handlers
                 AssertIsNotHiddenOrReadOnly(resolveResult.ExistingFileOrNull, arguments.DestinationPath);
                 AssertIsNotExternallyEncrypted(resolveResult.ExistingFileOrNull, arguments.DestinationPath,
                     arguments.IsCopyAfterMoveFailed);
+                AssertSufficientDiskSpace(sourceFile.Size - resolveResult.ExistingFileOrNull.Size,
+                    resolveResult.ContainingDirectory.Root);
 
                 destinationFile = ResolveExistingDestinationFile(resolveResult);
                 isNewlyCreated = false;
             }
             else
             {
+                AssertSufficientDiskSpace(sourceFile.Size, resolveResult.ContainingDirectory.Root);
+
                 destinationFile = resolveResult.ContainingDirectory.CreateFile(resolveResult.FileName);
                 destinationFile.CreationTimeUtc = utcNow;
                 isNewlyCreated = true;
@@ -153,6 +157,15 @@ namespace TestableFileSystem.Fakes.Handlers
             destinationFile.LastWriteTimeUtc = sourceFile.LastWriteTimeUtc;
 
             return destinationFile;
+        }
+
+        [AssertionMethod]
+        private void AssertSufficientDiskSpace(long extraDiskSpaceNeeded, [NotNull] VolumeEntry volume)
+        {
+            if (extraDiskSpaceNeeded > 0 && volume.FreeSpaceInBytes < extraDiskSpaceNeeded)
+            {
+                throw ErrorFactory.System.NotEnoughSpaceOnDisk();
+            }
         }
 
         [NotNull]

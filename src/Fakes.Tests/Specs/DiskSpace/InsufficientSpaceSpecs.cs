@@ -14,6 +14,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
         private void When_writing_to_file_it_must_fail()
         {
             // Arrange
+            const string path = @"C:\file.txt";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingVolume("C:", new FakeVolumeInfoBuilder()
                     .OfCapacity(8192)
@@ -21,12 +23,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.WriteAllBytes(@"C:\file.txt", BufferFactory.Create(1024));
+            Action action = () => fileSystem.File.WriteAllBytes(path, BufferFactory.Create(1024));
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
 
-            AssertFileSize(fileSystem, @"C:\file.txt", 0);
+            AssertFileSize(fileSystem, path, 0);
             AssertFreeSpaceOnDrive(fileSystem, "C:", 512);
         }
 
@@ -50,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
 
             AssertFreeSpaceOnDrive(fileSystem, "C:", 3072);
-            AssertFileSize(fileSystem, @"C:\file.txt", 0);
+            AssertFileSize(fileSystem, path, 0);
         }
 
         [Fact]
@@ -81,57 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
                 AssertFreeSpaceOnDrive(fileSystem, "C:", 448);
             }
 
-            AssertFileSize(fileSystem, @"C:\file.txt", 64);
-        }
-
-        [Fact]
-        private void When_seeking_past_end_of_file_it_must_not_allocate_disk_space()
-        {
-            // Arrange
-            const string path = @"C:\file.txt";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
-                    .OfCapacity(8192)
-                    .WithFreeSpace(512))
-                .IncludingBinaryFile(path, BufferFactory.Create(32))
-                .Build();
-
-            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
-            {
-                // Act
-                stream.Seek(1024, SeekOrigin.Begin);
-
-                // Assert
-                AssertFreeSpaceOnDrive(fileSystem, "C:", 480);
-            }
-
-            AssertFileSize(fileSystem, @"C:\file.txt", 32);
-        }
-
-        [Fact]
-        private void When_moving_position_past_end_of_file_it_must_not_allocate_disk_space()
-        {
-            // Arrange
-            const string path = @"C:\file.txt";
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
-                    .OfCapacity(8192)
-                    .WithFreeSpace(512))
-                .IncludingBinaryFile(path, BufferFactory.Create(32))
-                .Build();
-
-            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
-            {
-                // Act
-                stream.Position = 1024;
-
-                // Assert
-                AssertFreeSpaceOnDrive(fileSystem, "C:", 480);
-            }
-
-            AssertFileSize(fileSystem, @"C:\file.txt", 32);
+            AssertFileSize(fileSystem, path, 64);
         }
 
         [Fact]
@@ -164,7 +116,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
                 AssertFreeSpaceOnDrive(fileSystem, "C:", 448);
             }
 
-            AssertFileSize(fileSystem, @"C:\file.txt", 64);
+            AssertFileSize(fileSystem, path, 64);
         }
 
         [Fact]
@@ -197,10 +149,148 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
                 AssertFreeSpaceOnDrive(fileSystem, "C:", 448);
             }
 
-            AssertFileSize(fileSystem, @"C:\file.txt", 64);
+            AssertFileSize(fileSystem, path, 64);
         }
 
-        // TODO: Add specs for the various I/O operations that reduce available disk space.
+        [Fact]
+        private void When_copying_file_to_same_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\source.txt";
+            const string targetPath = @"C:\target.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(1024))
+                .IncludingBinaryFile(sourcePath, BufferFactory.Create(768))
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Copy(sourcePath, targetPath);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
+
+            AssertFreeSpaceOnDrive(fileSystem, "C:", 256);
+            AssertFileSize(fileSystem, sourcePath, 768);
+            fileSystem.File.Exists(targetPath).Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_copying_over_existing_file_to_same_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\source.txt";
+            const string targetPath = @"C:\target.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(1024))
+                .IncludingBinaryFile(sourcePath, BufferFactory.Create(768))
+                .IncludingEmptyFile(targetPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Copy(sourcePath, targetPath, true);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
+
+            AssertFreeSpaceOnDrive(fileSystem, "C:", 256);
+            AssertFileSize(fileSystem, sourcePath, 768);
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_copying_file_to_other_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\source.txt";
+            const string targetPath = @"D:\target.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(sourcePath, BufferFactory.Create(768))
+                .IncludingVolume("D:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(16384)
+                    .WithFreeSpace(512))
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Copy(sourcePath, targetPath);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
+
+            AssertFreeSpaceOnDrive(fileSystem, "C:", 3328);
+            AssertFileSize(fileSystem, sourcePath, 768);
+            AssertFreeSpaceOnDrive(fileSystem, "D:", 512);
+            fileSystem.File.Exists(targetPath).Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_copying_over_existing_file_to_other_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\source.txt";
+            const string targetPath = @"D:\target.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(sourcePath, BufferFactory.Create(768))
+                .IncludingVolume("D:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(16384)
+                    .WithFreeSpace(512))
+                .IncludingEmptyFile(targetPath)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Copy(sourcePath, targetPath, true);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
+
+            AssertFreeSpaceOnDrive(fileSystem, "C:", 3328);
+            AssertFileSize(fileSystem, sourcePath, 768);
+            AssertFreeSpaceOnDrive(fileSystem, "D:", 512);
+            fileSystem.File.Exists(targetPath).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_moving_file_to_other_drive_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\source.txt";
+            const string targetPath = @"D:\target.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingVolume("C:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(8192)
+                    .WithFreeSpace(4096))
+                .IncludingBinaryFile(sourcePath, BufferFactory.Create(768))
+                .IncludingVolume("D:", new FakeVolumeInfoBuilder()
+                    .OfCapacity(16384)
+                    .WithFreeSpace(512))
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Move(sourcePath, targetPath);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("There is not enough space on the disk.");
+
+            // Assert
+            AssertFreeSpaceOnDrive(fileSystem, "C:", 3328);
+            AssertFileSize(fileSystem, sourcePath, 768);
+            AssertFreeSpaceOnDrive(fileSystem, "D:", 512);
+            fileSystem.File.Exists(targetPath).Should().BeFalse();
+        }
 
         [AssertionMethod]
         private static void AssertFileSize([NotNull] IFileSystem fileSystem, [NotNull] string path, long fileSizeExpected)

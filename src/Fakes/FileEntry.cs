@@ -181,11 +181,6 @@ namespace TestableFileSystem.Fakes
         {
             Guard.NotNull(otherFile, nameof(otherFile));
 
-            if (!Parent.Root.TryAllocateSpace(otherFile.Size - Size))
-            {
-                throw ErrorFactory.System.NotEnoughSpaceOnDisk();
-            }
-
             blocks = otherFile.blocks;
             Size = otherFile.Size;
         }
@@ -266,11 +261,7 @@ namespace TestableFileSystem.Fakes
                 set
                 {
                     AssertNotClosed();
-
-                    if (value < 0)
-                    {
-                        throw new ArgumentOutOfRangeException(nameof(value));
-                    }
+                    AssertIsNotNegative(value, nameof(value));
 
                     if (appendOffset != null && value < appendOffset)
                     {
@@ -352,6 +343,7 @@ namespace TestableFileSystem.Fakes
 
             public override void SetLength(long value)
             {
+                AssertIsNotNegative(value, nameof(value));
                 AssertNotClosed();
                 AssertIsWritable();
 

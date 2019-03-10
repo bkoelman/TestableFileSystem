@@ -760,8 +760,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Position = -1;
 
                 // Assert
-                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage(
-                    "Specified argument was out of the range of valid values.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
             }
         }
 
@@ -875,6 +874,27 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             expectedContents[52] = 0x33;
 
             fileSystem.File.ReadAllBytes(path).Should().BeEquivalentTo(expectedContents);
+        }
+
+        [Fact]
+        private void When_setting_length_to_negative_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.SetLength(-1);
+
+                // Assert
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+            }
         }
 
         [Fact]

@@ -95,8 +95,8 @@ namespace TestableFileSystem.Fakes
         {
             if (freeSpaceInBytes < 0L || freeSpaceInBytes > capacityInBytes)
             {
-                throw new ArgumentOutOfRangeException(nameof(freeSpaceInBytes),
-                    "Free space cannot be negative or exceed volume capacity.");
+                throw ErrorFactory.Internal.UnknownError(
+                    $"Free space ({freeSpaceInBytes} bytes) cannot be negative or exceed volume capacity ({capacityInBytes} bytes).");
             }
         }
 

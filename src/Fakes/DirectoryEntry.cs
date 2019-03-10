@@ -126,7 +126,8 @@ namespace TestableFileSystem.Fakes
 
             if (!Root.TryAllocateSpace(-fileEntry.Size))
             {
-                throw ErrorFactory.Internal.UnknownError($"Disk space on drive '{Root.Name}' would become negative.");
+                throw ErrorFactory.Internal.UnknownError(
+                    $"Disk space on volume '{Root.Name}' ({Root.FreeSpaceInBytes} bytes) would become negative.");
             }
 
             UpdateLastWriteLastAccessTime();
@@ -156,8 +157,8 @@ namespace TestableFileSystem.Fakes
 
             if (!Root.TryAllocateSpace(file.Size))
             {
-                // TODO: File has already been removed from source directory. Throwing here makes the file inaccessible.
-                throw ErrorFactory.System.NotEnoughSpaceOnDisk();
+                throw ErrorFactory.Internal.UnknownError(
+                    $"Disk space on volume '{Root.Name}' ({Root.FreeSpaceInBytes} bytes) would become negative.");
             }
 
             file.MoveTo(newFileName, this);

@@ -4,6 +4,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
@@ -23,36 +24,46 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileEntry destinationFile = ResolveExistingFile(arguments.DestinationPath);
 
+            var spaceTracker = new VolumeSpaceTracker(sourceFile, destinationFile);
+
             if (arguments.BackupDestinationPath != null)
             {
-                TransferDestinationFileToBackupFile(destinationFile, arguments.BackupDestinationPath);
+                TransferDestinationFileToBackupFile(destinationFile, arguments.BackupDestinationPath, spaceTracker);
             }
 
             TransferSourceContentsToDestinationFile(sourceFile, destinationFile);
 
+            spaceTracker.ApplyVolumeSpaceChange();
+
             return Missing.Value;
         }
 
-        private void TransferDestinationFileToBackupFile([NotNull] FileEntry destinationFile, [NotNull] AbsolutePath backupPath)
+        private void TransferDestinationFileToBackupFile([NotNull] FileEntry destinationFile, [NotNull] AbsolutePath backupPath,
+            [NotNull] VolumeSpaceTracker spaceTracker)
         {
             DirectoryEntry backupDirectory = ResolveBackupDirectory(backupPath);
             string backupFileName = backupPath.Components.Last();
 
             FileEntry backupFile;
+            long previousBackupFileSize;
 
             if (backupDirectory.ContainsFile(backupFileName))
             {
                 backupFile = backupDirectory.GetFile(backupFileName);
+                previousBackupFileSize = backupFile.Size;
+
                 AssertBackupFileIsNotReadOnly(backupFile);
                 AssertHasExclusiveAccessToBackupFile(backupFile);
             }
             else
             {
                 backupFile = backupDirectory.CreateFile(backupFileName);
+                previousBackupFileSize = 0;
             }
 
-            // TODO: This call fails on insufficient disk space. Should we keep the empty backup file in that case?
             backupFile.TransferFrom(destinationFile);
+
+            spaceTracker.SetBackupFileSizeChange(backupFile.Size - previousBackupFileSize);
         }
 
         private static void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile,
@@ -179,6 +190,41 @@ namespace TestableFileSystem.Fakes.Handlers
             if (!arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath))
             {
                 throw ErrorFactory.System.UnableToMoveReplacementFile();
+            }
+        }
+
+        private sealed class VolumeSpaceTracker
+        {
+            [NotNull]
+            private readonly VolumeEntry volume;
+
+            private readonly long sourceToDestinationFileSizeDelta;
+            private long destinationToBackupFileSizeDelta;
+
+            public VolumeSpaceTracker([NotNull] FileEntry sourceFile, [NotNull] FileEntry destinationFile)
+            {
+                Guard.NotNull(sourceFile, nameof(sourceFile));
+                Guard.NotNull(destinationFile, nameof(destinationFile));
+
+                volume = sourceFile.Parent.Root;
+                sourceToDestinationFileSizeDelta = sourceFile.Size - destinationFile.Size;
+            }
+
+            public void SetBackupFileSizeChange(long bytes)
+            {
+                destinationToBackupFileSizeDelta = bytes;
+            }
+
+            public void ApplyVolumeSpaceChange()
+            {
+                if (destinationToBackupFileSizeDelta + sourceToDestinationFileSizeDelta != 0)
+                {
+                    if (!volume.TryAllocateSpace(destinationToBackupFileSizeDelta + sourceToDestinationFileSizeDelta))
+                    {
+                        throw ErrorFactory.Internal.UnknownError(
+                            $"Disk space on volume '{volume.Name}' ({volume.FreeSpaceInBytes} bytes) would become negative.");
+                    }
+                }
             }
         }
     }
