@@ -247,6 +247,8 @@ namespace TestableFileSystem.Fakes
             [CanBeNull]
             private long? newLength;
 
+            // TODO: CanSeek/CanRead/CanWrite should return false if stream is closed.
+
             public override bool CanRead { get; }
 
             public override bool CanSeek => true;

@@ -7,9 +7,13 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Interfaces
 {
+    /// <summary>
+    /// Provides extension methods on <see cref="IFile" /> objects to open files and access their contents.
+    /// </summary>
     [PublicAPI]
     public static class FileExtensions
     {
+        /// <inheritdoc cref="File.OpenRead" />
         [NotNull]
         public static IFileStream OpenRead([NotNull] this IFile file, [NotNull] string path)
         {
@@ -19,6 +23,7 @@ namespace TestableFileSystem.Interfaces
             return file.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
+        /// <inheritdoc cref="File.OpenWrite" />
         [NotNull]
         public static IFileStream OpenWrite([NotNull] this IFile file, [NotNull] string path)
         {
@@ -28,6 +33,7 @@ namespace TestableFileSystem.Interfaces
             return file.Open(path, FileMode.OpenOrCreate, FileAccess.Write);
         }
 
+        /// <inheritdoc cref="File.OpenText" />
         [NotNull]
         public static StreamReader OpenText([NotNull] this IFile file, [NotNull] string path)
         {
@@ -38,6 +44,7 @@ namespace TestableFileSystem.Interfaces
             return CreateReader(stream);
         }
 
+        /// <inheritdoc cref="File.CreateText" />
         [NotNull]
         public static StreamWriter CreateText([NotNull] this IFile file, [NotNull] string path)
         {
@@ -48,6 +55,7 @@ namespace TestableFileSystem.Interfaces
             return CreateWriter(stream);
         }
 
+        /// <inheritdoc cref="File.AppendText" />
         [NotNull]
         public static StreamWriter AppendText([NotNull] this IFile file, [NotNull] string path)
         {
@@ -58,6 +66,7 @@ namespace TestableFileSystem.Interfaces
             return CreateWriter(stream);
         }
 
+        /// <inheritdoc cref="File.ReadAllBytes" />
         [NotNull]
         public static byte[] ReadAllBytes([NotNull] this IFile file, [NotNull] string path)
         {
@@ -72,6 +81,7 @@ namespace TestableFileSystem.Interfaces
             }
         }
 
+        /// <inheritdoc cref="File.ReadAllLines(string,Encoding)" />
         [NotNull]
         [ItemNotNull]
         public static string[] ReadAllLines([NotNull] this IFile file, [NotNull] string path,
@@ -83,6 +93,7 @@ namespace TestableFileSystem.Interfaces
             return ReadLines(file, path, encoding).ToArray();
         }
 
+        /// <inheritdoc cref="File.ReadLines(string,Encoding)" />
         [NotNull]
         [ItemNotNull]
         public static IEnumerable<string> ReadLines([NotNull] this IFile file, [NotNull] string path,
@@ -104,6 +115,7 @@ namespace TestableFileSystem.Interfaces
             }
         }
 
+        /// <inheritdoc cref="File.ReadAllText(string,Encoding)" />
         [NotNull]
         public static string ReadAllText([NotNull] this IFile file, [NotNull] string path, [CanBeNull] Encoding encoding = null)
         {
@@ -119,6 +131,7 @@ namespace TestableFileSystem.Interfaces
             }
         }
 
+        /// <inheritdoc cref="File.WriteAllBytes" />
         public static void WriteAllBytes([NotNull] this IFile file, [NotNull] string path, [NotNull] byte[] bytes)
         {
             Guard.NotNull(file, nameof(file));
@@ -131,6 +144,7 @@ namespace TestableFileSystem.Interfaces
             }
         }
 
+        /// <inheritdoc cref="File.WriteAllLines(string,IEnumerable{string},Encoding)" />
         public static void WriteAllLines([NotNull] this IFile file, [NotNull] string path,
             [NotNull] [ItemNotNull] IEnumerable<string> contents, [CanBeNull] Encoding encoding = null)
         {
@@ -150,6 +164,7 @@ namespace TestableFileSystem.Interfaces
             }
         }
 
+        /// <inheritdoc cref="File.WriteAllText(string,string,Encoding)" />
         public static void WriteAllText([NotNull] this IFile file, [NotNull] string path, [NotNull] string contents,
             [CanBeNull] Encoding encoding = null)
         {
@@ -166,6 +181,7 @@ namespace TestableFileSystem.Interfaces
             }
         }
 
+        /// <inheritdoc cref="File.AppendAllLines(string,IEnumerable{string},Encoding)" />
         public static void AppendAllLines([NotNull] this IFile file, [NotNull] string path,
             [NotNull] [ItemNotNull] IEnumerable<string> contents, [CanBeNull] Encoding encoding = null)
         {
@@ -184,6 +200,7 @@ namespace TestableFileSystem.Interfaces
             }
         }
 
+        /// <inheritdoc cref="File.AppendAllText(string,string,Encoding)" />
         public static void AppendAllText([NotNull] this IFile file, [NotNull] string path, [CanBeNull] string contents,
             [CanBeNull] Encoding encoding = null)
         {

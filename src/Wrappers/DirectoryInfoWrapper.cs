@@ -7,6 +7,7 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Wrappers
 {
+    // TODO: Add ISerializable
     internal sealed class DirectoryInfoWrapper : FileSystemInfoWrapper, IDirectoryInfo
     {
         [NotNull]
