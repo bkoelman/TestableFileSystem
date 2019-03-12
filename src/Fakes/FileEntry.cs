@@ -164,7 +164,7 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            return new FileStreamWrapper(stream, path.GetText, () => false, () => stream.LazyHandle.Value, _ => stream.Flush(),
+            return new FileStreamWrapper(stream, path.GetText, () => false, stream.GetSafeFileHandle, _ => stream.Flush(),
                 stream.Lock, stream.Unlock);
         }
 
@@ -239,6 +239,7 @@ namespace TestableFileSystem.Fakes
 
             private long absolutePosition;
             private FileAccessKinds accessKinds = FileAccessKinds.None;
+            private readonly FileAccess fileAccess;
             private bool isClosed;
 
             [CanBeNull]
@@ -247,19 +248,28 @@ namespace TestableFileSystem.Fakes
             [CanBeNull]
             private long? newLength;
 
-            // TODO: CanSeek/CanRead/CanWrite should return false if stream is closed.
+            public override bool CanRead => fileAccess.HasFlag(FileAccess.Read) && !isClosed;
 
-            public override bool CanRead { get; }
+            public override bool CanWrite => fileAccess.HasFlag(FileAccess.Write) && !isClosed;
 
-            public override bool CanSeek => true;
+            public override bool CanSeek => !isClosed;
 
-            public override bool CanWrite { get; }
-
-            public override long Length => newLength ?? owner.Size;
+            public override long Length
+            {
+                get
+                {
+                    AssertNotClosed();
+                    return newLength ?? owner.Size;
+                }
+            }
 
             public override long Position
             {
-                get => absolutePosition;
+                get
+                {
+                    AssertNotClosed();
+                    return absolutePosition;
+                }
                 set
                 {
                     AssertNotClosed();
@@ -279,9 +289,15 @@ namespace TestableFileSystem.Fakes
                 Guard.NotNull(owner, nameof(owner));
 
                 this.owner = owner;
+                fileAccess = access;
                 this.notifyTracker = notifyTracker;
-                CanRead = access.HasFlag(FileAccess.Read);
-                CanWrite = access.HasFlag(FileAccess.Write);
+            }
+
+            [NotNull]
+            public SafeFileHandle GetSafeFileHandle()
+            {
+                AssertNotClosed();
+                return LazyHandle.Value;
             }
 
             public void SetAppendOffsetToCurrentPosition()

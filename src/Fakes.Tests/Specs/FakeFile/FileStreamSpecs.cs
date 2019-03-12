@@ -34,10 +34,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.CanRead.Should().BeTrue();
                 stream.CanSeek.Should().BeTrue();
                 stream.CanWrite.Should().BeTrue();
+                stream.CanTimeout.Should().BeFalse();
                 stream.Name.Should().Be(path);
                 stream.Length.Should().Be(0);
                 stream.Position.Should().Be(0);
                 stream.IsAsync.Should().BeFalse();
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
             }
         }
 
@@ -63,6 +68,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(4);
                 stream.Position.Should().Be(0);
                 stream.IsAsync.Should().BeFalse();
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
             }
         }
 
@@ -88,6 +97,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(4);
                 stream.Position.Should().Be(4);
                 stream.IsAsync.Should().BeFalse();
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
             }
         }
 
@@ -113,6 +126,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(0);
                 stream.Position.Should().Be(0);
                 stream.IsAsync.Should().BeFalse();
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
             }
         }
 
@@ -811,6 +828,29 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_setting_position_in_closed_stream_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                stream.Dispose();
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Position = 1;
+
+                // Assert
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+            }
+        }
+
+        [Fact]
         private void When_reading_past_end_of_file_it_must_succeed()
         {
             // Arrange
@@ -1022,6 +1062,41 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
                 // Assert
                 action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+            }
+        }
+
+        [Fact]
+        private void When_getting_properties_of_closed_stream_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Act
+                stream.Dispose();
+
+                // Assert
+                stream.CanRead.Should().BeFalse();
+                stream.CanSeek.Should().BeFalse();
+                stream.CanWrite.Should().BeFalse();
+                stream.CanTimeout.Should().BeFalse();
+                stream.IsAsync.Should().BeFalse();
+                stream.Name.Should().Be(path);
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.SafeFileHandle).Should().ThrowExactly<ObjectDisposedException>()
+                    .WithMessage("Cannot access a closed file.");
+                ActionFactory.IgnoreReturnValue(() => stream.Length).Should().ThrowExactly<ObjectDisposedException>()
+                    .WithMessage("Cannot access a closed file.");
+                ActionFactory.IgnoreReturnValue(() => stream.Position).Should().ThrowExactly<ObjectDisposedException>()
+                    .WithMessage("Cannot access a closed file.");
             }
         }
 
