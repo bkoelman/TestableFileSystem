@@ -92,7 +92,7 @@ namespace TestableFileSystem.Fakes
 
             try
             {
-                owner.FileSystemLock.ExecuteInLock(() =>
+                container.FileSystemLock.ExecuteInLock(() =>
                 {
                     AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
                     AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
@@ -113,7 +113,7 @@ namespace TestableFileSystem.Fakes
                 copyResult?.SourceStream.Dispose();
             }
 
-            owner.FileSystemLock.ExecuteInLock(() =>
+            container.FileSystemLock.ExecuteInLock(() =>
             {
                 copyResult.DestinationFile.LastWriteTimeUtc = copyResult.SourceFile.LastWriteTimeUtc;
             });

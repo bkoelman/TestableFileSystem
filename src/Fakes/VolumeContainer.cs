@@ -9,6 +9,9 @@ namespace TestableFileSystem.Fakes
     internal sealed class VolumeContainer
     {
         [NotNull]
+        internal readonly FileSystemLock FileSystemLock = new FileSystemLock();
+
+        [NotNull]
         public SystemClock SystemClock { get; }
 
         [NotNull]
@@ -65,7 +68,7 @@ namespace TestableFileSystem.Fakes
             AssertVolumeDoesNotExist(name);
 
             var volumeEntry = new VolumeEntry(name, volumeInfo.CapacityInBytes, volumeInfo.FreeSpaceInBytes, volumeInfo.Type,
-                volumeInfo.Format, volumeInfo.Label, changeTracker, SystemClock, loggedOnAccount);
+                volumeInfo.Format, volumeInfo.Label, FileSystemLock, SystemClock, changeTracker, loggedOnAccount);
             volumes[name] = volumeEntry;
         }
 

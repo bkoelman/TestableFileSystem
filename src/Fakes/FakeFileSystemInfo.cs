@@ -133,7 +133,7 @@ namespace TestableFileSystem.Fakes
             var handler = new EntryGetPropertiesHandler(container);
             var arguments = new EntryGetPropertiesArguments(AbsolutePath);
 
-            return Owner.FileSystemLock.ExecuteInLock(() => handler.Handle(arguments));
+            return container.FileSystemLock.ExecuteInLock(() => handler.Handle(arguments));
         }
 
         private void Invalidate()

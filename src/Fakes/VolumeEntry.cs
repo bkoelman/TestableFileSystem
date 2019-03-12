@@ -17,7 +17,7 @@ namespace TestableFileSystem.Fakes
         internal override IPathFormatter PathFormatter { get; }
 
         [NotNull]
-        private readonly object volumeLock = new object();
+        private readonly FileSystemLock fileSystemLock;
 
         [NotNull]
         private string label;
@@ -26,16 +26,7 @@ namespace TestableFileSystem.Fakes
 
         public long CapacityInBytes { get; }
 
-        public long FreeSpaceInBytes
-        {
-            get
-            {
-                lock (volumeLock)
-                {
-                    return freeSpaceInBytes;
-                }
-            }
-        }
+        public long FreeSpaceInBytes => fileSystemLock.ExecuteInLock(() => freeSpaceInBytes);
 
         public DriveType Type { get; }
 
@@ -45,30 +36,24 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         public string Label
         {
-            get
-            {
-                lock (volumeLock)
-                {
-                    return label;
-                }
-            }
+            get => fileSystemLock.ExecuteInLock(() => label);
             internal set
             {
-                lock (volumeLock)
-                {
-                    label = string.IsNullOrEmpty(value) ? string.Empty : value;
-                }
+                fileSystemLock.ExecuteInLock(() => { label = string.IsNullOrEmpty(value) ? string.Empty : value; });
             }
         }
 
         public VolumeEntry([NotNull] string name, long capacityInBytes, long freeSpaceInBytes, DriveType type,
-            [NotNull] string format, [NotNull] string label, [NotNull] FakeFileSystemChangeTracker changeTracker,
-            [NotNull] SystemClock systemClock, [NotNull] ILoggedOnUserAccount loggedOnAccount)
+            [NotNull] string format, [NotNull] string label, [NotNull] FileSystemLock fileSystemLock,
+            [NotNull] SystemClock systemClock, [NotNull] FakeFileSystemChangeTracker changeTracker,
+            [NotNull] ILoggedOnUserAccount loggedOnAccount)
             : base(name, AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory, null, null,
                 changeTracker, systemClock, loggedOnAccount)
         {
             Guard.NotNull(format, nameof(format));
             Guard.NotNull(label, nameof(label));
+            Guard.NotNull(fileSystemLock, nameof(fileSystemLock));
+
             AssertCapacityIsNotNegative(capacityInBytes);
             AssertFreeSpaceIsNotNegativeAndInRange(capacityInBytes, freeSpaceInBytes);
 
@@ -77,6 +62,7 @@ namespace TestableFileSystem.Fakes
             Type = type;
             Format = format;
             this.label = label;
+            this.fileSystemLock = fileSystemLock;
 
             PathFormatter = new VolumeEntryPathFormatter(this);
         }
@@ -112,7 +98,7 @@ namespace TestableFileSystem.Fakes
 
         internal bool TryAllocateSpace(long sizeInBytes)
         {
-            lock (volumeLock)
+            return fileSystemLock.ExecuteInLock(() =>
             {
                 long newFreeSpace = freeSpaceInBytes - sizeInBytes;
                 if (newFreeSpace >= 0L)
@@ -124,7 +110,7 @@ namespace TestableFileSystem.Fakes
                 }
 
                 return false;
-            }
+            });
         }
 
         public override string ToString()
