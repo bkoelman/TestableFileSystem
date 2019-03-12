@@ -106,7 +106,8 @@ namespace TestableFileSystem.Interfaces
         /// <inheritdoc cref="FileStream.Unlock" />
         void Unlock(long position, long length);
 
-        // TODO: Add Stream.Close() method from NetStandard20.
+        /// <inheritdoc cref="Stream.Close" />
+        void Close();
 
 #endif
         /// <inheritdoc cref="Stream.CopyTo(Stream,int)" />

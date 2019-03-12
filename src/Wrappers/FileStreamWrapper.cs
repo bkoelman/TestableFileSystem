@@ -178,6 +178,11 @@ namespace TestableFileSystem.Wrappers
         {
             unlockRange(position, length);
         }
+
+        public void Close()
+        {
+            innerStream.Close();
+        }
 #endif
 
         public void CopyTo(Stream destination, int bufferSize = 81920)

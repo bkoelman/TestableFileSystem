@@ -981,7 +981,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
             {
+#if !NETCOREAPP1_1
+                stream.Close();
+#else
                 stream.Dispose();
+#endif
 
                 var buffer = new byte[50];
 
@@ -1006,7 +1010,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
             {
+#if !NETCOREAPP1_1
+                stream.Close();
+#else
                 stream.Dispose();
+#endif
 
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
