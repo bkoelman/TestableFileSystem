@@ -44,7 +44,11 @@ namespace TestableFileSystem.Interfaces
         /// <inheritdoc cref="FileStream.IsAsync" />
         bool IsAsync { get; }
 
-        // TODO: Add obsolete Handle (IntPtr) property.
+#if !NETSTANDARD1_3
+        /// <inheritdoc cref="FileStream.Handle" />
+        [Obsolete("This property has been deprecated.  Please use IFileStream's SafeFileHandle property instead.  http://go.microsoft.com/fwlink/?linkid=14202")]
+        IntPtr Handle { get; }
+#endif
 
         /// <inheritdoc cref="FileStream.SafeFileHandle" />
         [NotNull]

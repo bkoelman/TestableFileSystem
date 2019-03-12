@@ -1091,6 +1091,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     .WithMessage("Timeouts are not supported on this stream.");
                 ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
                     .WithMessage("Timeouts are not supported on this stream.");
+#if !NETCOREAPP1_1
+#pragma warning disable 618 // CS0618: 'IFileStream.Handle' is obsolete
+                ActionFactory.IgnoreReturnValue(() => stream.Handle).Should().ThrowExactly<ObjectDisposedException>()
+                    .WithMessage("Cannot access a closed file.");
+#pragma warning restore 618
+#endif
                 ActionFactory.IgnoreReturnValue(() => stream.SafeFileHandle).Should().ThrowExactly<ObjectDisposedException>()
                     .WithMessage("Cannot access a closed file.");
                 ActionFactory.IgnoreReturnValue(() => stream.Length).Should().ThrowExactly<ObjectDisposedException>()

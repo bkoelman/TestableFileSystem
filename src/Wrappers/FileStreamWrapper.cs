@@ -67,6 +67,8 @@ namespace TestableFileSystem.Wrappers
 
         public bool IsAsync => getIsAsync();
 
+        public IntPtr Handle => SafeFileHandle.DangerousGetHandle();
+
         public SafeFileHandle SafeFileHandle => getSafeFileHandle();
 
         public FileStreamWrapper([NotNull] FileStream source)
