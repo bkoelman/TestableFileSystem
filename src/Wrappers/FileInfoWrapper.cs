@@ -1,12 +1,22 @@
+using System;
 using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 using TestableFileSystem.Utilities;
+#if !NETSTANDARD1_3
+using System.Runtime.Serialization;
+#endif
 
 namespace TestableFileSystem.Wrappers
 {
-    // TODO: Add ISerializable
-    internal sealed class FileInfoWrapper : FileSystemInfoWrapper, IFileInfo
+#if !NETSTANDARD1_3
+    [Serializable]
+#endif
+    internal sealed class FileInfoWrapper
+        : FileSystemInfoWrapper, IFileInfo
+#if !NETSTANDARD1_3
+            , ISerializable
+#endif
     {
         [NotNull]
         private readonly FileInfo source;
@@ -22,6 +32,21 @@ namespace TestableFileSystem.Wrappers
         public string DirectoryName => source.DirectoryName;
 
         public IDirectoryInfo Directory => Utilities.WrapOrNull(source.Directory, x => new DirectoryInfoWrapper(x));
+
+#if !NETSTANDARD1_3
+        private FileInfoWrapper([NotNull] SerializationInfo info, StreamingContext context)
+            : base(GetObjectValue(info))
+        {
+            source = GetObjectValue(info);
+        }
+
+        [NotNull]
+        private static FileInfo GetObjectValue([NotNull] SerializationInfo info)
+        {
+            Guard.NotNull(info, nameof(info));
+            return (FileInfo)info.GetValue("_source", typeof(FileInfo));
+        }
+#endif
 
         public FileInfoWrapper([NotNull] FileInfo source)
             : base(source)
@@ -65,6 +90,11 @@ namespace TestableFileSystem.Wrappers
         {
             FileInfo fileInfo = source.Replace(destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
             return new FileInfoWrapper(fileInfo);
+        }
+
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("_source", source, typeof(FileInfo));
         }
 #endif
 

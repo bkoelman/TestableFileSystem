@@ -6,7 +6,6 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Wrappers
 {
-    // TODO: Add ISerializable
     internal abstract class FileSystemInfoWrapper : IFileSystemInfo
     {
         [NotNull]
