@@ -6,32 +6,37 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    internal sealed class FileOperationLocker<TFile> : OperationLocker, IFile
+    internal sealed class FileOperationLocker<TFile> : IFile
         where TFile : class, IFile
     {
         [NotNull]
+        private readonly FileSystemLock fileSystemLock;
+
+        [NotNull]
         private readonly TFile target;
 
-        public FileOperationLocker([NotNull] object treeLock, [NotNull] TFile target)
-            : base(treeLock)
+        public FileOperationLocker([NotNull] FileSystemLock fileSystemLock, [NotNull] TFile target)
         {
+            Guard.NotNull(fileSystemLock, nameof(fileSystemLock));
             Guard.NotNull(target, nameof(target));
+
+            this.fileSystemLock = fileSystemLock;
             this.target = target;
         }
 
         public bool Exists(string path)
         {
-            return ExecuteInLock(() => target.Exists(path));
+            return fileSystemLock.ExecuteInLock(() => target.Exists(path));
         }
 
         public IFileStream Create(string path, int bufferSize = 4096, FileOptions options = FileOptions.None)
         {
-            return ExecuteInLock(() => target.Create(path, bufferSize, options));
+            return fileSystemLock.ExecuteInLock(() => target.Create(path, bufferSize, options));
         }
 
         public IFileStream Open(string path, FileMode mode, FileAccess? access = null, FileShare share = FileShare.None)
         {
-            return ExecuteInLock(() => target.Open(path, mode, access, share));
+            return fileSystemLock.ExecuteInLock(() => target.Open(path, mode, access, share));
         }
 
         public void Copy(string sourceFileName, string destFileName, bool overwrite = false)
@@ -42,99 +47,99 @@ namespace TestableFileSystem.Fakes
 
         public void Move(string sourceFileName, string destFileName)
         {
-            ExecuteInLock(() => target.Move(sourceFileName, destFileName));
+            fileSystemLock.ExecuteInLock(() => target.Move(sourceFileName, destFileName));
         }
 
         public void Delete(string path)
         {
-            ExecuteInLock(() => target.Delete(path));
+            fileSystemLock.ExecuteInLock(() => target.Delete(path));
         }
 
         public FileAttributes GetAttributes(string path)
         {
-            return ExecuteInLock(() => target.GetAttributes(path));
+            return fileSystemLock.ExecuteInLock(() => target.GetAttributes(path));
         }
 
         public void SetAttributes(string path, FileAttributes fileAttributes)
         {
-            ExecuteInLock(() => target.SetAttributes(path, fileAttributes));
+            fileSystemLock.ExecuteInLock(() => target.SetAttributes(path, fileAttributes));
         }
 
         public DateTime GetCreationTime(string path)
         {
-            return ExecuteInLock(() => target.GetCreationTime(path));
+            return fileSystemLock.ExecuteInLock(() => target.GetCreationTime(path));
         }
 
         public DateTime GetCreationTimeUtc(string path)
         {
-            return ExecuteInLock(() => target.GetCreationTimeUtc(path));
+            return fileSystemLock.ExecuteInLock(() => target.GetCreationTimeUtc(path));
         }
 
         public void SetCreationTime(string path, DateTime creationTime)
         {
-            ExecuteInLock(() => target.SetCreationTime(path, creationTime));
+            fileSystemLock.ExecuteInLock(() => target.SetCreationTime(path, creationTime));
         }
 
         public void SetCreationTimeUtc(string path, DateTime creationTimeUtc)
         {
-            ExecuteInLock(() => target.SetCreationTimeUtc(path, creationTimeUtc));
+            fileSystemLock.ExecuteInLock(() => target.SetCreationTimeUtc(path, creationTimeUtc));
         }
 
         public DateTime GetLastAccessTime(string path)
         {
-            return ExecuteInLock(() => target.GetLastAccessTime(path));
+            return fileSystemLock.ExecuteInLock(() => target.GetLastAccessTime(path));
         }
 
         public DateTime GetLastAccessTimeUtc(string path)
         {
-            return ExecuteInLock(() => target.GetLastAccessTimeUtc(path));
+            return fileSystemLock.ExecuteInLock(() => target.GetLastAccessTimeUtc(path));
         }
 
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
         {
-            ExecuteInLock(() => target.SetLastAccessTime(path, lastAccessTime));
+            fileSystemLock.ExecuteInLock(() => target.SetLastAccessTime(path, lastAccessTime));
         }
 
         public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
         {
-            ExecuteInLock(() => target.SetLastAccessTimeUtc(path, lastAccessTimeUtc));
+            fileSystemLock.ExecuteInLock(() => target.SetLastAccessTimeUtc(path, lastAccessTimeUtc));
         }
 
         public DateTime GetLastWriteTime(string path)
         {
-            return ExecuteInLock(() => target.GetLastWriteTime(path));
+            return fileSystemLock.ExecuteInLock(() => target.GetLastWriteTime(path));
         }
 
         public DateTime GetLastWriteTimeUtc(string path)
         {
-            return ExecuteInLock(() => target.GetLastWriteTimeUtc(path));
+            return fileSystemLock.ExecuteInLock(() => target.GetLastWriteTimeUtc(path));
         }
 
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
         {
-            ExecuteInLock(() => target.SetLastWriteTime(path, lastWriteTime));
+            fileSystemLock.ExecuteInLock(() => target.SetLastWriteTime(path, lastWriteTime));
         }
 
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
         {
-            ExecuteInLock(() => target.SetLastWriteTimeUtc(path, lastWriteTimeUtc));
+            fileSystemLock.ExecuteInLock(() => target.SetLastWriteTimeUtc(path, lastWriteTimeUtc));
         }
 
 #if !NETSTANDARD1_3
         public void Encrypt(string path)
         {
-            ExecuteInLock(() => target.Encrypt(path));
+            fileSystemLock.ExecuteInLock(() => target.Encrypt(path));
         }
 
         public void Decrypt(string path)
         {
-            ExecuteInLock(() => target.Decrypt(path));
+            fileSystemLock.ExecuteInLock(() => target.Decrypt(path));
         }
 
         public void Replace(string sourceFileName, string destinationFileName, string destinationBackupFileName,
             bool ignoreMetadataErrors = false)
         {
-            ExecuteInLock(() =>
+            fileSystemLock.ExecuteInLock(() =>
                 target.Replace(sourceFileName, destinationFileName, destinationBackupFileName, ignoreMetadataErrors));
         }
 #endif

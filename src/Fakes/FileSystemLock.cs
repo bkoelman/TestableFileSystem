@@ -1,21 +1,15 @@
-using System;
+﻿using System;
 using JetBrains.Annotations;
 using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    internal abstract class OperationLocker
+    internal sealed class FileSystemLock
     {
         [NotNull]
-        private readonly object treeLock;
+        private readonly object treeLock = new object();
 
-        protected OperationLocker([NotNull] object treeLock)
-        {
-            Guard.NotNull(treeLock, nameof(treeLock));
-            this.treeLock = treeLock;
-        }
-
-        protected void ExecuteInLock([NotNull] Action operation)
+        public void ExecuteInLock([NotNull] Action operation)
         {
             Guard.NotNull(operation, nameof(operation));
 
@@ -26,7 +20,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        protected TResult ExecuteInLock<TResult>([NotNull] Func<TResult> operation)
+        public TResult ExecuteInLock<TResult>([NotNull] Func<TResult> operation)
         {
             Guard.NotNull(operation, nameof(operation));
 

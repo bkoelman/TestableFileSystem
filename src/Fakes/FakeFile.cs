@@ -92,7 +92,7 @@ namespace TestableFileSystem.Fakes
 
             try
             {
-                lock (owner.TreeLock)
+                owner.FileSystemLock.ExecuteInLock(() =>
                 {
                     AbsolutePath sourcePath = owner.ToAbsolutePath(sourceFileName);
                     AbsolutePath destinationPath = owner.ToAbsolutePath(destFileName);
@@ -101,7 +101,7 @@ namespace TestableFileSystem.Fakes
                     var arguments = new FileCopyArguments(sourcePath, destinationPath, overwrite, isCopyAfterMoveFailed);
 
                     copyResult = handler.Handle(arguments);
-                }
+                });
 
                 WaitOnIndicator(owner.CopyWaitIndicator);
 
@@ -113,10 +113,10 @@ namespace TestableFileSystem.Fakes
                 copyResult?.SourceStream.Dispose();
             }
 
-            lock (owner.TreeLock)
+            owner.FileSystemLock.ExecuteInLock(() =>
             {
                 copyResult.DestinationFile.LastWriteTimeUtc = copyResult.SourceFile.LastWriteTimeUtc;
-            }
+            });
         }
 
         private void WaitOnIndicator([NotNull] WaitIndicator indicator)

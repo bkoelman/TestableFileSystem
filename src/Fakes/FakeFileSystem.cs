@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes
         private readonly VolumeContainer container;
 
         [NotNull]
-        internal readonly object TreeLock = new object();
+        internal readonly FileSystemLock FileSystemLock = new FileSystemLock();
 
         [NotNull]
         internal CurrentDirectoryManager CurrentDirectoryManager { get; }
@@ -44,10 +44,10 @@ namespace TestableFileSystem.Fakes
             TempDirectory = tempDirectory;
             CopyWaitIndicator = copyWaitIndicator;
 
-            File = new FileOperationLocker<FakeFile>(TreeLock, new FakeFile(container, this));
-            Directory = new DirectoryOperationLocker<FakeDirectory>(TreeLock, new FakeDirectory(container, this));
-            Drive = new DriveOperationLocker<FakeDrive>(TreeLock, new FakeDrive(container, this));
-            Path = new PathOperationLocker<FakePath>(TreeLock, new FakePath(container, this));
+            File = new FileOperationLocker<FakeFile>(FileSystemLock, new FakeFile(container, this));
+            Directory = new DirectoryOperationLocker<FakeDirectory>(FileSystemLock, new FakeDirectory(container, this));
+            Drive = new DriveOperationLocker<FakeDrive>(FileSystemLock, new FakeDrive(container, this));
+            Path = new PathOperationLocker<FakePath>(FileSystemLock, new FakePath(container, this));
             CurrentDirectoryManager = new CurrentDirectoryManager(container);
             relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
         }
@@ -85,10 +85,7 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal AbsolutePath ToAbsolutePathInLock([NotNull] string path)
         {
-            lock (TreeLock)
-            {
-                return ToAbsolutePath(path);
-            }
+            return FileSystemLock.ExecuteInLock(() => ToAbsolutePath(path));
         }
 
         [NotNull]

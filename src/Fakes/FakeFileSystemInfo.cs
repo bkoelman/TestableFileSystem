@@ -107,7 +107,8 @@ namespace TestableFileSystem.Fakes
 
         public abstract bool Exists { get; }
 
-        internal FakeFileSystemInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
+        internal FakeFileSystemInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner,
+            [NotNull] AbsolutePath path)
         {
             Guard.NotNull(container, nameof(container));
             Guard.NotNull(owner, nameof(owner));
@@ -132,10 +133,7 @@ namespace TestableFileSystem.Fakes
             var handler = new EntryGetPropertiesHandler(container);
             var arguments = new EntryGetPropertiesArguments(AbsolutePath);
 
-            lock (Owner.TreeLock)
-            {
-                return handler.Handle(arguments);
-            }
+            return Owner.FileSystemLock.ExecuteInLock(() => handler.Handle(arguments));
         }
 
         private void Invalidate()
