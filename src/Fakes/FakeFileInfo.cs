@@ -8,6 +8,8 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
     {
+        // TODO: Store the original path string that this instance was created from.
+
         public override string Name =>
             AbsolutePath.IsVolumeRoot ? string.Empty : AbsolutePath.Components.Last() + AbsolutePath.TrailingWhiteSpace;
 
