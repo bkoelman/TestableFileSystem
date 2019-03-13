@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using FluentAssertions;
-using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -173,28 +172,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage("The file exists.");
-        }
-    }
-
-    internal static class PathGetTempFileNameFakeFileSystemBuilderExtensions
-    {
-        [NotNull]
-        public static FakeFileSystemBuilder WithEmptyFilesInTempDirectory([NotNull] this FakeFileSystemBuilder builder,
-            [NotNull] string tempDirectory,
-            int indexToExclude = -1)
-        {
-            builder.WithTempDirectory(tempDirectory);
-
-            for (int index = 0; index <= 0xFFFF; index++)
-            {
-                if (index != indexToExclude)
-                {
-                    string path = Path.Combine(tempDirectory, "tmp" + index.ToString("X") + ".tmp");
-                    builder.IncludingEmptyFile(path);
-                }
-            }
-
-            return builder;
         }
     }
 }
