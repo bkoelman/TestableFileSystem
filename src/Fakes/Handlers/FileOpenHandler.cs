@@ -73,7 +73,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             AssertIsNotExternallyEncrypted(file, arguments.Path);
 
-            IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, false, true);
+            bool isAsync = arguments.CreateOptions.HasFlag(FileOptions.Asynchronous);
+            IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, false, isAsync, true);
 
             ApplyOptions(file, arguments.CreateOptions);
 
@@ -118,7 +119,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileEntry file = containingDirectory.CreateFile(fileName);
 
-            IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, true, true);
+            bool isAsync = arguments.CreateOptions.HasFlag(FileOptions.Asynchronous);
+            IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, true, isAsync, true);
 
             ApplyOptions(file, arguments.CreateOptions);
 

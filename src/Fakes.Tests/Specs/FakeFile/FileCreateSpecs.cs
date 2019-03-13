@@ -118,6 +118,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_creating_local_file_with_asynchronous_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\doc.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            using (var stream = fileSystem.File.Create(path, 1, FileOptions.Asynchronous))
+            {
+                // Assert
+                stream.IsAsync.Should().BeTrue();
+            }
+        }
+
+        [Fact]
         private void When_creating_local_file_with_encryption_it_must_succeed()
         {
             // Arrange

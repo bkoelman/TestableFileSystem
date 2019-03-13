@@ -238,7 +238,7 @@ namespace TestableFileSystem.Fakes.Builders
 
             FileEntry file = directory.ContainsFile(fileName) ? directory.GetFile(fileName) : directory.CreateFile(fileName);
 
-            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath, true, false))
+            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath, true, false, false))
             {
                 writeContentsToStream(stream);
             }

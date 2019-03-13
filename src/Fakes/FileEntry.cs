@@ -95,7 +95,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path, bool isNewlyCreated,
+        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path, bool isNewlyCreated, bool isAsync,
             bool notifyTracker)
         {
             Guard.NotNull(path, nameof(path));
@@ -164,7 +164,7 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            return new FileStreamWrapper(stream, path.GetText, () => false, stream.GetSafeFileHandle, _ => stream.Flush(),
+            return new FileStreamWrapper(stream, path.GetText, () => isAsync, stream.GetSafeFileHandle, _ => stream.Flush(),
                 stream.Lock, stream.Unlock);
         }
 
