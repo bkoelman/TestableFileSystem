@@ -117,42 +117,96 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (entry is FileEntry file)
             {
-                changeTracker.NotifyContentsAccessed(file.Parent.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
-
-                if (hasEncrypted)
-                {
-                    AbsolutePath tempFilePath = GetTempFilePath(file);
-
-                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
-                    changeTracker.NotifyFileCreated(tempFilePath.Formatter);
-                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
-                    changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Resize | FileAccessKinds.Write);
-                    changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Write | FileAccessKinds.Read);
-                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
-                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
-                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
-                    changeTracker.NotifyFileDeleted(tempFilePath.Formatter);
-                }
+                NotifyFileEncrypted(file, hasEncrypted);
+            }
+            else if (entry is DirectoryEntry directory)
+            {
+                NotifyDirectoryEncrypted(directory, hasEncrypted);
             }
         }
 
-        private void NotifyDecrypted([NotNull] BaseEntry entry, bool hasDecrypted)
+        private void NotifyFileEncrypted([NotNull] FileEntry file, bool hasEncrypted)
         {
-            if (hasDecrypted && entry is FileEntry file)
+            changeTracker.NotifyContentsAccessed(file.Parent.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+
+            if (hasEncrypted)
             {
                 AbsolutePath tempFilePath = GetTempFilePath(file);
 
-                changeTracker.NotifyContentsAccessed(file.Parent.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
                 changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
                 changeTracker.NotifyFileCreated(tempFilePath.Formatter);
+                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
                 changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Resize | FileAccessKinds.Write);
                 changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Write | FileAccessKinds.Read);
                 changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
                 changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
                 changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
-                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
                 changeTracker.NotifyFileDeleted(tempFilePath.Formatter);
             }
+        }
+
+        private void NotifyDirectoryEncrypted([NotNull] DirectoryEntry directory, bool hasEncrypted)
+        {
+            if (!hasEncrypted)
+            {
+                return;
+            }
+
+            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+
+            if (!directory.IsEmpty && directory.Parent != null)
+            {
+                changeTracker.NotifyContentsAccessed(directory.Parent.PathFormatter,
+                    FileAccessKinds.Write | FileAccessKinds.Read);
+            }
+
+            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
+
+            if (!directory.IsEmpty)
+            {
+                changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write);
+            }
+
+            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
+        }
+
+        private void NotifyDecrypted([NotNull] BaseEntry entry, bool hasDecrypted)
+        {
+            if (entry is FileEntry file)
+            {
+                NotifyFileDecrypted(hasDecrypted, file);
+            }
+            else if (entry is DirectoryEntry directory)
+            {
+                NotifyDirectoryDecrypted(directory);
+            }
+        }
+
+        private void NotifyFileDecrypted(bool hasDecrypted, [NotNull] FileEntry file)
+        {
+            if (!hasDecrypted)
+            {
+                return;
+            }
+
+            AbsolutePath tempFilePath = GetTempFilePath(file);
+
+            changeTracker.NotifyContentsAccessed(file.Parent.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
+            changeTracker.NotifyFileCreated(tempFilePath.Formatter);
+            changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Resize | FileAccessKinds.Write);
+            changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Write | FileAccessKinds.Read);
+            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
+            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
+            changeTracker.NotifyFileDeleted(tempFilePath.Formatter);
+        }
+
+        private void NotifyDirectoryDecrypted([NotNull] DirectoryEntry directory)
+        {
+            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
+            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write);
         }
 
         [NotNull]

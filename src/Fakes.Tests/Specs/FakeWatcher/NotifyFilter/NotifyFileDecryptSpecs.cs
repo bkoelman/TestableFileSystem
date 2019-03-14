@@ -30,8 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             const string containerDirectoryName = "Container";
             const string fileNameToDecrypt = "file.txt";
 
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToFileToDecrypt = Path.Combine(pathToContainerDirectory, fileNameToDecrypt);
+            string pathToFileToDecrypt = Path.Combine(directoryToWatch, containerDirectoryName, fileNameToDecrypt);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToFileToDecrypt, "SecretContent")
@@ -66,8 +65,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             const string containerDirectoryName = "Container";
             const string fileNameToDecrypt = "file.txt";
 
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToFileToDecrypt = Path.Combine(pathToContainerDirectory, fileNameToDecrypt);
+            string pathToFileToDecrypt = Path.Combine(directoryToWatch, containerDirectoryName, fileNameToDecrypt);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToFileToDecrypt, "SecretContent")
@@ -91,7 +89,121 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        // TODO: Add spec for directory.
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * Container\Subfolder                           @ Attributes
+            * Container\Subfolder                           @               LastWrite
+        ")]
+        private void When_decrypting_empty_directory_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string directoryNameToEncrypt = "Subfolder";
+
+            string pathToDirectoryToEncrypt = Path.Combine(directoryToWatch, containerDirectoryName, directoryNameToEncrypt);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(pathToDirectoryToEncrypt)
+                .Build();
+
+            fileSystem.File.Encrypt(pathToDirectoryToEncrypt);
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Decrypt(pathToDirectoryToEncrypt);
+
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
+                }
+            }
+        }
+
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * Container\Subfolder                           @ Attributes
+            * Container\Subfolder                           @               LastWrite
+        ")]
+        private void When_decrypting_nonempty_directory_it_must_raise_events(NotifyFilters filters, [NotNull] string expectedText)
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string directoryNameToEncrypt = "Subfolder";
+
+            string pathToDirectoryToEncrypt = Path.Combine(directoryToWatch, containerDirectoryName, directoryNameToEncrypt);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(Path.Combine(pathToDirectoryToEncrypt, "file.txt"), "SecretContent")
+                .Build();
+
+            fileSystem.File.Encrypt(pathToDirectoryToEncrypt);
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Decrypt(pathToDirectoryToEncrypt);
+
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
+                }
+            }
+        }
+
+        [Theory]
+        [WatcherNotifyTestData(@"
+            * Container\Subfolder                           @ Attributes
+            * Container\Subfolder                           @               LastWrite
+        ")]
+        private void When_decrypting_unencrypted_empty_directory_it_must_raise_events(NotifyFilters filters,
+            [NotNull] string expectedText)
+        {
+            // Arrange
+            const string directoryToWatch = @"c:\some";
+            const string containerDirectoryName = "Container";
+            const string directoryNameToEncrypt = "Subfolder";
+
+            string pathToDirectoryToEncrypt = Path.Combine(directoryToWatch, containerDirectoryName, directoryNameToEncrypt);
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(pathToDirectoryToEncrypt)
+                .Build();
+
+            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
+            {
+                watcher.NotifyFilter = filters;
+                watcher.IncludeSubdirectories = true;
+
+                using (var listener = new FileSystemWatcherEventListener(watcher))
+                {
+                    // Act
+                    fileSystem.File.Decrypt(pathToDirectoryToEncrypt);
+
+                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+
+                    // Assert
+                    string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
+                    text.Should().Be(expectedText);
+                }
+            }
+        }
     }
 }
 #endif
