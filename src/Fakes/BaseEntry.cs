@@ -99,17 +99,26 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public void SetEncrypted()
+        public bool SetEncrypted()
         {
             if (encryptorAccountName == null)
             {
                 encryptorAccountName = LoggedOnAccount.UserName;
+                return true;
             }
+
+            return false;
         }
 
-        public void ClearEncrypted()
+        public bool ClearEncrypted()
         {
-            encryptorAccountName = null;
+            if (encryptorAccountName != null)
+            {
+                encryptorAccountName = null;
+                return true;
+            }
+
+            return false;
         }
 
         protected void CopyPropertiesFrom([NotNull] BaseEntry otherEntry)

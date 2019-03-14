@@ -10,9 +10,14 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileCryptoHandler : FakeOperationHandler<FileCryptoArguments, Missing>
     {
-        public FileCryptoHandler([NotNull] VolumeContainer container)
+        [NotNull]
+        private readonly FakeFileSystemChangeTracker changeTracker;
+
+        public FileCryptoHandler([NotNull] VolumeContainer container, [NotNull] FakeFileSystemChangeTracker changeTracker)
             : base(container)
         {
+            Guard.NotNull(changeTracker, nameof(changeTracker));
+            this.changeTracker = changeTracker;
         }
 
         public override Missing Handle(FileCryptoArguments arguments)
@@ -31,11 +36,15 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (arguments.IsEncrypt)
             {
-                entry.SetEncrypted();
+                bool hasEncrypted = entry.SetEncrypted();
+
+                NotifyEncrypted(entry, hasEncrypted);
             }
             else
             {
-                entry.ClearEncrypted();
+                bool hasDecrypted = entry.ClearEncrypted();
+
+                NotifyDecrypted(entry, hasDecrypted);
             }
 
             return Missing.Value;
@@ -102,6 +111,55 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
+        }
+
+        private void NotifyEncrypted([NotNull] BaseEntry entry, bool hasEncrypted)
+        {
+            if (entry is FileEntry file)
+            {
+                changeTracker.NotifyContentsAccessed(file.Parent.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+
+                if (hasEncrypted)
+                {
+                    AbsolutePath tempFilePath = GetTempFilePath(file);
+
+                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
+                    changeTracker.NotifyFileCreated(tempFilePath.Formatter);
+                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
+                    changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Resize | FileAccessKinds.Write);
+                    changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Write | FileAccessKinds.Read);
+                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+                    changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
+                    changeTracker.NotifyFileDeleted(tempFilePath.Formatter);
+                }
+            }
+        }
+
+        private void NotifyDecrypted([NotNull] BaseEntry entry, bool hasDecrypted)
+        {
+            if (hasDecrypted && entry is FileEntry file)
+            {
+                AbsolutePath tempFilePath = GetTempFilePath(file);
+
+                changeTracker.NotifyContentsAccessed(file.Parent.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
+                changeTracker.NotifyFileCreated(tempFilePath.Formatter);
+                changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Resize | FileAccessKinds.Write);
+                changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Write | FileAccessKinds.Read);
+                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
+                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
+                changeTracker.NotifyFileDeleted(tempFilePath.Formatter);
+            }
+        }
+
+        [NotNull]
+        private static AbsolutePath GetTempFilePath([NotNull] FileEntry file)
+        {
+            AbsolutePath directoryPath = file.Parent.PathFormatter.GetPath();
+            return directoryPath.Append("EFS0.TMP");
         }
     }
 }
