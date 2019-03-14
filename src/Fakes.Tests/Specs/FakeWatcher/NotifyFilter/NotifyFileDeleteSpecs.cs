@@ -22,8 +22,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             const string containerDirectoryName = "Container";
             const string fileNameToDelete = "file.txt";
 
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToFileToDelete = Path.Combine(pathToContainerDirectory, fileNameToDelete);
+            string pathToFileToDelete = Path.Combine(directoryToWatch, containerDirectoryName, fileNameToDelete);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToDelete)

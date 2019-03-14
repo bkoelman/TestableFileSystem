@@ -50,8 +50,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             const string containerDirectoryName = "Container";
             const string directoryNameToUpdate = "Subfolder";
 
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToDirectoryToUpdate = Path.Combine(pathToContainerDirectory, directoryNameToUpdate);
+            string pathToDirectoryToUpdate = Path.Combine(directoryToWatch, containerDirectoryName, directoryNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(pathToDirectoryToUpdate)

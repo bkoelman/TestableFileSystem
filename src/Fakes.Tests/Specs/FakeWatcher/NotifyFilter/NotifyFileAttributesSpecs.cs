@@ -51,8 +51,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             const string containerDirectoryName = "Container";
             const string fileNameToUpdate = "file.txt";
 
-            string pathToContainerDirectory = Path.Combine(directoryToWatch, containerDirectoryName);
-            string pathToFileToUpdate = Path.Combine(pathToContainerDirectory, fileNameToUpdate);
+            string pathToFileToUpdate = Path.Combine(directoryToWatch, containerDirectoryName, fileNameToUpdate);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(pathToFileToUpdate)
