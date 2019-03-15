@@ -14,18 +14,12 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private readonly CurrentDirectoryManager currentDirectoryManager;
 
-        [NotNull]
-        private readonly FakeFileSystemChangeTracker changeTracker;
-
-        public DirectoryDeleteHandler([NotNull] VolumeContainer container, [NotNull] CurrentDirectoryManager currentDirectoryManager,
-            [NotNull] FakeFileSystemChangeTracker changeTracker)
+        public DirectoryDeleteHandler([NotNull] VolumeContainer container,
+            [NotNull] CurrentDirectoryManager currentDirectoryManager)
             : base(container)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
-            Guard.NotNull(changeTracker, nameof(changeTracker));
-
             this.currentDirectoryManager = currentDirectoryManager;
-            this.changeTracker = changeTracker;
         }
 
         public override Missing Handle(DirectoryDeleteArguments arguments)
@@ -121,7 +115,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (state.AccessKinds != FileAccessKinds.None)
             {
-                changeTracker.NotifyContentsAccessed(directory.PathFormatter, state.AccessKinds);
+                Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, state.AccessKinds);
             }
 
             DeleteSingleDirectory(directory, state);

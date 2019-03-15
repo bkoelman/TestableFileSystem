@@ -9,13 +9,13 @@ namespace TestableFileSystem.Fakes
     internal sealed class VolumeContainer
     {
         [NotNull]
-        internal readonly FileSystemLock FileSystemLock = new FileSystemLock();
-
-        [NotNull]
         public SystemClock SystemClock { get; }
 
         [NotNull]
-        private readonly FakeFileSystemChangeTracker changeTracker;
+        public FakeFileSystemChangeTracker ChangeTracker { get; }
+
+        [NotNull]
+        public FileSystemLock FileSystemLock { get; } = new FileSystemLock();
 
         [NotNull]
         private readonly ILoggedOnUserAccount loggedOnAccount;
@@ -32,7 +32,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(loggedOnAccount, nameof(loggedOnAccount));
 
             SystemClock = systemClock;
-            this.changeTracker = changeTracker;
+            ChangeTracker = changeTracker;
             this.loggedOnAccount = loggedOnAccount;
         }
 
@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes
             AssertVolumeDoesNotExist(name);
 
             var volumeEntry = new VolumeEntry(name, volumeInfo.CapacityInBytes, volumeInfo.FreeSpaceInBytes, volumeInfo.Type,
-                volumeInfo.Format, volumeInfo.Label, FileSystemLock, SystemClock, changeTracker, loggedOnAccount);
+                volumeInfo.Format, volumeInfo.Label, FileSystemLock, SystemClock, ChangeTracker, loggedOnAccount);
             volumes[name] = volumeEntry;
         }
 

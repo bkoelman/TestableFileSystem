@@ -14,16 +14,11 @@ namespace TestableFileSystem.Fakes.Handlers
         private const FileAttributes HiddenReadOnlyMask = FileAttributes.Hidden | FileAttributes.ReadOnly;
 
         [NotNull]
-        private readonly FakeFileSystemChangeTracker changeTracker;
-
-        [NotNull]
         private readonly List<FileAccessKinds> pendingContentChanges = new List<FileAccessKinds>();
 
-        public FileCopyHandler([NotNull] VolumeContainer container, [NotNull] FakeFileSystemChangeTracker changeTracker)
+        public FileCopyHandler([NotNull] VolumeContainer container)
             : base(container)
         {
-            Guard.NotNull(changeTracker, nameof(changeTracker));
-            this.changeTracker = changeTracker;
         }
 
         public override FileCopyResult Handle(FileCopyArguments arguments)
@@ -38,7 +33,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             foreach (FileAccessKinds change in pendingContentChanges)
             {
-                changeTracker.NotifyContentsAccessed(destinationFile.PathFormatter, change);
+                Container.ChangeTracker.NotifyContentsAccessed(destinationFile.PathFormatter, change);
             }
 
             IFileStream sourceStream = null;

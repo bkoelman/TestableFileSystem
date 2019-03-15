@@ -26,18 +26,13 @@ namespace TestableFileSystem.Fakes
         public IDrive Drive { get; }
         public IPath Path { get; }
 
-        [NotNull]
-        internal FakeFileSystemChangeTracker ChangeTracker { get; }
-
-        internal FakeFileSystem([NotNull] VolumeContainer container, [NotNull] FakeFileSystemChangeTracker changeTracker,
-            [NotNull] string tempDirectory, [NotNull] WaitIndicator copyWaitIndicator)
+        internal FakeFileSystem([NotNull] VolumeContainer container, [NotNull] string tempDirectory,
+            [NotNull] WaitIndicator copyWaitIndicator)
         {
             Guard.NotNull(container, nameof(container));
-            Guard.NotNull(changeTracker, nameof(changeTracker));
             Guard.NotNull(copyWaitIndicator, nameof(copyWaitIndicator));
 
             this.container = container;
-            ChangeTracker = changeTracker;
             TempDirectory = tempDirectory;
             CopyWaitIndicator = copyWaitIndicator;
 
@@ -116,7 +111,7 @@ namespace TestableFileSystem.Fakes
                 absolutePath = ToAbsolutePathInLock(path);
             }
 
-            return new FakeFileSystemWatcher(this, ChangeTracker, absolutePath, filter);
+            return new FakeFileSystemWatcher(this, container.ChangeTracker, absolutePath, filter);
         }
 
         private static bool IsDefaultInvocation([NotNull] string path, [NotNull] string filter)

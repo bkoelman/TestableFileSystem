@@ -10,14 +10,9 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileCryptoHandler : FakeOperationHandler<FileCryptoArguments, Missing>
     {
-        [NotNull]
-        private readonly FakeFileSystemChangeTracker changeTracker;
-
-        public FileCryptoHandler([NotNull] VolumeContainer container, [NotNull] FakeFileSystemChangeTracker changeTracker)
+        public FileCryptoHandler([NotNull] VolumeContainer container)
             : base(container)
         {
-            Guard.NotNull(changeTracker, nameof(changeTracker));
-            this.changeTracker = changeTracker;
         }
 
         public override Missing Handle(FileCryptoArguments arguments)
@@ -127,21 +122,24 @@ namespace TestableFileSystem.Fakes.Handlers
 
         private void NotifyFileEncrypted([NotNull] FileEntry file, bool hasEncrypted)
         {
-            changeTracker.NotifyContentsAccessed(file.Parent.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+            Container.ChangeTracker.NotifyContentsAccessed(file.Parent.PathFormatter,
+                FileAccessKinds.Write | FileAccessKinds.Read);
 
             if (hasEncrypted)
             {
                 AbsolutePath tempFilePath = GetTempFilePath(file);
 
-                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
-                changeTracker.NotifyFileCreated(tempFilePath.Formatter);
-                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
-                changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Resize | FileAccessKinds.Write);
-                changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Write | FileAccessKinds.Read);
-                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
-                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
-                changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
-                changeTracker.NotifyFileDeleted(tempFilePath.Formatter);
+                Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
+                Container.ChangeTracker.NotifyFileCreated(tempFilePath.Formatter);
+                Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
+                Container.ChangeTracker.NotifyContentsAccessed(tempFilePath.Formatter,
+                    FileAccessKinds.Resize | FileAccessKinds.Write);
+                Container.ChangeTracker.NotifyContentsAccessed(tempFilePath.Formatter,
+                    FileAccessKinds.Write | FileAccessKinds.Read);
+                Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+                Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+                Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
+                Container.ChangeTracker.NotifyFileDeleted(tempFilePath.Formatter);
             }
         }
 
@@ -152,22 +150,22 @@ namespace TestableFileSystem.Fakes.Handlers
                 return;
             }
 
-            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+            Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
 
             if (!directory.IsEmpty && directory.Parent != null)
             {
-                changeTracker.NotifyContentsAccessed(directory.Parent.PathFormatter,
+                Container.ChangeTracker.NotifyContentsAccessed(directory.Parent.PathFormatter,
                     FileAccessKinds.Write | FileAccessKinds.Read);
             }
 
-            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
+            Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
 
             if (!directory.IsEmpty)
             {
-                changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write);
+                Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write);
             }
 
-            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
+            Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
         }
 
         private void NotifyDecrypted([NotNull] BaseEntry entry, bool hasDecrypted)
@@ -191,22 +189,24 @@ namespace TestableFileSystem.Fakes.Handlers
 
             AbsolutePath tempFilePath = GetTempFilePath(file);
 
-            changeTracker.NotifyContentsAccessed(file.Parent.PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
-            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
-            changeTracker.NotifyFileCreated(tempFilePath.Formatter);
-            changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Resize | FileAccessKinds.Write);
-            changeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Write | FileAccessKinds.Read);
-            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
-            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
-            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
-            changeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
-            changeTracker.NotifyFileDeleted(tempFilePath.Formatter);
+            Container.ChangeTracker.NotifyContentsAccessed(file.Parent.PathFormatter,
+                FileAccessKinds.Write | FileAccessKinds.Read);
+            Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Write);
+            Container.ChangeTracker.NotifyFileCreated(tempFilePath.Formatter);
+            Container.ChangeTracker.NotifyContentsAccessed(tempFilePath.Formatter,
+                FileAccessKinds.Resize | FileAccessKinds.Write);
+            Container.ChangeTracker.NotifyContentsAccessed(tempFilePath.Formatter, FileAccessKinds.Write | FileAccessKinds.Read);
+            Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+            Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Resize);
+            Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Read);
+            Container.ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
+            Container.ChangeTracker.NotifyFileDeleted(tempFilePath.Formatter);
         }
 
         private void NotifyDirectoryDecrypted([NotNull] DirectoryEntry directory)
         {
-            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
-            changeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write);
+            Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
+            Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Write);
         }
 
         [NotNull]

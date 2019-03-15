@@ -63,7 +63,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryEnumerateEntriesHandler(container, owner.ChangeTracker);
+            var handler = new DirectoryEnumerateEntriesHandler(container);
             var arguments =
                 new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption, EnumerationFilter.Files);
 
@@ -85,7 +85,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryEnumerateEntriesHandler(container, owner.ChangeTracker);
+            var handler = new DirectoryEnumerateEntriesHandler(container);
             var arguments = new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption,
                 EnumerationFilter.Directories);
 
@@ -107,7 +107,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryEnumerateEntriesHandler(container, owner.ChangeTracker);
+            var handler = new DirectoryEnumerateEntriesHandler(container);
             var arguments =
                 new DirectoryEnumerateEntriesArguments(absolutePath, path, searchPattern, searchOption, EnumerationFilter.All);
 
@@ -165,7 +165,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectoryDeleteHandler(container, owner.CurrentDirectoryManager, owner.ChangeTracker);
+            var handler = new DirectoryDeleteHandler(container, owner.CurrentDirectoryManager);
             var arguments = new DirectoryDeleteArguments(absolutePath, recursive);
 
             handler.Handle(arguments);
@@ -182,7 +182,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath sourcePath = owner.ToAbsolutePath(sourceDirName);
             AbsolutePath destinationPath = owner.ToAbsolutePath(destDirName);
 
-            var handler = new DirectoryMoveHandler(container, owner.CurrentDirectoryManager, owner.ChangeTracker);
+            var handler = new DirectoryMoveHandler(container, owner.CurrentDirectoryManager);
             var arguments = new EntryMoveArguments(sourcePath, destinationPath);
 
             handler.Handle(arguments);
@@ -243,7 +243,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectorySetTimeHandler(container, owner.ChangeTracker);
+            var handler = new DirectorySetTimeHandler(container);
             var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.CreationTime, false, creationTime);
 
             handler.Handle(arguments);
@@ -255,7 +255,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectorySetTimeHandler(container, owner.ChangeTracker);
+            var handler = new DirectorySetTimeHandler(container);
             var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.CreationTime, true, creationTimeUtc);
 
             handler.Handle(arguments);
@@ -281,7 +281,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectorySetTimeHandler(container, owner.ChangeTracker);
+            var handler = new DirectorySetTimeHandler(container);
             var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, false, lastAccessTime);
 
             handler.Handle(arguments);
@@ -293,7 +293,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectorySetTimeHandler(container, owner.ChangeTracker);
+            var handler = new DirectorySetTimeHandler(container);
             var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastAccessTime, true, lastAccessTimeUtc);
 
             handler.Handle(arguments);
@@ -319,7 +319,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectorySetTimeHandler(container, owner.ChangeTracker);
+            var handler = new DirectorySetTimeHandler(container);
             var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, false, lastWriteTime);
 
             handler.Handle(arguments);
@@ -331,7 +331,7 @@ namespace TestableFileSystem.Fakes
 
             AbsolutePath absolutePath = owner.ToAbsolutePath(path);
 
-            var handler = new DirectorySetTimeHandler(container, owner.ChangeTracker);
+            var handler = new DirectorySetTimeHandler(container);
             var arguments = new EntrySetTimeArguments(absolutePath, FileTimeKind.LastWriteTime, true, lastWriteTimeUtc);
 
             handler.Handle(arguments);

@@ -72,7 +72,7 @@ namespace TestableFileSystem.Fakes.Builders
             string effectiveTempDirectory = CreateTempDirectory();
 
             copyWaitIndicator.Reset();
-            return new FakeFileSystem(container, changeTracker, effectiveTempDirectory, copyWaitIndicator);
+            return new FakeFileSystem(container, effectiveTempDirectory, copyWaitIndicator);
         }
 
         [NotNull]
