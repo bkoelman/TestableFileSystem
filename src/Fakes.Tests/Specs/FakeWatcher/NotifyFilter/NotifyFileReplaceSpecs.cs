@@ -228,6 +228,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToSourceFile, "SourceText")
                 .IncludingTextFile(pathToDestinationFile, "DestinationText")
+                .IncludingDirectory(Path.GetDirectoryName(pathToBackupFile))
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
