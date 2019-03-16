@@ -97,7 +97,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (sourceFile.Size > 0)
             {
-                pendingContentChanges.Add(FileAccessKinds.Write | FileAccessKinds.Read | FileAccessKinds.Resize);
+                pendingContentChanges.Add(FileAccessKinds.WriteRead | FileAccessKinds.Resize);
             }
 
             if (sourceFile.Size >= 1024 * 4)
@@ -175,7 +175,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
         private void AddChangeForExistingDestinationFile([NotNull] FileEntry destinationFile)
         {
-            FileAccessKinds accessKinds = FileAccessKinds.Write | FileAccessKinds.Read;
+            FileAccessKinds accessKinds = FileAccessKinds.WriteRead;
 
             if (destinationFile.Size > 0)
             {

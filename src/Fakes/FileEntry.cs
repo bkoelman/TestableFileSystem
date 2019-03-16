@@ -160,7 +160,7 @@ namespace TestableFileSystem.Fakes
 
                 if (!isNewlyCreated)
                 {
-                    stream.EnableAccessKinds(FileAccessKinds.Write | FileAccessKinds.Read);
+                    stream.EnableAccessKinds(FileAccessKinds.WriteRead);
                 }
             }
 
@@ -458,7 +458,7 @@ namespace TestableFileSystem.Fakes
                     newLength = Position;
                 }
 
-                accessKinds |= FileAccessKinds.Write | FileAccessKinds.Read;
+                accessKinds |= FileAccessKinds.WriteRead;
             }
 
             private void EnsureCapacity(long bytesNeeded)

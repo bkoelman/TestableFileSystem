@@ -10,6 +10,8 @@ namespace TestableFileSystem.Fakes
         Resize = 2,
         Write = 4,
         Read = 8,
-        Create = 16
+        Create = 16,
+
+        WriteRead = Read | Write
     }
 }

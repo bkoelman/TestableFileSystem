@@ -60,7 +60,7 @@ namespace TestableFileSystem.Fakes
         private void HandleDirectoryContentsChanged()
         {
             UpdateLastWriteLastAccessTime();
-            ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Write | FileAccessKinds.Read);
+            ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.WriteRead);
         }
 
         private void HandleDirectoryContentsAccessed()
