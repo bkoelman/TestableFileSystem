@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using TestableFileSystem.Interfaces;
@@ -15,6 +16,7 @@ namespace TestableFileSystem.Demo
             NotifyFilters.CreationTime | NotifyFilters.Security;
 
         private readonly IFileSystemWatcher watcher;
+        private readonly Stopwatch stopwatch = new Stopwatch();
 
         public FileSystemChangeDumper(IFileSystem fileSystem)
         {
@@ -33,6 +35,7 @@ namespace TestableFileSystem.Demo
             watcher.EnableRaisingEvents = true;
 
             Thread.Sleep(250);
+            stopwatch.Start();
         }
 
         private void SetupWatcher(string path, NotifyFilters filters)
@@ -60,13 +63,13 @@ namespace TestableFileSystem.Demo
             Stop();
         }
 
-        private static void DisplayChange(WatcherChangeTypes changeType, string name, string previousPathInRename = null)
+        private void DisplayChange(WatcherChangeTypes changeType, string name, string previousPathInRename = null)
         {
             string symbol = GetChangeSymbol(changeType);
 
             Console.WriteLine(changeType == WatcherChangeTypes.Renamed
-                ? $"{symbol} {previousPathInRename} => {name}"
-                : $"{symbol} {name}");
+                ? $"[{stopwatch.Elapsed}] {symbol} {previousPathInRename} => {name}"
+                : $"[{stopwatch.Elapsed}] {symbol} {name}");
         }
 
         private static void DisplayError(Exception exception)
