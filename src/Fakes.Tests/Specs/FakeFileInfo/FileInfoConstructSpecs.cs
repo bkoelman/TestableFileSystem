@@ -116,6 +116,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(ZeroFileTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
             directoryInfo.FullName.Should().Be(@"c:\some");
         }
@@ -162,6 +164,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
             fileInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+
+            fileInfo.ToString().Should().Be(path);
 
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
             directoryInfo.FullName.Should().Be(@"c:\some");
@@ -210,6 +214,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
             directoryInfo.FullName.Should().Be(@"c:\SOME");
         }
@@ -257,8 +263,63 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("some");
             directoryInfo.FullName.Should().Be(@"c:\some");
+            directoryInfo.ToString().Should().Be(@"c:\some");
+        }
+
+        [Fact]
+        private void When_constructing_file_info_for_existing_local_file_with_self_and_parent_references_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\some\.\deleted\..\file.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(path)
+                .Build();
+
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(path, DefaultContents);
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => lastAccessTimeUtc;
+
+            fileSystem.File.ReadAllText(path);
+
+            // Act
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
+
+            // Assert
+            fileInfo.Name.Should().Be("file.txt");
+            fileInfo.Extension.Should().Be(".txt");
+            fileInfo.FullName.Should().Be(@"c:\some\file.txt");
+            fileInfo.DirectoryName.Should().Be(@"c:\some");
+            fileInfo.Exists.Should().BeTrue();
+            fileInfo.Length.Should().Be(DefaultContents.Length);
+            fileInfo.IsReadOnly.Should().BeFalse();
+            fileInfo.Attributes.Should().Be(FileAttributes.Archive);
+
+            fileInfo.CreationTime.Should().Be(creationTimeUtc.ToLocalTime());
+            fileInfo.CreationTimeUtc.Should().Be(creationTimeUtc);
+            fileInfo.LastAccessTime.Should().Be(lastAccessTimeUtc.ToLocalTime());
+            fileInfo.LastAccessTimeUtc.Should().Be(lastAccessTimeUtc);
+            fileInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
+            fileInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
+
+            fileInfo.ToString().Should().Be(path);
+
+            IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("some");
+            directoryInfo.FullName.Should().Be(@"c:\some");
+            directoryInfo.ToString().Should().Be(@"c:\some");
         }
 
         [Fact]
@@ -295,6 +356,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(creationTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(creationTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             fileInfo.Directory.Should().BeNull();
         }
 
@@ -302,30 +365,30 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private void When_constructing_file_info_for_file_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
-            const string path = @"c:\some\file.txt";
+            const string path = @"\some\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\other")
-                .IncludingEmptyFile(path)
+                .IncludingEmptyFile(@"c:\some\file.txt")
                 .Build();
 
             DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => lastWriteTimeUtc;
 
-            fileSystem.File.WriteAllText(path, DefaultContents);
+            fileSystem.File.WriteAllText(@"c:\some\file.txt", DefaultContents);
 
             DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => lastAccessTimeUtc;
 
-            fileSystem.File.ReadAllText(path);
+            fileSystem.File.ReadAllText(@"c:\some\file.txt");
 
             fileSystem.Directory.SetCurrentDirectory(@"C:\other");
 
             // Act
-            IFileInfo fileInfo = fileSystem.ConstructFileInfo(@"\some\file.txt");
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             // Assert
             fileInfo.Name.Should().Be("file.txt");
@@ -344,37 +407,41 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("some");
             directoryInfo.FullName.Should().Be(@"C:\some");
+            directoryInfo.ToString().Should().Be(@"C:\some");
         }
 
         [Fact]
         private void When_constructing_file_info_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"c:\some\file.txt";
+            const string path = @"file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingEmptyFile(path)
+                .IncludingEmptyFile(@"c:\some\file.txt")
                 .Build();
 
             DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => lastWriteTimeUtc;
 
-            fileSystem.File.WriteAllText(path, DefaultContents);
+            fileSystem.File.WriteAllText(@"c:\some\file.txt", DefaultContents);
 
             DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => lastAccessTimeUtc;
 
-            fileSystem.File.ReadAllText(path);
+            fileSystem.File.ReadAllText(@"c:\some\file.txt");
 
             fileSystem.Directory.SetCurrentDirectory(@"C:\some");
 
             // Act
-            IFileInfo fileInfo = fileSystem.ConstructFileInfo(@"file.txt");
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             // Assert
             fileInfo.Name.Should().Be("file.txt");
@@ -393,8 +460,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("some");
             directoryInfo.FullName.Should().Be(@"C:\some");
+            directoryInfo.ToString().Should().Be(@"C:\some");
         }
 
         [Fact]
@@ -431,8 +502,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(creationTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(creationTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("some");
             directoryInfo.FullName.Should().Be(@"c:\some");
+            directoryInfo.ToString().Should().Be(@"c:\some");
         }
 
         [Fact]
@@ -466,8 +541,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(ZeroFileTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("file.txt");
             directoryInfo.FullName.Should().Be(@"C:\some\file.txt");
+            directoryInfo.ToString().Should().Be(@"C:\some\file.txt");
         }
 
         [Fact]
@@ -501,12 +580,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(ZeroFileTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("nested.html");
             directoryInfo.FullName.Should().Be(@"C:\some\file.txt\nested.html");
+            directoryInfo.ToString().Should().Be(@"C:\some\file.txt\nested.html");
         }
 
         [Fact]
-        private void When_constructing_file_info_for_missing_parent_directory_it_must_fail()
+        private void When_constructing_file_info_for_missing_parent_directory_it_must_succeed()
         {
             // Arrange
             const string path = @"C:\some\file.txt";
@@ -535,12 +618,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(ZeroFileTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("some");
             directoryInfo.FullName.Should().Be(@"C:\some");
+            directoryInfo.ToString().Should().Be(@"C:\some");
         }
 
         [Fact]
-        private void When_constructing_file_info_for_missing_network_share_it_must_fail()
+        private void When_constructing_file_info_for_missing_network_share_it_must_succeed()
         {
             // Arrange
             const string path = @"\\server\share\file.txt";
@@ -577,12 +664,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             ActionFactory.IgnoreReturnValue(() => fileInfo.LastWriteTimeUtc).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be(@"\\server\share");
             directoryInfo.FullName.Should().Be(@"\\server\share");
+            directoryInfo.ToString().Should().Be(@"\\server\share");
         }
 
         [Fact]
-        private void When_constructing_file_info_for_missing_remote_file_it_must_fail()
+        private void When_constructing_file_info_for_missing_remote_file_it_must_succeed()
         {
             // Arrange
             const string path = @"\\server\share\file.txt";
@@ -612,8 +703,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(ZeroFileTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(ZeroFileTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be(@"\\server\share");
             directoryInfo.FullName.Should().Be(@"\\server\share");
+            directoryInfo.ToString().Should().Be(@"\\server\share");
         }
 
         [Fact]
@@ -659,8 +754,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be(@"\\server\share");
             directoryInfo.FullName.Should().Be(@"\\server\share");
+            directoryInfo.ToString().Should().Be(@"\\server\share");
         }
 
         [Fact]
@@ -681,32 +780,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private void When_constructing_file_info_for_existing_extended_local_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"c:\some\file.txt";
+            const string path = @"\\?\c:\some\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingEmptyFile(path)
+                .IncludingEmptyFile(@"c:\some\file.txt")
                 .Build();
 
             DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => lastWriteTimeUtc;
 
-            fileSystem.File.WriteAllText(path, DefaultContents);
+            fileSystem.File.WriteAllText(@"c:\some\file.txt", DefaultContents);
 
             DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => lastAccessTimeUtc;
 
-            fileSystem.File.ReadAllText(path);
+            fileSystem.File.ReadAllText(@"c:\some\file.txt");
 
             // Act
-            IFileInfo fileInfo = fileSystem.ConstructFileInfo(@"\\?\c:\some\file.txt");
+            IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             // Assert
             fileInfo.Name.Should().Be("file.txt");
             fileInfo.Extension.Should().Be(".txt");
-            fileInfo.FullName.Should().Be(@"\\?\c:\some\file.txt");
+            fileInfo.FullName.Should().Be(path);
             fileInfo.DirectoryName.Should().Be(@"\\?\c:\some");
             fileInfo.Exists.Should().BeTrue();
             fileInfo.Length.Should().Be(DefaultContents.Length);
@@ -720,8 +819,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.LastWriteTime.Should().Be(lastWriteTimeUtc.ToLocalTime());
             fileInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
+            fileInfo.ToString().Should().Be(path);
+
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be("some");
             directoryInfo.FullName.Should().Be(@"\\?\c:\some");
+            directoryInfo.ToString().Should().Be(@"\\?\c:\some");
         }
     }
 }

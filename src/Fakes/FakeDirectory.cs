@@ -156,7 +156,8 @@ namespace TestableFileSystem.Fakes
 
             handler.Handle(arguments);
 
-            return owner.ConstructDirectoryInfo(absolutePath);
+            string displayPath = absolutePath.HasTrailingSeparator ? string.Empty : absolutePath.Components.Last();
+            return owner.ConstructDirectoryInfo(absolutePath, displayPath);
         }
 
         public void Delete(string path, bool recursive = false)

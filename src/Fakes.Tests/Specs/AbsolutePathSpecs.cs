@@ -277,7 +277,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs/in/sub/\folder/");
 
             // Assert
-            info.FullName.Should().Be(@"C:\docs\in\sub\folder");
+            info.FullName.Should().Be(@"C:\docs\in\sub\folder\");
         }
 
         [Fact]

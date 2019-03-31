@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_opening_existing_local_file_in_CreateNew_mode_it_must_fail()
         {
             // Arrange
-            const string path = @"C:\some\sheet.xls";
+            const string path = @"C:\some\deleted\..\sheet.xls  ";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(path)
@@ -122,7 +122,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_opening_missing_local_file_in_CreateNew_mode_it_must_succeed()
         {
             // Arrange
-            const string path = @"C:\some\file.txt";
+            const string path = @"C:\some\deleted\..\file.txt  ";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(@"c:\some")
@@ -133,9 +133,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             {
                 // Assert
                 stream.Length.Should().Be(0);
+                stream.Name.Should().Be(@"C:\some\file.txt");
             }
 
             IFileInfo info = fileSystem.ConstructFileInfo(path);
+            info.FullName.Should().Be(@"C:\some\file.txt");
+            info.ToString().Should().Be(@"C:\some\deleted\..\file.txt  ");
             info.Exists.Should().BeTrue();
             info.Length.Should().Be(0);
             info.Attributes.Should().Be(FileAttributes.Archive);

@@ -50,7 +50,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(fileName, nameof(fileName));
 
             AbsolutePath absolutePath = ToAbsolutePathInLock(fileName);
-            return new FakeFileInfo(container, this, absolutePath);
+            return new FakeFileInfo(container, this, absolutePath, fileName);
         }
 
         IFileInfo IFileSystem.ConstructFileInfo(string fileName) => ConstructFileInfo(fileName);
@@ -61,15 +61,15 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(path, nameof(path));
 
             AbsolutePath absolutePath = ToAbsolutePathInLock(path);
-            return ConstructDirectoryInfo(absolutePath);
+            return new FakeDirectoryInfo(container, this, absolutePath, path);
         }
 
         [NotNull]
-        internal FakeDirectoryInfo ConstructDirectoryInfo([NotNull] AbsolutePath directoryPath)
+        internal FakeDirectoryInfo ConstructDirectoryInfo([NotNull] AbsolutePath path, [CanBeNull] string displayPath = null)
         {
-            Guard.NotNull(directoryPath, nameof(directoryPath));
+            Guard.NotNull(path, nameof(path));
 
-            return new FakeDirectoryInfo(container, this, directoryPath);
+            return new FakeDirectoryInfo(container, this, path, displayPath);
         }
 
         IDirectoryInfo IFileSystem.ConstructDirectoryInfo(string path) => ConstructDirectoryInfo(path);

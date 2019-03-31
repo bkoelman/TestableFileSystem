@@ -13,14 +13,17 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly VolumeContainer container;
 
+        [CanBeNull]
+        private EntryProperties propertiesSnapshot;
+
         [NotNull]
         internal FakeFileSystem Owner { get; }
 
         [NotNull]
         internal AbsolutePath AbsolutePath { get; private set; }
 
-        [CanBeNull]
-        private EntryProperties propertiesSnapshot;
+        [NotNull]
+        protected string DisplayPath { get; private set; }
 
         [NotNull]
         internal EntryProperties Properties => propertiesSnapshot ?? (propertiesSnapshot = RetrieveEntryProperties());
@@ -108,7 +111,7 @@ namespace TestableFileSystem.Fakes
         public abstract bool Exists { get; }
 
         internal FakeFileSystemInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner,
-            [NotNull] AbsolutePath path)
+            [NotNull] AbsolutePath path, [CanBeNull] string displayPath)
         {
             Guard.NotNull(container, nameof(container));
             Guard.NotNull(owner, nameof(owner));
@@ -116,9 +119,10 @@ namespace TestableFileSystem.Fakes
 
             this.container = container;
             Owner = owner;
-
             AbsolutePath = path;
+
             FullName = path.GetText();
+            DisplayPath = displayPath ?? FullName;
             Extension = Path.GetExtension(FullName);
         }
 
@@ -143,11 +147,13 @@ namespace TestableFileSystem.Fakes
 
         public abstract void Delete();
 
-        internal void ChangePath([NotNull] AbsolutePath path)
+        internal void ChangePath([NotNull] AbsolutePath path, [NotNull] string displayPath)
         {
             Guard.NotNull(path, nameof(path));
+            Guard.NotNull(displayPath, nameof(displayPath));
 
             AbsolutePath = path;
+            DisplayPath = displayPath;
             FullName = path.GetText();
             Extension = Path.GetExtension(FullName);
 
@@ -158,7 +164,7 @@ namespace TestableFileSystem.Fakes
 
         public override string ToString()
         {
-            return FullName;
+            return DisplayPath;
         }
     }
 }

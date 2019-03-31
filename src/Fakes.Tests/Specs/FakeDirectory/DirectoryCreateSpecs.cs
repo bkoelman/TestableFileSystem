@@ -113,6 +113,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             info.Should().NotBeNull();
+            info.Name.Should().Be("folder");
+            info.FullName.Should().Be(path);
+            info.ToString().Should().Be("folder");
+
+            info.Exists.Should().BeTrue();
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
@@ -128,6 +133,31 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             info.Should().NotBeNull();
+            info.Name.Should().Be("some");
+            info.FullName.Should().Be(@"C:\some");
+            info.ToString().Should().Be("some");
+
+            info.Exists.Should().BeTrue();
+            fileSystem.Directory.Exists(@"C:\some").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_creating_missing_local_directory_with_trailing_separator_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IDirectoryInfo info = fileSystem.Directory.CreateDirectory(@"C:\some\");
+
+            // Assert
+            info.Should().NotBeNull();
+            info.Name.Should().Be("some");
+            info.FullName.Should().Be(@"C:\some\");
+            info.ToString().Should().Be("");
+
+            info.Exists.Should().BeTrue();
             fileSystem.Directory.Exists(@"C:\some").Should().BeTrue();
         }
 
@@ -187,7 +217,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_creating_directory_on_missing_drive_it_must_fail()
         {
             // Arrange
-            const string drive = @"X:\folder";
+            const string drive = @"X:\folder\";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -197,7 +227,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.Should().ThrowExactly<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'X:\folder'.");
+                .WithMessage(@"Could not find a part of the path 'X:\folder\'.");
         }
 
         [Fact]

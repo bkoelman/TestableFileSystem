@@ -19,7 +19,20 @@ namespace TestableFileSystem.Fakes
             get
             {
                 AbsolutePath parentPath = AbsolutePath.TryGetParentPath();
-                return parentPath == null ? null : Owner.ConstructDirectoryInfo(parentPath);
+                if (parentPath == null)
+                {
+                    return null;
+                }
+
+                string displayPath = parentPath.Components.Last();
+                if (parentPath.IsVolumeRoot && !parentPath.IsOnLocalDrive)
+                {
+                    // Emulate the bug where a network share is incorrectly broken into parts ("\\server\share" should be a single component, not two).
+                    int lastSeparatorIndex = parentPath.VolumeName.LastIndexOf(Path.DirectorySeparatorChar);
+                    displayPath = parentPath.VolumeName.Substring(lastSeparatorIndex + 1);
+                }
+
+                return Owner.ConstructDirectoryInfo(parentPath, displayPath);
             }
         }
 
@@ -32,8 +45,9 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        internal FakeDirectoryInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
-            : base(container, owner, path)
+        internal FakeDirectoryInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner,
+            [NotNull] AbsolutePath path, [CanBeNull] string displayPath)
+            : base(container, owner, path, displayPath)
         {
         }
 
@@ -150,7 +164,7 @@ namespace TestableFileSystem.Fakes
             Owner.Directory.Move(FullName, destDirName);
 
             AbsolutePath destinationPath = Owner.ToAbsolutePathInLock(destDirName);
-            ChangePath(destinationPath);
+            ChangePath(destinationPath, destDirName);
         }
 
         public override void Delete()

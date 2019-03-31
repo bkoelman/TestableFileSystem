@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
@@ -8,10 +7,7 @@ namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
     {
-        // TODO: Store the original path string that this instance was created from.
-
-        public override string Name =>
-            AbsolutePath.IsVolumeRoot ? string.Empty : AbsolutePath.Components.Last() + AbsolutePath.TrailingWhiteSpace;
+        public override string Name => Path.GetFileName(DisplayPath);
 
         public override bool Exists => Properties.Exists && !Properties.Attributes.HasFlag(FileAttributes.Directory);
 
@@ -55,8 +51,9 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        internal FakeFileInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
-            : base(container, owner, path)
+        internal FakeFileInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path,
+            [CanBeNull] string displayPath)
+            : base(container, owner, path, displayPath)
         {
         }
 
@@ -81,7 +78,7 @@ namespace TestableFileSystem.Fakes
             Owner.File.Move(FullName, destFileName);
 
             AbsolutePath destinationPath = Owner.ToAbsolutePathInLock(destFileName);
-            ChangePath(destinationPath);
+            ChangePath(destinationPath, destFileName);
         }
 
 #if !NETSTANDARD1_3

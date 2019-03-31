@@ -23,15 +23,14 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         public IReadOnlyList<string> Components { get; }
 
+        public bool HasTrailingSeparator { get; }
+
         [NotNull]
         public string VolumeName => Components.First();
 
         public bool IsOnLocalDrive => IsDriveLetter(VolumeName);
 
         public bool IsVolumeRoot => Components.Count == 1;
-
-        [NotNull]
-        public string TrailingWhiteSpace { get; }
 
         [NotNull]
         public IPathFormatter Formatter { get; }
@@ -44,7 +43,7 @@ namespace TestableFileSystem.Fakes
 
             Components = parser.GetComponents();
             isExtended = parser.IsExtended;
-            TrailingWhiteSpace = parser.TrailingWhiteSpace;
+            HasTrailingSeparator = parser.HasTrailingSeparator;
 
             Formatter = new AbsolutePathFormatter(this);
         }
@@ -53,7 +52,6 @@ namespace TestableFileSystem.Fakes
         {
             Components = components;
             this.isExtended = isExtended;
-            TrailingWhiteSpace = string.Empty;
 
             Formatter = new AbsolutePathFormatter(this);
         }
@@ -101,6 +99,11 @@ namespace TestableFileSystem.Fakes
 
             string[] components = Components.Skip(1).ToArray();
             builder.Append(string.Join(Path.DirectorySeparatorChar.ToString(), components));
+
+            if (HasTrailingSeparator && builder[builder.Length - 1] != Path.DirectorySeparatorChar)
+            {
+                builder.Append(Path.DirectorySeparatorChar);
+            }
 
             return builder.ToString();
         }
@@ -331,14 +334,14 @@ namespace TestableFileSystem.Fakes
 
             public bool IsExtended { get; }
 
-            [NotNull]
-            public string TrailingWhiteSpace { get; }
+            public bool HasTrailingSeparator { get; }
 
             public Parser([NotNull] string path)
             {
                 this.path = NormalizePath(path);
+                HasTrailingSeparator = path.EndsWith(PathFacts.PrimaryDirectorySeparatorString, StringComparison.Ordinal) ||
+                    path.EndsWith(PathFacts.AlternateDirectorySeparatorString, StringComparison.Ordinal);
                 IsExtended = HasPrefixForExtendedLength(path);
-                TrailingWhiteSpace = path.Substring(path.TrimEnd(SingleSpace).Length);
             }
 
             [NotNull]

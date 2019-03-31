@@ -124,6 +124,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
+        private void When_getting_directory_parent_for_missing_local_path_with_trailing_separator_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IDirectoryInfo parent = fileSystem.Directory.GetParent(@"f:\some\folder\sub\");
+
+            // Assert
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
+            parentNotNull.Name.Should().Be("folder");
+            parentNotNull.FullName.Should().Be(@"f:\some\folder");
+            parentNotNull.ToString().Should().Be(@"f:\some\folder");
+        }
+
+        [Fact]
         private void When_getting_directory_parent_for_directory_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
