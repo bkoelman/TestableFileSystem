@@ -30,10 +30,10 @@
     <PackageReference Include="jetbrains.externalannotations" Version="10.2.29" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-  	<None Include="$(OutputPath)\..\..\..\Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
+    <None Include="$(OutputPath)\..\..\..\Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
     <None Include="$(OutputPath)\..\..\..\Analyzer\bin\$(Configuration)\net45\TestableFileSystem.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
   <ItemGroup>
-  	<Compile Include="..\Guard.cs" Link="Guard.cs" />
+    <Compile Include="..\Guard.cs" Link="Guard.cs" />
   </ItemGroup>
 </Project>

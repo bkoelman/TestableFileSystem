@@ -9,12 +9,12 @@ At the top of the hierarchy is the `IFileSystem` interface.
 ```csharp
 interface IFileSystem
 {
-	IFile File { get; }
-	IDirectory Directory { get; }
+  IFile File { get; }
+  IDirectory Directory { get; }
 
-	IFileInfo ConstructFileInfo(string fileName);
-	IDirectoryInfo ConstructDirectoryInfo(string path);
-	IFileSystemWatcher ConstructFileSystemWatcher(string path, string filter);
+  IFileInfo ConstructFileInfo(string fileName);
+  IDirectoryInfo ConstructDirectoryInfo(string path);
+  IFileSystemWatcher ConstructFileSystemWatcher(string path, string filter);
 }
 ```
 
@@ -82,6 +82,6 @@ If you do not want to use a clock that is frozen in time, but use the actual run
 var clock = new SystemClock(SystemClock.UseHardwareClock);
 ```
 
-This should get you started using this library. 
+This should get you started using this library.
 
 If you're interested in the inner workings of the in-memory file system, you may want to continue reading at: [in-memory file system architecture](Architecture.md).
