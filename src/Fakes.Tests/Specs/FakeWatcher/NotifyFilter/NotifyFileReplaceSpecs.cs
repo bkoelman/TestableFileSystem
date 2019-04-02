@@ -223,12 +223,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
             string pathToSourceFile = Path.Combine(directoryToWatch, containerName, "sourceDir", "source.txt");
             string pathToDestinationFile = Path.Combine(directoryToWatch, containerName, "targetDir", "target.txt");
-            string pathToBackupFile = Path.Combine(directoryToWatch, containerName, "backupDir", "backup.txt");
+            string pathToBackupDirectory = Path.Combine(directoryToWatch, containerName, "backupDir");
+            string pathToBackupFile = Path.Combine(pathToBackupDirectory, "backup.txt");
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(pathToSourceFile, "SourceText")
                 .IncludingTextFile(pathToDestinationFile, "DestinationText")
-                .IncludingDirectory(Path.GetDirectoryName(pathToBackupFile))
+                .IncludingDirectory(pathToBackupDirectory)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))

@@ -46,7 +46,8 @@ namespace TestableFileSystem.Interfaces
 
 #if !NETSTANDARD1_3
         /// <inheritdoc cref="FileStream.Handle" />
-        [Obsolete("This property has been deprecated.  Please use IFileStream's SafeFileHandle property instead.  http://go.microsoft.com/fwlink/?linkid=14202")]
+        [Obsolete(
+            "This property has been deprecated.  Please use IFileStream's SafeFileHandle property instead.  http://go.microsoft.com/fwlink/?linkid=14202")]
         IntPtr Handle { get; }
 #endif
 

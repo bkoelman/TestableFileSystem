@@ -175,7 +175,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
         private void AddChangeForExistingDestinationFile([NotNull] FileEntry destinationFile)
         {
-            FileAccessKinds accessKinds = FileAccessKinds.WriteRead;
+            var accessKinds = FileAccessKinds.WriteRead;
 
             if (destinationFile.Size > 0)
             {

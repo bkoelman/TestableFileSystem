@@ -127,7 +127,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            using (var stream = fileSystem.File.Create(path, 1, FileOptions.Asynchronous))
+            using (IFileStream stream = fileSystem.File.Create(path, 1, FileOptions.Asynchronous))
             {
                 // Assert
                 stream.IsAsync.Should().BeTrue();

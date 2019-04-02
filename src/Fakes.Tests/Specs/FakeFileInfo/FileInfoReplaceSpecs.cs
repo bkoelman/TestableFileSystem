@@ -8,8 +8,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
 {
     public sealed class FileInfoReplaceSpecs
     {
-        private const string DefaultContents = "ABC";
-
         [Fact]
         private void When_replacing_file_without_backup_it_must_succeed()
         {
