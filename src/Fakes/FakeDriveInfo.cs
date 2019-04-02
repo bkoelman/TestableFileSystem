@@ -7,7 +7,6 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    [Serializable]
     internal sealed class FakeDriveInfo : IDriveInfo
     {
         [NotNull]
