@@ -28,8 +28,8 @@
     <Compile Include="..\Wrappers\FileStreamWrapper.cs" Link="FileStreamWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="jetbrains.annotations" Version="2018.3.0" PrivateAssets="all" />
-    <PackageReference Include="resharpercodecontractnullability" Version="1.0.10" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" PrivateAssets="all" />
+    <PackageReference Include="ResharperCodeContractNullability" Version="2.0.0" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="System.Security.Principal.Windows">
