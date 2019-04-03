@@ -31,15 +31,11 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (arguments.IsEncrypt)
             {
-                bool hasEncrypted = entry.SetEncrypted();
-
-                NotifyEncrypted(entry, hasEncrypted);
+                HandleEncrypt(entry);
             }
             else
             {
-                bool hasDecrypted = entry.ClearEncrypted();
-
-                NotifyDecrypted(entry, hasDecrypted);
+                HandleDecrypt(entry);
             }
 
             return Missing.Value;
@@ -83,11 +79,11 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private static void AssertFileIsNotReadOnly([NotNull] FileEntry fileEntry)
+        private static void AssertFileIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
         {
-            if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
+            if (file.IsExternallyEncrypted)
             {
-                throw ErrorFactory.System.FileIsReadOnly();
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
         }
 
@@ -100,12 +96,24 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private static void AssertFileIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
+        private static void AssertFileIsNotReadOnly([NotNull] FileEntry fileEntry)
         {
-            if (file.IsExternallyEncrypted)
+            if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
-                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
+                throw ErrorFactory.System.FileIsReadOnly();
             }
+        }
+
+        private void HandleEncrypt([NotNull] BaseEntry entry)
+        {
+            bool hasEncrypted = entry.SetEncrypted();
+
+            if (hasEncrypted)
+            {
+                entry.LastAccessTimeUtc = Container.SystemClock.UtcNow();
+            }
+
+            NotifyEncrypted(entry, hasEncrypted);
         }
 
         private void NotifyEncrypted([NotNull] BaseEntry entry, bool hasEncrypted)
@@ -163,6 +171,18 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Attributes);
+        }
+
+        private void HandleDecrypt([NotNull] BaseEntry entry)
+        {
+            bool hasDecrypted = entry.ClearEncrypted();
+
+            if (hasDecrypted)
+            {
+                entry.LastAccessTimeUtc = Container.SystemClock.UtcNow();
+            }
+
+            NotifyDecrypted(entry, hasDecrypted);
         }
 
         private void NotifyDecrypted([NotNull] BaseEntry entry, bool hasDecrypted)

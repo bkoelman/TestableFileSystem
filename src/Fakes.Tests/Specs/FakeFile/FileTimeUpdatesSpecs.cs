@@ -416,6 +416,287 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        // TODO: Add extra specs for operations added in NetStandard20.
+#if !NETCOREAPP1_1
+        [Fact]
+        private void When_replacing_file_with_different_name_in_same_directory_without_backup_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string destinationPath = @"C:\some\target.txt";
+
+            DateTime sourceCreationTimeUtc = 4.January(2017).At(7, 52, 01).AsUtc();
+            var clock = new SystemClock(() => sourceCreationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            DateTime sourceLastWriteTimeUtc = 5.January(2017).At(3, 12, 34).AsUtc();
+            clock.UtcNow = () => sourceLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(sourcePath, "SourceContent");
+
+            DateTime destinationCreationTimeUtc = 10.January(2017).At(11, 23, 45).AsUtc();
+            clock.UtcNow = () => destinationCreationTimeUtc;
+
+            fileSystem.File.WriteAllText(destinationPath, string.Empty);
+
+            DateTime destinationLastWriteTimeUtc = 11.January(2017).At(3, 1, 56).AsUtc();
+            clock.UtcNow = () => destinationLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(destinationPath, "DestinationContent");
+
+            DateTime operationTimeUtc = 30.January(2017).At(2, 21, 6).AsUtc();
+            clock.UtcNow = () => operationTimeUtc;
+
+            // Act
+            fileSystem.File.Replace(sourcePath, destinationPath, null);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+
+            fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(destinationCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
+        }
+
+        [Fact(Skip = "TODO: Make this File.Replace timing test work")]
+        private void When_replacing_file_with_different_name_in_same_directory_with_backup_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string destinationPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            DateTime sourceCreationTimeUtc = 4.January(2017).At(7, 52, 01).AsUtc();
+            var clock = new SystemClock(() => sourceCreationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            DateTime sourceLastWriteTimeUtc = 5.January(2017).At(3, 12, 34).AsUtc();
+            clock.UtcNow = () => sourceLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(sourcePath, "SourceContent");
+
+            DateTime destinationCreationTimeUtc = 10.January(2017).At(11, 23, 45).AsUtc();
+            clock.UtcNow = () => destinationCreationTimeUtc;
+
+            fileSystem.File.WriteAllText(destinationPath, string.Empty);
+
+            DateTime destinationLastWriteTimeUtc = 11.January(2017).At(3, 1, 56).AsUtc();
+            clock.UtcNow = () => destinationLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(destinationPath, "DestinationContent");
+
+            DateTime operationTimeUtc = 20.January(2017).At(1, 2, 4).AsUtc();
+            clock.UtcNow = () => operationTimeUtc;
+
+            // Act
+            fileSystem.File.Replace(sourcePath, destinationPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+
+            fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(destinationCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
+
+            fileSystem.File.GetCreationTimeUtc(backupPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(backupPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(backupPath).Should().Be(operationTimeUtc);
+        }
+
+        [Fact(Skip = "TODO: Make this File.Replace timing test work")]
+        private void When_replacing_file_with_different_name_in_same_directory_with_existing_backup_it_must_succeed()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string destinationPath = @"C:\some\target.txt";
+            const string backupPath = @"C:\some\backup.txt";
+
+            DateTime sourceCreationTimeUtc = 4.January(2017).At(7, 52, 01).AsUtc();
+            var clock = new SystemClock(() => sourceCreationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(sourcePath)
+                .Build();
+
+            DateTime sourceLastWriteTimeUtc = 5.January(2017).At(3, 12, 34).AsUtc();
+            clock.UtcNow = () => sourceLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(sourcePath, "SourceContent");
+
+            DateTime destinationCreationTimeUtc = 10.January(2017).At(11, 23, 45).AsUtc();
+            clock.UtcNow = () => destinationCreationTimeUtc;
+
+            fileSystem.File.WriteAllText(destinationPath, string.Empty);
+
+            DateTime destinationLastWriteTimeUtc = 11.January(2017).At(3, 1, 56).AsUtc();
+            clock.UtcNow = () => destinationLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(destinationPath, "DestinationContent");
+
+            DateTime backupCreationTimeUtc = 20.January(2017).At(1, 2, 4).AsUtc();
+            clock.UtcNow = () => backupCreationTimeUtc;
+
+            fileSystem.File.WriteAllText(backupPath, string.Empty);
+
+            DateTime backupLastWriteTimeUtc = 21.January(2017).At(17, 21, 5).AsUtc();
+            clock.UtcNow = () => backupLastWriteTimeUtc;
+
+            fileSystem.File.WriteAllText(backupPath, "BackupContent");
+
+            DateTime operationTimeUtc = 30.January(2017).At(2, 21, 6).AsUtc();
+            clock.UtcNow = () => operationTimeUtc;
+
+            // Act
+            fileSystem.File.Replace(sourcePath, destinationPath, backupPath);
+
+            // Assert
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
+
+            fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(destinationCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
+
+            fileSystem.File.GetCreationTimeUtc(backupPath).Should().Be(backupCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(backupPath).Should().Be(backupLastWriteTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(backupPath).Should().Be(backupLastWriteTimeUtc);
+        }
+
+        [Fact]
+        private void When_encrypting_file_it_must_update_file_timings()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            DateTime changeTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => changeTimeUtc;
+
+            // Act
+            fileSystem.File.Encrypt(path);
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
+        }
+
+        [Fact]
+        private void When_encrypting_encrypted_file_it_must_not_update_file_timings()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            DateTime changeTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => changeTimeUtc;
+
+            // Act
+            fileSystem.File.Encrypt(path);
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
+        }
+
+        [Fact]
+        private void When_decrypting_file_it_must_update_file_timings()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            fileSystem.File.Encrypt(path);
+
+            DateTime changeTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => changeTimeUtc;
+
+            // Act
+            fileSystem.File.Decrypt(path);
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
+        }
+
+        [Fact]
+        private void When_decrypting_unencrypted_file_it_must_not_update_file_timings()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            DateTime changeTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => changeTimeUtc;
+
+            // Act
+            fileSystem.File.Decrypt(path);
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
+        }
+
+        [Fact]
+        private void When_locking_segment_in_stream_it_must_not_update_file_timings()
+        {
+            // Arrange
+            const string path = @"C:\some\file.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(path, DefaultContents)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
+            {
+                DateTime changeTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+                clock.UtcNow = () => changeTimeUtc;
+
+                // Act
+                stream.Lock(0, DefaultContents.Length);
+            }
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
+        }
+#endif
     }
 }
