@@ -29,7 +29,10 @@ namespace TestableFileSystem.Fakes.Handlers
             pendingContentChanges.Add(FileAccessKinds.Write);
 
             FileEntry sourceFile = ResolveSourceFile(arguments.SourcePath, arguments.IsCopyAfterMoveFailed);
-            FileEntry destinationFile = ResolveDestinationFile(sourceFile, arguments);
+
+            FileResolveResult destinationResolveResult = ResolveDestinationFile(arguments);
+            DateTime? existingDestinationLastWriteTimeUtc = destinationResolveResult.ExistingFileOrNull?.LastWriteTimeUtc;
+            FileEntry destinationFile = PrepareDestinationFile(destinationResolveResult, sourceFile, arguments);
 
             foreach (FileAccessKinds change in pendingContentChanges)
             {
@@ -45,7 +48,8 @@ namespace TestableFileSystem.Fakes.Handlers
                 destinationStream = destinationFile.Open(FileMode.Open, FileAccess.Write, arguments.DestinationPath, false, false,
                     false);
 
-                return new FileCopyResult(sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream());
+                return new FileCopyResult(sourceFile, sourceStream.AsStream(), destinationFile, destinationStream.AsStream(),
+                    existingDestinationLastWriteTimeUtc);
             }
             catch (Exception)
             {
@@ -107,35 +111,42 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [NotNull]
-        private FileEntry ResolveDestinationFile([NotNull] FileEntry sourceFile, [NotNull] FileCopyArguments arguments)
+        private FileResolveResult ResolveDestinationFile([NotNull] FileCopyArguments arguments)
         {
             var destinationResolver = new FileResolver(Container)
             {
                 ErrorFileFoundAsDirectory = ErrorFactory.System.TargetIsNotFile
             };
-            FileResolveResult resolveResult = destinationResolver.TryResolveFile(arguments.DestinationPath);
 
+            return destinationResolver.TryResolveFile(arguments.DestinationPath);
+        }
+
+        [NotNull]
+        private FileEntry PrepareDestinationFile([NotNull] FileResolveResult destinationResolveResult,
+            [NotNull] FileEntry sourceFile, [NotNull] FileCopyArguments arguments)
+        {
             DateTime utcNow = Container.SystemClock.UtcNow();
 
             FileEntry destinationFile;
             bool isNewlyCreated;
-            if (resolveResult.ExistingFileOrNull != null)
+            if (destinationResolveResult.ExistingFileOrNull != null)
             {
-                AssertCanOverwriteFile(arguments.Overwrite, arguments.DestinationPath);
-                AssertIsNotHiddenOrReadOnly(resolveResult.ExistingFileOrNull, arguments.DestinationPath);
-                AssertIsNotExternallyEncrypted(resolveResult.ExistingFileOrNull, arguments.DestinationPath,
-                    arguments.IsCopyAfterMoveFailed);
-                AssertSufficientDiskSpace(sourceFile.Size - resolveResult.ExistingFileOrNull.Size,
-                    resolveResult.ContainingDirectory.Root);
-
-                destinationFile = ResolveExistingDestinationFile(resolveResult);
+                destinationFile = destinationResolveResult.ExistingFileOrNull;
                 isNewlyCreated = false;
+
+                AssertCanOverwriteFile(arguments.Overwrite, arguments.DestinationPath);
+                AssertIsNotHiddenOrReadOnly(destinationFile, arguments.DestinationPath);
+                AssertIsNotExternallyEncrypted(destinationFile, arguments.DestinationPath, arguments.IsCopyAfterMoveFailed);
+                AssertSufficientDiskSpace(sourceFile.Size - destinationFile.Size,
+                    destinationResolveResult.ContainingDirectory.Root);
+
+                AddChangeForExistingDestinationFile(destinationFile);
             }
             else
             {
-                AssertSufficientDiskSpace(sourceFile.Size, resolveResult.ContainingDirectory.Root);
+                AssertSufficientDiskSpace(sourceFile.Size, destinationResolveResult.ContainingDirectory.Root);
 
-                destinationFile = resolveResult.ContainingDirectory.CreateFile(resolveResult.FileName);
+                destinationFile = destinationResolveResult.ContainingDirectory.CreateFile(destinationResolveResult.FileName);
                 destinationFile.CreationTimeUtc = utcNow;
                 isNewlyCreated = true;
             }
@@ -149,7 +160,7 @@ namespace TestableFileSystem.Fakes.Handlers
             destinationFile.SetAttributes(sourceFile.Attributes);
 
             destinationFile.LastAccessTimeUtc = utcNow;
-            destinationFile.LastWriteTimeUtc = sourceFile.LastWriteTimeUtc;
+            destinationFile.LastWriteTimeUtc = utcNow;
 
             return destinationFile;
         }
@@ -161,16 +172,6 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 throw ErrorFactory.System.NotEnoughSpaceOnDisk();
             }
-        }
-
-        [NotNull]
-        private FileEntry ResolveExistingDestinationFile([NotNull] FileResolveResult resolveResult)
-        {
-            FileEntry destinationFile = resolveResult.ContainingDirectory.GetFile(resolveResult.FileName);
-
-            AddChangeForExistingDestinationFile(destinationFile);
-
-            return destinationFile;
         }
 
         private void AddChangeForExistingDestinationFile([NotNull] FileEntry destinationFile)

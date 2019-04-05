@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Utilities;
 
@@ -18,8 +19,11 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         public Stream DestinationStream { get; }
 
+        [CanBeNull]
+        public DateTime? ExistingDestinationLastWriteTimeUtc { get; }
+
         public FileCopyResult([NotNull] FileEntry sourceFile, [NotNull] Stream sourceStream, [NotNull] FileEntry destinationFile,
-            [NotNull] Stream destinationStream)
+            [NotNull] Stream destinationStream, [CanBeNull] DateTime? existingDestinationLastWriteTimeUtc)
         {
             Guard.NotNull(sourceFile, nameof(sourceFile));
             Guard.NotNull(sourceStream, nameof(sourceStream));
@@ -30,6 +34,7 @@ namespace TestableFileSystem.Fakes.Handlers
             SourceStream = sourceStream;
             DestinationFile = destinationFile;
             DestinationStream = destinationStream;
+            ExistingDestinationLastWriteTimeUtc = existingDestinationLastWriteTimeUtc;
         }
     }
 }

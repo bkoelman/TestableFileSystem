@@ -115,7 +115,8 @@ namespace TestableFileSystem.Fakes
 
             container.FileSystemLock.ExecuteInLock(() =>
             {
-                copyResult.DestinationFile.LastWriteTimeUtc = copyResult.SourceFile.LastWriteTimeUtc;
+                copyResult.DestinationFile.LastWriteTimeUtc = copyResult.ExistingDestinationLastWriteTimeUtc ??
+                    copyResult.SourceFile.LastWriteTimeUtc;
             });
         }
 

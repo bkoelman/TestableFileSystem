@@ -315,8 +315,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             fileSystem.File.WriteAllText(sourcePath, DefaultContents);
 
-            DateTime destinationCreationTimeUtc = 12.January(2017).At(11, 23, 45).AsUtc();
-            clock.UtcNow = () => destinationCreationTimeUtc;
+            DateTime copyStartTimeUtc = 12.January(2017).At(11, 23, 45).AsUtc();
+            clock.UtcNow = () => copyStartTimeUtc;
 
             // Act
             var copyThread = new Thread(() => { fileSystem.File.Copy(sourcePath, destinationPath); });
@@ -327,24 +327,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             try
             {
                 // Assert (copy started)
-                fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(destinationCreationTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationCreationTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(sourceLastWriteTimeUtc);
+                fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(copyStartTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(copyStartTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(copyStartTimeUtc);
 
-                DateTime destinationCompletedTimeUtc = 12.January(2017).At(11, 27, 36).AsUtc();
-                clock.UtcNow = () => destinationCompletedTimeUtc;
+                DateTime copyFinishTimeUtc = 12.January(2017).At(11, 27, 36).AsUtc();
+                clock.UtcNow = () => copyFinishTimeUtc;
 
                 copyWaitIndicator.SetCompleted();
                 copyThread.Join();
 
                 // Assert (copy completed)
-                fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(destinationCreationTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationCompletedTimeUtc);
+                fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(copyStartTimeUtc);
                 fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(sourceLastWriteTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(copyFinishTimeUtc);
 
                 fileSystem.File.GetCreationTimeUtc(sourcePath).Should().Be(sourceCreationTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(sourcePath).Should().Be(destinationCompletedTimeUtc);
                 fileSystem.File.GetLastWriteTimeUtc(sourcePath).Should().Be(sourceLastWriteTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(sourcePath).Should().Be(copyFinishTimeUtc);
             }
             finally
             {
@@ -379,6 +379,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             DateTime destinationLastWriteTimeUtc = 12.January(2017).At(11, 23, 45).AsUtc();
             clock.UtcNow = () => destinationLastWriteTimeUtc;
 
+            fileSystem.File.WriteAllText(destinationPath, DefaultContents);
+
+            DateTime copyStartTimeUtc = 14.January(2017).At(11, 23, 45).AsUtc();
+            clock.UtcNow = () => copyStartTimeUtc;
+
             // Act
             var copyThread = new Thread(() => { fileSystem.File.Copy(sourcePath, destinationPath, true); });
             copyThread.Start();
@@ -389,23 +394,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             {
                 // Assert (copy started)
                 fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(creationTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(sourceLastWriteTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(copyStartTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(copyStartTimeUtc);
 
-                DateTime destinationCompletedTimeUtc = 12.January(2017).At(11, 27, 36).AsUtc();
-                clock.UtcNow = () => destinationCompletedTimeUtc;
+                DateTime copyFinishTimeUtc = 12.January(2017).At(11, 27, 36).AsUtc();
+                clock.UtcNow = () => copyFinishTimeUtc;
 
                 copyWaitIndicator.SetCompleted();
                 copyThread.Join();
 
                 // Assert (copy completed)
                 fileSystem.File.GetCreationTimeUtc(destinationPath).Should().Be(creationTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationCompletedTimeUtc);
-                fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(sourceLastWriteTimeUtc);
+                fileSystem.File.GetLastWriteTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(copyFinishTimeUtc);
 
                 fileSystem.File.GetCreationTimeUtc(sourcePath).Should().Be(creationTimeUtc);
-                fileSystem.File.GetLastAccessTimeUtc(sourcePath).Should().Be(destinationCompletedTimeUtc);
                 fileSystem.File.GetLastWriteTimeUtc(sourcePath).Should().Be(sourceLastWriteTimeUtc);
+                fileSystem.File.GetLastAccessTimeUtc(sourcePath).Should().Be(copyFinishTimeUtc);
             }
             finally
             {
