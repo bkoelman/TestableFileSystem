@@ -92,15 +92,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         [Fact]
         private void When_creating_file_it_must_update_directory_timings()
         {
-            // TODO: Split file I/O into various operations:
-            // - Open existing file
-            // - Read from file
-            // - Write to file
-            // - Append to file
-            // - Truncate file
-            // - Create new file
-            // - Overwrite existing file
-
             // Arrange
             const string containerPath = @"C:\folder";
 
@@ -126,8 +117,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         [Fact]
         private void When_updating_file_contents_it_must_not_update_directory_timings()
         {
-            // TODO: Merge with above test.
-
             // Arrange
             const string containerPath = @"C:\folder";
 

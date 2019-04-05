@@ -4,8 +4,6 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Fakes
 {
-    // TODO: Review and align whether members should return an exception or throw.
-
     internal static class ErrorFactory
     {
         public static class System
@@ -134,14 +132,14 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception DriveNameMustBeRootOrLetter()
             {
-                throw new ArgumentException(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
+                return new ArgumentException(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
             }
 
 #if !NETSTANDARD1_3
             [NotNull]
             public static Exception CouldNotFindDrive([NotNull] string driveName)
             {
-                throw new DriveNotFoundException(
+                return new DriveNotFoundException(
                     $"Could not find the drive '{driveName}'. The drive might not be ready or might not be mapped.");
             }
 
@@ -256,58 +254,58 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception DirectoryIsNotASubdirectory([NotNull] string path, [NotNull] string absolutePath)
             {
-                throw new ArgumentException($@"The directory specified, '{path}', is not a subdirectory of '{absolutePath}'.",
+                return new ArgumentException($@"The directory specified, '{path}', is not a subdirectory of '{absolutePath}'.",
                     nameof(path));
             }
 
             [NotNull]
             public static Exception CannotAccessFileProcessHasLocked()
             {
-                throw new IOException(
+                return new IOException(
                     "The process cannot access the file because another process has locked a portion of the file");
             }
 
             [NotNull]
             public static Exception SegmentIsAlreadyUnlocked()
             {
-                throw new IOException("The segment is already unlocked");
+                return new IOException("The segment is already unlocked");
             }
 
             [NotNull]
             public static Exception FileIsReadOnly()
             {
-                throw new IOException("The specified file is read only.");
+                return new IOException("The specified file is read only.");
             }
 
             [NotNull]
             public static Exception FileExists()
             {
-                throw new IOException("The file exists.");
+                return new IOException("The file exists.");
             }
 
             [NotNull]
             public static Exception UnableToRemoveFileToBeReplaced()
             {
-                throw new IOException("Unable to remove the file to be replaced.");
+                return new IOException("Unable to remove the file to be replaced.");
             }
 
             [NotNull]
             public static Exception UnableToMoveReplacementFile()
             {
-                throw new IOException(
+                return new IOException(
                     "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
             }
 
             [NotNull]
             public static Exception UnableToFindSpecifiedFile()
             {
-                throw new FileNotFoundException("Unable to find the specified file.");
+                return new FileNotFoundException("Unable to find the specified file.");
             }
 
             [NotNull]
             public static Exception NotEnoughSpaceOnDisk()
             {
-                throw new IOException("There is not enough space on the disk.");
+                return new IOException("There is not enough space on the disk.");
             }
         }
 
@@ -324,7 +322,7 @@ namespace TestableFileSystem.Fakes
             public static Exception EnumValueUnsupported<TEnum>(TEnum value)
                 where TEnum : struct
             {
-                throw new NotSupportedException($"Unsupported value '{value}' for {typeof(TEnum).Name}.");
+                return new NotSupportedException($"Unsupported value '{value}' for {typeof(TEnum).Name}.");
             }
         }
     }
