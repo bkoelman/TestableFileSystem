@@ -91,13 +91,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_creating_file_it_must_update_directory_timings()
         {
             // TODO: Split file I/O into various operations:
-		    // - Open existing file
-		    // - Read from file
-		    // - Write to file
-		    // - Append to file
-		    // - Truncate file
-		    // - Create new file
-		    // - Overwrite existing file
+            // - Open existing file
+            // - Read from file
+            // - Write to file
+            // - Append to file
+            // - Truncate file
+            // - Create new file
+            // - Overwrite existing file
 
             // Arrange
             const string path = @"C:\folder";
@@ -203,29 +203,84 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         [Fact]
         private void When_copying_file_into_directory_it_must_update_directory_timings()
         {
-            // TODO: Add test for copy with overwrite existing
-
             // Arrange
-            const string path = @"C:\folder";
+            const string directoryPath = @"C:\folder";
+            const string sourceFilePath = @"c:\other\file.txt";
+            const string destinationFilePath = @"c:\folder\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(path)
-                .IncludingEmptyFile(@"c:\other\file.txt")
+                .IncludingDirectory(directoryPath)
+                .IncludingEmptyFile(sourceFilePath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.File.Copy(@"c:\other\file.txt", @"c:\folder\file.txt");
+            fileSystem.File.Copy(sourceFilePath, destinationFilePath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(directoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(directoryPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(directoryPath).Should().Be(updateTimeUtc);
+        }
+
+        [Fact]
+        private void When_copying_file_it_must_update_directory_timings()
+        {
+            // Arrange
+            const string directoryPath = @"C:\folder";
+            const string sourceFilePath = @"C:\folder\source.txt";
+            const string destinationFilePath = @"C:\folder\target.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(sourceFilePath, "SourceContent")
+                .Build();
+
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
+
+            // Act
+            fileSystem.File.Copy(sourceFilePath, destinationFilePath);
+
+            // Assert
+            fileSystem.Directory.GetCreationTimeUtc(directoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(directoryPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(directoryPath).Should().Be(updateTimeUtc);
+        }
+
+        [Fact]
+        private void When_copying_file_overwriting_existing_file_it_must_not_update_directory_timings()
+        {
+            // Arrange
+            const string directoryPath = @"C:\folder";
+            const string sourceFilePath = @"C:\folder\source.txt";
+            const string destinationFilePath = @"C:\folder\target.txt";
+
+            DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
+            var clock = new SystemClock(() => creationTimeUtc);
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(sourceFilePath, "SourceContent")
+                .IncludingTextFile(destinationFilePath, "DestinationContent")
+                .Build();
+
+            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            clock.UtcNow = () => updateTimeUtc;
+
+            // Act
+            fileSystem.File.Copy(sourceFilePath, destinationFilePath, true);
+
+            // Assert
+            fileSystem.Directory.GetCreationTimeUtc(directoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(directoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(directoryPath).Should().Be(creationTimeUtc);
         }
 
         [Fact]
