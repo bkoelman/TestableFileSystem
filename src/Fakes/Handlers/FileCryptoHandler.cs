@@ -108,9 +108,9 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             bool hasEncrypted = entry.SetEncrypted();
 
-            if (hasEncrypted)
+            if (hasEncrypted && entry is FileEntry fileEntry)
             {
-                entry.LastAccessTimeUtc = Container.SystemClock.UtcNow();
+                UpdateTimeFile(fileEntry);
             }
 
             NotifyEncrypted(entry, hasEncrypted);
@@ -177,9 +177,9 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             bool hasDecrypted = entry.ClearEncrypted();
 
-            if (hasDecrypted)
+            if (hasDecrypted && entry is FileEntry fileEntry)
             {
-                entry.LastAccessTimeUtc = Container.SystemClock.UtcNow();
+                UpdateTimeFile(fileEntry);
             }
 
             NotifyDecrypted(entry, hasDecrypted);
@@ -230,6 +230,15 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             AbsolutePath directoryPath = file.Parent.PathFormatter.GetPath();
             return directoryPath.Append("EFS0.TMP");
+        }
+
+        private void UpdateTimeFile([NotNull] FileEntry file)
+        {
+            DateTime utcNow = Container.SystemClock.UtcNow();
+
+            file.LastAccessTimeUtc = utcNow;
+            file.Parent.LastWriteTimeUtc = utcNow;
+            file.Parent.LastAccessTimeUtc = utcNow;
         }
     }
 }

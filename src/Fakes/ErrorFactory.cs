@@ -4,6 +4,8 @@ using JetBrains.Annotations;
 
 namespace TestableFileSystem.Fakes
 {
+    // TODO: Review and align whether members should return an exception or throw.
+
     internal static class ErrorFactory
     {
         public static class System
