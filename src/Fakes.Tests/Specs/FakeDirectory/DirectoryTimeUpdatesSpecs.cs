@@ -39,52 +39,54 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_updating_subdirectory_attributes_and_time_it_must_not_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string subdirectoryPath = @"c:\folder\sub";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(@"c:\folder\sub")
+                .IncludingDirectory(subdirectoryPath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.File.SetAttributes(@"c:\folder\sub", FileAttributes.Directory | FileAttributes.ReadOnly);
-            fileSystem.Directory.SetCreationTimeUtc(@"c:\folder\sub", updateTimeUtc);
+            fileSystem.File.SetAttributes(subdirectoryPath, FileAttributes.Directory | FileAttributes.ReadOnly);
+            fileSystem.Directory.SetCreationTimeUtc(subdirectoryPath, updateTimeUtc);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
         [Fact]
         private void When_updating_file_attributes_and_time_it_must_not_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string subdirectoryPath = @"c:\folder\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingEmptyFile(@"c:\folder\file.txt")
+                .IncludingEmptyFile(subdirectoryPath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.File.SetCreationTimeUtc(@"c:\folder\file.txt", updateTimeUtc);
-            fileSystem.File.SetAttributes(@"c:\folder\file.txt", FileAttributes.ReadOnly);
+            fileSystem.File.SetCreationTimeUtc(subdirectoryPath, updateTimeUtc);
+            fileSystem.File.SetAttributes(subdirectoryPath, FileAttributes.ReadOnly);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
         [Fact]
@@ -100,13 +102,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // - Overwrite existing file
 
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(path)
+                .IncludingDirectory(containerPath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
@@ -116,9 +118,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.WriteAllText(@"c:\folder\file.txt", "X");
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
@@ -127,7 +129,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // TODO: Merge with above test.
 
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
@@ -143,68 +145,71 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.AppendAllText(@"c:\folder\file.txt", "X");
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
         [Fact]
         private void When_deleting_file_it_must_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string filePath = @"c:\folder\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(path)
-                .IncludingEmptyFile(@"c:\folder\file.txt")
+                .IncludingDirectory(containerPath)
+                .IncludingEmptyFile(filePath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.File.Delete(@"c:\folder\file.txt");
+            fileSystem.File.Delete(filePath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_renaming_file_it_must_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string sourceFilePath = @"c:\folder\file.txt";
+            const string destinationFilePath = @"c:\folder\newname.doc";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(path)
-                .IncludingEmptyFile(@"c:\folder\file.txt")
+                .IncludingDirectory(containerPath)
+                .IncludingEmptyFile(sourceFilePath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.File.Move(@"c:\folder\file.txt", @"c:\folder\newname.doc");
+            fileSystem.File.Move(sourceFilePath, destinationFilePath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_copying_file_into_directory_it_must_update_directory_timings()
         {
             // Arrange
-            const string directoryPath = @"C:\folder";
+            const string containerPath = @"C:\folder";
             const string sourceFilePath = @"c:\other\file.txt";
             const string destinationFilePath = @"c:\folder\file.txt";
 
@@ -212,7 +217,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(directoryPath)
+                .IncludingDirectory(containerPath)
                 .IncludingEmptyFile(sourceFilePath)
                 .Build();
 
@@ -223,16 +228,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.Copy(sourceFilePath, destinationFilePath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(directoryPath).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(directoryPath).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(directoryPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_copying_file_it_must_update_directory_timings()
         {
             // Arrange
-            const string directoryPath = @"C:\folder";
+            const string containerPath = @"C:\folder";
             const string sourceFilePath = @"C:\folder\source.txt";
             const string destinationFilePath = @"C:\folder\target.txt";
 
@@ -250,16 +255,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.Copy(sourceFilePath, destinationFilePath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(directoryPath).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(directoryPath).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(directoryPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_copying_file_overwriting_existing_file_it_must_not_update_directory_timings()
         {
             // Arrange
-            const string directoryPath = @"C:\folder";
+            const string containerPath = @"C:\folder";
             const string sourceFilePath = @"C:\folder\source.txt";
             const string destinationFilePath = @"C:\folder\target.txt";
 
@@ -278,61 +283,65 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.Copy(sourceFilePath, destinationFilePath, true);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(directoryPath).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(directoryPath).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(directoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
         [Fact]
         private void When_moving_file_into_directory_it_must_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string sourceFilePath = @"c:\other\file.txt";
+            const string destinationFilePath = @"c:\folder\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(path)
-                .IncludingEmptyFile(@"c:\other\file.txt")
+                .IncludingDirectory(containerPath)
+                .IncludingEmptyFile(sourceFilePath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.File.Move(@"c:\other\file.txt", @"c:\folder\file.txt");
+            fileSystem.File.Move(sourceFilePath, destinationFilePath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_moving_file_out_of_directory_it_must_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string sourceFilePath = @"c:\folder\file.txt";
+            const string destinationFilePath = @"c:\file.txt";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(path)
-                .IncludingEmptyFile(@"c:\folder\file.txt")
+                .IncludingDirectory(containerPath)
+                .IncludingEmptyFile(sourceFilePath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.File.Move(@"c:\folder\file.txt", @"c:\file.txt");
+            fileSystem.File.Move(sourceFilePath, destinationFilePath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         // TODO: Add test for container directory timings on File.Encrypt (and encrypt encrypted)
@@ -343,117 +352,141 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         [Fact]
         private void When_creating_subdirectory_it_must_update_directory_timings()
         {
-            // TODO: Assert on timings of both container and subdirectory.
-
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string subdirectoryPath = @"c:\folder\sub";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(path)
+                .IncludingDirectory(containerPath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.Directory.CreateDirectory(@"c:\folder\sub");
+            fileSystem.Directory.CreateDirectory(subdirectoryPath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(subdirectoryPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(subdirectoryPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(subdirectoryPath).Should().Be(updateTimeUtc);
+
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_deleting_subdirectory_it_must_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string subdirectoryPath = @"c:\folder\sub";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(@"c:\folder\sub")
+                .IncludingDirectory(subdirectoryPath)
                 .Build();
 
             DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.Directory.Delete(@"c:\folder\sub");
+            fileSystem.Directory.Delete(subdirectoryPath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_renaming_subdirectory_it_must_update_directory_timings()
         {
-            // TODO: Assert on timings of both container and subdirectory.
-
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string sourceDirectoryPath = @"c:\folder\sub";
+            const string destinationDirectoryPath = @"c:\folder\newname";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(@"c:\folder\sub")
+                .IncludingDirectory(sourceDirectoryPath)
                 .Build();
 
-            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            fileSystem.Directory.SetLastWriteTimeUtc(sourceDirectoryPath, lastWriteTimeUtc);
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            fileSystem.Directory.SetLastAccessTimeUtc(sourceDirectoryPath, lastAccessTimeUtc);
+
+            DateTime updateTimeUtc = 20.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.Directory.Move(@"c:\folder\sub", @"c:\folder\newname");
+            fileSystem.Directory.Move(sourceDirectoryPath, destinationDirectoryPath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(destinationDirectoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(destinationDirectoryPath).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(destinationDirectoryPath).Should().Be(lastAccessTimeUtc);
+
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_moving_subdirectory_into_directory_it_must_update_directory_timings()
         {
-            // TODO: Assert on timings of both container and subdirectory.
-
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string sourceDirectoryPath = @"c:\other";
+            const string destinationDirectoryPath = @"c:\folder\other";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
-                .IncludingDirectory(path)
+                .IncludingDirectory(containerPath)
                 .IncludingEmptyFile(@"c:\other\file.txt")
                 .Build();
 
-            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            fileSystem.Directory.SetLastWriteTimeUtc(sourceDirectoryPath, lastWriteTimeUtc);
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            fileSystem.Directory.SetLastAccessTimeUtc(sourceDirectoryPath, lastAccessTimeUtc);
+
+            DateTime updateTimeUtc = 20.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.Directory.Move(@"c:\other", @"c:\folder\other");
+            fileSystem.Directory.Move(sourceDirectoryPath, destinationDirectoryPath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(destinationDirectoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(destinationDirectoryPath).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(destinationDirectoryPath).Should().Be(lastAccessTimeUtc);
+
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_moving_subdirectory_out_of_directory_it_must_update_directory_timings()
         {
-            // TODO: Assert on timings of both container and subdirectory.
-
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string sourceDirectoryPath = @"c:\folder\sub";
+            const string destinationDirectoryPath = @"c:\newname";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
@@ -462,23 +495,33 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .IncludingEmptyFile(@"c:\folder\sub\file.txt")
                 .Build();
 
-            DateTime updateTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            DateTime lastWriteTimeUtc = 18.March(2006).At(14, 03, 53).AsUtc();
+            fileSystem.Directory.SetLastWriteTimeUtc(sourceDirectoryPath, lastWriteTimeUtc);
+
+            DateTime lastAccessTimeUtc = 19.March(2006).At(14, 03, 53).AsUtc();
+            fileSystem.Directory.SetLastAccessTimeUtc(sourceDirectoryPath, lastAccessTimeUtc);
+
+            DateTime updateTimeUtc = 20.March(2006).At(14, 03, 53).AsUtc();
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.Directory.Move(@"c:\folder\sub", @"c:\newname");
+            fileSystem.Directory.Move(sourceDirectoryPath, destinationDirectoryPath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(updateTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(destinationDirectoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(destinationDirectoryPath).Should().Be(lastWriteTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(destinationDirectoryPath).Should().Be(lastAccessTimeUtc);
+
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_updating_contents_of_subdirectory_it_must_not_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
@@ -497,16 +540,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.CreateDirectory(@"c:\folder\sub\more");
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
         [Fact]
         private void When_enumerating_entries_it_must_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string subdirectoryPath = @"c:\folder\sub";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
@@ -519,23 +563,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.Directory.GetFileSystemEntries(path);
+            fileSystem.Directory.GetFileSystemEntries(containerPath);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(subdirectoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(subdirectoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(subdirectoryPath).Should().Be(creationTimeUtc);
 
-            fileSystem.Directory.GetCreationTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
         [Fact]
         private void When_enumerating_entries_it_must_recursively_update_directory_timings()
         {
             // Arrange
-            const string path = @"C:\folder";
+            const string containerPath = @"C:\folder";
+            const string subdirectoryPath = @"c:\folder\sub";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
@@ -548,16 +593,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             clock.UtcNow = () => updateTimeUtc;
 
             // Act
-            fileSystem.Directory.GetFileSystemEntries(path, searchOption: SearchOption.AllDirectories);
+            fileSystem.Directory.GetFileSystemEntries(containerPath, searchOption: SearchOption.AllDirectories);
 
             // Assert
-            fileSystem.Directory.GetCreationTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(path).Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(subdirectoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(subdirectoryPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(subdirectoryPath).Should().Be(updateTimeUtc);
 
-            fileSystem.Directory.GetCreationTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastWriteTimeUtc(@"c:\folder\sub").Should().Be(creationTimeUtc);
-            fileSystem.Directory.GetLastAccessTimeUtc(@"c:\folder\sub").Should().Be(updateTimeUtc);
+            fileSystem.Directory.GetCreationTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastWriteTimeUtc(containerPath).Should().Be(creationTimeUtc);
+            fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
     }
 }
