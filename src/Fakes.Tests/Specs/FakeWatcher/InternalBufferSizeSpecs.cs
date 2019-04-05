@@ -200,7 +200,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact(Skip = "TODO: This test times out (41/39) when running from coverage.bat")]
+        [Fact]
         private void When_buffer_overflows_it_must_discard_old_notifications_and_continue()
         {
             // Arrange
@@ -268,8 +268,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     {
                         if (!isAfterBufferOverflow)
                         {
-                            fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 1.January(2001));
-                            Interlocked.Increment(ref changeCount);
+                            for (int index = 0; index < 400; index++)
+                            {
+                                fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateBefore, 1.January(2001));
+                                Interlocked.Increment(ref changeCount);
+                            }
                         }
                         else
                         {
