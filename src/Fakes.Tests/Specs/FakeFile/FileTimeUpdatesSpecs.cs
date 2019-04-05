@@ -9,8 +9,6 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    // TODO: When a file in directory changes, its directory timestamps must also be updated. Ensure we have tests for that.
-
     public sealed class FileTimeUpdatesSpecs
     {
         private const string DefaultContents = "ABC";
@@ -418,7 +416,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
 #if !NETCOREAPP1_1
         [Fact]
-        private void When_replacing_file_with_different_name_in_same_directory_without_backup_it_must_succeed()
+        private void When_replacing_file_with_different_name_in_same_directory_without_backup_it_must_not_update_file_timings()
         {
             // Arrange
             const string sourcePath = @"C:\some\source.txt";
@@ -461,7 +459,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact(Skip = "TODO: Make this File.Replace timing test work")]
-        private void When_replacing_file_with_different_name_in_same_directory_with_backup_it_must_succeed()
+        private void When_replacing_file_with_different_name_in_same_directory_with_backup_it_must_not_update_file_timings()
         {
             // Arrange
             const string sourcePath = @"C:\some\source.txt";
@@ -509,7 +507,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact(Skip = "TODO: Make this File.Replace timing test work")]
-        private void When_replacing_file_with_different_name_in_same_directory_with_existing_backup_it_must_succeed()
+        private void When_replacing_file_with_different_name_in_same_directory_with_existing_backup_it_must_not_update_file_timings()
         {
             // Arrange
             const string sourcePath = @"C:\some\source.txt";
@@ -565,6 +563,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTimeUtc(backupPath).Should().Be(backupLastWriteTimeUtc);
             fileSystem.File.GetLastAccessTimeUtc(backupPath).Should().Be(backupLastWriteTimeUtc);
         }
+
+        // TODO: Add File.Replace tests for different directories.
 
         [Fact]
         private void When_encrypting_file_it_must_update_file_timings()
