@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Path.GetTempFileName();
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

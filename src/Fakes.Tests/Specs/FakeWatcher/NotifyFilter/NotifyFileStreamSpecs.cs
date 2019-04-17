@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                         // Act
                         stream.Lock(0, 256);
 
-                        watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                        watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                         // Assert
                         listener.EventsCollected.Should().BeEmpty();
@@ -69,7 +69,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                         // Act
                         stream.Unlock(0, 256);
 
-                        watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                        watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                         // Assert
                         listener.EventsCollected.Should().BeEmpty();
@@ -111,7 +111,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                         task.Wait();
                     }
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -153,7 +153,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                         task.Wait();
                     }
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -197,7 +197,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                         task.Wait();
                     }
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

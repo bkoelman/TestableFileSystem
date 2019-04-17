@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.GetLastWriteTimeUtc(directoryPath);
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();
@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.SetLastWriteTimeUtc(directoryPath, DefaultTimeUtc);
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.SetLastWriteTimeUtc(directoryPath, DefaultTimeUtc);
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());

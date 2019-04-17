@@ -29,7 +29,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.SetCurrentDirectory(directoryPath);
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();
@@ -60,7 +60,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.Directory.GetCurrentDirectory();
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     listener.EventsCollected.Should().BeEmpty();

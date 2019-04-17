@@ -16,6 +16,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     public sealed class FileStreamSpecs
     {
         private const int LockBlockSize = 4096;
+        private static readonly TimeSpan MaxTestDuration = TimeSpan.FromSeconds(1);
 
         [Fact]
         private void When_requesting_stream_for_new_file_it_must_succeed()
@@ -280,7 +281,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             {
                 // Act
                 Task task = stream.WriteAsync(buffer, 0, buffer.Length);
-                hasCompleted = task.Wait(TimeSpan.FromSeconds(1));
+                hasCompleted = task.Wait(MaxTestDuration);
             }
 
             // Assert
@@ -350,7 +351,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     completionWaitHandle.Set();
                 }
 
-                wasSignaled = completionWaitHandle.Wait(TimeSpan.FromSeconds(1));
+                wasSignaled = completionWaitHandle.Wait(MaxTestDuration);
             }
 
             // Assert
@@ -534,7 +535,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     completionWaitHandle.Set();
                 }
 
-                bool wasSignaled = completionWaitHandle.Wait(TimeSpan.FromSeconds(1));
+                bool wasSignaled = completionWaitHandle.Wait(MaxTestDuration);
 
                 // Assert
                 wasSignaled.Should().BeTrue();

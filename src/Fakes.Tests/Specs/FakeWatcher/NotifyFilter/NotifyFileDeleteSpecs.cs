@@ -38,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                     // Act
                     fileSystem.File.Delete(pathToFileToDelete);
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
@@ -67,8 +67,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             bool isFirstEventInvocation = true;
             FileSystemEventArgs argsAfterRestart = null;
 
-            var resumeEventHandlerEvent = new ManualResetEventSlim(false);
-            var testCompletionEvent = new ManualResetEventSlim(false);
+            var resumeEventHandlerWaitHandle = new ManualResetEventSlim(false);
+            var testCompletionWaitHandle = new ManualResetEventSlim(false);
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
@@ -80,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                         if (isFirstEventInvocation)
                         {
                             // Wait for delete notifications on all files to queue up.
-                            resumeEventHandlerEvent.Wait(Timeout.Infinite);
+                            resumeEventHandlerWaitHandle.Wait(MaxTestDurationInMilliseconds);
                             isFirstEventInvocation = false;
                         }
                         else
@@ -88,7 +88,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
                             // After event handler for file1 has completed, no event for
                             // file2 should be raised because it has become outdated.
                             argsAfterRestart = args;
-                            testCompletionEvent.Set();
+                            testCompletionWaitHandle.Set();
                         }
                     }
                 };
@@ -103,8 +103,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
                 fileSystem.File.Delete(pathToFileToDelete3);
 
-                resumeEventHandlerEvent.Set();
-                testCompletionEvent.Wait(Timeout.Infinite);
+                resumeEventHandlerWaitHandle.Set();
+                testCompletionWaitHandle.Wait(MaxTestDurationInMilliseconds);
 
                 lock (lockObject)
                 {

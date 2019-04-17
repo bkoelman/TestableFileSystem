@@ -513,12 +513,13 @@ namespace TestableFileSystem.Fakes
 
             try
             {
+                AttachHandlersForChangeTypes(changeType);
+
                 lock (waitForChangeLockObject)
                 {
                     bool wasRunning = EnsureStarted();
 
                     firstChangeResult = null;
-                    AttachHandlersForChangeTypes(changeType);
                     WaitForFirstChangeOrTimeout(timeout);
 
                     EnsureStopped(wasRunning);

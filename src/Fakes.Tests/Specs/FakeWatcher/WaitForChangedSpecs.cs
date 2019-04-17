@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Extensions;
+using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -13,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class WaitForChangedSpecs : WatcherSpecs
     {
-        private const int OperationDelayInMilliseconds = 250;
+        private const int SleepTimeToEnsureWaiterInitializationHasCompleted = 250;
 
         [Fact]
         private void When_waiting_for_changes_with_negative_timeout_it_must_fail()
@@ -81,13 +82,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 Task.Run(() =>
                 {
-                    Thread.Sleep(OperationDelayInMilliseconds);
+                    // ReSharper disable once AccessToDisposedClosure
+                    BlockUntilStarted(watcher);
+
                     fileSystem.File.WriteAllText(pathToFileToCreate1, "X");
                     fileSystem.File.WriteAllText(pathToFileToCreate2, "*");
                 });
 
                 // Act
-                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Created);
+                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Created, MaxTestDurationInMilliseconds);
 
                 // Assert
                 result.TimedOut.Should().BeFalse();
@@ -119,13 +122,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 Task.Run(() =>
                 {
-                    Thread.Sleep(OperationDelayInMilliseconds);
+                    // ReSharper disable once AccessToDisposedClosure
+                    BlockUntilStarted(watcher);
+
                     fileSystem.Directory.Delete(pathToDirectoryToDelete1);
                     fileSystem.Directory.Delete(pathToDirectoryToDelete2);
                 });
 
                 // Act
-                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Deleted);
+                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Deleted, MaxTestDurationInMilliseconds);
 
                 // Assert
                 result.TimedOut.Should().BeFalse();
@@ -161,13 +166,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 Task.Run(() =>
                 {
-                    Thread.Sleep(OperationDelayInMilliseconds);
+                    // ReSharper disable once AccessToDisposedClosure
+                    BlockUntilStarted(watcher);
+
                     fileSystem.File.Move(pathToSourceFile1, pathToTargetFile1);
                     fileSystem.File.Move(pathToSourceFile2, pathToTargetFile2);
                 });
 
                 // Act
-                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Renamed);
+                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Renamed, MaxTestDurationInMilliseconds);
 
                 // Assert
                 result.TimedOut.Should().BeFalse();
@@ -199,13 +206,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 Task.Run(() =>
                 {
-                    Thread.Sleep(OperationDelayInMilliseconds);
+                    // ReSharper disable once AccessToDisposedClosure
+                    BlockUntilStarted(watcher);
+
                     fileSystem.File.SetAttributes(pathToFileToUpdate1, FileAttributes.System);
                     fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.System);
                 });
 
                 // Act
-                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Changed);
+                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Changed, MaxTestDurationInMilliseconds);
 
                 // Assert
                 result.TimedOut.Should().BeFalse();
@@ -234,21 +243,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
                 {
-                    fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 1.January(2000));
-                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
+                    BlockUntilChangeProcessed(watcher,
+                        () => { fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 1.January(2000)); });
 
                     Task.Run(() =>
                     {
-                        Thread.Sleep(OperationDelayInMilliseconds);
+                        Thread.Sleep(SleepTimeToEnsureWaiterInitializationHasCompleted);
                         fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 2.January(2000));
                     });
 
                     // Act
-                    WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Changed);
+                    WaitForChangedResult result =
+                        watcher.WaitForChanged(WatcherChangeTypes.Changed, MaxTestDurationInMilliseconds);
 
                     fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 3.January(2000));
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     result.TimedOut.Should().BeFalse();
@@ -292,16 +302,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     Task.Run(() =>
                     {
-                        Thread.Sleep(OperationDelayInMilliseconds);
+                        Thread.Sleep(SleepTimeToEnsureWaiterInitializationHasCompleted);
                         fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 2.January(2000));
                     });
 
                     // Act
-                    WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.Changed);
+                    WaitForChangedResult result =
+                        watcher.WaitForChanged(WatcherChangeTypes.Changed, MaxTestDurationInMilliseconds);
 
                     fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 3.January(2000));
 
-                    watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     // Assert
                     result.TimedOut.Should().BeFalse();
@@ -333,7 +344,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             // ReSharper disable once ConvertToLocalFunction
             Action<DateTime> updateCreationTimeAction = creationTimeUtc =>
             {
-                Thread.Sleep(OperationDelayInMilliseconds);
+                Thread.Sleep(SleepTimeToEnsureWaiterInitializationHasCompleted);
                 fileSystem.File.SetCreationTimeUtc(pathToFileToUpdate, creationTimeUtc);
             };
 
@@ -344,11 +355,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 Task.Run(() => updateCreationTimeAction(1.January(2000)));
 
                 // Act
-                WaitForChangedResult result1 = watcher.WaitForChanged(WatcherChangeTypes.Changed);
+                WaitForChangedResult result1 = watcher.WaitForChanged(WatcherChangeTypes.Changed, MaxTestDurationInMilliseconds);
 
                 Task.Run(() => updateCreationTimeAction(2.January(2000)));
 
-                WaitForChangedResult result2 = watcher.WaitForChanged(WatcherChangeTypes.Changed);
+                WaitForChangedResult result2 = watcher.WaitForChanged(WatcherChangeTypes.Changed, MaxTestDurationInMilliseconds);
 
                 // Assert
                 result1.TimedOut.Should().BeFalse();
@@ -387,14 +398,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 Task.Run(() =>
                 {
-                    Thread.Sleep(OperationDelayInMilliseconds);
+                    // ReSharper disable once AccessToDisposedClosure
+                    BlockUntilStarted(watcher);
+
                     fileSystem.Directory.CreateDirectory(pathToMismatchingDirectory);
                     fileSystem.File.AppendAllText(pathToMismatchingFile, "IgnoreMe");
                     fileSystem.File.AppendAllText(pathToMatchingFile, "NotifyForMe");
                 });
 
                 // Act
-                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.All);
+                WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.All, MaxTestDurationInMilliseconds);
 
                 // Assert
                 result.TimedOut.Should().BeFalse();
@@ -415,11 +428,29 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             watcher.Dispose();
 
             // Act
-            Action action = () => watcher.WaitForChanged(WatcherChangeTypes.All);
+            Action action = () => watcher.WaitForChanged(WatcherChangeTypes.All, MaxTestDurationInMilliseconds);
 
             // Assert
             action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a disposed object.*")
                 .And.ObjectName.Should().Be("FileSystemWatcher");
+        }
+
+        private static void BlockUntilStarted([NotNull] FakeFileSystemWatcher watcher)
+        {
+            DateTime startTime = DateTime.UtcNow;
+            DateTime expirationTime = startTime.AddMilliseconds(MaxTestDurationInMilliseconds);
+
+            while (DateTime.UtcNow < expirationTime)
+            {
+                if (watcher.EnableRaisingEvents)
+                {
+                    return;
+                }
+
+                Thread.Sleep(50);
+            }
+
+            throw new TimeoutException("Test timed out.");
         }
     }
 }

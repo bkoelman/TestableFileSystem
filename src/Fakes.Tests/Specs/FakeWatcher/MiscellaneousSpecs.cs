@@ -28,6 +28,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 {
                     Exception exception = args.GetException();
 
+                    // TODO: Do not assert on a background thread.
+
                     // Assert
                     exception.Should().NotBeNull();
                     exception.Should().BeOfType<Win32Exception>().Subject.NativeErrorCode.Should().Be(5);
@@ -39,7 +41,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     // Act
                     fileSystem.Directory.Delete(directoryToWatch);
 
-                    Thread.Sleep(NotifyWaitTimeoutMilliseconds);
+                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
                     // Assert
                     watcher.EnableRaisingEvents.Should().BeFalse();
@@ -68,6 +70,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 {
                     Exception exception = args.GetException();
 
+                    // TODO: Do not assert on a background thread.
+
                     // Assert
                     exception.Should().NotBeNull();
                     exception.Should().BeOfType<Win32Exception>().Subject.NativeErrorCode.Should().Be(5);
@@ -79,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     // Act
                     fileSystem.Directory.Delete(@"c:\parent", true);
 
-                    Thread.Sleep(NotifyWaitTimeoutMilliseconds);
+                    Thread.Sleep(SleepTimeToEnsureOperationHasArrivedAtWatcherConsumerLoop);
 
                     // Assert
                     watcher.EnableRaisingEvents.Should().BeFalse();
@@ -124,7 +128,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         {
                             fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 2.January(2002));
 
-                            watcher2.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                            watcher2.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                             text2 = string.Join(Environment.NewLine, listener2.GetEventsCollectedAsText());
                         }
@@ -132,7 +136,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem.File.SetLastWriteTimeUtc(pathToFileToUpdate, 3.January(2002));
 
-                    watcher1.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher1.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     text1 = string.Join(Environment.NewLine, listener1.GetEventsCollectedAsText());
                 }
@@ -188,7 +192,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         {
                             fileSystem2.File.SetLastWriteTimeUtc(pathToFileToUpdate2, 2.January(2002));
 
-                            watcher2.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                            watcher2.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                             text2 = string.Join(Environment.NewLine, listener2.GetEventsCollectedAsText());
                         }
@@ -196,7 +200,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     fileSystem1.File.SetLastWriteTimeUtc(pathToFileToUpdate1, 3.January(2002));
 
-                    watcher1.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                    watcher1.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
 
                     text1 = string.Join(Environment.NewLine, listener1.GetEventsCollectedAsText());
                 }

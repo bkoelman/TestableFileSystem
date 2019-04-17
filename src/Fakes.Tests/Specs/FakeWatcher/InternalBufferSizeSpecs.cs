@@ -11,8 +11,6 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class InternalBufferSizeSpecs : WatcherSpecs
     {
-        private static readonly TimeSpan SpecTimeout = TimeSpan.FromSeconds(3);
-
         // Unable to reproduce these documented constraints:
         // MSDN: ReadDirectoryChangesW fails with ERROR_NOACCESS when the buffer is not aligned on a DWORD boundary.
         // MSDN: ReadDirectoryChangesW fails with ERROR_INVALID_PARAMETER when the buffer length is greater than 64 KB and the application is
@@ -72,8 +70,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             bool isFirstEventInvocation = true;
             FileSystemEventArgs argsAfterRestart = null;
 
-            var resumeEventHandlerEvent = new ManualResetEventSlim(false);
-            var testCompletionEvent = new ManualResetEventSlim(false);
+            var resumeEventHandlerWaitHandle = new ManualResetEventSlim(false);
+            var testCompletionWaitHandle = new ManualResetEventSlim(false);
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
@@ -85,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                         if (isFirstEventInvocation)
                         {
                             // Wait for all change notifications on file1.txt and file2.txt to queue up.
-                            resumeEventHandlerEvent.Wait(Timeout.Infinite);
+                            resumeEventHandlerWaitHandle.Wait(MaxTestDurationInMilliseconds);
                             isFirstEventInvocation = false;
                         }
                         else
@@ -93,7 +91,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                             // After event handler for first change on file1 has completed, no additional
                             // changes on file1.txt should be raised because they have become outdated.
                             argsAfterRestart = args;
-                            testCompletionEvent.Set();
+                            testCompletionWaitHandle.Set();
                         }
                     }
                 };
@@ -109,8 +107,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 fileSystem.File.SetAttributes(pathToFileToUpdate2, FileAttributes.Hidden);
 
-                resumeEventHandlerEvent.Set();
-                bool signaled = testCompletionEvent.Wait(SpecTimeout);
+                resumeEventHandlerWaitHandle.Set();
+                bool signaled = testCompletionWaitHandle.Wait(MaxTestDurationInMilliseconds);
 
                 signaled.Should().BeTrue();
 
@@ -175,7 +173,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 watcher.EnableRaisingEvents = true;
 
                 // Act
-                while (startTime + SpecTimeout > DateTime.UtcNow)
+                while (startTime.AddMilliseconds(MaxTestDurationInMilliseconds) > DateTime.UtcNow)
                 {
                     fileSystem.File.SetCreationTimeUtc(pathToFileToUpdate, 1.January(2001));
 
@@ -291,12 +289,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 }
 
                 // Wait for watcher to flush its queue.
-                Thread.Sleep(NotifyWaitTimeoutMilliseconds);
+                Thread.Sleep(MaxTestDurationInMilliseconds);
 
                 // Extra event after buffer overflow, which should be processed normally.
                 fileSystem.File.SetCreationTimeUtc(pathToFileToUpdateAfter, 1.January(2001));
 
-                watcher.FinishAndWaitForFlushed(NotifyWaitTimeoutMilliseconds);
+                watcher.FinishAndWaitForFlushed(MaxTestDurationInMilliseconds);
             }
 
             lock (lockObject)
