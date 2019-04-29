@@ -157,6 +157,11 @@ namespace TestableFileSystem.Fakes
                 filters |= NotifyFilters.CreationTime;
             }
 
+            if (accessKinds.HasFlag(FileAccessKinds.Security))
+            {
+                filters |= NotifyFilters.Security;
+            }
+
             return filters;
         }
 

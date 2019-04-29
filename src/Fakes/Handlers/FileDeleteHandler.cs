@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertIsNotReadOnly(existingFile, arguments.Path);
             AssertHasExclusiveAccess(existingFile, arguments.Path);
 
-            containingDirectory.DeleteFile(existingFile.Name);
+            containingDirectory.DeleteFile(existingFile.Name, true);
         }
 
         [AssertionMethod]

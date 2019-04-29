@@ -24,42 +24,64 @@ namespace TestableFileSystem.Fakes.Handlers
 
             FileEntry destinationFile = ResolveExistingFile(arguments.DestinationPath);
 
-            var spaceTracker = new VolumeSpaceTracker(sourceFile, destinationFile);
+            Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, FileAccessKinds.Create);
+            NotifyDirectoriesChanged(destinationFile.Parent, sourceFile.Parent);
 
-            if (arguments.BackupDestinationPath != null)
+            BackupFileInfo backupFileInfo = BackupFileInfo.Create(arguments.BackupDestinationPath, this);
+            if (backupFileInfo != null && !backupFileInfo.Exists)
             {
-                TransferDestinationFileToBackupFile(destinationFile, arguments.BackupDestinationPath, spaceTracker);
+                string destinationFileName = destinationFile.Name;
+                DirectoryEntry destinationDirectory = destinationFile.Parent;
+
+                MoveSingleFile(destinationFile, backupFileInfo.Directory, backupFileInfo.FileName, destinationFile.PathFormatter, false);
+
+                if (destinationDirectory != backupFileInfo.Directory)
+                {
+                    Container.ChangeTracker.NotifyContentsAccessed(destinationDirectory.PathFormatter, FileAccessKinds.Write);
+                }
+
+                Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, FileAccessKinds.Security);
+
+                MoveSingleFile(sourceFile, destinationDirectory, destinationFileName, sourceFile.PathFormatter, true);
             }
+            else
+            {
+                var spaceTracker = new VolumeSpaceTracker(sourceFile, destinationFile);
 
-            TransferSourceContentsToDestinationFile(sourceFile, destinationFile);
+                if (backupFileInfo != null)
+                {
+                    FileEntry backupFile = backupFileInfo.GetExistingFile();
+                    TransferDestinationContentsToExistingBackupFile(destinationFile, backupFile, spaceTracker);
+                }
 
-            spaceTracker.ApplyVolumeSpaceChange();
+                TransferSourceContentsToDestinationFile(sourceFile, destinationFile);
+
+                spaceTracker.ApplyVolumeSpaceChange();
+            }
 
             return Missing.Value;
         }
 
-        private void TransferDestinationFileToBackupFile([NotNull] FileEntry destinationFile, [NotNull] AbsolutePath backupPath,
-            [NotNull] VolumeSpaceTracker spaceTracker)
+        private void NotifyDirectoriesChanged([NotNull] DirectoryEntry directory1, [NotNull] DirectoryEntry directory2)
         {
-            DirectoryEntry backupDirectory = ResolveBackupDirectory(backupPath);
-            string backupFileName = backupPath.Components.Last();
-
-            FileEntry backupFile;
-            long previousBackupFileSize;
-
-            if (backupDirectory.ContainsFile(backupFileName))
+            if (directory1 == directory2)
             {
-                backupFile = backupDirectory.GetFile(backupFileName);
-                previousBackupFileSize = backupFile.Size;
-
-                AssertBackupFileIsNotReadOnly(backupFile);
-                AssertHasExclusiveAccessToBackupFile(backupFile);
+                Container.ChangeTracker.NotifyContentsAccessed(directory1.PathFormatter, FileAccessKinds.WriteRead);
             }
             else
             {
-                backupFile = backupDirectory.CreateFile(backupFileName);
-                previousBackupFileSize = 0;
+                Container.ChangeTracker.NotifyContentsAccessed(directory1.PathFormatter, FileAccessKinds.WriteRead);
+                Container.ChangeTracker.NotifyContentsAccessed(directory2.PathFormatter, FileAccessKinds.WriteRead);
             }
+        }
+
+        private void TransferDestinationContentsToExistingBackupFile([NotNull] FileEntry destinationFile,
+            [NotNull] FileEntry backupFile, [NotNull] VolumeSpaceTracker spaceTracker)
+        {
+            AssertBackupFileIsNotReadOnly(backupFile);
+            AssertHasExclusiveAccessToBackupFile(backupFile);
+
+            long previousBackupFileSize = backupFile.Size;
 
             backupFile.TransferFrom(destinationFile);
 
@@ -70,7 +92,7 @@ namespace TestableFileSystem.Fakes.Handlers
             [NotNull] FileEntry destinationFile)
         {
             destinationFile.TransferContentsFrom(sourceFile);
-            sourceFile.Parent.DeleteFile(sourceFile.Name);
+            sourceFile.Parent.DeleteFile(sourceFile.Name, false);
         }
 
         [NotNull]
@@ -119,31 +141,6 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        [NotNull]
-        private DirectoryEntry ResolveBackupDirectory([NotNull] AbsolutePath backupPath)
-        {
-            AbsolutePath parentDirectory = backupPath.TryGetParentPath();
-            if (parentDirectory == null)
-            {
-                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
-            }
-
-            var backupResolver = new DirectoryResolver(Container)
-            {
-                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.UnableToRemoveFileToBeReplaced(),
-                ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.UnableToRemoveFileToBeReplaced()
-            };
-            DirectoryEntry backupDirectory = backupResolver.ResolveDirectory(parentDirectory);
-
-            string backupFileName = backupPath.Components.Last();
-            if (backupDirectory.ContainsDirectory(backupFileName))
-            {
-                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
-            }
-
-            return backupDirectory;
-        }
-
         [AssertionMethod]
         private static void AssertBackupFileIsNotReadOnly([NotNull] FileEntry backupFile)
         {
@@ -190,6 +187,78 @@ namespace TestableFileSystem.Fakes.Handlers
             if (!arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath))
             {
                 throw ErrorFactory.System.UnableToMoveReplacementFile();
+            }
+        }
+
+        private void MoveSingleFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
+            [NotNull] string destinationFileName, [NotNull] IPathFormatter sourcePathFormatter, bool skipNotifyLastAccess)
+        {
+            if (sourceFile.Parent == destinationDirectory)
+            {
+                IPathFormatter sourcePathFormatterNonLazy = sourcePathFormatter.GetPath().Formatter;
+                sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatterNonLazy, skipNotifyLastAccess);
+            }
+            else
+            {
+                sourceFile.Parent.DeleteFile(sourceFile.Name, true);
+                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName);
+            }
+        }
+
+        private sealed class BackupFileInfo
+        {
+            [NotNull]
+            public string FileName { get; }
+
+            [NotNull]
+            public DirectoryEntry Directory { get; }
+
+            public bool Exists => Directory.ContainsFile(FileName);
+
+            private BackupFileInfo([NotNull] AbsolutePath backupPath, [NotNull] FileReplaceHandler owner)
+            {
+                Guard.NotNull(backupPath, nameof(backupPath));
+                Guard.NotNull(owner, nameof(owner));
+
+                FileName = backupPath.Components.Last();
+                Directory = ResolveBackupDirectory(backupPath, owner);
+            }
+
+            [NotNull]
+            private DirectoryEntry ResolveBackupDirectory([NotNull] AbsolutePath backupPath, [NotNull] FileReplaceHandler owner)
+            {
+                AbsolutePath parentDirectoryPath = backupPath.TryGetParentPath();
+                if (parentDirectoryPath == null)
+                {
+                    throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
+                }
+
+                var backupResolver = new DirectoryResolver(owner.Container)
+                {
+                    ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.UnableToRemoveFileToBeReplaced(),
+                    ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.UnableToRemoveFileToBeReplaced()
+                };
+                DirectoryEntry backupDirectory = backupResolver.ResolveDirectory(parentDirectoryPath);
+
+                if (backupDirectory.ContainsDirectory(FileName))
+                {
+                    throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
+                }
+
+                return backupDirectory;
+            }
+
+            [CanBeNull]
+            public static BackupFileInfo Create([CanBeNull] AbsolutePath backupPath, [NotNull] FileReplaceHandler owner)
+            {
+                Guard.NotNull(owner, nameof(owner));
+                return backupPath == null ? null : new BackupFileInfo(backupPath, owner);
+            }
+
+            [NotNull]
+            public FileEntry GetExistingFile()
+            {
+                return Directory.GetFile(FileName);
             }
         }
 

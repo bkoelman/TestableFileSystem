@@ -136,7 +136,7 @@ namespace TestableFileSystem.Fakes.Handlers
             }
             else
             {
-                file.Parent.DeleteFile(file.Name);
+                file.Parent.DeleteFile(file.Name, true);
                 state.MarkHasWritten();
             }
         }

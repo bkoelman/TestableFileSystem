@@ -57,10 +57,18 @@ namespace TestableFileSystem.Fakes
             UpdateLastWriteLastAccessTime();
         }
 
-        private void HandleDirectoryContentsChanged()
+        private void HandleDirectoryContentsChanged(bool skipNotifyLastAccess)
         {
             UpdateLastWriteLastAccessTime();
-            ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.WriteRead);
+
+            if (skipNotifyLastAccess)
+            {
+                ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Write);
+            }
+            else
+            {
+                ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.WriteRead);
+            }
         }
 
         private void HandleDirectoryContentsAccessed()
@@ -118,7 +126,7 @@ namespace TestableFileSystem.Fakes
             return fileEntry;
         }
 
-        public void DeleteFile([NotNull] string fileName)
+        public void DeleteFile([NotNull] string fileName, bool notifyTracker)
         {
             Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
 
@@ -131,11 +139,15 @@ namespace TestableFileSystem.Fakes
             }
 
             UpdateLastWriteLastAccessTime();
-            ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
+
+            if (notifyTracker)
+            {
+                ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
+            }
         }
 
         public void RenameFile([NotNull] string sourceFileName, [NotNull] string destinationFileName,
-            [NotNull] IPathFormatter sourcePathFormatter)
+            [NotNull] IPathFormatter sourcePathFormatter, bool skipNotifyLastAccess)
         {
             Guard.NotNullNorWhiteSpace(sourceFileName, nameof(sourceFileName));
             Guard.NotNullNorWhiteSpace(destinationFileName, nameof(destinationFileName));
@@ -146,7 +158,8 @@ namespace TestableFileSystem.Fakes
             contents.Add(file);
 
             ChangeTracker.NotifyFileRenamed(sourcePathFormatter, file.PathFormatter);
-            HandleDirectoryContentsChanged();
+
+            HandleDirectoryContentsChanged(skipNotifyLastAccess);
             NotifyFileMoveForAttributes(file);
         }
 
@@ -165,7 +178,7 @@ namespace TestableFileSystem.Fakes
             contents.Add(file);
 
             ChangeTracker.NotifyFileCreated(file.PathFormatter);
-            HandleDirectoryContentsChanged();
+            HandleDirectoryContentsChanged(false);
             NotifyFileMoveForAttributes(file);
         }
 
@@ -230,7 +243,7 @@ namespace TestableFileSystem.Fakes
 
             HandleDirectoryContentsAccessed();
             ChangeTracker.NotifyDirectoryRenamed(sourcePathFormatter, directory.PathFormatter);
-            HandleDirectoryContentsChanged();
+            HandleDirectoryContentsChanged(false);
         }
 
         public void MoveDirectoryToHere([NotNull] DirectoryEntry directory, [NotNull] string newDirectoryName)
@@ -245,7 +258,7 @@ namespace TestableFileSystem.Fakes
 
             UpdateLastWriteLastAccessTime();
             ChangeTracker.NotifyDirectoryCreated(directory.PathFormatter);
-            HandleDirectoryContentsChanged();
+            HandleDirectoryContentsChanged(false);
         }
 
         public override string ToString()
