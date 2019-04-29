@@ -10,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyFileReplaceSpecs : WatcherSpecs
     {
-        [Theory(Skip = "TODO")]
+        [Theory(Skip = "TODO: Make this File.Replace watcher test work")]
         [WatcherNotifyTestData(@"
             * Container\source.txt                          @                                                       CreationTime
             * Container                                     @                               LastWrite   LastAccess
@@ -58,7 +58,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory(Skip = "TODO")]
+        [Theory(Skip = "TODO: Make this File.Replace watcher test work")]
         [WatcherNotifyTestData(@"
             * Container\source.txt                          @                                                       CreationTime
             * Container                                     @                               LastWrite   LastAccess
@@ -103,7 +103,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory(Skip = "TODO")]
+        [Theory(Skip = "TODO: Make this File.Replace watcher test work")]
         [WatcherNotifyTestData(@"
             * Container\source.txt                          @                                                       CreationTime
             * Container                                     @                               LastWrite   LastAccess
@@ -150,7 +150,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory(Skip = "TODO")]
+        [Theory(Skip = "TODO: Make this File.Replace watcher test work")]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @                                                       CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
@@ -200,7 +200,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory(Skip = "TODO")]
+        [Theory(Skip = "TODO: Make this File.Replace watcher test work")]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @                                                       CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
@@ -251,7 +251,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory(Skip = "TODO")]
+        [Theory(Skip = "TODO: Make this File.Replace watcher test work")]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @                                                       CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
