@@ -22,18 +22,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 .IncludingDirectory(directoryToWatch)
                 .Build();
 
+            var lockObject = new object();
+            Exception lastError = null;
+
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.Error += (sender, args) =>
                 {
-                    Exception exception = args.GetException();
-
-                    // TODO: Do not assert on a background thread.
-
-                    // Assert
-                    exception.Should().NotBeNull();
-                    exception.Should().BeOfType<Win32Exception>().Subject.NativeErrorCode.Should().Be(5);
-                    exception.Message.Should().Be("Access is denied");
+                    lock (lockObject)
+                    {
+                        lastError = args.GetException();
+                    }
                 };
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -50,6 +49,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     text.Should().Be(@"
                         ! Access is denied
                         ".TrimLines());
+
+                    lock (lockObject)
+                    {
+                        lastError.Should().NotBeNull();
+                        lastError.Should().BeOfType<Win32Exception>().Subject.NativeErrorCode.Should().Be(5);
+                        lastError.Message.Should().Be("Access is denied");
+                    }
                 }
             }
         }
@@ -64,18 +70,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                 .IncludingDirectory(directoryToWatch)
                 .Build();
 
+            var lockObject = new object();
+            Exception lastError = null;
+
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher(directoryToWatch))
             {
                 watcher.Error += (sender, args) =>
                 {
-                    Exception exception = args.GetException();
-
-                    // TODO: Do not assert on a background thread.
-
-                    // Assert
-                    exception.Should().NotBeNull();
-                    exception.Should().BeOfType<Win32Exception>().Subject.NativeErrorCode.Should().Be(5);
-                    exception.Message.Should().Be("Access is denied");
+                    lock (lockObject)
+                    {
+                        lastError = args.GetException();
+                    }
                 };
 
                 using (var listener = new FileSystemWatcherEventListener(watcher))
@@ -92,6 +97,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     text.Should().Be(@"
                         ! Access is denied
                         ".TrimLines());
+
+                    lock (lockObject)
+                    {
+                        lastError.Should().NotBeNull();
+                        lastError.Should().BeOfType<Win32Exception>().Subject.NativeErrorCode.Should().Be(5);
+                        lastError.Message.Should().Be("Access is denied");
+                    }
                 }
             }
         }
