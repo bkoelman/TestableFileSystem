@@ -163,7 +163,7 @@ namespace TestableFileSystem.Fakes
             NotifyFileMoveForAttributes(file);
         }
 
-        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName)
+        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName, bool skipNotifyLastAccess)
         {
             Guard.NotNull(file, nameof(file));
             Guard.NotNullNorWhiteSpace(newFileName, nameof(newFileName));
@@ -178,7 +178,7 @@ namespace TestableFileSystem.Fakes
             contents.Add(file);
 
             ChangeTracker.NotifyFileCreated(file.PathFormatter);
-            HandleDirectoryContentsChanged(false);
+            HandleDirectoryContentsChanged(skipNotifyLastAccess);
             NotifyFileMoveForAttributes(file);
         }
 

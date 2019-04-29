@@ -13,6 +13,7 @@ namespace TestableFileSystem.Fakes
         Create = 16,
         Security = 32,
 
-        WriteRead = Write | Read
+        WriteRead = Write | Read,
+        All = Attributes | Resize | WriteRead | Create | Security
     }
 }

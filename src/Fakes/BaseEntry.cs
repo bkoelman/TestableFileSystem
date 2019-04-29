@@ -121,7 +121,7 @@ namespace TestableFileSystem.Fakes
             return false;
         }
 
-        protected void CopyPropertiesFrom([NotNull] BaseEntry otherEntry)
+        public void CopyPropertiesFrom([NotNull] BaseEntry otherEntry)
         {
             Guard.NotNull(otherEntry, nameof(otherEntry));
 

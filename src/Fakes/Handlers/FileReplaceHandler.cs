@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -33,11 +34,12 @@ namespace TestableFileSystem.Fakes.Handlers
                 string destinationFileName = destinationFile.Name;
                 DirectoryEntry destinationDirectory = destinationFile.Parent;
 
-                MoveSingleFile(destinationFile, backupFileInfo.Directory, backupFileInfo.FileName, destinationFile.PathFormatter, false);
+                MoveSingleFile(destinationFile, backupFileInfo.Directory, backupFileInfo.FileName, destinationFile.PathFormatter,
+                    false);
 
                 if (destinationDirectory != backupFileInfo.Directory)
                 {
-                    Container.ChangeTracker.NotifyContentsAccessed(destinationDirectory.PathFormatter, FileAccessKinds.Write);
+                    NotifyDirectoriesChanged(destinationDirectory);
                 }
 
                 Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, FileAccessKinds.Security);
@@ -46,12 +48,32 @@ namespace TestableFileSystem.Fakes.Handlers
             }
             else
             {
-                var spaceTracker = new VolumeSpaceTracker(sourceFile, destinationFile);
+                var spaceTracker = new VolumeSpaceTracker(sourceFile.Parent.Root);
 
                 if (backupFileInfo != null)
                 {
                     FileEntry backupFile = backupFileInfo.GetExistingFile();
+
+                    if (backupFile.Parent != destinationFile.Parent && backupFile.Parent != sourceFile.Parent)
+                    {
+                        NotifyDirectoriesChanged(backupFile.Parent);
+                    }
+
                     TransferDestinationContentsToExistingBackupFile(destinationFile, backupFile, spaceTracker);
+                }
+
+                destinationFile.Parent.DeleteFile(destinationFile.Name, true);
+
+                if (backupFileInfo != null)
+                {
+                    FileEntry backupFile = backupFileInfo.GetExistingFile();
+
+                    Container.ChangeTracker.NotifyContentsAccessed(backupFile.PathFormatter, FileAccessKinds.All);
+                    NotifyDirectoriesChanged(backupFile.Parent, destinationFile.Parent);
+                }
+                else
+                {
+                    NotifyDirectoriesChanged(destinationFile.Parent);
                 }
 
                 TransferSourceContentsToDestinationFile(sourceFile, destinationFile);
@@ -62,16 +84,17 @@ namespace TestableFileSystem.Fakes.Handlers
             return Missing.Value;
         }
 
-        private void NotifyDirectoriesChanged([NotNull] DirectoryEntry directory1, [NotNull] DirectoryEntry directory2)
+        private void NotifyDirectoriesChanged([NotNull] [ItemNotNull] params DirectoryEntry[] directories)
         {
-            if (directory1 == directory2)
+            var entriesProcessed = new HashSet<DirectoryEntry>();
+
+            foreach (DirectoryEntry directory in directories)
             {
-                Container.ChangeTracker.NotifyContentsAccessed(directory1.PathFormatter, FileAccessKinds.WriteRead);
-            }
-            else
-            {
-                Container.ChangeTracker.NotifyContentsAccessed(directory1.PathFormatter, FileAccessKinds.WriteRead);
-                Container.ChangeTracker.NotifyContentsAccessed(directory2.PathFormatter, FileAccessKinds.WriteRead);
+                if (!entriesProcessed.Contains(directory))
+                {
+                    Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.WriteRead);
+                    entriesProcessed.Add(directory);
+                }
             }
         }
 
@@ -81,18 +104,18 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertBackupFileIsNotReadOnly(backupFile);
             AssertHasExclusiveAccessToBackupFile(backupFile);
 
-            long previousBackupFileSize = backupFile.Size;
+            spaceTracker.SetBackupFileSizeChange(destinationFile.Size - backupFile.Size);
 
             backupFile.TransferFrom(destinationFile);
-
-            spaceTracker.SetBackupFileSizeChange(backupFile.Size - previousBackupFileSize);
         }
 
-        private static void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile,
-            [NotNull] FileEntry destinationFile)
+        private void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile, [NotNull] FileEntry destinationFile)
         {
-            destinationFile.TransferContentsFrom(sourceFile);
-            sourceFile.Parent.DeleteFile(sourceFile.Name, false);
+            Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, FileAccessKinds.Security);
+
+            MoveSingleFile(sourceFile, destinationFile.Parent, destinationFile.Name, sourceFile.PathFormatter, true);
+
+            sourceFile.CopyPropertiesFrom(destinationFile);
         }
 
         [NotNull]
@@ -196,12 +219,13 @@ namespace TestableFileSystem.Fakes.Handlers
             if (sourceFile.Parent == destinationDirectory)
             {
                 IPathFormatter sourcePathFormatterNonLazy = sourcePathFormatter.GetPath().Formatter;
-                sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatterNonLazy, skipNotifyLastAccess);
+                sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatterNonLazy,
+                    skipNotifyLastAccess);
             }
             else
             {
                 sourceFile.Parent.DeleteFile(sourceFile.Name, true);
-                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName);
+                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName, skipNotifyLastAccess);
             }
         }
 
@@ -267,16 +291,12 @@ namespace TestableFileSystem.Fakes.Handlers
             [NotNull]
             private readonly VolumeEntry volume;
 
-            private readonly long sourceToDestinationFileSizeDelta;
             private long destinationToBackupFileSizeDelta;
 
-            public VolumeSpaceTracker([NotNull] FileEntry sourceFile, [NotNull] FileEntry destinationFile)
+            public VolumeSpaceTracker([NotNull] VolumeEntry volume)
             {
-                Guard.NotNull(sourceFile, nameof(sourceFile));
-                Guard.NotNull(destinationFile, nameof(destinationFile));
-
-                volume = sourceFile.Parent.Root;
-                sourceToDestinationFileSizeDelta = sourceFile.Size - destinationFile.Size;
+                Guard.NotNull(volume, nameof(volume));
+                this.volume = volume;
             }
 
             public void SetBackupFileSizeChange(long bytes)
@@ -286,9 +306,9 @@ namespace TestableFileSystem.Fakes.Handlers
 
             public void ApplyVolumeSpaceChange()
             {
-                if (destinationToBackupFileSizeDelta + sourceToDestinationFileSizeDelta != 0)
+                if (destinationToBackupFileSizeDelta != 0)
                 {
-                    if (!volume.TryAllocateSpace(destinationToBackupFileSizeDelta + sourceToDestinationFileSizeDelta))
+                    if (!volume.TryAllocateSpace(destinationToBackupFileSizeDelta))
                     {
                         throw ErrorFactory.Internal.UnknownError(
                             $"Disk space on volume '{volume.Name}' ({volume.FreeSpaceInBytes} bytes) would become negative.");

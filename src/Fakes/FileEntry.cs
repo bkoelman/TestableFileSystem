@@ -177,20 +177,20 @@ namespace TestableFileSystem.Fakes
             Parent = newParent;
         }
 
-        public void TransferContentsFrom([NotNull] FileEntry otherFile)
-        {
-            Guard.NotNull(otherFile, nameof(otherFile));
-
-            blocks = otherFile.blocks;
-            Size = otherFile.Size;
-        }
-
         public void TransferFrom([NotNull] FileEntry otherFile)
         {
             Guard.NotNull(otherFile, nameof(otherFile));
 
             TransferContentsFrom(otherFile);
             CopyPropertiesFrom(otherFile);
+        }
+
+        private void TransferContentsFrom([NotNull] FileEntry otherFile)
+        {
+            Guard.NotNull(otherFile, nameof(otherFile));
+
+            blocks = otherFile.blocks;
+            Size = otherFile.Size;
         }
 
         private void CloseStream([NotNull] FakeFileStream stream)

@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes.Handlers
             else
             {
                 sourceFile.Parent.DeleteFile(sourceFile.Name, true);
-                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName);
+                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName, false);
             }
         }
     }
