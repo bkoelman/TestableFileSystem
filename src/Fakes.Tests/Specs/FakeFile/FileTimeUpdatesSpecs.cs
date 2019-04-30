@@ -463,7 +463,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
         }
 
-        [Fact(Skip = "TODO: Make this File.Replace timing test work")]
+        [Fact]
         private void When_replacing_file_with_different_name_in_same_directory_with_backup_it_must_not_update_file_timings()
         {
             // Arrange
@@ -511,7 +511,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(backupPath).Should().Be(operationTimeUtc);
         }
 
-        [Fact(Skip = "TODO: Make this File.Replace timing test work")]
+        [Fact]
         private void When_replacing_file_with_different_name_in_same_directory_with_existing_backup_it_must_not_update_file_timings()
         {
             // Arrange
