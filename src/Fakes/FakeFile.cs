@@ -375,7 +375,7 @@ namespace TestableFileSystem.Fakes
             AbsolutePath backupDestinationPath =
                 destinationBackupFileName != null ? owner.ToAbsolutePath(destinationBackupFileName) : null;
 
-            var handler = new FileReplaceHandler(container);
+            var handler = new FileReplaceHandler(container, owner.RandomNumberGenerator);
             var arguments = new FileReplaceArguments(sourcePath, destinationPath, backupDestinationPath);
 
             handler.Handle(arguments);

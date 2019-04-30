@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,9 +12,14 @@ namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileReplaceHandler : FakeOperationHandler<FileReplaceArguments, Missing>
     {
-        public FileReplaceHandler([NotNull] VolumeContainer container)
+        [NotNull]
+        private readonly Random randomNumberGenerator;
+
+        public FileReplaceHandler([NotNull] VolumeContainer container, [NotNull] Random randomNumberGenerator)
             : base(container)
         {
+            Guard.NotNull(randomNumberGenerator, nameof(randomNumberGenerator));
+            this.randomNumberGenerator = randomNumberGenerator;
         }
 
         public override Missing Handle(FileReplaceArguments arguments)
@@ -26,9 +32,9 @@ namespace TestableFileSystem.Fakes.Handlers
             FileEntry destinationFile = ResolveExistingFile(arguments.DestinationPath);
 
             Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, FileAccessKinds.Create);
-            NotifyDirectoriesChanged(destinationFile.Parent, sourceFile.Parent);
+            NotifyDirectoriesChanged(false, destinationFile.Parent, sourceFile.Parent);
 
-            BackupFileInfo backupFileInfo = BackupFileInfo.Create(arguments.BackupDestinationPath, this);
+            BackupFileInfo backupFileInfo = BackupFileInfo.FromPath(arguments.BackupDestinationPath, this);
             if (backupFileInfo != null && !backupFileInfo.Exists)
             {
                 string destinationFileName = destinationFile.Name;
@@ -39,7 +45,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 if (destinationDirectory != backupFileInfo.Directory)
                 {
-                    NotifyDirectoriesChanged(destinationDirectory);
+                    NotifyDirectoriesChanged(false, destinationDirectory);
                 }
 
                 Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, FileAccessKinds.Security);
@@ -50,52 +56,68 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 var spaceTracker = new VolumeSpaceTracker(sourceFile.Parent.Root);
 
-                if (backupFileInfo != null)
+                if (backupFileInfo == null)
                 {
-                    FileEntry backupFile = backupFileInfo.GetExistingFile();
+                    FileEntry tempBackupFile = CreateTempBackupFile(destinationFile);
+                    NotifyDirectoriesChanged(false, tempBackupFile.Parent);
 
-                    if (backupFile.Parent != destinationFile.Parent && backupFile.Parent != sourceFile.Parent)
-                    {
-                        NotifyDirectoriesChanged(backupFile.Parent);
-                    }
-
-                    TransferDestinationContentsToExistingBackupFile(destinationFile, backupFile, spaceTracker);
+                    backupFileInfo = BackupFileInfo.FromTempFile(tempBackupFile);
                 }
+
+                FileEntry backupFile = backupFileInfo.GetExistingFile();
+
+                if (backupFile.Parent != destinationFile.Parent && backupFile.Parent != sourceFile.Parent)
+                {
+                    NotifyDirectoriesChanged(false, backupFile.Parent);
+                }
+
+                TransferDestinationContentsToExistingBackupFile(destinationFile, backupFile, spaceTracker);
 
                 destinationFile.Parent.DeleteFile(destinationFile.Name, true);
 
-                if (backupFileInfo != null)
-                {
-                    FileEntry backupFile = backupFileInfo.GetExistingFile();
-
-                    Container.ChangeTracker.NotifyContentsAccessed(backupFile.PathFormatter, FileAccessKinds.All);
-                    NotifyDirectoriesChanged(backupFile.Parent, destinationFile.Parent);
-                }
-                else
-                {
-                    NotifyDirectoriesChanged(destinationFile.Parent);
-                }
+                Container.ChangeTracker.NotifyContentsAccessed(backupFile.PathFormatter, FileAccessKinds.All);
+                NotifyDirectoriesChanged(backupFileInfo.IsTempFile, backupFile.Parent, destinationFile.Parent);
 
                 TransferSourceContentsToDestinationFile(sourceFile, destinationFile);
 
                 spaceTracker.ApplyVolumeSpaceChange();
+
+                backupFileInfo.Cleanup();
             }
 
             return Missing.Value;
         }
 
-        private void NotifyDirectoriesChanged([NotNull] [ItemNotNull] params DirectoryEntry[] directories)
+        private void NotifyDirectoriesChanged(bool skipNotifyLastAccessOnLastDirectory,
+            [NotNull] [ItemNotNull] params DirectoryEntry[] directories)
         {
-            var entriesProcessed = new HashSet<DirectoryEntry>();
+            List<DirectoryEntry> uniqueDirectories = directories.Distinct().ToList();
 
-            foreach (DirectoryEntry directory in directories)
+            while (uniqueDirectories.Any())
             {
-                if (!entriesProcessed.Contains(directory))
-                {
-                    Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.WriteRead);
-                    entriesProcessed.Add(directory);
-                }
+                FileAccessKinds accessKinds = uniqueDirectories.Count == 1 && skipNotifyLastAccessOnLastDirectory
+                    ? FileAccessKinds.Write
+                    : FileAccessKinds.WriteRead;
+
+                DirectoryEntry directory = uniqueDirectories.First();
+                Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, accessKinds);
+
+                uniqueDirectories.Remove(directory);
             }
+        }
+
+        [NotNull]
+        private FileEntry CreateTempBackupFile([NotNull] FileEntry destinationFile)
+        {
+            DirectoryEntry directory = destinationFile.Parent;
+            string tempFileName = $"{destinationFile.Name}~RF{randomNumberGenerator.Next(1, 0xFFFFFF):x}.TMP";
+
+            if (directory.ContainsFile(tempFileName) || directory.ContainsDirectory(tempFileName))
+            {
+                throw ErrorFactory.System.UnableToRemoveFileToBeReplaced();
+            }
+
+            return directory.CreateFile(tempFileName);
         }
 
         private void TransferDestinationContentsToExistingBackupFile([NotNull] FileEntry destinationFile,
@@ -239,6 +261,17 @@ namespace TestableFileSystem.Fakes.Handlers
 
             public bool Exists => Directory.ContainsFile(FileName);
 
+            public bool IsTempFile { get; }
+
+            private BackupFileInfo([NotNull] FileEntry tempBackupFile)
+            {
+                Guard.NotNull(tempBackupFile, nameof(tempBackupFile));
+
+                FileName = tempBackupFile.Name;
+                Directory = tempBackupFile.Parent;
+                IsTempFile = true;
+            }
+
             private BackupFileInfo([NotNull] AbsolutePath backupPath, [NotNull] FileReplaceHandler owner)
             {
                 Guard.NotNull(backupPath, nameof(backupPath));
@@ -246,6 +279,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 FileName = backupPath.Components.Last();
                 Directory = ResolveBackupDirectory(backupPath, owner);
+                IsTempFile = false;
             }
 
             [NotNull]
@@ -272,8 +306,15 @@ namespace TestableFileSystem.Fakes.Handlers
                 return backupDirectory;
             }
 
+            [NotNull]
+            public static BackupFileInfo FromTempFile([NotNull] FileEntry backupFile)
+            {
+                Guard.NotNull(backupFile, nameof(backupFile));
+                return new BackupFileInfo(backupFile);
+            }
+
             [CanBeNull]
-            public static BackupFileInfo Create([CanBeNull] AbsolutePath backupPath, [NotNull] FileReplaceHandler owner)
+            public static BackupFileInfo FromPath([CanBeNull] AbsolutePath backupPath, [NotNull] FileReplaceHandler owner)
             {
                 Guard.NotNull(owner, nameof(owner));
                 return backupPath == null ? null : new BackupFileInfo(backupPath, owner);
@@ -283,6 +324,15 @@ namespace TestableFileSystem.Fakes.Handlers
             public FileEntry GetExistingFile()
             {
                 return Directory.GetFile(FileName);
+            }
+
+            public void Cleanup()
+            {
+                if (IsTempFile)
+                {
+                    FileEntry backupFile = GetExistingFile();
+                    backupFile.Parent.DeleteFile(backupFile.Name, true);
+                }
             }
         }
 

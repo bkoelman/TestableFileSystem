@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
@@ -268,6 +269,52 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(sourcePath).Should().BeFalse();
             fileSystem.File.Exists(targetPath).Should().BeTrue();
             fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
+        }
+
+        [Fact]
+        private void
+            When_replacing_file_with_different_name_in_same_directory_without_backup_and_existing_temporary_file_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+
+            var clock = new SystemClock(() => 1.January(2000));
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingEmptyFile(@"C:\some\target.txt~RFbe6312.TMP")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
+        }
+
+        [Fact]
+        private void
+            When_replacing_file_with_different_name_in_same_directory_without_backup_and_existing_temporary_directory_it_must_fail()
+        {
+            // Arrange
+            const string sourcePath = @"C:\some\source.txt";
+            const string targetPath = @"C:\some\target.txt";
+
+            var clock = new SystemClock(() => 1.January(2000));
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingTextFile(sourcePath, "SourceText")
+                .IncludingTextFile(targetPath, "TargetText")
+                .IncludingDirectory(@"C:\some\target.txt~RFbe6312.TMP")
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
         [Fact]

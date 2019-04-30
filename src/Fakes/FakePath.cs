@@ -15,9 +15,6 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly FakeFileSystem owner;
 
-        [NotNull]
-        private readonly Random randomNumberGenerator;
-
         internal FakePath([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner)
         {
             Guard.NotNull(container, nameof(container));
@@ -25,14 +22,6 @@ namespace TestableFileSystem.Fakes
 
             this.container = container;
             this.owner = owner;
-            randomNumberGenerator = CreateRandomNumberGenerator(container.SystemClock);
-        }
-
-        [NotNull]
-        private static Random CreateRandomNumberGenerator([NotNull] SystemClock systemClock)
-        {
-            int seed = (int)(systemClock.UtcNow().Ticks % int.MaxValue);
-            return new Random(seed);
         }
 
         public string GetFullPath(string path)
@@ -53,7 +42,7 @@ namespace TestableFileSystem.Fakes
             string tempDirectory = GetTempPath();
             AbsolutePath absoluteTempDirectory = owner.ToAbsolutePath(tempDirectory);
 
-            var handler = new PathGetTempFileNameHandler(container, randomNumberGenerator);
+            var handler = new PathGetTempFileNameHandler(container, owner.RandomNumberGenerator);
             var arguments = new PathGetTempFileNameArguments(absoluteTempDirectory);
 
             AbsolutePath tempFilePath = handler.Handle(arguments);

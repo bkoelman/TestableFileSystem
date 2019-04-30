@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 using TestableFileSystem.Utilities;
 
@@ -17,6 +18,9 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         internal string TempDirectory { get; private set; }
+
+        [NotNull]
+        internal Random RandomNumberGenerator { get; }
 
         [NotNull]
         internal WaitIndicator CopyWaitIndicator { get; }
@@ -42,6 +46,14 @@ namespace TestableFileSystem.Fakes
             Path = new PathOperationLocker<FakePath>(container.FileSystemLock, new FakePath(container, this));
             CurrentDirectoryManager = new CurrentDirectoryManager(container);
             relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
+            RandomNumberGenerator = CreateRandomNumberGenerator(container.SystemClock);
+        }
+
+        [NotNull]
+        private static Random CreateRandomNumberGenerator([NotNull] SystemClock systemClock)
+        {
+            int seed = (int)(systemClock.UtcNow().Ticks % int.MaxValue);
+            return new Random(seed);
         }
 
         [NotNull]

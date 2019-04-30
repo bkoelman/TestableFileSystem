@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using Xunit;
@@ -10,19 +11,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyFileReplaceSpecs : WatcherSpecs
     {
-        [Theory(Skip = "TODO: Make this File.Replace watcher test work")]
+        [Theory]
         [WatcherNotifyTestData(@"
             * Container\source.txt                          @                                                       CreationTime
             * Container                                     @                               LastWrite   LastAccess
-            + Container\target.txt~RF181a3a.TMP             @ FileName
+            + Container\target.txt~RFda56fe.TMP             @ FileName
             * Container                                     @                               LastWrite   LastAccess
             - Container\target.txt                          @ FileName
-            * Container\target.txt~RF181a3a.TMP             @           Attributes  Size    LastWrite   LastAccess  CreationTime    Security
+            * Container\target.txt~RFda56fe.TMP             @           Attributes  Size    LastWrite   LastAccess  CreationTime    Security
             * Container                                     @                               LastWrite
             * Container\source.txt                          @                                                                       Security
             > Container\source.txt => Container\target.txt  @ FileName
             * Container                                     @                               LastWrite
-            - Container\target.txt~RF181a3a.TMP             @ FileName
+            - Container\target.txt~RFda56fe.TMP             @ FileName
         ")]
         private void When_replacing_file_with_different_name_in_same_directory_without_backup_it_must_raise_events(
             NotifyFilters filters, [NotNull] string expectedText)
@@ -34,7 +35,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             string pathToSourceFile = Path.Combine(directoryToWatch, containerName, "source.txt");
             string pathToDestinationFile = Path.Combine(directoryToWatch, containerName, "target.txt");
 
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+            var clock = new SystemClock(() => 30.April(2019));
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingTextFile(pathToSourceFile, "SourceText")
                 .IncludingTextFile(pathToDestinationFile, "DestinationText")
                 .Build();
@@ -150,21 +153,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory(Skip = "TODO: Make this File.Replace watcher test work")]
+        [Theory]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @                                                       CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
             * Container\sourceDir                           @                               LastWrite   LastAccess
-            + Container\targetDir\target.txt~RF3a26f6.TMP   @ FileName
+            + Container\targetDir\target.txt~RFb70007.TMP   @ FileName
             * Container\targetDir                           @                               LastWrite   LastAccess
             - Container\targetDir\target.txt                @ FileName
-            * Container\targetDir\target.txt~RF3a26f6.TMP   @           Attributes  Size    LastWrite   LastAccess  CreationTime    Security
+            * Container\targetDir\target.txt~RFb70007.TMP   @           Attributes  Size    LastWrite   LastAccess  CreationTime    Security
             * Container\targetDir                           @                               LastWrite
             * Container\sourceDir\source.txt                @                                                                       Security
             - Container\sourceDir\source.txt                @ FileName
             + Container\targetDir\target.txt                @ FileName
             * Container\targetDir                           @                               LastWrite
-            - Container\targetDir\target.txt~RF3a26f6.TMP   @ FileName
+            - Container\targetDir\target.txt~RFb70007.TMP   @ FileName
         ")]
         private void When_replacing_file_in_different_directory_without_backup_it_must_raise_events(NotifyFilters filters,
             [NotNull] string expectedText)
@@ -176,7 +179,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             string pathToSourceFile = Path.Combine(directoryToWatch, containerName, "sourceDir", "source.txt");
             string pathToDestinationFile = Path.Combine(directoryToWatch, containerName, "targetDir", "target.txt");
 
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+            var clock = new SystemClock(() => 15.January(2019));
+
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingTextFile(pathToSourceFile, "SourceText")
                 .IncludingTextFile(pathToDestinationFile, "DestinationText")
                 .Build();
