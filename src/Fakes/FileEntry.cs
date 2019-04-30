@@ -122,8 +122,16 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            FakeFileStream stream;
+            FakeFileStream stream = CreateStream(path, access, isReaderOnly, notifyTracker);
+            InitializeStream(stream, seekToEnd, truncate, isNewlyCreated);
 
+            return new FileStreamWrapper(stream, path.GetText, () => isAsync, stream.GetSafeFileHandle, _ => stream.Flush(),
+                stream.Lock, stream.Unlock);
+        }
+
+        [NotNull]
+        private FakeFileStream CreateStream([NotNull] AbsolutePath path, FileAccess access, bool isReaderOnly, bool notifyTracker)
+        {
             lock (readerWriterLock)
             {
                 if (activeWriter != null)
@@ -136,7 +144,7 @@ namespace TestableFileSystem.Fakes
                     throw ErrorFactory.System.FileIsInUse(path.GetText());
                 }
 
-                stream = new FakeFileStream(this, access, notifyTracker);
+                var stream = new FakeFileStream(this, access, notifyTracker);
 
                 if (isReaderOnly)
                 {
@@ -146,8 +154,13 @@ namespace TestableFileSystem.Fakes
                 {
                     activeWriter = stream;
                 }
-            }
 
+                return stream;
+            }
+        }
+
+        private static void InitializeStream([NotNull] FakeFileStream stream, bool seekToEnd, bool truncate, bool isNewlyCreated)
+        {
             if (seekToEnd)
             {
                 stream.Seek(0, SeekOrigin.End);
@@ -163,9 +176,6 @@ namespace TestableFileSystem.Fakes
                     stream.EnableAccessKinds(FileAccessKinds.WriteRead);
                 }
             }
-
-            return new FileStreamWrapper(stream, path.GetText, () => isAsync, stream.GetSafeFileHandle, _ => stream.Flush(),
-                stream.Lock, stream.Unlock);
         }
 
         public void MoveTo([NotNull] string newName, [NotNull] DirectoryEntry newParent)
