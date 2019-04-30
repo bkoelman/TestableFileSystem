@@ -5,7 +5,7 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    internal sealed class EntryProperties
+    internal sealed class EntryMetadata
     {
         private const FileAttributes MissingEntryAttributes = (FileAttributes)(-1);
 
@@ -23,15 +23,15 @@ namespace TestableFileSystem.Fakes
         public long FileSize { get; }
 
         [NotNull]
-        public static readonly EntryProperties Default = new EntryProperties(null);
+        public static readonly EntryMetadata Default = new EntryMetadata(null);
 
-        private EntryProperties([CanBeNull] Exception error)
+        private EntryMetadata([CanBeNull] Exception error)
             : this(MissingEntryAttributes, PathFacts.ZeroFileTimeUtc, PathFacts.ZeroFileTimeUtc, PathFacts.ZeroFileTimeUtc, -1,
                 error)
         {
         }
 
-        private EntryProperties(FileAttributes attributes, DateTime creationTimeUtc, DateTime lastAccessTimeUtc,
+        private EntryMetadata(FileAttributes attributes, DateTime creationTimeUtc, DateTime lastAccessTimeUtc,
             DateTime lastWriteTimeUtc, long fileSize, [CanBeNull] Exception error)
         {
             Attributes = attributes;
@@ -43,18 +43,18 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public static EntryProperties CreateForError([NotNull] Exception error)
+        public static EntryMetadata CreateForError([NotNull] Exception error)
         {
             Guard.NotNull(error, nameof(error));
 
-            return new EntryProperties(error);
+            return new EntryMetadata(error);
         }
 
         [NotNull]
-        public static EntryProperties CreateForSuccess(FileAttributes attributes, DateTime creationTimeUtc,
+        public static EntryMetadata CreateForSuccess(FileAttributes attributes, DateTime creationTimeUtc,
             DateTime lastAccessTimeUtc, DateTime lastWriteTimeUtc, long fileSize)
         {
-            return new EntryProperties(attributes, creationTimeUtc, lastAccessTimeUtc, lastWriteTimeUtc, fileSize, null);
+            return new EntryMetadata(attributes, creationTimeUtc, lastAccessTimeUtc, lastWriteTimeUtc, fileSize, null);
         }
 
         public void AssertNoError()

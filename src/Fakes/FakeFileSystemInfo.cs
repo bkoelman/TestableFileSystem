@@ -14,7 +14,7 @@ namespace TestableFileSystem.Fakes
         private readonly VolumeContainer container;
 
         [CanBeNull]
-        private EntryProperties propertiesSnapshot;
+        private EntryMetadata metadataSnapshot;
 
         [NotNull]
         internal FakeFileSystem Owner { get; }
@@ -26,7 +26,7 @@ namespace TestableFileSystem.Fakes
         protected string DisplayPath { get; private set; }
 
         [NotNull]
-        internal EntryProperties Properties => propertiesSnapshot ?? (propertiesSnapshot = RetrieveEntryProperties());
+        internal EntryMetadata Metadata => metadataSnapshot ?? (metadataSnapshot = RetrieveEntryMetadata());
 
         public abstract string Name { get; }
 
@@ -38,8 +38,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.Attributes;
+                Metadata.AssertNoError();
+                return Metadata.Attributes;
             }
             set
             {
@@ -58,8 +58,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.CreationTimeUtc;
+                Metadata.AssertNoError();
+                return Metadata.CreationTimeUtc;
             }
             set
             {
@@ -78,8 +78,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.LastAccessTimeUtc;
+                Metadata.AssertNoError();
+                return Metadata.LastAccessTimeUtc;
             }
             set
             {
@@ -98,8 +98,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.LastWriteTimeUtc;
+                Metadata.AssertNoError();
+                return Metadata.LastWriteTimeUtc;
             }
             set
             {
@@ -128,21 +128,21 @@ namespace TestableFileSystem.Fakes
 
         public void Refresh()
         {
-            propertiesSnapshot = RetrieveEntryProperties();
+            metadataSnapshot = RetrieveEntryMetadata();
         }
 
         [NotNull]
-        private EntryProperties RetrieveEntryProperties()
+        private EntryMetadata RetrieveEntryMetadata()
         {
-            var handler = new EntryGetPropertiesHandler(container);
-            var arguments = new EntryGetPropertiesArguments(AbsolutePath);
+            var handler = new EntryGetMetadataHandler(container);
+            var arguments = new EntryGetMetadataArguments(AbsolutePath);
 
             return container.FileSystemLock.ExecuteInLock(() => handler.Handle(arguments));
         }
 
         private void Invalidate()
         {
-            propertiesSnapshot = null;
+            metadataSnapshot = null;
         }
 
         public abstract void Delete();

@@ -137,7 +137,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
             MoveSingleFile(sourceFile, destinationFile.Parent, destinationFile.Name, sourceFile.PathFormatter, true);
 
-            sourceFile.CopyPropertiesFrom(destinationFile);
+            sourceFile.CopyMetadataFrom(destinationFile);
         }
 
         [NotNull]

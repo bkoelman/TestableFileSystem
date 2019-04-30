@@ -9,14 +9,14 @@ namespace TestableFileSystem.Fakes
     {
         public override string Name => Path.GetFileName(DisplayPath);
 
-        public override bool Exists => Properties.Exists && !Properties.Attributes.HasFlag(FileAttributes.Directory);
+        public override bool Exists => Metadata.Exists && !Metadata.Attributes.HasFlag(FileAttributes.Directory);
 
         public long Length
         {
             get
             {
                 AssertIsExistingFile();
-                return Properties.FileSize;
+                return Metadata.FileSize;
             }
         }
 
@@ -24,8 +24,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.Attributes.HasFlag(FileAttributes.ReadOnly);
+                Metadata.AssertNoError();
+                return Metadata.Attributes.HasFlag(FileAttributes.ReadOnly);
             }
             set
             {
@@ -132,7 +132,7 @@ namespace TestableFileSystem.Fakes
 
         private void AssertIsExistingFile()
         {
-            Properties.AssertNoError();
+            Metadata.AssertNoError();
 
             if (Attributes.HasFlag(FileAttributes.Directory))
             {

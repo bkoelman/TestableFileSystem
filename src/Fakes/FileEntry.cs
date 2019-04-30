@@ -182,7 +182,7 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(otherFile, nameof(otherFile));
 
             TransferContentsFrom(otherFile);
-            CopyPropertiesFrom(otherFile);
+            CopyMetadataFrom(otherFile);
         }
 
         private void TransferContentsFrom([NotNull] FileEntry otherFile)

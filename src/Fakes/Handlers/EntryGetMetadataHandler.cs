@@ -7,14 +7,14 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class EntryGetPropertiesHandler : FakeOperationHandler<EntryGetPropertiesArguments, EntryProperties>
+    internal sealed class EntryGetMetadataHandler : FakeOperationHandler<EntryGetMetadataArguments, EntryMetadata>
     {
-        public EntryGetPropertiesHandler([NotNull] VolumeContainer container)
+        public EntryGetMetadataHandler([NotNull] VolumeContainer container)
             : base(container)
         {
         }
 
-        public override EntryProperties Handle(EntryGetPropertiesArguments arguments)
+        public override EntryMetadata Handle(EntryGetMetadataArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 
@@ -32,16 +32,16 @@ namespace TestableFileSystem.Fakes.Handlers
             }
             catch (FileNotFoundException)
             {
-                return EntryProperties.Default;
+                return EntryMetadata.Default;
             }
             catch (Exception ex)
             {
-                return EntryProperties.CreateForError(ex);
+                return EntryMetadata.CreateForError(ex);
             }
 
             long fileSize = entry is FileEntry fileEntry ? fileEntry.Size : -1;
 
-            return EntryProperties.CreateForSuccess(entry.Attributes, entry.CreationTimeUtc, entry.LastAccessTimeUtc,
+            return EntryMetadata.CreateForSuccess(entry.Attributes, entry.CreationTimeUtc, entry.LastAccessTimeUtc,
                 entry.LastWriteTimeUtc, fileSize);
         }
     }

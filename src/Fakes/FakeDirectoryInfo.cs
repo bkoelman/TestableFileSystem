@@ -12,7 +12,7 @@ namespace TestableFileSystem.Fakes
     {
         public override string Name => AbsolutePath.IsVolumeRoot ? FullName : AbsolutePath.Components.Last();
 
-        public override bool Exists => Properties.Exists && Properties.Attributes.HasFlag(FileAttributes.Directory);
+        public override bool Exists => Metadata.Exists && Metadata.Attributes.HasFlag(FileAttributes.Directory);
 
         public IDirectoryInfo Parent
         {
