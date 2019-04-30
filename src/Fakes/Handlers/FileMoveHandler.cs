@@ -99,13 +99,13 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 if (sourceFile.Name != destinationFileName)
                 {
-                    sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatter, false);
+                    sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatter, false, false);
                 }
             }
             else
             {
                 sourceFile.Parent.DeleteFile(sourceFile.Name, true);
-                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName, false);
+                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName, false, false);
             }
         }
     }

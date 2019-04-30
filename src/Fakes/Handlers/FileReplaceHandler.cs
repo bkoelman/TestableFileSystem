@@ -30,8 +30,9 @@ namespace TestableFileSystem.Fakes.Handlers
             AssertAllOnSameDrive(arguments);
 
             FileEntry destinationFile = ResolveExistingFile(arguments.DestinationPath);
+            bool destinationHasOnlyArchiveAttribute = destinationFile.Attributes == FileAttributes.Archive;
 
-            Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, FileAccessKinds.Create);
+            NotifySourceFileChanged(sourceFile, destinationFile);
             NotifyDirectoriesChanged(false, destinationFile.Parent, sourceFile.Parent);
 
             BackupFileInfo backupFileInfo = BackupFileInfo.FromPath(arguments.BackupDestinationPath, Container);
@@ -85,7 +86,25 @@ namespace TestableFileSystem.Fakes.Handlers
 
             backupFileInfo.Complete();
 
+            if (!destinationHasOnlyArchiveAttribute)
+            {
+                Container.ChangeTracker.NotifyContentsAccessed(backupFileInfo.Path.Formatter, FileAccessKinds.Attributes);
+                Container.ChangeTracker.NotifyContentsAccessed(arguments.DestinationPath.Formatter, FileAccessKinds.Attributes);
+            }
+
             return Missing.Value;
+        }
+
+        private void NotifySourceFileChanged([NotNull] FileEntry sourceFile, [NotNull] FileEntry destinationFile)
+        {
+            var accessKinds = FileAccessKinds.Create;
+
+            if (destinationFile.Attributes != sourceFile.Attributes)
+            {
+                accessKinds |= FileAccessKinds.Attributes;
+            }
+
+            Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, accessKinds);
         }
 
         private void NotifyDirectoriesChanged(bool skipNotifyLastAccessOnLastDirectory,
@@ -134,8 +153,6 @@ namespace TestableFileSystem.Fakes.Handlers
         private void TransferSourceContentsToDestinationFile([NotNull] FileEntry sourceFile,
             [NotNull] DirectoryEntry destinationDirectory, [NotNull] string destinationFileName, [NotNull] FileEntry metadataFile)
         {
-            Container.ChangeTracker.NotifyContentsAccessed(sourceFile.PathFormatter, FileAccessKinds.Security);
-
             MoveSingleFile(sourceFile, destinationDirectory, destinationFileName, sourceFile.PathFormatter, true);
 
             sourceFile.CopyMetadataFrom(metadataFile);
@@ -243,12 +260,12 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 IPathFormatter sourcePathFormatterNonLazy = sourcePathFormatter.GetPath().Formatter;
                 sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatterNonLazy,
-                    skipNotifyLastAccess);
+                    skipNotifyLastAccess, true);
             }
             else
             {
                 sourceFile.Parent.DeleteFile(sourceFile.Name, true);
-                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName, skipNotifyLastAccess);
+                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName, skipNotifyLastAccess, true);
             }
         }
 
@@ -272,6 +289,9 @@ namespace TestableFileSystem.Fakes.Handlers
             [NotNull]
             public DirectoryEntry Directory { get; }
 
+            [NotNull]
+            public AbsolutePath Path { get; }
+
             public bool Exists => Directory.ContainsFile(FileName);
 
             public bool IsTempFile { get; }
@@ -287,6 +307,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 FileName = tempBackupFile.Name;
                 Directory = tempBackupFile.Parent;
+                Path = tempBackupFile.PathFormatter.GetPath();
                 IsTempFile = true;
             }
 
@@ -298,6 +319,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 this.container = container;
                 FileName = backupPath.Components.Last();
                 Directory = ResolveBackupDirectory(backupPath);
+                Path = backupPath;
                 IsTempFile = false;
 
                 if (Exists)

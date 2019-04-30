@@ -147,7 +147,7 @@ namespace TestableFileSystem.Fakes
         }
 
         public void RenameFile([NotNull] string sourceFileName, [NotNull] string destinationFileName,
-            [NotNull] IPathFormatter sourcePathFormatter, bool skipNotifyLastAccess)
+            [NotNull] IPathFormatter sourcePathFormatter, bool skipNotifyLastAccess, bool skipNotifyAttributes)
         {
             Guard.NotNullNorWhiteSpace(sourceFileName, nameof(sourceFileName));
             Guard.NotNullNorWhiteSpace(destinationFileName, nameof(destinationFileName));
@@ -160,10 +160,11 @@ namespace TestableFileSystem.Fakes
             ChangeTracker.NotifyFileRenamed(sourcePathFormatter, file.PathFormatter);
 
             HandleDirectoryContentsChanged(skipNotifyLastAccess);
-            NotifyFileMoveForAttributes(file);
+            NotifyAttributesForFileMove(file, skipNotifyAttributes);
         }
 
-        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName, bool skipNotifyLastAccess)
+        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName, bool skipNotifyLastAccess,
+            bool skipNotifyAttributes)
         {
             Guard.NotNull(file, nameof(file));
             Guard.NotNullNorWhiteSpace(newFileName, nameof(newFileName));
@@ -179,12 +180,12 @@ namespace TestableFileSystem.Fakes
 
             ChangeTracker.NotifyFileCreated(file.PathFormatter);
             HandleDirectoryContentsChanged(skipNotifyLastAccess);
-            NotifyFileMoveForAttributes(file);
+            NotifyAttributesForFileMove(file, skipNotifyAttributes);
         }
 
-        private void NotifyFileMoveForAttributes([NotNull] FileEntry file)
+        private void NotifyAttributesForFileMove([NotNull] FileEntry file, bool skipNotifyAttributes)
         {
-            if (!file.Attributes.HasFlag(FileAttributes.Archive))
+            if (!skipNotifyAttributes && !file.Attributes.HasFlag(FileAttributes.Archive))
             {
                 ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
             }
