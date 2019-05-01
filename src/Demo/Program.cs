@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using TestableFileSystem.Wrappers;
@@ -8,20 +9,27 @@ namespace TestableFileSystem.Demo
 {
     internal static class Program
     {
-        private static readonly string TargetDirectory = Environment.ExpandEnvironmentVariables(@"%TEMP%\TestableFileSystemDemo");
+        private static readonly string TargetDirectory = Environment.ExpandEnvironmentVariables(@"%TEMP%\FileSystemDemo");
 
         private static void Main()
         {
             IFileSystem fileSystem = CreateFileSystem();
 
             fileSystem.Directory.CreateDirectory(TargetDirectory);
-            new FileSystemChangeDumper(fileSystem).Start(TargetDirectory);
 
-            DeleteAndCreateFile(fileSystem);
-            ShowFilesInTargetDirectory(fileSystem);
+            using (var dumper = new FileSystemChangeDumper(fileSystem))
+            {
+                dumper.Start(TargetDirectory, NotifyFilters.FileName | NotifyFilters.LastWrite);
 
-            Console.WriteLine("Press any key to close.");
-            Console.ReadKey();
+                DeleteAndCreateFile(fileSystem);
+
+                Thread.Sleep(500);
+
+                ShowFilesInTargetDirectory(fileSystem);
+
+                Console.WriteLine("Press any key to close.");
+                Console.ReadKey();
+            }
         }
 
         private static void DeleteAndCreateFile(IFileSystem fileSystem)
@@ -29,16 +37,18 @@ namespace TestableFileSystem.Demo
             string fileName = Path.Combine(TargetDirectory, "newfile.txt");
 
             fileSystem.File.Delete(fileName);
-            fileSystem.File.WriteAllText(fileName, "TestableFileSystem Example File");
+            fileSystem.File.WriteAllText(fileName, "TestableFileSystem Example Content");
         }
 
         private static void ShowFilesInTargetDirectory(IFileSystem fileSystem)
         {
             Console.WriteLine();
-            Console.WriteLine($"Scanning for text files in '{TargetDirectory}'...");
+            Console.WriteLine("Scanning for text files in directory:");
+            Console.WriteLine($"  \"{TargetDirectory}\"");
+
             foreach (string path in fileSystem.Directory.GetFiles(TargetDirectory, "*.txt", SearchOption.AllDirectories))
             {
-                Console.WriteLine($"File '{path}' contains:");
+                Console.WriteLine($"File \"{path}\" contains:");
 
                 string contents = fileSystem.File.ReadAllText(path);
                 Console.WriteLine(contents);
@@ -47,14 +57,15 @@ namespace TestableFileSystem.Demo
 
         private static IFileSystem CreateFileSystem()
         {
-            //return CreateFakeFileSystem();
-            return CreateWrapperFileSystem();
+            return CreateFakeFileSystem();
+            //return CreateWrapperFileSystem();
         }
 
         private static IFileSystem CreateFakeFileSystem()
         {
-            return new FakeFileSystemBuilder()
-                .IncludingTextFile(Path.Combine(TargetDirectory, @"subdir\demo.txt"), "Hello from Fake File System").Build();
+            string filePath = Path.Combine(TargetDirectory, @"subdir\demo.txt");
+
+            return new FakeFileSystemBuilder().IncludingTextFile(filePath, "Hello from Fake File System").Build();
         }
 
         private static IFileSystem CreateWrapperFileSystem()

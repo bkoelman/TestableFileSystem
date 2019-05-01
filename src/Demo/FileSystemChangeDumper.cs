@@ -40,7 +40,8 @@ namespace TestableFileSystem.Demo
 
         private void SetupWatcher(string path, NotifyFilters filters)
         {
-            Console.WriteLine($"Started watching for changes on '{path}'.");
+            Console.WriteLine("Started watching for changes in directory:");
+            Console.WriteLine($"  \"{path}\"");
 
             if (filters != NotifyFiltersAll)
             {
