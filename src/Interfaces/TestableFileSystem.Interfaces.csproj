@@ -7,16 +7,16 @@
   <PropertyGroup>
     <PackageId>TestableFileSystem.Interfaces</PackageId>
     <Title>TestableFileSystem.Interfaces</Title>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Authors>Bart Koelman</Authors>
     <Company />
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/bkoelman/TestableFileSystem</PackageProjectUrl>
-    <Description>Interfaces to substitute System.IO calls in the .NET Framework.</Description>
-    <PackageReleaseNotes>First stable version.</PackageReleaseNotes>
+    <Description>Interfaces to substitute System.IO calls in the .NET Framework and .NET Core.</Description>
+    <PackageReleaseNotes>Added support for .NET Standard 2.0 APIs.</PackageReleaseNotes>
     <Copyright>Apache License, Version 2.0</Copyright>
     <PackageTags>filesystem IO testable interfaces wrappers fakes</PackageTags>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;JETBRAINS_ANNOTATIONS</DefineConstants>
