@@ -11,7 +11,7 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakeDirectory : IDirectory
+    internal sealed class FakeDirectory : IDirectory
     {
         [NotNull]
         private readonly VolumeContainer container;

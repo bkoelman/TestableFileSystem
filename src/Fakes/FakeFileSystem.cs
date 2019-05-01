@@ -57,7 +57,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public FakeFileInfo ConstructFileInfo([NotNull] string fileName)
+        public IFileInfo ConstructFileInfo([NotNull] string fileName)
         {
             Guard.NotNull(fileName, nameof(fileName));
 
@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes
         IFileInfo IFileSystem.ConstructFileInfo(string fileName) => ConstructFileInfo(fileName);
 
         [NotNull]
-        public FakeDirectoryInfo ConstructDirectoryInfo([NotNull] string path)
+        public IDirectoryInfo ConstructDirectoryInfo([NotNull] string path)
         {
             Guard.NotNull(path, nameof(path));
 
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        internal FakeDirectoryInfo ConstructDirectoryInfo([NotNull] AbsolutePath path, [CanBeNull] string displayPath = null)
+        internal IDirectoryInfo ConstructDirectoryInfo([NotNull] AbsolutePath path, [CanBeNull] string displayPath = null)
         {
             Guard.NotNull(path, nameof(path));
 

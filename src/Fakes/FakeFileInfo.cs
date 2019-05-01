@@ -5,7 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
+    internal sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
     {
         public override string Name => Path.GetFileName(DisplayPath);
 

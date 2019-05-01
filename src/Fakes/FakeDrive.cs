@@ -7,7 +7,7 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakeDrive : IDrive
+    internal sealed class FakeDrive : IDrive
     {
         [NotNull]
         private readonly VolumeContainer container;

@@ -8,7 +8,7 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakeDirectoryInfo : FakeFileSystemInfo, IDirectoryInfo
+    internal sealed class FakeDirectoryInfo : FakeFileSystemInfo, IDirectoryInfo
     {
         public override string Name => AbsolutePath.IsVolumeRoot ? FullName : AbsolutePath.Components.Last();
 

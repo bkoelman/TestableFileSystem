@@ -8,7 +8,7 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakeFile : IFile
+    internal sealed class FakeFile : IFile
     {
         [NotNull]
         private readonly VolumeContainer container;

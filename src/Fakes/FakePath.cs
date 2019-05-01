@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Interfaces;
@@ -7,7 +6,7 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakePath : IPath
+    internal sealed class FakePath : IPath
     {
         [NotNull]
         private readonly VolumeContainer container;
