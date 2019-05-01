@@ -393,6 +393,9 @@ namespace TestableFileSystem.Fakes.Handlers
                     backupFile.CreationTimeUtc = keepCreationTimeUtc ?? now;
                     backupFile.LastWriteTimeUtc = keepLastWriteTimeUtc ?? now;
                     backupFile.LastAccessTimeUtc = keepLastAccessTimeUtc ?? now;
+
+                    backupFile.Parent.LastWriteTimeUtc = now;
+                    backupFile.Parent.LastAccessTimeUtc = now;
                 }
             }
         }

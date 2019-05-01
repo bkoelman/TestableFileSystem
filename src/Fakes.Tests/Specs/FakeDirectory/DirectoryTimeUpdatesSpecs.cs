@@ -482,9 +482,153 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
-        // TODO: When_replacing_file_in_different_directory_without_backup_it_must_not?_update_directory_timings
-        // TODO: When_replacing_file_in_different_directory_with_backup_it_must_not?_update_directory_timings
-        // TODO: When_replacing_file_in_different_directory_with_existing_backup_it_must_not?_update_directory_timings
+        [Fact]
+        private void When_replacing_file_in_different_directory_without_backup_it_must_update_directory_timings()
+        {
+            // Arrange
+            const string sourceContainerPath = @"C:\folder\sourceDir";
+            const string sourceFilePath = @"C:\folder\sourceDir\source.txt";
+
+            const string destinationContainerPath = @"C:\folder\targetDir";
+            const string destinationFilePath = @"C:\folder\targetDir\target.txt";
+
+            var clock = new SystemClock(() => 10.January(2017).At(1, 1, 1).AsUtc());
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(sourceFilePath)
+                .IncludingEmptyFile(destinationFilePath)
+                .Build();
+
+            DateTime containerCreationTimeUtc = 1.January(2017).At(1, 1, 1).AsUtc();
+            fileSystem.Directory.SetCreationTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastWriteTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastAccessTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+
+            fileSystem.Directory.SetCreationTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastWriteTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastAccessTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+
+            DateTime operationTimeUtc = 20.January(2017).At(1, 1, 1).AsUtc();
+            clock.UtcNow = () => operationTimeUtc;
+
+            // Act
+            fileSystem.File.Replace(sourceFilePath, destinationFilePath, null);
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(sourceContainerPath).Should().Be(containerCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(sourceContainerPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(sourceContainerPath).Should().Be(operationTimeUtc);
+
+            fileSystem.File.GetCreationTimeUtc(destinationContainerPath).Should().Be(containerCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(destinationContainerPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(destinationContainerPath).Should().Be(operationTimeUtc);
+        }
+
+        [Fact]
+        private void When_replacing_file_in_different_directory_with_backup_it_must_update_directory_timings()
+        {
+            const string sourceContainerPath = @"C:\folder\sourceDir";
+            const string sourceFilePath = @"C:\folder\sourceDir\source.txt";
+
+            const string destinationContainerPath = @"C:\folder\targetDir";
+            const string destinationFilePath = @"C:\folder\targetDir\target.txt";
+
+            const string backupContainerPath = @"C:\folder\backupDir";
+            const string backupFilePath = @"C:\folder\backupDir\backup.txt";
+
+            var clock = new SystemClock(() => 10.January(2017).At(1, 1, 1).AsUtc());
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(sourceFilePath)
+                .IncludingEmptyFile(destinationFilePath)
+                .IncludingDirectory(backupContainerPath)
+                .Build();
+
+            DateTime containerCreationTimeUtc = 1.January(2017).At(1, 1, 1).AsUtc();
+            fileSystem.Directory.SetCreationTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastWriteTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastAccessTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+
+            fileSystem.Directory.SetCreationTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastWriteTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastAccessTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+
+            fileSystem.Directory.SetCreationTimeUtc(backupContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastWriteTimeUtc(backupContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastAccessTimeUtc(backupContainerPath, containerCreationTimeUtc);
+
+            DateTime operationTimeUtc = 20.January(2017).At(1, 1, 1).AsUtc();
+            clock.UtcNow = () => operationTimeUtc;
+
+            // Act
+            fileSystem.File.Replace(sourceFilePath, destinationFilePath, backupFilePath);
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(sourceContainerPath).Should().Be(containerCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(sourceContainerPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(sourceContainerPath).Should().Be(operationTimeUtc);
+
+            fileSystem.File.GetCreationTimeUtc(destinationContainerPath).Should().Be(containerCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(destinationContainerPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(destinationContainerPath).Should().Be(operationTimeUtc);
+
+            fileSystem.File.GetCreationTimeUtc(backupContainerPath).Should().Be(containerCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(backupContainerPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(backupContainerPath).Should().Be(operationTimeUtc);
+        }
+
+        [Fact]
+        private void When_replacing_file_in_different_directory_with_existing_backup_it_must_update_directory_timings()
+        {
+            const string sourceContainerPath = @"C:\folder\sourceDir";
+            const string sourceFilePath = @"C:\folder\sourceDir\source.txt";
+
+            const string destinationContainerPath = @"C:\folder\targetDir";
+            const string destinationFilePath = @"C:\folder\targetDir\target.txt";
+
+            const string backupContainerPath = @"C:\folder\backupDir";
+            const string backupFilePath = @"C:\folder\backupDir\backup.txt";
+
+            var clock = new SystemClock(() => 10.January(2017).At(1, 1, 1).AsUtc());
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
+                .IncludingEmptyFile(sourceFilePath)
+                .IncludingEmptyFile(destinationFilePath)
+                .IncludingEmptyFile(backupFilePath)
+                .Build();
+
+            DateTime containerCreationTimeUtc = 1.January(2017).At(1, 1, 1).AsUtc();
+            fileSystem.Directory.SetCreationTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastWriteTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastAccessTimeUtc(sourceContainerPath, containerCreationTimeUtc);
+
+            fileSystem.Directory.SetCreationTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastWriteTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastAccessTimeUtc(destinationContainerPath, containerCreationTimeUtc);
+
+            fileSystem.Directory.SetCreationTimeUtc(backupContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastWriteTimeUtc(backupContainerPath, containerCreationTimeUtc);
+            fileSystem.Directory.SetLastAccessTimeUtc(backupContainerPath, containerCreationTimeUtc);
+
+            DateTime operationTimeUtc = 20.January(2017).At(1, 1, 1).AsUtc();
+            clock.UtcNow = () => operationTimeUtc;
+
+            // Act
+            fileSystem.File.Replace(sourceFilePath, destinationFilePath, backupFilePath);
+
+            // Assert
+            fileSystem.File.GetCreationTimeUtc(sourceContainerPath).Should().Be(containerCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(sourceContainerPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(sourceContainerPath).Should().Be(operationTimeUtc);
+
+            fileSystem.File.GetCreationTimeUtc(destinationContainerPath).Should().Be(containerCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(destinationContainerPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(destinationContainerPath).Should().Be(operationTimeUtc);
+
+            fileSystem.File.GetCreationTimeUtc(backupContainerPath).Should().Be(containerCreationTimeUtc);
+            fileSystem.File.GetLastWriteTimeUtc(backupContainerPath).Should().Be(operationTimeUtc);
+            fileSystem.File.GetLastAccessTimeUtc(backupContainerPath).Should().Be(operationTimeUtc);
+        }
 #endif
 
         [Fact]
