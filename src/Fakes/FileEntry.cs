@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Win32.SafeHandles;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 using TestableFileSystem.Wrappers;
 
 namespace TestableFileSystem.Fakes
@@ -16,14 +20,14 @@ namespace TestableFileSystem.Fakes
 
         [NotNull]
         [ItemNotNull]
-        private readonly List<byte[]> blocks = new List<byte[]>();
+        private List<byte[]> blocks = new List<byte[]>();
 
         public long Size { get; private set; }
 
+        private bool deleteOnClose;
+
         [CanBeNull]
         private FakeFileStream activeWriter;
-
-        private bool deleteOnClose;
 
         [NotNull]
         [ItemNotNull]
@@ -32,80 +36,49 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         private readonly object readerWriterLock = new object();
 
-        private long creationTimeStampUtc;
-        private long lastWriteTimeStampUtc;
-        private long lastAccessTimeStampUtc;
+        [NotNull]
+        private readonly LockTracker lockTracker;
+
+        internal override IPathFormatter PathFormatter { get; }
 
         [NotNull]
         public DirectoryEntry Parent { get; private set; }
 
-        public override DateTime CreationTime
-        {
-            get => DateTime.FromFileTime(creationTimeStampUtc);
-            set => creationTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime CreationTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(creationTimeStampUtc);
-            set => creationTimeStampUtc = value.ToFileTimeUtc();
-        }
-
-        public override DateTime LastAccessTime
-        {
-            get => DateTime.FromFileTime(lastAccessTimeStampUtc);
-            set => lastAccessTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime LastAccessTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
-            set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
-        }
-
-        public override DateTime LastWriteTime
-        {
-            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
-            set => lastWriteTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime LastWriteTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
-            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
-        }
-
         public FileEntry([NotNull] string name, [NotNull] DirectoryEntry parent)
-            : base(name)
+            : base(name, FileAttributes.Archive, parent.ChangeTracker, parent.LoggedOnAccount)
         {
             Guard.NotNull(parent, nameof(parent));
-            AssertParentIsValid(parent);
 
             Parent = parent;
-            Attributes = FileAttributes.Archive;
+            PathFormatter = new FileEntryPathFormatter(this);
+            lockTracker = new LockTracker(this);
 
-            CreationTimeUtc = parent.SystemClock.UtcNow();
-            HandleFileChanged();
-        }
-
-        [AssertionMethod]
-        private void AssertParentIsValid([NotNull] DirectoryEntry parent)
-        {
-            if (parent.Parent == null)
+            if (parent.IsEncrypted)
             {
-                throw new InvalidOperationException("File cannot exist at the root of the filesystem.");
+                SetEncrypted();
             }
+
+            CreationTimeUtc = LastWriteTimeUtc = LastAccessTimeUtc = parent.SystemClock.UtcNow();
         }
 
-        private void HandleFileChanged()
+        private void HandleFileContentsAccessed(FileAccessKinds accessKinds, bool notifyTracker)
         {
-            HandleFileAccessed();
-            LastWriteTimeUtc = LastAccessTimeUtc;
-        }
+            DateTime utcNow = Parent.SystemClock.UtcNow();
 
-        private void HandleFileAccessed()
-        {
-            LastAccessTimeUtc = Parent.SystemClock.UtcNow();
+            if (accessKinds != FileAccessKinds.None)
+            {
+                LastAccessTimeUtc = utcNow;
+            }
+
+            if (accessKinds.HasFlag(FileAccessKinds.Write) || accessKinds.HasFlag(FileAccessKinds.Resize))
+            {
+                LastWriteTimeUtc = utcNow;
+            }
+
+            if (notifyTracker)
+            {
+                ChangeTracker.NotifyContentsAccessed(PathFormatter, accessKinds);
+            }
         }
 
         public bool IsOpen()
@@ -122,7 +95,8 @@ namespace TestableFileSystem.Fakes
         }
 
         [NotNull]
-        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path)
+        public IFileStream Open(FileMode mode, FileAccess access, [NotNull] AbsolutePath path, bool isNewlyCreated, bool isAsync,
+            bool notifyTracker)
         {
             Guard.NotNull(path, nameof(path));
 
@@ -135,17 +109,29 @@ namespace TestableFileSystem.Fakes
                 case FileMode.CreateNew:
                 case FileMode.Create:
                 case FileMode.Truncate:
+                {
                     truncate = true;
                     isReaderOnly = false;
                     break;
+                }
                 case FileMode.Append:
+                {
                     seekToEnd = true;
                     isReaderOnly = false;
                     break;
+                }
             }
 
-            FakeFileStream stream;
+            FakeFileStream stream = CreateStream(path, access, isReaderOnly, notifyTracker);
+            InitializeStream(stream, seekToEnd, truncate, isNewlyCreated);
 
+            return new FileStreamWrapper(stream, path.GetText, () => isAsync, stream.GetSafeFileHandle, _ => stream.Flush(),
+                stream.Lock, stream.Unlock);
+        }
+
+        [NotNull]
+        private FakeFileStream CreateStream([NotNull] AbsolutePath path, FileAccess access, bool isReaderOnly, bool notifyTracker)
+        {
             lock (readerWriterLock)
             {
                 if (activeWriter != null)
@@ -158,7 +144,7 @@ namespace TestableFileSystem.Fakes
                     throw ErrorFactory.System.FileIsInUse(path.GetText());
                 }
 
-                stream = new FakeFileStream(this, access);
+                var stream = new FakeFileStream(this, access, notifyTracker);
 
                 if (isReaderOnly)
                 {
@@ -168,8 +154,13 @@ namespace TestableFileSystem.Fakes
                 {
                     activeWriter = stream;
                 }
-            }
 
+                return stream;
+            }
+        }
+
+        private static void InitializeStream([NotNull] FakeFileStream stream, bool seekToEnd, bool truncate, bool isNewlyCreated)
+        {
             if (seekToEnd)
             {
                 stream.Seek(0, SeekOrigin.End);
@@ -179,10 +170,12 @@ namespace TestableFileSystem.Fakes
             if (truncate)
             {
                 stream.SetLength(0);
-            }
 
-            return new FileStreamWrapper(stream, path.GetText, () => false, () => throw new NotSupportedException(),
-                _ => stream.Flush());
+                if (!isNewlyCreated)
+                {
+                    stream.EnableAccessKinds(FileAccessKinds.WriteRead);
+                }
+            }
         }
 
         public void MoveTo([NotNull] string newName, [NotNull] DirectoryEntry newParent)
@@ -190,10 +183,24 @@ namespace TestableFileSystem.Fakes
             Guard.NotNullNorWhiteSpace(newName, nameof(newName));
             Guard.NotNull(newParent, nameof(newParent));
 
-            AssertParentIsValid(newParent);
-
             Name = newName;
             Parent = newParent;
+        }
+
+        public void TransferFrom([NotNull] FileEntry otherFile)
+        {
+            Guard.NotNull(otherFile, nameof(otherFile));
+
+            TransferContentsFrom(otherFile);
+            CopyMetadataFrom(otherFile);
+        }
+
+        private void TransferContentsFrom([NotNull] FileEntry otherFile)
+        {
+            Guard.NotNull(otherFile, nameof(otherFile));
+
+            blocks = otherFile.blocks;
+            Size = otherFile.Size;
         }
 
         private void CloseStream([NotNull] FakeFileStream stream)
@@ -209,7 +216,7 @@ namespace TestableFileSystem.Fakes
 
                 if (deleteOnClose && !IsOpen())
                 {
-                    Parent.DeleteFile(Name);
+                    Parent.DeleteFile(Name, true);
                 }
             }
         }
@@ -227,14 +234,22 @@ namespace TestableFileSystem.Fakes
 
         private sealed class FakeFileStream : Stream
         {
+            private const int BlockSize = 4096;
+
             [NotNull]
             private readonly FileEntry owner;
 
-            private const int BlockSize = 4096;
+            [NotNull]
+            [ItemNotNull]
+            public readonly Lazy<SafeFileHandle> LazyHandle =
+                new Lazy<SafeFileHandle>(() => new SafeFileHandle((IntPtr)(-2), true),
+                    LazyThreadSafetyMode.ExecutionAndPublication);
 
-            private long position;
-            private bool hasAccessed;
-            private bool hasUpdated;
+            private readonly bool notifyTracker;
+
+            private long absolutePosition;
+            private FileAccessKinds accessKinds = FileAccessKinds.None;
+            private readonly FileAccess fileAccess;
             private bool isClosed;
 
             [CanBeNull]
@@ -243,52 +258,66 @@ namespace TestableFileSystem.Fakes
             [CanBeNull]
             private long? newLength;
 
-            public override bool CanRead { get; }
+            public override bool CanRead => fileAccess.HasFlag(FileAccess.Read) && !isClosed;
 
-            public override bool CanSeek => true;
+            public override bool CanWrite => fileAccess.HasFlag(FileAccess.Write) && !isClosed;
 
-            public override bool CanWrite { get; }
+            public override bool CanSeek => !isClosed;
 
-            public override long Length => newLength ?? owner.Size;
+            public override long Length
+            {
+                get
+                {
+                    AssertNotClosed();
+                    return newLength ?? owner.Size;
+                }
+            }
 
             public override long Position
             {
-                get => position;
+                get
+                {
+                    AssertNotClosed();
+                    return absolutePosition;
+                }
                 set
                 {
                     AssertNotClosed();
-
-                    if (value < 0)
-                    {
-                        throw new ArgumentOutOfRangeException(nameof(value));
-                    }
+                    AssertIsNotNegative(value, nameof(value));
 
                     if (appendOffset != null && value < appendOffset)
                     {
                         throw ErrorFactory.System.CannotSeekToPositionBeforeAppend();
                     }
 
-                    if (value > Length)
-                    {
-                        SetLength(value);
-                    }
-
-                    position = value;
+                    absolutePosition = value;
                 }
             }
 
-            public FakeFileStream([NotNull] FileEntry owner, FileAccess access)
+            public FakeFileStream([NotNull] FileEntry owner, FileAccess access, bool notifyTracker)
             {
                 Guard.NotNull(owner, nameof(owner));
 
                 this.owner = owner;
-                CanRead = access.HasFlag(FileAccess.Read);
-                CanWrite = access.HasFlag(FileAccess.Write);
+                fileAccess = access;
+                this.notifyTracker = notifyTracker;
+            }
+
+            [NotNull]
+            public SafeFileHandle GetSafeFileHandle()
+            {
+                AssertNotClosed();
+                return LazyHandle.Value;
             }
 
             public void SetAppendOffsetToCurrentPosition()
             {
                 appendOffset = Position;
+            }
+
+            public void EnableAccessKinds(FileAccessKinds kinds)
+            {
+                accessKinds |= kinds;
             }
 
             public override void Flush()
@@ -302,6 +331,7 @@ namespace TestableFileSystem.Fakes
                 switch (origin)
                 {
                     case SeekOrigin.Begin:
+                    {
                         if (offset < 0)
                         {
                             throw new ArgumentOutOfRangeException(nameof(offset));
@@ -309,8 +339,9 @@ namespace TestableFileSystem.Fakes
 
                         Position = offset;
                         break;
-
+                    }
                     case SeekOrigin.Current:
+                    {
                         if (Position + offset < 0)
                         {
                             throw new ArgumentOutOfRangeException(nameof(offset));
@@ -318,8 +349,9 @@ namespace TestableFileSystem.Fakes
 
                         Position += offset;
                         break;
-
+                    }
                     case SeekOrigin.End:
+                    {
                         if (Length + offset < 0)
                         {
                             throw new ArgumentOutOfRangeException(nameof(offset));
@@ -327,8 +359,11 @@ namespace TestableFileSystem.Fakes
 
                         Position = Length + offset;
                         break;
+                    }
                     default:
+                    {
                         throw ErrorFactory.Internal.EnumValueUnsupported(origin);
+                    }
                 }
 
                 return Position;
@@ -336,8 +371,9 @@ namespace TestableFileSystem.Fakes
 
             public override void SetLength(long value)
             {
+                AssertIsNotNegative(value, nameof(value));
                 AssertNotClosed();
-                AssertIsWriteable();
+                AssertIsWritable();
 
                 if (value == Length)
                 {
@@ -351,8 +387,6 @@ namespace TestableFileSystem.Fakes
                 {
                     Position = Length;
                 }
-
-                hasUpdated = true;
             }
 
             public override int Read(byte[] buffer, int offset, int count)
@@ -361,41 +395,46 @@ namespace TestableFileSystem.Fakes
                 AssertIsReadable();
 
                 var segment = new ArraySegment<byte>(buffer, offset, count);
-                if (segment.Count == 0 || Position == Length)
+                if (segment.Count == 0 || Position >= Length)
                 {
                     return 0;
                 }
 
-                int sumBytesRead = 0;
-
-                int blockIndex = (int)(Position / BlockSize);
-                int offsetInCurrentBlock = (int)(Position % BlockSize);
-
-                while (count > 0 && Position < Length)
+                lock (owner.readerWriterLock)
                 {
-                    int bytesToRead = Math.Min(BlockSize - offsetInCurrentBlock, count);
-                    bytesToRead = Math.Min(bytesToRead, (int)(Length - Position));
+                    UnsafeAssertRangeNotLocked(Position + offset, count);
 
-                    Buffer.BlockCopy(owner.blocks[blockIndex], offsetInCurrentBlock, buffer, offset, bytesToRead);
+                    int sumBytesRead = 0;
 
-                    offset += bytesToRead;
-                    count -= bytesToRead;
+                    int blockIndex = (int)(Position / BlockSize);
+                    int offsetInCurrentBlock = (int)(Position % BlockSize);
 
-                    Position += bytesToRead;
-                    sumBytesRead += bytesToRead;
+                    while (count > 0 && Position < Length)
+                    {
+                        int bytesToRead = Math.Min(BlockSize - offsetInCurrentBlock, count);
+                        bytesToRead = Math.Min(bytesToRead, (int)(Length - Position));
 
-                    blockIndex++;
-                    offsetInCurrentBlock = 0;
+                        Buffer.BlockCopy(owner.blocks[blockIndex], offsetInCurrentBlock, buffer, offset, bytesToRead);
+
+                        offset += bytesToRead;
+                        count -= bytesToRead;
+
+                        Position += bytesToRead;
+                        sumBytesRead += bytesToRead;
+
+                        blockIndex++;
+                        offsetInCurrentBlock = 0;
+                    }
+
+                    accessKinds |= FileAccessKinds.Read;
+                    return sumBytesRead;
                 }
-
-                hasAccessed = true;
-                return sumBytesRead;
             }
 
             public override void Write(byte[] buffer, int offset, int count)
             {
                 AssertNotClosed();
-                AssertIsWriteable();
+                AssertIsWritable();
 
                 var segment = new ArraySegment<byte>(buffer, offset, count);
                 if (segment.Count == 0)
@@ -408,8 +447,6 @@ namespace TestableFileSystem.Fakes
                 int blockIndex = (int)(Position / BlockSize);
                 int bytesFreeInCurrentBlock = BlockSize - (int)(Position % BlockSize);
 
-                long newPosition = position;
-
                 while (count > 0)
                 {
                     int bytesToWrite = Math.Min(bytesFreeInCurrentBlock, count);
@@ -420,18 +457,30 @@ namespace TestableFileSystem.Fakes
                     offset += bytesToWrite;
                     count -= bytesToWrite;
 
-                    newPosition += bytesToWrite;
+                    Position += bytesToWrite;
 
                     blockIndex++;
                     bytesFreeInCurrentBlock = BlockSize;
                 }
 
-                Position = newPosition;
-                hasUpdated = true;
+                if (Position > Length)
+                {
+                    newLength = Position;
+                }
+
+                accessKinds |= FileAccessKinds.WriteRead;
             }
 
             private void EnsureCapacity(long bytesNeeded)
             {
+                if (Length != bytesNeeded)
+                {
+                    if (!owner.Parent.Root.TryAllocateSpace(bytesNeeded - Length))
+                    {
+                        throw ErrorFactory.System.NotEnoughSpaceOnDisk();
+                    }
+                }
+
                 long bytesAvailable = owner.blocks.Count * BlockSize;
                 while (bytesAvailable < bytesNeeded)
                 {
@@ -448,20 +497,23 @@ namespace TestableFileSystem.Fakes
                     {
                         isClosed = true;
 
-                        if (newLength != null)
+                        if (newLength != null && newLength.Value != owner.Size)
                         {
                             owner.Size = newLength.Value;
+                            accessKinds |= FileAccessKinds.Resize;
                         }
 
-                        if (hasUpdated)
+                        if (accessKinds != FileAccessKinds.None)
                         {
-                            owner.HandleFileChanged();
-                        }
-                        else if (hasAccessed)
-                        {
-                            owner.HandleFileAccessed();
+                            owner.HandleFileContentsAccessed(accessKinds, notifyTracker);
                         }
 
+                        if (LazyHandle.IsValueCreated)
+                        {
+                            LazyHandle.Value.Dispose();
+                        }
+
+                        owner.lockTracker.Release(this);
                         owner.CloseStream(this);
                     }
                 }
@@ -485,11 +537,161 @@ namespace TestableFileSystem.Fakes
                 }
             }
 
-            private void AssertIsWriteable()
+            private void AssertIsWritable()
             {
                 if (!CanWrite)
                 {
                     throw new NotSupportedException("Stream does not support writing.");
+                }
+            }
+
+            [AssertionMethod]
+            private void AssertIsNotNegative(long value, [NotNull] [InvokerParameterName] string paramName)
+            {
+                if (value < 0L)
+                {
+                    throw new ArgumentOutOfRangeException(paramName, "Non-negative number required.");
+                }
+            }
+
+            private void UnsafeAssertRangeNotLocked(long offset, long count)
+            {
+                if (owner.lockTracker.UnsafeIsLocked(offset, count, this))
+                {
+                    throw ErrorFactory.System.CannotAccessFileProcessHasLocked();
+                }
+            }
+
+            public void Lock(long position, long length)
+            {
+                AssertNotClosed();
+                AssertIsNotNegative(position, nameof(position));
+                AssertIsNotNegative(length, nameof(length));
+
+                owner.lockTracker.Add(position, length, this);
+            }
+
+            public void Unlock(long position, long length)
+            {
+                AssertNotClosed();
+                AssertIsNotNegative(position, nameof(position));
+                AssertIsNotNegative(length, nameof(length));
+
+                owner.lockTracker.Remove(position, length, this);
+            }
+        }
+
+        [DebuggerDisplay("{GetPath().GetText()}")]
+        private sealed class FileEntryPathFormatter : IPathFormatter
+        {
+            [NotNull]
+            private readonly FileEntry fileEntry;
+
+            public FileEntryPathFormatter([NotNull] FileEntry fileEntry)
+            {
+                Guard.NotNull(fileEntry, nameof(fileEntry));
+                this.fileEntry = fileEntry;
+            }
+
+            public AbsolutePath GetPath()
+            {
+                AbsolutePath parentDirectoryPath = fileEntry.Parent.PathFormatter.GetPath();
+                AbsolutePath filePath = parentDirectoryPath.Append(fileEntry.Name);
+                return filePath;
+            }
+        }
+
+        private sealed class LockTracker
+        {
+            [NotNull]
+            private readonly FileEntry owner;
+
+            [NotNull]
+            [ItemNotNull]
+            private readonly List<LockRange> rangesLocked = new List<LockRange>();
+
+            public LockTracker([NotNull] FileEntry owner)
+            {
+                Guard.NotNull(owner, nameof(owner));
+                this.owner = owner;
+            }
+
+            public bool UnsafeIsLocked(long position, long length, [NotNull] FakeFileStream stream)
+            {
+                Guard.NotNull(stream, nameof(stream));
+
+                return rangesLocked.Where(x => x.Owner != stream).Any(range => range.IntersectsWith(position, length));
+            }
+
+            public void Add(long position, long length, [NotNull] FakeFileStream stream)
+            {
+                Guard.NotNull(owner, nameof(owner));
+
+                lock (owner.readerWriterLock)
+                {
+                    if (rangesLocked.Any(range => range.IntersectsWith(position, length)))
+                    {
+                        throw ErrorFactory.System.CannotAccessFileProcessHasLocked();
+                    }
+
+                    rangesLocked.Add(new LockRange(position, length, stream));
+                }
+            }
+
+            public void Remove(long position, long length, [NotNull] FakeFileStream stream)
+            {
+                Guard.NotNull(stream, nameof(stream));
+
+                lock (owner.readerWriterLock)
+                {
+                    for (int index = rangesLocked.Count - 1; index >= 0; index--)
+                    {
+                        LockRange range = rangesLocked[index];
+                        if (range.Position == position && range.Length == length && range.Owner == stream)
+                        {
+                            rangesLocked.RemoveAt(index);
+                            return;
+                        }
+                    }
+                }
+
+                throw ErrorFactory.System.SegmentIsAlreadyUnlocked();
+            }
+
+            public void Release([NotNull] FakeFileStream stream)
+            {
+                Guard.NotNull(stream, nameof(stream));
+
+                lock (owner.readerWriterLock)
+                {
+                    for (int index = rangesLocked.Count - 1; index >= 0; index--)
+                    {
+                        if (rangesLocked[index].Owner == stream)
+                        {
+                            rangesLocked.RemoveAt(index);
+                        }
+                    }
+                }
+            }
+
+            private sealed class LockRange
+            {
+                public long Position { get; }
+                public long Length { get; }
+
+                [NotNull]
+                public FakeFileStream Owner { get; }
+
+                public LockRange(long position, long length, [NotNull] FakeFileStream owner)
+                {
+                    Position = position;
+                    Length = length;
+                    Owner = owner;
+                }
+
+                public bool IntersectsWith(long position, long length)
+                {
+                    return Position + Length > position && position + length > Position;
                 }
             }
         }

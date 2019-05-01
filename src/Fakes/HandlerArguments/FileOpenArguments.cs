@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.HandlerArguments
 {
@@ -14,13 +14,17 @@ namespace TestableFileSystem.Fakes.HandlerArguments
         [CanBeNull]
         public FileAccess? Access { get; }
 
-        public FileOpenArguments([NotNull] AbsolutePath path, FileMode mode, [CanBeNull] FileAccess? access)
+        public FileOptions CreateOptions { get; }
+
+        public FileOpenArguments([NotNull] AbsolutePath path, FileMode mode, [CanBeNull] FileAccess? access,
+            FileOptions createOptions)
         {
             Guard.NotNull(path, nameof(path));
 
             Path = path;
             Mode = mode;
             Access = access;
+            CreateOptions = createOptions;
         }
     }
 }

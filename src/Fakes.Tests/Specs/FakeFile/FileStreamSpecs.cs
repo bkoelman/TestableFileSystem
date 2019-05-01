@@ -1,8 +1,12 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using JetBrains.Annotations;
+using Microsoft.Win32.SafeHandles;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -11,6 +15,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileStreamSpecs
     {
+        private const int LockBlockSize = 4096;
+        private static readonly TimeSpan MaxTestDuration = TimeSpan.FromSeconds(1);
+
         [Fact]
         private void When_requesting_stream_for_new_file_it_must_succeed()
         {
@@ -28,10 +35,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.CanRead.Should().BeTrue();
                 stream.CanSeek.Should().BeTrue();
                 stream.CanWrite.Should().BeTrue();
+                stream.CanTimeout.Should().BeFalse();
                 stream.Name.Should().Be(path);
                 stream.Length.Should().Be(0);
                 stream.Position.Should().Be(0);
                 stream.IsAsync.Should().BeFalse();
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
             }
         }
 
@@ -57,6 +69,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(4);
                 stream.Position.Should().Be(0);
                 stream.IsAsync.Should().BeFalse();
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
             }
         }
 
@@ -82,6 +98,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(4);
                 stream.Position.Should().Be(4);
                 stream.IsAsync.Should().BeFalse();
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
             }
         }
 
@@ -107,6 +127,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(0);
                 stream.Position.Should().Be(0);
                 stream.IsAsync.Should().BeFalse();
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
             }
         }
 
@@ -122,7 +146,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Create(path))
             {
                 // Act
-                stream.Write(new byte[] { 0xAA }, 0, 0);
+                stream.Write(BufferFactory.SingleByte(0xAA), 0, 0);
 
                 // Assert
                 stream.Length.Should().Be(0);
@@ -183,6 +207,162 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_writing_large_buffer_with_offset_to_file_using_Seek_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            const int size = 4096 * 16;
+            byte[] writeBuffer = CreateBuffer(size);
+            const int offset = 5;
+
+            using (IFileStream stream = fileSystem.File.Create(path, 2048))
+            {
+                stream.Seek(offset, SeekOrigin.Begin);
+
+                // Act
+                stream.Write(writeBuffer, 0, writeBuffer.Length);
+
+                // Assert
+                stream.Length.Should().Be(size + offset);
+                stream.Position.Should().Be(size + offset);
+            }
+
+            byte[] contents = fileSystem.File.ReadAllBytes(path).Skip(offset).ToArray();
+            contents.SequenceEqual(writeBuffer).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_writing_large_buffer_with_offset_to_file_using_Position_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            const int size = 4096 * 16;
+            byte[] writeBuffer = CreateBuffer(size);
+            const int offset = 5;
+
+            using (IFileStream stream = fileSystem.File.Create(path, 2048))
+            {
+                stream.Position = offset;
+
+                // Act
+                stream.Write(writeBuffer, 0, writeBuffer.Length);
+
+                // Assert
+                stream.Length.Should().Be(size + offset);
+                stream.Position.Should().Be(size + offset);
+            }
+
+            byte[] contents = fileSystem.File.ReadAllBytes(path).Skip(offset).ToArray();
+            contents.SequenceEqual(writeBuffer).Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_async_writing_buffer_to_file_using_TPL_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            byte[] buffer = Encoding.ASCII.GetBytes(content);
+            bool hasCompleted;
+
+            using (IFileStream stream = fileSystem.File.Create(path))
+            {
+                // Act
+                Task task = stream.WriteAsync(buffer, 0, buffer.Length);
+                hasCompleted = task.Wait(MaxTestDuration);
+            }
+
+            // Assert
+            hasCompleted.Should().BeTrue();
+            fileSystem.File.ReadAllText(path).Should().Be(content);
+        }
+
+#if !NETCOREAPP1_1
+        [Fact]
+        private void When_async_writing_buffer_to_file_using_APM_without_callback_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            byte[] buffer = Encoding.ASCII.GetBytes(content);
+            IAsyncResult asyncResult;
+
+            using (IFileStream stream = fileSystem.File.Create(path))
+            {
+                // Act
+                asyncResult = stream.BeginWrite(buffer, 0, buffer.Length, null, null);
+                stream.EndWrite(asyncResult);
+            }
+
+            // Assert
+            asyncResult.IsCompleted.Should().BeTrue();
+            fileSystem.File.ReadAllText(path).Should().Be(content);
+        }
+
+        [Fact]
+        private void When_async_writing_buffer_to_file_using_APM_with_callback_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            byte[] buffer = Encoding.ASCII.GetBytes(content);
+            IAsyncResult outerAsyncResult;
+            Exception error = null;
+            var completionWaitHandle = new ManualResetEventSlim(false);
+            bool wasSignaled;
+
+            using (IFileStream stream = fileSystem.File.Create(path))
+            {
+                // Act
+                outerAsyncResult = stream.BeginWrite(buffer, 0, buffer.Length, WriteCompleted, null);
+
+                void WriteCompleted(IAsyncResult innerAsyncResult)
+                {
+                    try
+                    {
+                        // ReSharper disable once AccessToDisposedClosure
+                        stream.EndWrite(innerAsyncResult);
+                    }
+                    catch (Exception exception)
+                    {
+                        error = exception;
+                    }
+
+                    completionWaitHandle.Set();
+                }
+
+                wasSignaled = completionWaitHandle.Wait(MaxTestDuration);
+            }
+
+            // Assert
+            wasSignaled.Should().BeTrue();
+            outerAsyncResult.IsCompleted.Should().BeTrue();
+            error.Should().BeNull();
+            fileSystem.File.ReadAllText(path).Should().Be(content);
+        }
+#endif
+
+        [Fact]
         private void When_reading_small_buffer_from_file_it_must_succeed()
         {
             // Arrange
@@ -236,6 +416,138 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_reading_large_buffer_with_offset_from_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            const int size = 4096 * 16;
+            byte[] contents = CreateBuffer(size);
+            const int offset = 5;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, contents)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                stream.Seek(offset, SeekOrigin.Begin);
+
+                var buffer = new byte[size * 2];
+
+                // Act
+                int numBytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                // Assert
+                stream.Length.Should().Be(size);
+                stream.Position.Should().Be(size);
+
+                numBytesRead.Should().Be(size - offset);
+                buffer.Take(size - offset).SequenceEqual(contents.Skip(offset)).Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        private void When_async_reading_buffer_from_file_using_TPL_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, content)
+                .Build();
+
+            var buffer = new byte[1024];
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                // Act
+                Task<int> task = stream.ReadAsync(buffer, 0, buffer.Length);
+                int numBytesRead = task.Result;
+
+                // Assert
+                numBytesRead.Should().Be(content.Length);
+                new string(Encoding.ASCII.GetChars(buffer, 0, numBytesRead)).Should().Be(content);
+            }
+        }
+
+#if !NETCOREAPP1_1
+        [Fact]
+        private void When_async_reading_buffer_from_file_using_APM_without_callback_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, content)
+                .Build();
+
+            var buffer = new byte[1024];
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                // Act
+                IAsyncResult asyncResult = stream.BeginRead(buffer, 0, buffer.Length, null, null);
+                int numBytesRead = stream.EndRead(asyncResult);
+
+                // Assert
+                asyncResult.IsCompleted.Should().BeTrue();
+                numBytesRead.Should().Be(content.Length);
+                new string(Encoding.ASCII.GetChars(buffer, 0, numBytesRead)).Should().Be(content);
+            }
+        }
+
+        [Fact]
+        private void When_async_reading_buffer_from_file_using_APM_with_callback_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string content = "Some-file-contents";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, content)
+                .Build();
+
+            var buffer = new byte[1024];
+            int numBytesRead = -1;
+            Exception error = null;
+            var completionWaitHandle = new ManualResetEventSlim(false);
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                // Act
+                IAsyncResult outerAsyncResult = stream.BeginRead(buffer, 0, buffer.Length, ReadCompleted, null);
+
+                void ReadCompleted(IAsyncResult innerAsyncResult)
+                {
+                    try
+                    {
+                        // ReSharper disable once AccessToDisposedClosure
+                        numBytesRead = stream.EndRead(innerAsyncResult);
+                    }
+                    catch (Exception exception)
+                    {
+                        error = exception;
+                    }
+
+                    completionWaitHandle.Set();
+                }
+
+                bool wasSignaled = completionWaitHandle.Wait(MaxTestDuration);
+
+                // Assert
+                wasSignaled.Should().BeTrue();
+                outerAsyncResult.IsCompleted.Should().BeTrue();
+                error.Should().BeNull();
+                numBytesRead.Should().Be(content.Length);
+                new string(Encoding.ASCII.GetChars(buffer, 0, numBytesRead)).Should().Be(content);
+            }
+        }
+#endif
+
+        [Fact]
         private void When_appending_small_buffer_to_file_it_must_succeed()
         {
             // Arrange
@@ -284,7 +596,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-1, SeekOrigin.Begin);
 
                 // Assert
-                action.ShouldThrow<ArgumentOutOfRangeException>();
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>();
             }
         }
 
@@ -307,7 +619,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-3, SeekOrigin.Current);
 
                 // Assert
-                action.ShouldThrow<ArgumentOutOfRangeException>();
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>();
             }
         }
 
@@ -328,12 +640,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-4, SeekOrigin.End);
 
                 // Assert
-                action.ShouldThrow<ArgumentOutOfRangeException>();
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>();
             }
         }
 
         [Fact]
-        private void When_seeking_from_begin_to_past_end_it_must_add_extra_zero_bytes()
+        private void When_seeking_from_begin_to_past_end_it_must_not_change_length()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -346,18 +658,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
             {
                 // Act
-                stream.Seek(data.Length + 10, SeekOrigin.Begin);
+                stream.Seek(13, SeekOrigin.Begin);
 
                 // Assert
-                stream.Length.Should().Be(data.Length + 10);
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
             }
 
-            string contents = fileSystem.File.ReadAllText(path);
-            contents.Substring(data.Length).Should().Be(new string('\0', 10));
+            fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
         [Fact]
-        private void When_seeking_from_current_to_past_end_it_must_add_extra_zero_bytes()
+        private void When_seeking_from_current_to_past_end_it_must_not_change_length()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -375,15 +687,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Seek(2 + 10, SeekOrigin.Current);
 
                 // Assert
-                stream.Length.Should().Be(data.Length + 10);
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
             }
 
-            string contents = fileSystem.File.ReadAllText(path);
-            contents.Substring(data.Length).Should().Be(new string('\0', 10));
+            fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
         [Fact]
-        private void When_seeking_from_end_to_past_end_it_must_add_extra_zero_bytes()
+        private void When_seeking_from_end_to_past_end_it_must_not_change_length()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -399,15 +711,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Seek(10, SeekOrigin.End);
 
                 // Assert
-                stream.Length.Should().Be(data.Length + 10);
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
             }
 
-            string contents = fileSystem.File.ReadAllText(path);
-            contents.Substring(data.Length).Should().Be(new string('\0', 10));
+            fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
         [Fact]
-        private void When_seeking_from_end_to_past_end_of_readonly_stream_it_must_fail()
+        private void When_seeking_from_end_to_past_end_of_readonly_stream_it_must_not_change_length()
         {
             // Arrange
             const string path = @"C:\file.txt";
@@ -419,11 +731,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
             {
                 // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => stream.Seek(10, SeekOrigin.End);
+                stream.Seek(10, SeekOrigin.End);
 
                 // Assert
-                action.ShouldThrow<NotSupportedException>();
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
             }
         }
 
@@ -444,9 +756,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(-1, SeekOrigin.Current);
 
                 // Assert
-                action.ShouldThrow<IOException>()
-                    .WithMessage(
-                        "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
             }
         }
 
@@ -467,8 +778,163 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Position = -1;
 
                 // Assert
-                action.ShouldThrow<ArgumentOutOfRangeException>()
-                    .WithMessage("Specified argument was out of the range of valid values.*");
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+            }
+        }
+
+        [Fact]
+        private void When_setting_position_to_past_end_it_must_not_change_length()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string data = "ABC";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, data)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
+            {
+                // Act
+                stream.Position = 13;
+
+                // Assert
+                stream.Position.Should().Be(13);
+                stream.Length.Should().Be(3);
+            }
+
+            fileSystem.File.ReadAllText(path).Should().Be(data);
+        }
+
+        [Fact]
+        private void When_setting_position_to_before_end_in_stream_opened_in_Append_mode_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Append))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Position = 1;
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "Unable seek backward to overwrite data that previously existed in a file opened in Append mode.");
+            }
+        }
+
+        [Fact]
+        private void When_setting_position_in_closed_stream_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                stream.Dispose();
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Position = 1;
+
+                // Assert
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+            }
+        }
+
+        [Fact]
+        private void When_reading_past_end_of_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string data = "ABC";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, data)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                stream.Seek(50, SeekOrigin.Begin);
+
+                // Act
+                int count = stream.Read(new byte[1024], 0, 1024);
+
+                // Assert
+                count.Should().Be(0);
+
+                stream.Position.Should().Be(50);
+            }
+        }
+
+        [Fact]
+        private void When_writing_past_end_of_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+            const string data = "ABC";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, data)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
+            {
+                stream.Seek(50, SeekOrigin.Begin);
+
+                byte[] buffer =
+                {
+                    0x11,
+                    0x22,
+                    0x33
+                };
+
+                // Act
+                stream.Write(buffer, 0, buffer.Length);
+
+                // Assert
+                stream.Position.Should().Be(53);
+                stream.Length.Should().Be(53);
+            }
+
+            var expectedContents = new byte[53];
+            expectedContents[0] = (byte)'A';
+            expectedContents[1] = (byte)'B';
+            expectedContents[2] = (byte)'C';
+            expectedContents[50] = 0x11;
+            expectedContents[51] = 0x22;
+            expectedContents[52] = 0x33;
+
+            fileSystem.File.ReadAllBytes(path).Should().BeEquivalentTo(expectedContents);
+        }
+
+        [Fact]
+        private void When_setting_length_to_negative_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "ABC")
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.SetLength(-1);
+
+                // Assert
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
             }
         }
 
@@ -517,7 +983,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Seek(0, SeekOrigin.Begin);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -540,7 +1006,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.SetLength(2);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -556,7 +1022,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
             {
+#if !NETCOREAPP1_1
+                stream.Close();
+#else
                 stream.Dispose();
+#endif
 
                 var buffer = new byte[50];
 
@@ -565,7 +1035,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.Read(buffer, 0, buffer.Length);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -581,14 +1051,59 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.ReadWrite))
             {
+#if !NETCOREAPP1_1
+                stream.Close();
+#else
                 stream.Dispose();
+#endif
 
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
-                Action action = () => stream.Write(new byte[] { 0xFF }, 0, 1);
+                Action action = () => stream.Write(BufferFactory.SingleByte(0xFF), 0, 1);
 
                 // Assert
-                action.ShouldThrow<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+            }
+        }
+
+        [Fact]
+        private void When_getting_properties_of_closed_stream_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open))
+            {
+                // Act
+                stream.Dispose();
+
+                // Assert
+                stream.CanRead.Should().BeFalse();
+                stream.CanSeek.Should().BeFalse();
+                stream.CanWrite.Should().BeFalse();
+                stream.CanTimeout.Should().BeFalse();
+                stream.IsAsync.Should().BeFalse();
+                stream.Name.Should().Be(path);
+                ActionFactory.IgnoreReturnValue(() => stream.ReadTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+                ActionFactory.IgnoreReturnValue(() => stream.WriteTimeout).Should().ThrowExactly<InvalidOperationException>()
+                    .WithMessage("Timeouts are not supported on this stream.");
+#if !NETCOREAPP1_1
+#pragma warning disable 618 // CS0618: 'IFileStream.Handle' is obsolete
+                ActionFactory.IgnoreReturnValue(() => stream.Handle).Should().ThrowExactly<ObjectDisposedException>()
+                    .WithMessage("Cannot access a closed file.");
+#pragma warning restore 618
+#endif
+                ActionFactory.IgnoreReturnValue(() => stream.SafeFileHandle).Should().ThrowExactly<ObjectDisposedException>()
+                    .WithMessage("Cannot access a closed file.");
+                ActionFactory.IgnoreReturnValue(() => stream.Length).Should().ThrowExactly<ObjectDisposedException>()
+                    .WithMessage("Cannot access a closed file.");
+                ActionFactory.IgnoreReturnValue(() => stream.Position).Should().ThrowExactly<ObjectDisposedException>()
+                    .WithMessage("Cannot access a closed file.");
             }
         }
 
@@ -606,10 +1121,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             {
                 // Act
                 // ReSharper disable once AccessToDisposedClosure
-                Action action = () => stream.Write(new byte[] { 0xFF }, 0, 1);
+                Action action = () => stream.Write(BufferFactory.SingleByte(0xFF), 0, 1);
 
                 // Assert
-                action.ShouldThrow<NotSupportedException>().WithMessage("Stream does not support writing.");
+                action.Should().ThrowExactly<NotSupportedException>().WithMessage("Stream does not support writing.");
             }
         }
 
@@ -630,7 +1145,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => stream.ReadByte();
 
                 // Assert
-                action.ShouldThrow<NotSupportedException>().WithMessage("Stream does not support reading.");
+                action.Should().ThrowExactly<NotSupportedException>().WithMessage("Stream does not support reading.");
             }
         }
 
@@ -650,7 +1165,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Read);
 
                 // Assert
-                action.ShouldThrow<IOException>().WithMessage(
+                action.Should().ThrowExactly<IOException>().WithMessage(
                     @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
             }
         }
@@ -673,10 +1188,854 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                     Action action = () => fileSystem.File.Open(path, FileMode.Open, FileAccess.Write);
 
                     // Assert
-                    action.ShouldThrow<IOException>().WithMessage(
+                    action.Should().ThrowExactly<IOException>().WithMessage(
                         @"The process cannot access the file 'C:\some\sheet.xls' because it is being used by another process.");
                 }
             }
+        }
+
+#if !NETCOREAPP1_1
+        [Fact]
+        private void When_locking_for_negative_position_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Lock(-1, LockBlockSize);
+
+                // Assert
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+            }
+        }
+
+        [Fact]
+        private void When_unlocking_for_negative_position_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Unlock(-1, LockBlockSize);
+
+                // Assert
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+            }
+        }
+
+        [Fact]
+        private void When_locking_for_negative_length_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Lock(0, -1);
+
+                // Assert
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+            }
+        }
+
+        [Fact]
+        private void When_unlocking_for_negative_length_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Unlock(0, -1);
+
+                // Assert
+                action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Non-negative number required.*");
+            }
+        }
+
+        [Fact]
+        private void When_locking_in_closed_stream_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                stream.Dispose();
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Lock(0, 1024);
+
+                // Assert
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+            }
+        }
+
+        [Fact]
+        private void When_unlocking_in_closed_stream_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.Open(path, FileMode.Open, FileAccess.Read))
+            {
+                stream.Dispose();
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Unlock(0, 1024);
+
+                // Assert
+                action.Should().ThrowExactly<ObjectDisposedException>().WithMessage("Cannot access a closed file.");
+            }
+        }
+
+        [Fact]
+        private void When_internally_reading_from_locked_range_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                stream.Lock(LockBlockSize * 1, LockBlockSize);
+
+                using (var reader = new StreamReader(stream.AsStream()))
+                {
+                    // Act
+                    reader.ReadToEnd();
+                }
+            }
+        }
+
+        [Fact]
+        private void When_internally_writing_to_locked_range_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            byte[] buffer = CreateBuffer(8192);
+            using (IFileStream stream = fileSystem.File.OpenWrite(path))
+            {
+                stream.Lock(0, LockBlockSize);
+
+                // Act
+                stream.Write(buffer, 0, buffer.Length);
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_before_locked_range_it_must_succeed()
+        {
+            // block number 01234567
+            // outer range      **
+            // inner range   **
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize * 4, LockBlockSize * 2);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize * 2];
+
+                    // Act
+                    innerStream.Read(buffer, 0, buffer.Length);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_left_adjacent_to_locked_range_it_must_succeed()
+        {
+            // block number 01234567
+            // outer range     ***
+            // inner range   **
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize * 3, LockBlockSize * 3);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize * 2];
+
+                    // Act
+                    innerStream.Read(buffer, 0, buffer.Length);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_left_overlapping_with_locked_range_it_must_fail()
+        {
+            // block number 01234567
+            // outer range     ***
+            // inner range   ***
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize * 3, LockBlockSize * 3);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize * 3];
+
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Read(buffer, 0, buffer.Length);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage(
+                        "The process cannot access the file because another process has locked a portion of the file");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_first_block_of_locked_range_it_must_fail()
+        {
+            // block number 01234567
+            // outer range     ***
+            // inner range     *
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize * 3, LockBlockSize * 3);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize * 3, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize];
+
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Read(buffer, 0, buffer.Length);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage(
+                        "The process cannot access the file because another process has locked a portion of the file");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_last_block_of_locked_range_it_must_succeed()
+        {
+            // block number 01234567
+            // outer range    ***
+            // inner range      *
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize * 2, LockBlockSize * 3);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize * 4, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize];
+
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Read(buffer, 0, buffer.Length);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage(
+                        "The process cannot access the file because another process has locked a portion of the file");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_right_overlapping_with_locked_range_it_must_succeed()
+        {
+            // block number 01234567
+            // outer range   ***
+            // inner range     ***
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize, LockBlockSize * 3);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize * 3, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize * 3];
+
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Read(buffer, 0, buffer.Length);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage(
+                        "The process cannot access the file because another process has locked a portion of the file");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_right_adjacent_to_locked_range_it_must_succeed()
+        {
+            // block number 01234567
+            // outer range   ***
+            // inner range      **
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize, LockBlockSize * 3);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize * 4, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize * 2];
+
+                    // Act
+                    innerStream.Read(buffer, 0, buffer.Length);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_after_locked_range_it_must_succeed()
+        {
+            // block number 01234567
+            // outer range   **
+            // inner range      **
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize, LockBlockSize * 2);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize * 4, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize * 2];
+
+                    // Act
+                    innerStream.Read(buffer, 0, buffer.Length);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_subset_of_locked_range_it_must_fail()
+        {
+            // block number 01234567
+            // outer range   ****
+            // inner range    **
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize, LockBlockSize * 4);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize * 2, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize * 2];
+
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Read(buffer, 0, buffer.Length);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage(
+                        "The process cannot access the file because another process has locked a portion of the file");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_reading_superset_of_locked_range_it_must_fail()
+        {
+            // block number 01234567
+            // outer range    **
+            // inner range   ****
+
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize * 2, LockBlockSize * 2);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    innerStream.Seek(LockBlockSize, SeekOrigin.Begin);
+                    var buffer = new byte[LockBlockSize * 4];
+
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Read(buffer, 0, buffer.Length);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage(
+                        "The process cannot access the file because another process has locked a portion of the file");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_closing_stream_with_locks_they_must_be_released()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                stream.Lock(LockBlockSize * 1, LockBlockSize);
+                stream.Lock(LockBlockSize * 3, LockBlockSize * 2);
+            }
+
+            // Act
+            fileSystem.File.ReadAllBytes(path);
+        }
+
+        [Fact]
+        private void When_internally_locking_same_range_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                stream.Lock(0, LockBlockSize);
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Lock(0, LockBlockSize);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "The process cannot access the file because another process has locked a portion of the file");
+            }
+        }
+
+        [Fact]
+        private void When_externally_locking_same_range_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(0, LockBlockSize);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Lock(0, LockBlockSize);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage(
+                        "The process cannot access the file because another process has locked a portion of the file");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_internally_locking_overlapping_range_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                stream.Lock(0, LockBlockSize);
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Lock(1024, LockBlockSize);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    "The process cannot access the file because another process has locked a portion of the file");
+            }
+        }
+
+        [Fact]
+        private void When_externally_locking_overlapping_range_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(0, LockBlockSize);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Lock(1024, LockBlockSize);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage(
+                        "The process cannot access the file because another process has locked a portion of the file");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_internally_locking_non_overlapping_ranges_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                stream.Lock(0, LockBlockSize);
+
+                // Act
+                stream.Lock(LockBlockSize, LockBlockSize);
+                stream.Lock(LockBlockSize * 3, LockBlockSize);
+            }
+        }
+
+        [Fact]
+        private void When_externally_locking_non_overlapping_ranges_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(0, LockBlockSize);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    // Act
+                    innerStream.Lock(LockBlockSize, LockBlockSize);
+                    outerStream.Lock(LockBlockSize * 3, LockBlockSize);
+                }
+            }
+        }
+
+        [Fact]
+        private void When_internally_locking_past_end_of_file_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                // Act
+                stream.Lock(LockBlockSize * 16, LockBlockSize);
+            }
+        }
+
+        [Fact]
+        private void When_internally_unlocking_locked_range_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize, LockBlockSize);
+
+                // Act
+                outerStream.Unlock(LockBlockSize, LockBlockSize);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    using (var reader = new StreamReader(innerStream.AsStream()))
+                    {
+                        reader.ReadToEnd();
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        private void When_externally_unlocking_locked_range_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream outerStream = fileSystem.File.OpenRead(path))
+            {
+                outerStream.Lock(LockBlockSize, LockBlockSize);
+
+                using (IFileStream innerStream = fileSystem.File.OpenRead(path))
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => innerStream.Unlock(LockBlockSize, LockBlockSize);
+
+                    // Assert
+                    action.Should().ThrowExactly<IOException>().WithMessage("The segment is already unlocked");
+                }
+            }
+        }
+
+        [Fact]
+        private void When_internally_unlocking_locked_range_multiple_times_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                stream.Lock(LockBlockSize, LockBlockSize);
+                stream.Unlock(LockBlockSize, LockBlockSize);
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Unlock(LockBlockSize, LockBlockSize);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage("The segment is already unlocked");
+            }
+        }
+
+        [Fact]
+        private void When_internally_unlocking_overlapping_range_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingBinaryFile(path, CreateBuffer(LockBlockSize * 8))
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                stream.Lock(0, LockBlockSize);
+                stream.Lock(LockBlockSize, LockBlockSize);
+
+                // Act
+                // ReSharper disable once AccessToDisposedClosure
+                Action action = () => stream.Unlock(0, LockBlockSize * 2);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage("The segment is already unlocked");
+            }
+        }
+#endif
+
+        [Fact]
+        private void When_getting_handle_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                // Act
+                SafeFileHandle handle = stream.SafeFileHandle;
+
+                // Assert
+                handle.IsInvalid.Should().BeFalse();
+                handle.IsClosed.Should().BeFalse();
+            }
+        }
+
+        [Fact]
+        private void When_closing_handle_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                SafeFileHandle handle = stream.SafeFileHandle;
+
+                // Act
+                handle.Dispose();
+
+                // Assert
+                handle.IsInvalid.Should().BeFalse();
+                handle.IsClosed.Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        private void When_closing_stream_it_must_release_handle()
+        {
+            // Arrange
+            const string path = @"C:\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingEmptyFile(path)
+                .Build();
+
+            SafeFileHandle handle;
+
+            // Act
+            using (IFileStream stream = fileSystem.File.OpenRead(path))
+            {
+                handle = stream.SafeFileHandle;
+            }
+
+            // Assert
+            handle.IsInvalid.Should().BeFalse();
+            handle.IsClosed.Should().BeTrue();
         }
 
         [NotNull]

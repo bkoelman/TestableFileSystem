@@ -1,10 +1,10 @@
 ﻿using System;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Wrappers
 {
-    public static class Utilities
+    internal static class Utilities
     {
         [CanBeNull]
         public static TOut WrapOrNull<TIn, TOut>([CanBeNull] TIn source, [NotNull] Func<TIn, TOut> wrapper)

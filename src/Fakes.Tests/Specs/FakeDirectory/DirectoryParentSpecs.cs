@@ -20,7 +20,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
         [Fact]
@@ -48,25 +48,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
-        private void When_getting_directory_parent_for_invalid_root_it_must_fail()
+        private void When_getting_directory_parent_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetParent("::");
+            Action action = () => fileSystem.Directory.GetParent("_:");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_getting_directory_parent_for_invalid_characters_it_must_fail()
+        private void When_getting_directory_parent_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -76,7 +76,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -121,6 +121,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Assert
             IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
             parentNotNull.FullName.Should().Be(@"f:\some\folder");
+        }
+
+        [Fact]
+        private void When_getting_directory_parent_for_missing_local_path_with_trailing_separator_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IDirectoryInfo parent = fileSystem.Directory.GetParent(@"f:\some\folder\sub\");
+
+            // Assert
+            IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
+            parentNotNull.Name.Should().Be("folder");
+            parentNotNull.FullName.Should().Be(@"f:\some\folder");
+            parentNotNull.ToString().Should().Be(@"f:\some\folder");
         }
 
         [Fact]
@@ -268,7 +285,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetParent("COM1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

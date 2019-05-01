@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -49,25 +49,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
-        private void When_deleting_file_for_invalid_root_it_must_fail()
+        private void When_deleting_file_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Delete("::");
+            Action action = () => fileSystem.File.Delete("_:");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_deleting_file_for_invalid_characters_it_must_fail()
+        private void When_deleting_file_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -146,7 +146,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(path);
 
             // Assert
-            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -163,8 +164,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(path);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\other\file.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\other\file.txt'.");
         }
 
         [Fact]
@@ -183,9 +184,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 Action action = () => fileSystem.File.Delete(path);
 
                 // Assert
-                action.ShouldThrow<IOException>()
-                    .WithMessage(
-                        @"The process cannot access the file 'C:\some\file.txt' because it is being used by another process.");
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    @"The process cannot access the file 'C:\some\file.txt' because it is being used by another process.");
             }
         }
 
@@ -253,7 +253,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(path);
 
             // Assert
-            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\subfolder' is denied.");
         }
 
         [Fact]
@@ -268,8 +269,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(@"c:\some\file.txt\nested.txt");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
         [Fact]
@@ -284,8 +285,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(@"c:\some\file.txt\nested.txt\other.txt");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\other.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt\other.txt'.");
         }
 
         [Fact]
@@ -301,7 +302,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(path);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]

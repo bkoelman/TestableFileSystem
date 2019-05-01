@@ -4,30 +4,33 @@ using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class DirectoryMoveHandler : FakeOperationHandler<EntryMoveArguments, object>
+    internal sealed class DirectoryMoveHandler : FakeOperationHandler<EntryMoveArguments, Missing>
     {
         [NotNull]
         private readonly CurrentDirectoryManager currentDirectoryManager;
 
-        public DirectoryMoveHandler([NotNull] DirectoryEntry root, [NotNull] CurrentDirectoryManager currentDirectoryManager)
-            : base(root)
+        public bool IsFileMoveRequired { get; private set; }
+
+        public DirectoryMoveHandler([NotNull] VolumeContainer container,
+            [NotNull] CurrentDirectoryManager currentDirectoryManager)
+            : base(container)
         {
             Guard.NotNull(currentDirectoryManager, nameof(currentDirectoryManager));
-
             this.currentDirectoryManager = currentDirectoryManager;
         }
 
-        public override object Handle(EntryMoveArguments arguments)
+        public override Missing Handle(EntryMoveArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
             AssertMovingToDifferentDirectoryOnSameVolume(arguments);
             AssertSourceIsNotVolumeRoot(arguments.SourcePath);
 
             BaseEntry sourceFileOrDirectory = ResolveSourceFileOrDirectory(arguments.SourcePath);
+            IsFileMoveRequired = sourceFileOrDirectory is FileEntry;
 
             if (sourceFileOrDirectory is DirectoryEntry sourceDirectory)
             {
@@ -37,17 +40,8 @@ namespace TestableFileSystem.Fakes.Handlers
                 DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
                 AssertDestinationIsNotDescendantOfSource(destinationDirectory, sourceDirectory);
 
-                string newDirectoryName = arguments.DestinationPath.Components.Last();
-                MoveDirectory(sourceDirectory, destinationDirectory, newDirectoryName);
-            }
-            else if (sourceFileOrDirectory is FileEntry sourceFile)
-            {
-                AssertHasExclusiveAccess(sourceFile);
-
-                DirectoryEntry destinationDirectory = ResolveDestinationDirectory(arguments.DestinationPath);
-
-                string newFileName = arguments.DestinationPath.Components.Last();
-                MoveFile(sourceFile, destinationDirectory, newFileName);
+                string destinationDirectoryName = arguments.DestinationPath.Components.Last();
+                MoveDirectory(sourceDirectory, destinationDirectory, destinationDirectoryName, arguments.SourcePath.Formatter);
             }
 
             return Missing.Value;
@@ -61,19 +55,10 @@ namespace TestableFileSystem.Fakes.Handlers
                 throw ErrorFactory.System.DestinationMustBeDifferentFromSource();
             }
 
-            string sourceRoot = GetPathRoot(arguments.SourcePath);
-            string destinationRoot = GetPathRoot(arguments.DestinationPath);
-
-            if (!string.Equals(sourceRoot, destinationRoot, StringComparison.OrdinalIgnoreCase))
+            if (!arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath))
             {
-                throw ErrorFactory.System.RootsMustBeIdentical();
+                throw ErrorFactory.System.VolumesMustBeIdentical();
             }
-        }
-
-        [NotNull]
-        private static string GetPathRoot([NotNull] AbsolutePath path)
-        {
-            return path.GetAncestorPath(0).GetText();
         }
 
         private static void AssertSourceIsNotVolumeRoot([NotNull] AbsolutePath path)
@@ -87,23 +72,25 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private BaseEntry ResolveSourceFileOrDirectory([NotNull] AbsolutePath path)
         {
-            var resolver = new DirectoryResolver(Root)
+            var resolver = new DirectoryResolver(Container)
             {
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound()
             };
+
+            // ReSharper disable once AssignNullToNotNullAttribute
             DirectoryEntry parentDirectory = resolver.ResolveDirectory(path.TryGetParentPath(), path.GetText());
 
             string fileOrDirectoryName = path.Components.Last();
 
-            if (parentDirectory.Directories.ContainsKey(fileOrDirectoryName))
+            if (parentDirectory.ContainsDirectory(fileOrDirectoryName))
             {
-                return parentDirectory.Directories[fileOrDirectoryName];
+                return parentDirectory.GetDirectory(fileOrDirectoryName);
             }
 
-            if (parentDirectory.Files.ContainsKey(fileOrDirectoryName))
+            if (parentDirectory.ContainsFile(fileOrDirectoryName))
             {
-                return parentDirectory.Files[fileOrDirectoryName];
+                return parentDirectory.GetFile(fileOrDirectoryName);
             }
 
             throw ErrorFactory.System.DirectoryNotFound(path.GetText());
@@ -133,7 +120,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             AbsolutePath parentPath = AssertDestinationIsNotVolumeRoot(path);
 
-            var resolver = new DirectoryResolver(Root)
+            var resolver = new DirectoryResolver(Container)
             {
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.ParameterIsIncorrect(),
@@ -159,10 +146,11 @@ namespace TestableFileSystem.Fakes.Handlers
             return parentPath;
         }
 
+        [AssertionMethod]
         private static void AssertDestinationDoesNotExist([NotNull] string directoryName,
             [NotNull] DirectoryEntry parentDirectory)
         {
-            if (parentDirectory.Directories.ContainsKey(directoryName) || parentDirectory.Files.ContainsKey(directoryName))
+            if (parentDirectory.ContainsDirectory(directoryName) || parentDirectory.ContainsFile(directoryName))
             {
                 throw ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists();
             }
@@ -185,26 +173,20 @@ namespace TestableFileSystem.Fakes.Handlers
             while (current != null);
         }
 
-        private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
+        private void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
+            [NotNull] string destinationDirectoryName, [NotNull] IPathFormatter sourcePathFormatter)
         {
-            if (file.IsOpen())
+            if (sourceDirectory.Parent == destinationDirectory)
             {
-                throw ErrorFactory.System.FileIsInUse();
+                sourceDirectory.Parent.RenameDirectory(sourceDirectory.Name, destinationDirectoryName, sourcePathFormatter);
             }
-        }
+            else
+            {
+                Container.ChangeTracker.NotifyContentsAccessed(destinationDirectory.PathFormatter, FileAccessKinds.Read);
 
-        private static void MoveDirectory([NotNull] DirectoryEntry sourceDirectory, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string newDirectoryName)
-        {
-            sourceDirectory.Parent?.DeleteDirectory(sourceDirectory.Name);
-            destinationDirectory.MoveDirectoryToHere(sourceDirectory, newDirectoryName);
-        }
-
-        private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string newFileName)
-        {
-            sourceFile.Parent.DeleteFile(sourceFile.Name);
-            destinationDirectory.MoveFileToHere(sourceFile, newFileName);
+                sourceDirectory.Parent?.DeleteDirectory(sourceDirectory.Name);
+                destinationDirectory.MoveDirectoryToHere(sourceDirectory, destinationDirectoryName);
+            }
         }
     }
 }

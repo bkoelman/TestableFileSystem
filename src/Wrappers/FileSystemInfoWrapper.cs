@@ -2,10 +2,11 @@ using System;
 using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Wrappers
 {
-    public abstract class FileSystemInfoWrapper : IFileSystemInfo
+    internal abstract class FileSystemInfoWrapper : IFileSystemInfo
     {
         [NotNull]
         private readonly FileSystemInfo source;

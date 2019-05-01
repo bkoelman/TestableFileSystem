@@ -1,20 +1,25 @@
+using System;
 using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
+#if !NETSTANDARD1_3
+using System.Runtime.Serialization;
+#endif
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class FileInfoWrapper : FileSystemInfoWrapper, IFileInfo
+#if !NETSTANDARD1_3
+    [Serializable]
+#endif
+    internal sealed class FileInfoWrapper
+        : FileSystemInfoWrapper, IFileInfo
+#if !NETSTANDARD1_3
+            , ISerializable
+#endif
     {
         [NotNull]
         private readonly FileInfo source;
-
-        public FileInfoWrapper([NotNull] FileInfo source)
-            : base(source)
-        {
-            Guard.NotNull(source, nameof(source));
-            this.source = source;
-        }
 
         public long Length => source.Length;
 
@@ -27,6 +32,28 @@ namespace TestableFileSystem.Wrappers
         public string DirectoryName => source.DirectoryName;
 
         public IDirectoryInfo Directory => Utilities.WrapOrNull(source.Directory, x => new DirectoryInfoWrapper(x));
+
+#if !NETSTANDARD1_3
+        private FileInfoWrapper([NotNull] SerializationInfo info, StreamingContext context)
+            : base(GetObjectValue(info))
+        {
+            source = GetObjectValue(info);
+        }
+
+        [NotNull]
+        private static FileInfo GetObjectValue([NotNull] SerializationInfo info)
+        {
+            Guard.NotNull(info, nameof(info));
+            return (FileInfo)info.GetValue("_source", typeof(FileInfo));
+        }
+#endif
+
+        public FileInfoWrapper([NotNull] FileInfo source)
+            : base(source)
+        {
+            Guard.NotNull(source, nameof(source));
+            this.source = source;
+        }
 
         public IFileStream Create()
         {
@@ -47,6 +74,29 @@ namespace TestableFileSystem.Wrappers
         {
             source.MoveTo(destFileName);
         }
+
+#if !NETSTANDARD1_3
+        public void Encrypt()
+        {
+            source.Encrypt();
+        }
+
+        public void Decrypt()
+        {
+            source.Decrypt();
+        }
+
+        public IFileInfo Replace(string destinationFileName, string destinationBackupFileName, bool ignoreMetadataErrors = false)
+        {
+            FileInfo fileInfo = source.Replace(destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
+            return new FileInfoWrapper(fileInfo);
+        }
+
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("_source", source, typeof(FileInfo));
+        }
+#endif
 
         public override string ToString()
         {

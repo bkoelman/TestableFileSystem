@@ -4,14 +4,14 @@ using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class DirectoryEnumerateEntriesHandler : FakeOperationHandler<DirectoryEnumerateEntriesArguments, string[]>
     {
-        public DirectoryEnumerateEntriesHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public DirectoryEnumerateEntriesHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -33,7 +33,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private DirectoryEntry ResolveDirectory([NotNull] AbsolutePath absolutePath)
         {
-            var resolver = new DirectoryResolver(Root)
+            var resolver = new DirectoryResolver(Container)
             {
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNameIsInvalid()
             };
@@ -50,6 +50,8 @@ namespace TestableFileSystem.Fakes.Handlers
 
             if (subPattern == null)
             {
+                Container.ChangeTracker.NotifyContentsAccessed(directory.PathFormatter, FileAccessKinds.Read);
+
                 foreach (BaseEntry entry in directory.EnumerateEntries(filter).Where(x => pattern.IsMatch(x.Name))
                     .OrderBy(x => x.Name))
                 {
@@ -59,7 +61,7 @@ namespace TestableFileSystem.Fakes.Handlers
 
                 if (searchOption == SearchOption.AllDirectories)
                 {
-                    foreach (DirectoryEntry subdirectory in directory.Directories.Values.OrderBy(x => x.Name))
+                    foreach (DirectoryEntry subdirectory in directory.Directories)
                     {
                         AbsolutePath subdirectoryPath = directoryPath.Append(subdirectory.Name);
                         foreach (string nextPath in EnumerateEntriesInDirectory(subdirectory, pattern, subdirectoryPath,
@@ -72,7 +74,7 @@ namespace TestableFileSystem.Fakes.Handlers
             }
             else
             {
-                foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+                foreach (DirectoryEntry subdirectory in directory.Directories)
                 {
                     if (pattern.IsMatch(subdirectory.Name))
                     {

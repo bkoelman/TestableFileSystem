@@ -3,22 +3,22 @@ using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileDeleteHandler : FakeOperationHandler<FileDeleteArguments, object>
+    internal sealed class FileDeleteHandler : FakeOperationHandler<FileDeleteArguments, Missing>
     {
-        public FileDeleteHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileDeleteHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
-        public override object Handle(FileDeleteArguments arguments)
+        public override Missing Handle(FileDeleteArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            var resolver = new FileResolver(Root);
+            var resolver = new FileResolver(Container);
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
             if (resolveResult.ExistingFileOrNull != null)
@@ -29,17 +29,17 @@ namespace TestableFileSystem.Fakes.Handlers
             return Missing.Value;
         }
 
-        private void DeleteFile([NotNull] FileEntry existingFile, [NotNull] DirectoryEntry containingDirectory,
+        private static void DeleteFile([NotNull] FileEntry existingFile, [NotNull] DirectoryEntry containingDirectory,
             [NotNull] FileDeleteArguments arguments)
         {
             AssertIsNotReadOnly(existingFile, arguments.Path);
             AssertHasExclusiveAccess(existingFile, arguments.Path);
 
-            containingDirectory.DeleteFile(existingFile.Name);
+            containingDirectory.DeleteFile(existingFile.Name, true);
         }
 
         [AssertionMethod]
-        private void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        private static void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
         {
             if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
             {

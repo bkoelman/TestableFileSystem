@@ -42,7 +42,7 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception FileOrDirectoryOrVolumeIsIncorrect()
             {
-                return new IOException("The filename, directory name, or volume label syntax is incorrect");
+                return new IOException("The filename, directory name, or volume label syntax is incorrect.");
             }
 
             [NotNull]
@@ -54,7 +54,7 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception NetworkPathNotFound()
             {
-                return new IOException("The network path was not found");
+                return new IOException("The network path was not found.");
             }
 
             [NotNull]
@@ -85,6 +85,12 @@ namespace TestableFileSystem.Fakes
             public static Exception UnauthorizedAccess([NotNull] string path)
             {
                 return new UnauthorizedAccessException($"Access to the path '{path}' is denied.");
+            }
+
+            [NotNull]
+            public static Exception UnauthorizedAccess()
+            {
+                return new UnauthorizedAccessException("Access to the path is denied.");
             }
 
             [NotNull]
@@ -124,9 +130,42 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
+            public static Exception DriveNameMustBeRootOrLetter()
+            {
+                return new ArgumentException(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
+            }
+
+#if !NETSTANDARD1_3
+            [NotNull]
+            public static Exception CouldNotFindDrive([NotNull] string driveName)
+            {
+                return new DriveNotFoundException(
+                    $"Could not find the drive '{driveName}'. The drive might not be ready or might not be mapped.");
+            }
+
+            [NotNull]
+            public static Exception TooManyChangesAtOnce([NotNull] string path)
+            {
+                return new InternalBufferOverflowException($"Too many changes at once in directory:{path}.");
+            }
+#endif
+
+            [NotNull]
             public static Exception DirectoryNameIsInvalid()
             {
                 return new IOException("The directory name is invalid.");
+            }
+
+            [NotNull]
+            public static Exception DirectoryNameIsInvalid([NotNull] string path)
+            {
+                return new ArgumentException($"The directory name {path} is invalid.");
+            }
+
+            [NotNull]
+            public static Exception ErrorReadingTheDirectory([NotNull] string path)
+            {
+                return new FileNotFoundException($"Error reading the {path} directory.");
             }
 
             [NotNull]
@@ -194,7 +233,7 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
-            public static Exception RootsMustBeIdentical()
+            public static Exception VolumesMustBeIdentical()
             {
                 return new IOException(
                     "Source and destination path must have identical roots. Move will not work across volumes.");
@@ -215,8 +254,58 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception DirectoryIsNotASubdirectory([NotNull] string path, [NotNull] string absolutePath)
             {
-                throw new ArgumentException($@"The directory specified, '{path}', is not a subdirectory of '{absolutePath}'.",
+                return new ArgumentException($@"The directory specified, '{path}', is not a subdirectory of '{absolutePath}'.",
                     nameof(path));
+            }
+
+            [NotNull]
+            public static Exception CannotAccessFileProcessHasLocked()
+            {
+                return new IOException(
+                    "The process cannot access the file because another process has locked a portion of the file");
+            }
+
+            [NotNull]
+            public static Exception SegmentIsAlreadyUnlocked()
+            {
+                return new IOException("The segment is already unlocked");
+            }
+
+            [NotNull]
+            public static Exception FileIsReadOnly()
+            {
+                return new IOException("The specified file is read only.");
+            }
+
+            [NotNull]
+            public static Exception FileExists()
+            {
+                return new IOException("The file exists.");
+            }
+
+            [NotNull]
+            public static Exception UnableToRemoveFileToBeReplaced()
+            {
+                return new IOException("Unable to remove the file to be replaced.");
+            }
+
+            [NotNull]
+            public static Exception UnableToMoveReplacementFile()
+            {
+                return new IOException(
+                    "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
+            }
+
+            [NotNull]
+            public static Exception UnableToFindSpecifiedFile()
+            {
+                return new FileNotFoundException("Unable to find the specified file.");
+            }
+
+            [NotNull]
+            public static Exception NotEnoughSpaceOnDisk()
+            {
+                return new IOException("There is not enough space on the disk.");
             }
         }
 
@@ -233,7 +322,7 @@ namespace TestableFileSystem.Fakes
             public static Exception EnumValueUnsupported<TEnum>(TEnum value)
                 where TEnum : struct
             {
-                throw new NotSupportedException($"Unsupported value '{value}' for {typeof(TEnum).Name}.");
+                return new NotSupportedException($"Unsupported value '{value}' for {typeof(TEnum).Name}.");
             }
         }
     }

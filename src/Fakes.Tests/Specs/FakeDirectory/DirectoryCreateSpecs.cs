@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
         [Fact]
@@ -49,25 +49,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
-        private void When_creating_directory_for_invalid_root_it_must_fail()
+        private void When_creating_directory_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.CreateDirectory("::");
+            Action action = () => fileSystem.Directory.CreateDirectory("_:");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_creating_directory_for_invalid_characters_it_must_fail()
+        private void When_creating_directory_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -113,6 +113,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             info.Should().NotBeNull();
+            info.Name.Should().Be("folder");
+            info.FullName.Should().Be(path);
+            info.ToString().Should().Be("folder");
+
+            info.Exists.Should().BeTrue();
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
@@ -128,6 +133,31 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             info.Should().NotBeNull();
+            info.Name.Should().Be("some");
+            info.FullName.Should().Be(@"C:\some");
+            info.ToString().Should().Be("some");
+
+            info.Exists.Should().BeTrue();
+            fileSystem.Directory.Exists(@"C:\some").Should().BeTrue();
+        }
+
+        [Fact]
+        private void When_creating_missing_local_directory_with_trailing_separator_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IDirectoryInfo info = fileSystem.Directory.CreateDirectory(@"C:\some\");
+
+            // Assert
+            info.Should().NotBeNull();
+            info.Name.Should().Be("some");
+            info.FullName.Should().Be(@"C:\some\");
+            info.ToString().Should().Be("");
+
+            info.Exists.Should().BeTrue();
             fileSystem.Directory.Exists(@"C:\some").Should().BeTrue();
         }
 
@@ -180,14 +210,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(drive);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\'.");
         }
 
         [Fact]
         private void When_creating_directory_on_missing_drive_it_must_fail()
         {
             // Arrange
-            const string drive = @"X:\folder";
+            const string drive = @"X:\folder\";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -196,7 +226,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(drive);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\folder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'X:\folder\'.");
         }
 
         [Fact]
@@ -336,8 +367,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(@"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]
@@ -352,8 +383,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"C:\some\file.txt\sub");
 
             // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]
@@ -368,12 +399,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"C:\some\file.txt\sub\deeper");
 
             // Assert
-            action.ShouldThrow<IOException>()
-                .WithMessage(@"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
         [Fact]
-        private void When_creating_only_server_part_of_network_share_it_must_fail()
+        private void When_creating_network_host_without_share_it_must_fail()
         {
             // Arrange
             const string path = @"\\fileserver";
@@ -385,7 +416,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
         [Fact]
@@ -401,8 +432,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(path);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path '\\fileserver\documents'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path '\\fileserver\documents'.");
         }
 
         [Fact]
@@ -416,7 +447,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.CreateDirectory(@"\\server\share\team");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
         [Fact]

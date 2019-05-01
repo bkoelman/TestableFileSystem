@@ -1,21 +1,25 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class FileMoveHandler : FakeOperationHandler<EntryMoveArguments, object>
+    internal sealed class FileMoveHandler : FakeOperationHandler<EntryMoveArguments, Missing>
     {
-        public FileMoveHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public bool IsCopyRequired { get; private set; }
+        public bool IsSourceReadOnly { get; private set; }
+
+        public FileMoveHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
-        public override object Handle(EntryMoveArguments arguments)
+        public override Missing Handle(EntryMoveArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
 
@@ -25,8 +29,14 @@ namespace TestableFileSystem.Fakes.Handlers
             DirectoryEntry destinationDirectory =
                 ResolveDestinationDirectory(arguments.SourcePath, arguments.DestinationPath, sourceFile);
 
-            string newFileName = arguments.DestinationPath.Components.Last();
-            MoveFile(sourceFile, destinationDirectory, newFileName);
+            IsCopyRequired = !arguments.SourcePath.IsOnSameVolume(arguments.DestinationPath);
+            IsSourceReadOnly = sourceFile.Attributes.HasFlag(FileAttributes.ReadOnly);
+
+            if (!IsCopyRequired)
+            {
+                string destinationFileName = arguments.DestinationPath.Components.Last();
+                MoveFile(sourceFile, destinationDirectory, destinationFileName, arguments.SourcePath.Formatter);
+            }
 
             return Missing.Value;
         }
@@ -34,7 +44,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath)
         {
-            var sourceResolver = new FileResolver(Root)
+            var sourceResolver = new FileResolver(Container)
             {
                 ErrorFileFoundAsDirectory = ErrorFactory.System.FileNotFound,
                 ErrorDirectoryFoundAsFile = ErrorFactory.System.FileNotFound,
@@ -51,7 +61,12 @@ namespace TestableFileSystem.Fakes.Handlers
         private DirectoryEntry ResolveDestinationDirectory([NotNull] AbsolutePath sourcePath,
             [NotNull] AbsolutePath destinationPath, [NotNull] FileEntry sourceFile)
         {
-            var destinationResolver = new FileResolver(Root)
+            if (IsFileCasingChangeOnly(sourcePath, destinationPath))
+            {
+                return sourceFile.Parent;
+            }
+
+            var destinationResolver = new FileResolver(Container)
             {
                 ErrorFileFoundAsDirectory = _ => ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists(),
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
@@ -61,11 +76,12 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorFileExists = _ => ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists()
             };
 
-            bool isFileCasingChangeOnly = IsFileCasingChangeOnly(sourcePath, destinationPath);
+            return destinationResolver.ResolveContainingDirectoryForMissingFile(destinationPath);
+        }
 
-            return isFileCasingChangeOnly
-                ? sourceFile.Parent
-                : destinationResolver.ResolveContainingDirectoryForMissingFile(destinationPath);
+        private static bool IsFileCasingChangeOnly([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath)
+        {
+            return sourcePath.Components.SequenceEqual(destinationPath.Components, StringComparer.OrdinalIgnoreCase);
         }
 
         private static void AssertHasExclusiveAccess([NotNull] FileEntry file)
@@ -76,16 +92,21 @@ namespace TestableFileSystem.Fakes.Handlers
             }
         }
 
-        private bool IsFileCasingChangeOnly([NotNull] AbsolutePath sourcePath, [NotNull] AbsolutePath destinationPath)
+        private void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
+            [NotNull] string destinationFileName, [NotNull] IPathFormatter sourcePathFormatter)
         {
-            return sourcePath.Components.SequenceEqual(destinationPath.Components, StringComparer.OrdinalIgnoreCase);
-        }
-
-        private static void MoveFile([NotNull] FileEntry sourceFile, [NotNull] DirectoryEntry destinationDirectory,
-            [NotNull] string newFileName)
-        {
-            sourceFile.Parent.DeleteFile(sourceFile.Name);
-            destinationDirectory.MoveFileToHere(sourceFile, newFileName);
+            if (sourceFile.Parent == destinationDirectory)
+            {
+                if (sourceFile.Name != destinationFileName)
+                {
+                    sourceFile.Parent.RenameFile(sourceFile.Name, destinationFileName, sourcePathFormatter, false, false);
+                }
+            }
+            else
+            {
+                sourceFile.Parent.DeleteFile(sourceFile.Name, true);
+                destinationDirectory.MoveFileToHere(sourceFile, destinationFileName, false, false);
+            }
         }
     }
 }

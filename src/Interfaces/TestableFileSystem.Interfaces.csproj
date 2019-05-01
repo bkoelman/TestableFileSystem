@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard1.3;net45</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <DebugType>full</DebugType>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>TestableFileSystem.Interfaces</PackageId>
@@ -11,7 +10,7 @@
     <Version>1.0.0</Version>
     <Authors>Bart Koelman</Authors>
     <Company />
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/bkoelman/TestableFileSystem</PackageProjectUrl>
     <Description>Interfaces to substitute System.IO calls in the .NET Framework.</Description>
     <PackageReleaseNotes>First stable version.</PackageReleaseNotes>
@@ -26,12 +25,15 @@
     <DefineConstants>TRACE;RELEASE;JETBRAINS_ANNOTATIONS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="jetbrains.annotations" Version="11.1.0" PrivateAssets="all" />
-    <PackageReference Include="resharpercodecontractnullability" Version="1.0.8" PrivateAssets="all" />
-    <PackageReference Include="jetbrains.externalannotations" Version="10.2.29" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" PrivateAssets="all" />
+    <PackageReference Include="ResharperCodeContractNullability" Version="2.0.0" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.ExternalAnnotations" Version="10.2.57" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-  	<None Include="$(OutputPath)\..\..\..\Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
+    <None Include="$(OutputPath)\..\..\..\Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
     <None Include="$(OutputPath)\..\..\..\Analyzer\bin\$(Configuration)\net45\TestableFileSystem.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Guard.cs" Link="Guard.cs" />
   </ItemGroup>
 </Project>

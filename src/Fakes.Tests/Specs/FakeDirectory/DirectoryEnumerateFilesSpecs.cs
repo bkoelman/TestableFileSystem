@@ -23,7 +23,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -51,25 +51,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
-        private void When_enumerating_files_for_invalid_root_path_it_must_fail()
+        private void When_enumerating_files_for_invalid_drive_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.EnumerateFiles("::");
+            Action action = () => fileSystem.Directory.EnumerateFiles("_:");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_enumerating_files_for_invalid_characters_in_path_it_must_fail()
+        private void When_enumerating_files_for_wildcard_characters_in_path_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -79,7 +79,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -138,7 +138,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"\some");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -152,7 +153,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"c:\some");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -166,7 +168,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"\\?\c:\some");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -180,7 +183,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"\\server\share");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -194,7 +198,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"some\\*.*");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -209,9 +214,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder", @"..\*.*");
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .WithMessage(
-                    "Search pattern cannot contain '..' to move up directories and can be contained only internally in file/directory names, as in 'a..b'.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Search pattern cannot contain '..' to move up directories and can be contained only internally in file/directory names, as in 'a..b'.*");
         }
 
         [Fact]
@@ -226,7 +230,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder", @"fol*\*.*");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                "The filename, directory name, or volume label syntax is incorrect.");
         }
 
         [Fact]
@@ -241,11 +246,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder", @"fol?er\*.*");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The filename, directory name, or volume label syntax is incorrect");
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                "The filename, directory name, or volume label syntax is incorrect.");
         }
 
         [Fact]
-        private void When_enumerating_files_for_pattern_that_contains_invalid_characters_it_must_fail()
+        private void When_enumerating_files_for_pattern_that_contains_forbidden_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -256,7 +262,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder", @"<|>");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -632,7 +638,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\folder");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'c:\folder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>()
+                .WithMessage(@"Could not find a part of the path 'c:\folder'.");
         }
 
         [Fact]
@@ -746,7 +753,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(path);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"The directory name is invalid.");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"The directory name is invalid.");
         }
 
         [Fact]
@@ -761,8 +768,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"C:\some\file.txt\deeper");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\deeper'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\file.txt\deeper'.");
         }
 
         [Fact]
@@ -777,8 +784,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"C:\some\file.txt\deeper\more");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt\deeper\more'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\file.txt\deeper\more'.");
         }
 
         [Fact]
@@ -793,8 +800,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"P:\folder\sub");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'P:\folder\sub'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'P:\folder\sub'.");
         }
 
         [Fact]
@@ -808,7 +815,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"\\server\share\team");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
         [Fact]
@@ -823,8 +830,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles(@"\\server\share\team");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path '\\server\share\team'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path '\\server\share\team'.");
         }
 
         [Fact]
@@ -853,7 +860,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.EnumerateFiles("COM1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

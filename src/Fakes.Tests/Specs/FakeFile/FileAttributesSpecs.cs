@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(null, FileAttributes.Normal);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(string.Empty, FileAttributes.Normal);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -92,39 +92,39 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(" ", FileAttributes.Normal);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
-        private void When_getting_attributes_for_invalid_root_it_must_fail()
+        private void When_getting_attributes_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.GetAttributes("::");
+            Action action = () => fileSystem.File.GetAttributes("_:");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_setting_attributes_for_invalid_root_it_must_fail()
+        private void When_setting_attributes_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.SetAttributes("::", FileAttributes.Archive);
+            Action action = () => fileSystem.File.SetAttributes("_:", FileAttributes.Archive);
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_getting_atributes_for_invalid_characters_it_must_fail()
+        private void When_getting_atributes_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -134,11 +134,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
-        private void When_setting_atributes_for_invalid_characters_it_must_fail()
+        private void When_setting_atributes_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -148,7 +148,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(@"c:\dir?i", FileAttributes.Archive);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(@"C:\some\file.txt");
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -178,7 +178,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(@"C:\some\file.txt", FileAttributes.Archive);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -427,6 +427,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_setting_attributes_for_drive_to_Temporary_it_must_fail()
+        {
+            // Arrange
+            const string path = @"C:\";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingDirectory(path)
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(path, FileAttributes.Temporary);
+
+            // Assert
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Invalid File or Directory attributes value.*");
+        }
+
+        [Fact]
         private void When_setting_attributes_for_current_directory_it_must_succeed()
         {
             // Arrange
@@ -554,8 +571,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(@"C:\some\file.txt");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -569,8 +586,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(@"C:\some\file.txt", FileAttributes.Archive);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\file.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
         [Fact]
@@ -585,8 +602,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(@"c:\some\file.txt\nested.txt");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
         [Fact]
@@ -601,8 +618,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(@"c:\some\file.txt\nested.txt", FileAttributes.Archive);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
         [Fact]
@@ -617,8 +634,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(@"c:\some\file.txt\nested.txt\more.txt");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
         [Fact]
@@ -633,8 +650,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(@"c:\some\file.txt\nested.txt\more.txt", FileAttributes.Archive);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
         [Fact]
@@ -650,7 +667,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(path);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -666,7 +683,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(path, FileAttributes.Hidden);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -683,7 +700,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(path);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>()
+                .WithMessage(@"Could not find file '\\server\share\missing.txt'.");
         }
 
         [Fact]
@@ -700,7 +718,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(path, FileAttributes.Hidden);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing.docx'.");
+            action.Should().ThrowExactly<FileNotFoundException>()
+                .WithMessage(@"Could not find file '\\server\share\missing.docx'.");
         }
 
         [Fact]
@@ -785,7 +804,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(path, FileAttributes.Temporary);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Invalid File or Directory attributes value.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Invalid File or Directory attributes value.*");
         }
 
         [Fact]
@@ -946,7 +965,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes("COM1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -960,7 +979,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes("COM1", FileAttributes.Archive);
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -975,7 +994,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetAttributes(@"\\?\C:\some\missing.txt");
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing.txt'.");
         }
 
         [Fact]
@@ -990,7 +1009,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetAttributes(@"\\?\C:\some\missing.txt", FileAttributes.ReadOnly);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing.txt'.");
         }
 
         [Fact]

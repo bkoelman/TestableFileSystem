@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Resolvers
 {
     internal sealed class DirectoryResolver
     {
         [NotNull]
-        private readonly DirectoryEntry root;
+        private readonly VolumeContainer container;
 
         [NotNull]
         public Func<string, Exception> ErrorNetworkShareNotFound { get; set; }
@@ -22,10 +22,10 @@ namespace TestableFileSystem.Fakes.Resolvers
         [NotNull]
         public Func<string, Exception> ErrorDirectoryNotFound { get; set; }
 
-        public DirectoryResolver([NotNull] DirectoryEntry root)
+        public DirectoryResolver([NotNull] VolumeContainer container)
         {
-            Guard.NotNull(root, nameof(root));
-            this.root = root;
+            Guard.NotNull(container, nameof(container));
+            this.container = container;
 
             ErrorNetworkShareNotFound = _ => ErrorFactory.System.NetworkPathNotFound();
             ErrorDirectoryFoundAsFile = ErrorFactory.System.DirectoryNotFound;
@@ -57,18 +57,23 @@ namespace TestableFileSystem.Fakes.Resolvers
             string completePath = incomingPath ?? path.GetText();
             AssertNetworkShareExists(path, completePath);
 
-            DirectoryEntry directory = root;
+            if (!container.ContainsVolume(path.VolumeName))
+            {
+                return null;
+            }
 
-            foreach (AbsolutePathComponent component in path.EnumerateComponents())
+            DirectoryEntry directory = container.GetVolume(path.VolumeName);
+
+            foreach (AbsolutePathComponent component in path.EnumerateComponents().Skip(1))
             {
                 AssertIsNotFile(component, directory, completePath);
 
-                if (!directory.Directories.ContainsKey(component.Name))
+                if (!directory.ContainsDirectory(component.Name))
                 {
                     return null;
                 }
 
-                directory = directory.Directories[component.Name];
+                directory = directory.GetDirectory(component.Name);
             }
 
             return directory;
@@ -82,16 +87,21 @@ namespace TestableFileSystem.Fakes.Resolvers
             string completePath = incomingPath ?? path.GetText();
             AssertNetworkShareExists(path, completePath);
 
-            DirectoryEntry directory = root;
-
-            foreach (AbsolutePathComponent component in path.EnumerateComponents())
+            if (!container.ContainsVolume(path.VolumeName))
             {
-                if (!directory.Directories.ContainsKey(component.Name))
+                return null;
+            }
+
+            DirectoryEntry directory = container.GetVolume(path.VolumeName);
+
+            foreach (AbsolutePathComponent component in path.EnumerateComponents().Skip(1))
+            {
+                if (!directory.ContainsDirectory(component.Name))
                 {
                     return null;
                 }
 
-                directory = directory.Directories[component.Name];
+                directory = directory.GetDirectory(component.Name);
             }
 
             return directory;
@@ -108,14 +118,14 @@ namespace TestableFileSystem.Fakes.Resolvers
 
         private bool IsNetworkShareMissing([NotNull] AbsolutePath path)
         {
-            return !path.IsOnLocalDrive && !root.Directories.ContainsKey(path.Components.First());
+            return !path.IsOnLocalDrive && !container.ContainsVolume(path.VolumeName);
         }
 
         [AssertionMethod]
         private void AssertIsNotFile([NotNull] AbsolutePathComponent component, [NotNull] DirectoryEntry directory,
             [NotNull] string incomingPath)
         {
-            if (directory.Files.ContainsKey(component.Name))
+            if (directory.ContainsFile(component.Name))
             {
                 if (component.IsAtEnd)
                 {

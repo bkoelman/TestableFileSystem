@@ -4,21 +4,35 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakeDirectoryInfo : FakeFileSystemInfo, IDirectoryInfo
+    internal sealed class FakeDirectoryInfo : FakeFileSystemInfo, IDirectoryInfo
     {
         public override string Name => AbsolutePath.IsVolumeRoot ? FullName : AbsolutePath.Components.Last();
 
-        public override bool Exists => Properties.Exists && Properties.Attributes.HasFlag(FileAttributes.Directory);
+        public override bool Exists => Metadata.Exists && Metadata.Attributes.HasFlag(FileAttributes.Directory);
 
         public IDirectoryInfo Parent
         {
             get
             {
                 AbsolutePath parentPath = AbsolutePath.TryGetParentPath();
-                return parentPath == null ? null : Owner.ConstructDirectoryInfo(parentPath);
+                if (parentPath == null)
+                {
+                    return null;
+                }
+
+                string displayPath = parentPath.Components.Last();
+                if (parentPath.IsVolumeRoot && !parentPath.IsOnLocalDrive)
+                {
+                    // Emulate the bug where a network share is incorrectly broken into parts ("\\server\share" should be a single component, not two).
+                    int lastSeparatorIndex = parentPath.VolumeName.LastIndexOf(Path.DirectorySeparatorChar);
+                    displayPath = parentPath.VolumeName.Substring(lastSeparatorIndex + 1);
+                }
+
+                return Owner.ConstructDirectoryInfo(parentPath, displayPath);
             }
         }
 
@@ -31,8 +45,9 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        internal FakeDirectoryInfo([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
-            : base(root, owner, path)
+        internal FakeDirectoryInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner,
+            [NotNull] AbsolutePath path, [CanBeNull] string displayPath)
+            : base(container, owner, path, displayPath)
         {
         }
 
@@ -115,7 +130,7 @@ namespace TestableFileSystem.Fakes
 
         private static void AssertPathIsRelative([NotNull] string path)
         {
-            if (PathFacts.DirectorySeparatorChars.Contains(path[0]) || path.Contains(":"))
+            if (PathFacts.DirectorySeparatorChars.Contains(path[0]) || path.Contains(Path.VolumeSeparatorChar))
             {
                 throw ErrorFactory.System.PathFragmentMustNotBeDriveOrUncName(nameof(path));
             }
@@ -148,8 +163,8 @@ namespace TestableFileSystem.Fakes
         {
             Owner.Directory.Move(FullName, destDirName);
 
-            AbsolutePath destinationPath = Owner.ToAbsolutePath(destDirName);
-            ChangePath(destinationPath);
+            AbsolutePath destinationPath = Owner.ToAbsolutePathInLock(destDirName);
+            ChangePath(destinationPath, destDirName);
         }
 
         public override void Delete()
@@ -162,16 +177,24 @@ namespace TestableFileSystem.Fakes
             switch (kind)
             {
                 case FileTimeKind.CreationTime:
+                {
                     Owner.Directory.SetCreationTimeUtc(FullName, value);
                     break;
+                }
                 case FileTimeKind.LastAccessTime:
+                {
                     Owner.Directory.SetLastAccessTimeUtc(FullName, value);
                     break;
+                }
                 case FileTimeKind.LastWriteTime:
+                {
                     Owner.Directory.SetLastWriteTimeUtc(FullName, value);
                     break;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(kind);
+                }
             }
         }
     }

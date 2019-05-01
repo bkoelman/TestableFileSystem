@@ -2,14 +2,14 @@
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileGetTimeHandler : FakeOperationHandler<FileGetTimeArguments, DateTime>
     {
-        public FileGetTimeHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileGetTimeHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -17,7 +17,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
-            var resolver = new EntryResolver(Root);
+            var resolver = new EntryResolver(Container);
             BaseEntry entry = resolver.SafeResolveEntry(arguments.Path);
 
             if (entry == null)
@@ -28,13 +28,21 @@ namespace TestableFileSystem.Fakes.Handlers
             switch (arguments.Kind)
             {
                 case FileTimeKind.CreationTime:
+                {
                     return arguments.IsInUtc ? entry.CreationTimeUtc : entry.CreationTime;
+                }
                 case FileTimeKind.LastWriteTime:
+                {
                     return arguments.IsInUtc ? entry.LastWriteTimeUtc : entry.LastWriteTime;
+                }
                 case FileTimeKind.LastAccessTime:
+                {
                     return arguments.IsInUtc ? entry.LastAccessTimeUtc : entry.LastAccessTime;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(arguments.Kind);
+                }
             }
         }
     }

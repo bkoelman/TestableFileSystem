@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Resolvers
 {
@@ -50,10 +50,10 @@ namespace TestableFileSystem.Fakes.Resolvers
         [NotNull]
         public Func<string, Exception> ErrorFileExists { get; set; }
 
-        public FileResolver([NotNull] DirectoryEntry root)
+        public FileResolver([NotNull] VolumeContainer container)
         {
-            Guard.NotNull(root, nameof(root));
-            directoryResolver = new DirectoryResolver(root);
+            Guard.NotNull(container, nameof(container));
+            directoryResolver = new DirectoryResolver(container);
 
             ErrorFileFoundAsDirectory = ErrorFactory.System.UnauthorizedAccess;
             ErrorFileNotFound = ErrorFactory.System.FileNotFound;
@@ -74,7 +74,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             AssertIsNotDirectory(fileName, directory, path);
             AssertFileExists(fileName, directory, path);
 
-            return directory.Files[fileName];
+            return directory.GetFile(fileName);
         }
 
         [NotNull]
@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             AssertIsNotDirectory(fileName, directory, path);
 
-            FileEntry fileEntry = !directory.Files.ContainsKey(fileName) ? null : directory.Files[fileName];
+            FileEntry fileEntry = !directory.ContainsFile(fileName) ? null : directory.GetFile(fileName);
             return new FileResolveResult(directory, fileEntry, fileName);
         }
 
@@ -126,7 +126,7 @@ namespace TestableFileSystem.Fakes.Resolvers
         private void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory,
             [NotNull] AbsolutePath path)
         {
-            if (directory.Directories.ContainsKey(fileName))
+            if (directory.ContainsDirectory(fileName))
             {
                 throw ErrorFileFoundAsDirectory(path.GetText());
             }
@@ -135,7 +135,7 @@ namespace TestableFileSystem.Fakes.Resolvers
         [AssertionMethod]
         private void AssertFileExists([NotNull] string fileName, [NotNull] DirectoryEntry directory, [NotNull] AbsolutePath path)
         {
-            if (!directory.Files.ContainsKey(fileName))
+            if (!directory.ContainsFile(fileName))
             {
                 throw ErrorFileNotFound(path.GetText());
             }
@@ -145,7 +145,7 @@ namespace TestableFileSystem.Fakes.Resolvers
         private void AssertFileDoesNotExist([NotNull] string fileName, [NotNull] DirectoryEntry directory,
             [NotNull] AbsolutePath path)
         {
-            if (directory.Files.ContainsKey(fileName))
+            if (directory.ContainsFile(fileName))
             {
                 throw ErrorFileExists(path.GetText());
             }

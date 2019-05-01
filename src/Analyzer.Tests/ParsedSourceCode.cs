@@ -1,19 +1,21 @@
 ﻿using JetBrains.Annotations;
-using TestableFileSystem.Analyzer.Tests.RoslynTestFramework;
-using TestableFileSystem.Interfaces;
+using RoslynTestFramework;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Analyzer.Tests
 {
-    public sealed class ParsedSourceCode
+    internal sealed class ParsedSourceCode
     {
         [NotNull]
         public AnalyzerTestContext TestContext { get; }
 
-        public ParsedSourceCode([NotNull] AnalyzerTestContext testContext)
+        public ParsedSourceCode([NotNull] string sourceText, [NotNull] AnalyzerTestContext testContext)
         {
+            Guard.NotNull(sourceText, nameof(sourceText));
             Guard.NotNull(testContext, nameof(testContext));
 
-            TestContext = testContext;
+            var document = new FixableDocument(sourceText);
+            TestContext = testContext.WithCode(document.SourceText, document.SourceSpans);
         }
     }
 }

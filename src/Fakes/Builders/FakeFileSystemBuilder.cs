@@ -6,40 +6,91 @@ using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Builders
 {
     public sealed class FakeFileSystemBuilder : ITestDataBuilder<FakeFileSystem>
     {
+        // TODO: Consider a switch on Builder that drives NtfsDisableLastAccessUpdate registry setting.
+
+        private static readonly DateTime DefaultTestTime = new DateTime(1900, 1, 2, 3, 44, 55);
+
+        [NotNull]
+        private static readonly SystemClock DefaultTestClock = new SystemClock(() => DefaultTestTime);
+
+        [NotNull]
+        private static readonly FakeLoggedOnUserAccount DefaultUserAccount = new FakeLoggedOnUserAccount("DefaultUser");
+
+        [NotNull]
+        private static readonly FakeVolumeInfo DefaultVolumeInfo = new FakeVolumeInfoBuilder().Build();
+
         private bool includeDriveC = true;
 
         [NotNull]
-        private readonly DirectoryEntry root;
+        private readonly VolumeContainer container;
+
+        [NotNull]
+        private readonly FakeFileSystemChangeTracker changeTracker = new FakeFileSystemChangeTracker();
+
+        [CanBeNull]
+        private string tempDirectory;
 
         [NotNull]
         private WaitIndicator copyWaitIndicator = WaitIndicator.None;
 
         public FakeFileSystemBuilder()
-            : this(new SystemClock())
+            : this(DefaultTestClock, DefaultUserAccount)
         {
         }
 
         public FakeFileSystemBuilder([NotNull] SystemClock systemClock)
+            : this(systemClock, DefaultUserAccount)
+        {
+        }
+
+        public FakeFileSystemBuilder([NotNull] ILoggedOnUserAccount userAccount)
+            : this(DefaultTestClock, userAccount)
+        {
+        }
+
+        public FakeFileSystemBuilder([NotNull] SystemClock systemClock, [NotNull] ILoggedOnUserAccount userAccount)
         {
             Guard.NotNull(systemClock, nameof(systemClock));
+            Guard.NotNull(userAccount, nameof(userAccount));
 
-            root = DirectoryEntry.CreateRoot(systemClock);
+            container = new VolumeContainer(systemClock, changeTracker, userAccount);
         }
 
         public FakeFileSystem Build()
         {
-            if (includeDriveC)
+            if (includeDriveC && !container.ContainsVolume("C:"))
             {
-                IncludingDirectory("C:");
+                IncludingVolume("C:", DefaultVolumeInfo);
             }
 
+            string effectiveTempDirectory = CreateTempDirectory();
+
             copyWaitIndicator.Reset();
-            return new FakeFileSystem(root, copyWaitIndicator);
+            return new FakeFileSystem(container, effectiveTempDirectory, copyWaitIndicator);
+        }
+
+        [NotNull]
+        private string CreateTempDirectory()
+        {
+            string directory = tempDirectory ?? GetTempDirectoryOnFirstDrive()?.GetText();
+            if (directory != null)
+            {
+                IncludingDirectory(directory);
+            }
+
+            return directory ?? string.Empty;
+        }
+
+        [CanBeNull]
+        private AbsolutePath GetTempDirectoryOnFirstDrive()
+        {
+            return container.FilterDrives().Select(drive => drive.PathFormatter.GetPath().Append("Temp")).FirstOrDefault();
         }
 
         [NotNull]
@@ -47,6 +98,49 @@ namespace TestableFileSystem.Fakes.Builders
         {
             includeDriveC = false;
             return this;
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder IncludingVolume([NotNull] string name, [NotNull] FakeVolumeInfoBuilder builder)
+        {
+            Guard.NotNull(builder, nameof(builder));
+
+            return IncludingVolume(name, builder.Build());
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder IncludingVolume([NotNull] string name, [NotNull] FakeVolumeInfo volumeInfo)
+        {
+            Guard.NotNullNorWhiteSpace(name, nameof(name));
+            Guard.NotNull(volumeInfo, nameof(volumeInfo));
+
+            var path = new AbsolutePath(name);
+            AssertIsVolumeRoot(path);
+
+            string volumeName = GetVolumeName(path);
+            if (container.ContainsVolume(volumeName))
+            {
+                throw new InvalidOperationException($"Volume '{name}' has already been created.");
+            }
+
+            container.CreateVolume(volumeName, volumeInfo);
+
+            return this;
+        }
+
+        [AssertionMethod]
+        private static void AssertIsVolumeRoot([NotNull] AbsolutePath path)
+        {
+            if (!path.IsVolumeRoot)
+            {
+                throw ErrorFactory.System.PathFormatIsNotSupported();
+            }
+        }
+
+        [NotNull]
+        private static string GetVolumeName([NotNull] AbsolutePath path)
+        {
+            return path.IsOnLocalDrive ? path.VolumeName.ToUpperInvariant() : path.VolumeName;
         }
 
         [NotNull]
@@ -59,7 +153,7 @@ namespace TestableFileSystem.Fakes.Builders
 
             if (attributes != null)
             {
-                directory.Attributes = attributes.Value;
+                directory.SetAttributes(attributes.Value);
             }
 
             return this;
@@ -68,10 +162,22 @@ namespace TestableFileSystem.Fakes.Builders
         [NotNull]
         private DirectoryEntry CreateDirectories([NotNull] AbsolutePath absolutePath)
         {
-            var arguments = new DirectoryCreateArguments(absolutePath, true);
-            var handler = new DirectoryCreateHandler(root);
+            CreateVolume(absolutePath);
+
+            var arguments = new DirectoryCreateArguments(absolutePath);
+            var handler = new DirectoryCreateHandler(container);
 
             return handler.Handle(arguments);
+        }
+
+        private void CreateVolume([NotNull] AbsolutePath absolutePath)
+        {
+            string volumeName = GetVolumeName(absolutePath);
+
+            if (!container.ContainsVolume(volumeName))
+            {
+                container.CreateVolume(volumeName, DefaultVolumeInfo);
+            }
         }
 
         [NotNull]
@@ -130,16 +236,16 @@ namespace TestableFileSystem.Fakes.Builders
             string fileName = absolutePath.Components.Last();
             AssertIsNotDirectory(fileName, directory, absolutePath);
 
-            FileEntry file = directory.Files.ContainsKey(fileName) ? directory.Files[fileName] : directory.CreateFile(fileName);
+            FileEntry file = directory.ContainsFile(fileName) ? directory.GetFile(fileName) : directory.CreateFile(fileName);
 
-            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath))
+            using (IFileStream stream = file.Open(FileMode.Truncate, FileAccess.Write, absolutePath, true, false, false))
             {
                 writeContentsToStream(stream);
             }
 
             if (attributes != null)
             {
-                file.Attributes = attributes.Value;
+                file.SetAttributes(attributes.Value);
             }
         }
 
@@ -159,10 +265,19 @@ namespace TestableFileSystem.Fakes.Builders
         private static void AssertIsNotDirectory([NotNull] string fileName, [NotNull] DirectoryEntry directory,
             [NotNull] AbsolutePath absolutePath)
         {
-            if (directory.Directories.ContainsKey(fileName))
+            if (directory.ContainsDirectory(fileName))
             {
                 throw ErrorFactory.System.CannotCreateBecauseFileOrDirectoryAlreadyExists(absolutePath.GetText());
             }
+        }
+
+        [NotNull]
+        public FakeFileSystemBuilder WithTempDirectory([NotNull] string path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            tempDirectory = path;
+            return this;
         }
 
         [NotNull]

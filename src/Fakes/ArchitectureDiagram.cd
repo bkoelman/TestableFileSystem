@@ -1,0 +1,304 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="TestableFileSystem.Fakes.FakeFileSystem" Collapsed="true">
+    <Position X="5.5" Y="0.5" Width="2.25" />
+    <AssociationLine Name="root" Type="TestableFileSystem.Fakes.DirectoryEntry" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="0.813" />
+        <Point X="9.049" Y="0.813" />
+        <Point X="9.049" Y="1.625" />
+        <Point X="10.25" Y="1.625" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="ChangeTracker" Type="TestableFileSystem.Fakes.FakeFileSystemChangeTracker" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="0.688" />
+        <Point X="8.125" Y="0.688" />
+        <Point X="8.125" Y="0.125" />
+        <Point X="4.625" Y="0.125" />
+        <Point X="4.625" Y="9.062" />
+        <Point X="5" Y="9.062" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AgAwABgARIAAAQAAAAAgAIAAAEAEAAACAAAIgAAABAA=</HashCode>
+      <FileName>FakeFileSystem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="root" />
+      <Property Name="CurrentDirectoryManager" />
+      <Property Name="ChangeTracker" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeFile" Collapsed="true">
+    <Position X="5.5" Y="5.75" Width="2.25" />
+    <AssociationLine Name="owner" Type="TestableFileSystem.Fakes.FakeFileSystem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.5" Y="6.031" />
+        <Point X="5.125" Y="6.031" />
+        <Point X="5.125" Y="0.813" />
+        <Point X="5.5" Y="0.813" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>gAAAAIAAAJEAqAAAACAgAAAAAhECCMEUQAAgAAECAAA=</HashCode>
+      <FileName>FakeFile.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="owner" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeDirectory" Collapsed="true">
+    <Position X="5.5" Y="3" Width="2.25" />
+    <AssociationLine Name="owner" Type="TestableFileSystem.Fakes.FakeFileSystem" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.5" Y="3.312" />
+        <Point X="5.125" Y="3.312" />
+        <Point X="5.125" Y="0.813" />
+        <Point X="5.5" Y="0.813" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAIEAAJEBiAEAACAkQAAAAAEACIAUQAAgAA0CERA=</HashCode>
+      <FileName>FakeDirectory.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="owner" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.DirectoryEntry" Collapsed="true">
+    <Position X="10.25" Y="1.5" Width="1.5" />
+    <AssociationLine Name="SystemClock" Type="TestableFileSystem.Fakes.SystemClock" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11" Y="2.191" />
+        <Point X="11" Y="3.25" />
+        <Point X="12.5" Y="3.25" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>BGFpCABRIAAAAAgGAESAQAAAAAQCAAABCAEAoAEAFYg=</HashCode>
+      <FileName>DirectoryEntry.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="SystemClock" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FileEntry" Collapsed="true">
+    <Position X="13" Y="1.5" Width="1.5" />
+    <NestedTypes>
+      <Class Name="TestableFileSystem.Fakes.FileEntry.FakeFileStream" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FileEntry.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="TestableFileSystem.Fakes.FileEntry.FileEntryPathFormatter" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>FileEntry.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>JgAgCBBBIAIAoAgEAEkAQAABAiEIAAAAAAAAgAEABQA=</HashCode>
+      <FileName>FileEntry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.BaseEntry" Collapsed="true">
+    <Position X="11.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAwAAABIAAAAAgAAEAAAAQQAAAAAAEAAAAAgAAAAQA=</HashCode>
+      <FileName>BaseEntry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.DirectoryDeleteHandler" Collapsed="true">
+    <Position X="6" Y="3.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAQAAAAQAAAAYAAAAAAAAAAoIAAAAQAAAEAA=</HashCode>
+      <FileName>Handlers\DirectoryDeleteHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.DirectoryMoveHandler" Collapsed="true">
+    <Position X="6.25" Y="3.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAEAACAAEAEEAQAAAAAAoIAAAASAAAEIA=</HashCode>
+      <FileName>Handlers\DirectoryMoveHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.DirectoryCreateHandler" Collapsed="true">
+    <Position X="6.5" Y="4" Width="3" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAACEAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Handlers\DirectoryCreateHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.FileCreateHandler" Collapsed="true">
+    <Position X="6" Y="6.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAAAAAAAQAAIAAAAAgAAAAAA=</HashCode>
+      <FileName>Handlers\FileCreateHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.FileDeleteHandler" Collapsed="true">
+    <Position X="6.25" Y="6.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAAAAAAAAAAAAAIAIAAAEAAAAAAAA=</HashCode>
+      <FileName>Handlers\FileDeleteHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.FileExistsHandler" Collapsed="true">
+    <Position X="6.5" Y="6.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Handlers\FileExistsHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.CurrentDirectoryManager" Collapsed="true">
+    <Position X="6.5" Y="1.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAgAAAAAqAAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CurrentDirectoryManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Resolvers.DirectoryResolver" Collapsed="true">
+    <Position X="11.5" Y="5.75" Width="1.5" />
+    <AssociationLine Name="root" Type="TestableFileSystem.Fakes.DirectoryEntry" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.5" Y="6.031" />
+        <Point X="10.75" Y="6.031" />
+        <Point X="10.75" Y="2.191" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>gCAgAAAAAACACAAAAAAgAAAAAAAEAAAAQAAAIAAAEAA=</HashCode>
+      <FileName>Resolvers\DirectoryResolver.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="root" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Resolvers.EntryResolver" Collapsed="true">
+    <Position X="11.5" Y="4.75" Width="1.5" />
+    <AssociationLine Name="root" Type="TestableFileSystem.Fakes.DirectoryEntry" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.5" Y="5.031" />
+        <Point X="10.75" Y="5.031" />
+        <Point X="10.75" Y="2.191" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAiAAAAQAoAAAAAAAEAIAAQAAAAAAAAQA=</HashCode>
+      <FileName>Resolvers\EntryResolver.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="root" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Resolvers.FileResolver" Collapsed="true">
+    <Position X="11.5" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAiAAAAAAAAiIAAAAAAQAACQoCEAAAARggAAAAAAAA=</HashCode>
+      <FileName>Resolvers\FileResolver.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="directoryResolver" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.AbsolutePath" Collapsed="true">
+    <Position X="7.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABBAACkABIIIMCAAAAAEAAAAAgQAGAAAIABACAAA=</HashCode>
+      <FileName>AbsolutePath.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeFileSystemChangeTracker" Collapsed="true">
+    <Position X="5" Y="8.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAARAQAAEAAAAAAAAAAEQYAAAhAEADEAAAAAI=</HashCode>
+      <FileName>FakeFileSystemChangeTracker.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.FakeFileSystemWatcher" Collapsed="true">
+    <Position X="6" Y="9.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>gQAABiCAACYAwRoQRAAIFUAAgBAQAAQEAIEQAIAAEQg=</HashCode>
+      <FileName>FakeFileSystemWatcher.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.DirectoryContents" Collapsed="true">
+    <Position X="11.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAJBAAAAAAAAAAAEAAAgACAEgAAAAIAwAgAAAAAAEIA=</HashCode>
+      <FileName>DirectoryContents.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.SystemClock" Collapsed="true">
+    <Position X="12.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SystemClock.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.FileCopyHandler" Collapsed="true">
+    <Position X="6.75" Y="7" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAgAAACAAAAAAAAAgAAAQAAAAAAAIAIAAAAAgEAAFYA=</HashCode>
+      <FileName>Handlers\FileCopyHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.FileMoveHandler" Collapsed="true">
+    <Position X="7" Y="7.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAACgAEAAAEAAAAAIAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Handlers\FileMoveHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.FileOpenHandler" Collapsed="true">
+    <Position X="7.25" Y="7.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAQAAAAAAQAAAAAAIAAIAAAAAAAgAAAE=</HashCode>
+      <FileName>Handlers\FileOpenHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.FileSetAttributesHandler" Collapsed="true">
+    <Position X="7.5" Y="7.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Handlers\FileSetAttributesHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.DirectoryEnumerateEntriesHandler" Collapsed="true">
+    <Position X="6.75" Y="4.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAEAAAAIAAAAAEAAAEAA=</HashCode>
+      <FileName>Handlers\DirectoryEnumerateEntriesHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestableFileSystem.Fakes.Handlers.DirectoryExistsHandler" Collapsed="true">
+    <Position X="7" Y="4.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Handlers\DirectoryExistsHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="TestableFileSystem.Interfaces.IFileSystem">
+    <Position X="1.25" Y="0.5" Width="2.25" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IFile" Collapsed="true">
+    <Position X="1.5" Y="5.75" Width="1.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IDirectory" Collapsed="true">
+    <Position X="1.5" Y="3" Width="1.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="TestableFileSystem.Interfaces.IFileSystemWatcher" Collapsed="true">
+    <Position X="1.5" Y="9.25" Width="1.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

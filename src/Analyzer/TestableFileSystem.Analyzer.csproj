@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net45</TargetFramework>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>TestableFileSystem.Analyzer</PackageId>
@@ -10,7 +8,7 @@
     <Version>1.0.0</Version>
     <Authors>Bart Koelman</Authors>
     <Company />
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/bkoelman/TestableFileSystem</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Code Analyzer for TestableFileSystem that highlights potential locations where System.IO calls can be abstracted.</Description>
@@ -22,11 +20,14 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" PrivateAssets="all" />
-    <PackageReference Include="JetBrains.ExternalAnnotations" Version="10.2.29" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.ExternalAnnotations" Version="10.2.57" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="1.0.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="1.1.0" PrivateAssets="all" />
-    <PackageReference Include="ResharperCodeContractNullability" Version="1.0.8" />
+    <PackageReference Include="ResharperCodeContractNullability" Version="2.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <!--
     To bypass the NuGet cache during install/uninstall debugging, uncomment the target below.
@@ -38,16 +39,4 @@
     <Message Importance="High" Text="Setting PackageVersion to $(PackageVersion)" />
   </Target>
   -->
-  <Target Name="CopyExternalAnnotations" BeforeTargets="BeforeBuild" Condition="'$(BuildingInsideVisualStudio)' != 'true'">
-    <PropertyGroup>
-      <ExternalAnnotationsVersion>10.2.29</ExternalAnnotationsVersion>
-      <ExternalAnnotationsSourceDir>"$(USERPROFILE)\.nuget\packages\JetBrains.ExternalAnnotations\$(ExternalAnnotationsVersion)\DotFiles\ExternalAnnotations\*.xml"</ExternalAnnotationsSourceDir>
-      <ExternalAnnotationsTargetDir>"$(LOCALAPPDATA)\JetBrains\Installations\ReSharperPlatformVs15\ExternalAnnotations"</ExternalAnnotationsTargetDir>
-    </PropertyGroup>
-
-    <Message Importance="High" Text="Copying External Annotations from: $(ExternalAnnotationsSourceDir) to: $(ExternalAnnotationsTargetDir)" />
-    <Exec Command="xcopy $(ExternalAnnotationsSourceDir) $(ExternalAnnotationsTargetDir) /s /i /r /y /q /d" LogStandardErrorAsError="true" ConsoleToMSBuild="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
-    </Exec>
-  </Target>
 </Project>

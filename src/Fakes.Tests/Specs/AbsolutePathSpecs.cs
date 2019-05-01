@@ -57,7 +57,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_creating_network_share_it_must_succeed()
+        private void When_creating_network_share_with_hostname_it_must_succeed()
         {
             // Arrange
             const string path = @"\\teamserver\management";
@@ -73,7 +73,44 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_creating_only_server_part_of_network_share_it_must_fail()
+        private void When_creating_network_share_with_IPv4_address_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\192.168.0.1\management";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+
+            // Assert
+            info.FullName.Should().Be(path);
+        }
+
+        [Fact]
+        private void When_creating_network_share_with_escaped_IPv6_address_it_must_succeed()
+        {
+            // https://msdn.microsoft.com/en-us/library/aa385353.aspx
+            // The IPv6 literal format must be used so that the IPv6 address is parsed correctly. An IPv6 literal address is of the form:
+            // ipv6-address with the ':' characters replaced by '-' characters, followed by the ".ipv6-literal.net" string.
+
+            // Arrange
+            string address = "fe80::ddad:d5e:41a2:43e7%5".Replace(":", "-") + ".ipv6-literal.net";
+            string path = @"\\" + address + @"\management";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(path);
+
+            // Assert
+            info.FullName.Should().Be(path);
+        }
+
+        [Fact]
+        private void When_creating_network_host_without_share_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -83,7 +120,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"\\teamserver\");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
         [Fact]
@@ -119,7 +156,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact]
-        private void When_network_share_has_invalid_name_it_must_fail()
+        private void When_network_share_has_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -129,11 +166,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"\\team*server");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");
         }
 
         [Fact]
-        private void When_directory_has_invalid_name_it_must_fail()
+        private void When_directory_has_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -143,20 +180,35 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"c:\games\try?me");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Illegal characters in path.*");
         }
 
         [Fact]
-        private void When_creating_path_with_whitespace_directory_it_must_fail()
+        private void When_creating_path_with_whitespace_directory_it_must_succeed()
         {
             // Arrange
-            var fileSystemBuilder = new FakeFileSystemBuilder();
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
 
             // Act
-            Action action = () => fileSystemBuilder.IncludingEmptyFile(@"c:\some\  \other");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some\  \other");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage(@"Illegal characters in path.*");
+            info.FullName.Should().Be(@"c:\some\other");
+        }
+
+        [Fact]
+        private void When_creating_path_with_multiple_separators_it_must_succeed()
+        {
+            // Arrange
+            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some\\\\\other");
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\other");
         }
 
         [Fact]
@@ -169,7 +221,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystemBuilder.IncludingEmptyFile(@"docs\work");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.*");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.*");
         }
 
         [Fact]
@@ -180,7 +232,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs\.\games");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs\. \games\.");
 
             // Assert
             info.FullName.Should().Be(@"C:\docs\games");
@@ -194,14 +246,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs\..\games");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs\.. \games\other\..");
 
             // Assert
             info.FullName.Should().Be(@"C:\games");
         }
 
         [Fact]
-        private void When_using_parent_references_on_root_it_must_ignore_them()
+        private void When_using_parent_reference_above_root_it_must_ignore_them()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -222,10 +274,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs/in/sub\folder/");
+            IFileInfo info = fileSystem.ConstructFileInfo(@"C:\docs/in/sub/\folder/");
 
             // Assert
-            info.FullName.Should().Be(@"C:\docs\in\sub\folder");
+            info.FullName.Should().Be(@"C:\docs\in\sub\folder\");
         }
 
         [Fact]
@@ -239,7 +291,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"\\.\COM56");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
 
         [Fact]
@@ -253,7 +305,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"\\?\GLOBALROOT");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
 
         [Fact]
@@ -267,7 +319,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"c:\nul\documents");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -281,7 +333,65 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             Action action = () => fileSystem.ConstructFileInfo(@"com1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+        }
+
+        [Fact]
+        private void When_using_trailing_space_it_must_trim()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some \a ");
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\a");
+        }
+
+        [Fact]
+        private void When_using_trailing_thin_space_it_must_preserve()
+        {
+            // Arrange
+            const char thinSpace = (char)0x2009;
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some\a" + thinSpace);
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\a" + thinSpace);
+        }
+
+        [Fact]
+        private void When_using_trailing_dot_it_must_trim()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some.\a.");
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\a");
+        }
+
+        [Fact]
+        private void When_using_trailing_dots_and_spaces_it_must_trim()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IFileInfo info = fileSystem.ConstructFileInfo(@"c:\some\. . \a. . ");
+
+            // Assert
+            info.FullName.Should().Be(@"c:\some\a");
         }
     }
 }

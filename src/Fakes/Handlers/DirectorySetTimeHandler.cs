@@ -3,29 +3,35 @@ using System.Reflection;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
-    internal sealed class DirectorySetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, object>
+    internal sealed class DirectorySetTimeHandler : FakeOperationHandler<EntrySetTimeArguments, Missing>
     {
-        public DirectorySetTimeHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public DirectorySetTimeHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
-        public override object Handle(EntrySetTimeArguments arguments)
+        public override Missing Handle(EntrySetTimeArguments arguments)
         {
             Guard.NotNull(arguments, nameof(arguments));
             AssertTimeValueIsInRange(arguments);
             AssertIsNotDriveRoot(arguments.Path);
 
-            var resolver = new EntryResolver(Root);
+            var resolver = new EntryResolver(Container);
             BaseEntry entry = resolver.ResolveEntry(arguments.Path);
+
+            if (entry is FileEntry fileEntry)
+            {
+                AssertFileIsNotExternallyEncrypted(fileEntry, arguments.Path);
+            }
 
             switch (arguments.Kind)
             {
                 case FileTimeKind.CreationTime:
+                {
                     if (arguments.IsInUtc)
                     {
                         entry.CreationTimeUtc = arguments.TimeValue;
@@ -34,8 +40,12 @@ namespace TestableFileSystem.Fakes.Handlers
                     {
                         entry.CreationTime = arguments.TimeValue;
                     }
+
+                    Container.ChangeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Create);
                     break;
+                }
                 case FileTimeKind.LastWriteTime:
+                {
                     if (arguments.IsInUtc)
                     {
                         entry.LastWriteTimeUtc = arguments.TimeValue;
@@ -44,8 +54,12 @@ namespace TestableFileSystem.Fakes.Handlers
                     {
                         entry.LastWriteTime = arguments.TimeValue;
                     }
+
+                    Container.ChangeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Write);
                     break;
+                }
                 case FileTimeKind.LastAccessTime:
+                {
                     if (arguments.IsInUtc)
                     {
                         entry.LastAccessTimeUtc = arguments.TimeValue;
@@ -54,9 +68,14 @@ namespace TestableFileSystem.Fakes.Handlers
                     {
                         entry.LastAccessTime = arguments.TimeValue;
                     }
+
+                    Container.ChangeTracker.NotifyContentsAccessed(entry.PathFormatter, FileAccessKinds.Read);
                     break;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(arguments.Kind);
+                }
             }
 
             return Missing.Value;
@@ -77,6 +96,15 @@ namespace TestableFileSystem.Fakes.Handlers
             if (path.IsVolumeRoot && path.IsOnLocalDrive)
             {
                 throw ErrorFactory.System.PathMustNotBeDrive(nameof(path));
+            }
+        }
+
+        [AssertionMethod]
+        private static void AssertFileIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
+        {
+            if (file.IsExternallyEncrypted)
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
         }
     }

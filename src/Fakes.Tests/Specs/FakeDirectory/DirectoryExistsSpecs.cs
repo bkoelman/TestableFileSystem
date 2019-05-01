@@ -50,28 +50,28 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact]
-        private void When_getting_directory_existence_for_invalid_root_it_must_succeed()
+        private void When_getting_directory_existence_for_invalid_drive_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists("::");
+            bool found = fileSystem.Directory.Exists("_:");
 
             // Assert
             found.Should().BeFalse();
         }
 
         [Fact]
-        private void When_getting_directory_existence_for_invalid_characters_it_must_succeed()
+        private void When_getting_directory_existence_for_wildcard_characters_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists("ab>c");
+            bool found = fileSystem.Directory.Exists("ab*c");
 
             // Assert
             found.Should().BeFalse();

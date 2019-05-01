@@ -3,32 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Resolvers;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
     internal sealed class CurrentDirectoryManager
     {
         [NotNull]
-        private readonly DirectoryEntry root;
+        private readonly VolumeContainer container;
 
         [NotNull]
         private AbsolutePath path;
 
-        public CurrentDirectoryManager([NotNull] DirectoryEntry root)
+        public CurrentDirectoryManager([NotNull] VolumeContainer container)
         {
-            Guard.NotNull(root, nameof(root));
-            this.root = root;
+            Guard.NotNull(container, nameof(container));
+            this.container = container;
 
-            ICollection<DirectoryEntry> drives = root.FilterDrives();
+            ICollection<VolumeEntry> drives = container.FilterDrives();
             AssertFileSystemContainsDrives(drives);
 
-            DirectoryEntry drive = drives.First();
+            VolumeEntry drive = drives.First();
             path = new AbsolutePath(drive.Name);
         }
 
         [AssertionMethod]
-        private static void AssertFileSystemContainsDrives([NotNull] [ItemNotNull] IEnumerable<DirectoryEntry> drives)
+        private static void AssertFileSystemContainsDrives([NotNull] [ItemNotNull] IEnumerable<VolumeEntry> drives)
         {
             if (!drives.Any())
             {
@@ -51,7 +51,7 @@ namespace TestableFileSystem.Fakes
 
         public bool IsAtOrAboveCurrentDirectory([NotNull] DirectoryEntry directory)
         {
-            var resolver = new DirectoryResolver(root);
+            var resolver = new DirectoryResolver(container);
             DirectoryEntry current = resolver.ResolveDirectory(path);
 
             do

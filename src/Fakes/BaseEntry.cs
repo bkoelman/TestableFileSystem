@@ -1,34 +1,136 @@
 ﻿using System;
 using System.IO;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
     internal abstract class BaseEntry
     {
-        private FileAttributes attributes;
+        [CanBeNull]
+        private string encryptorAccountName;
+
+        private FileAttributes innerAttributes;
 
         [NotNull]
         public string Name { get; protected set; }
 
+        [NotNull]
+        public FakeFileSystemChangeTracker ChangeTracker { get; }
+
+        [NotNull]
+        public ILoggedOnUserAccount LoggedOnAccount { get; }
+
+        public bool IsEncrypted => encryptorAccountName != null;
+
+        public bool IsExternallyEncrypted => IsEncrypted && LoggedOnAccount.UserName != encryptorAccountName;
+
+        [NotNull]
+        internal abstract IPathFormatter PathFormatter { get; }
+
         public FileAttributes Attributes
         {
-            get => attributes;
-            set => attributes = FilterAttributes(value);
+            get => encryptorAccountName != null ? innerAttributes | FileAttributes.Encrypted : innerAttributes;
+            private set => innerAttributes = value & ~FileAttributes.Encrypted;
         }
 
-        public abstract DateTime CreationTime { get; set; }
-        public abstract DateTime CreationTimeUtc { get; set; }
-        public abstract DateTime LastAccessTime { get; set; }
-        public abstract DateTime LastAccessTimeUtc { get; set; }
-        public abstract DateTime LastWriteTime { get; set; }
-        public abstract DateTime LastWriteTimeUtc { get; set; }
+        private long creationTimeStampUtc;
+        private long lastWriteTimeStampUtc;
+        private long lastAccessTimeStampUtc;
 
-        protected BaseEntry([NotNull] string name)
+        public DateTime CreationTime
+        {
+            get => DateTime.FromFileTime(creationTimeStampUtc);
+            set => creationTimeStampUtc = value.ToFileTime();
+        }
+
+        public DateTime CreationTimeUtc
+        {
+            get => DateTime.FromFileTimeUtc(creationTimeStampUtc);
+            set => creationTimeStampUtc = value.ToFileTimeUtc();
+        }
+
+        public DateTime LastAccessTime
+        {
+            get => DateTime.FromFileTime(lastAccessTimeStampUtc);
+            set => lastAccessTimeStampUtc = value.ToFileTime();
+        }
+
+        public DateTime LastAccessTimeUtc
+        {
+            get => DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
+            set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
+        }
+
+        public DateTime LastWriteTime
+        {
+            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTime();
+        }
+
+        public DateTime LastWriteTimeUtc
+        {
+            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
+            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
+        }
+
+        protected BaseEntry([NotNull] string name, FileAttributes attributes, [NotNull] FakeFileSystemChangeTracker changeTracker,
+            [NotNull] ILoggedOnUserAccount loggedOnAccount)
         {
             Guard.NotNullNorWhiteSpace(name, nameof(name));
+            Guard.NotNull(changeTracker, nameof(changeTracker));
+            Guard.NotNull(loggedOnAccount, nameof(loggedOnAccount));
+
             Name = name;
+            Attributes = attributes;
+            ChangeTracker = changeTracker;
+            LoggedOnAccount = loggedOnAccount;
+        }
+
+        public void SetAttributes(FileAttributes newAttributes, FileAccessKinds accessKinds = FileAccessKinds.Attributes)
+        {
+            FileAttributes beforeAttributes = Attributes;
+
+            Attributes = FilterAttributes(newAttributes);
+
+            if (Attributes != beforeAttributes)
+            {
+                ChangeTracker.NotifyContentsAccessed(PathFormatter, accessKinds);
+            }
+        }
+
+        public bool SetEncrypted()
+        {
+            if (encryptorAccountName == null)
+            {
+                encryptorAccountName = LoggedOnAccount.UserName;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool ClearEncrypted()
+        {
+            if (encryptorAccountName != null)
+            {
+                encryptorAccountName = null;
+                return true;
+            }
+
+            return false;
+        }
+
+        public void CopyMetadataFrom([NotNull] BaseEntry otherEntry)
+        {
+            Guard.NotNull(otherEntry, nameof(otherEntry));
+
+            encryptorAccountName = otherEntry.encryptorAccountName;
+            innerAttributes = otherEntry.innerAttributes;
+
+            creationTimeStampUtc = otherEntry.creationTimeStampUtc;
+            lastWriteTimeStampUtc = otherEntry.lastWriteTimeStampUtc;
+            lastAccessTimeStampUtc = otherEntry.lastAccessTimeStampUtc;
         }
 
         protected abstract FileAttributes FilterAttributes(FileAttributes attributes);

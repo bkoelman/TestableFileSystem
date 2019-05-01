@@ -4,7 +4,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class FileWrapper : IFile
+    internal sealed class FileWrapper : IFile
     {
         public bool Exists(string path)
         {
@@ -106,5 +106,23 @@ namespace TestableFileSystem.Wrappers
         {
             File.SetLastWriteTimeUtc(path, lastWriteTimeUtc);
         }
+
+#if !NETSTANDARD1_3
+        public void Encrypt(string path)
+        {
+            File.Encrypt(path);
+        }
+
+        public void Decrypt(string path)
+        {
+            File.Decrypt(path);
+        }
+
+        public void Replace(string sourceFileName, string destinationFileName, string destinationBackupFileName,
+            bool ignoreMetadataErrors = false)
+        {
+            File.Replace(sourceFileName, destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
+        }
+#endif
     }
 }

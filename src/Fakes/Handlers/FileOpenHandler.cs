@@ -3,13 +3,14 @@ using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Resolvers;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Handlers
 {
     internal sealed class FileOpenHandler : FakeOperationHandler<FileOpenArguments, IFileStream>
     {
-        public FileOpenHandler([NotNull] DirectoryEntry root)
-            : base(root)
+        public FileOpenHandler([NotNull] VolumeContainer container)
+            : base(container)
         {
         }
 
@@ -20,7 +21,7 @@ namespace TestableFileSystem.Fakes.Handlers
             FileAccess fileAccess = DetectFileAccess(arguments);
             AssertValidCombinationOfModeWithAccess(arguments.Mode, fileAccess);
 
-            var resolver = new FileResolver(Root);
+            var resolver = new FileResolver(Container);
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
             return resolveResult.ExistingFileOrNull != null
@@ -44,7 +45,9 @@ namespace TestableFileSystem.Fakes.Handlers
                     case FileMode.Create:
                     case FileMode.Truncate:
                     case FileMode.Append:
+                    {
                         throw ErrorFactory.System.InvalidOpenCombination(mode, access);
+                    }
                 }
             }
         }
@@ -68,7 +71,23 @@ namespace TestableFileSystem.Fakes.Handlers
                 }
             }
 
-            return file.Open(arguments.Mode, fileAccess, arguments.Path);
+            AssertIsNotExternallyEncrypted(file, arguments.Path);
+
+            bool isAsync = arguments.CreateOptions.HasFlag(FileOptions.Asynchronous);
+            IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, false, isAsync, true);
+
+            ApplyOptions(file, arguments.CreateOptions);
+
+            return stream;
+        }
+
+        [AssertionMethod]
+        private void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        {
+            if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
+            }
         }
 
         [AssertionMethod]
@@ -81,9 +100,9 @@ namespace TestableFileSystem.Fakes.Handlers
         }
 
         [AssertionMethod]
-        private void AssertIsNotReadOnly([NotNull] FileEntry fileEntry, [NotNull] AbsolutePath absolutePath)
+        private static void AssertIsNotExternallyEncrypted([NotNull] FileEntry file, [NotNull] AbsolutePath absolutePath)
         {
-            if (fileEntry.Attributes.HasFlag(FileAttributes.ReadOnly))
+            if (file.IsExternallyEncrypted)
             {
                 throw ErrorFactory.System.UnauthorizedAccess(absolutePath.GetText());
             }
@@ -99,7 +118,26 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             FileEntry file = containingDirectory.CreateFile(fileName);
-            return file.Open(arguments.Mode, fileAccess, arguments.Path);
+
+            bool isAsync = arguments.CreateOptions.HasFlag(FileOptions.Asynchronous);
+            IFileStream stream = file.Open(arguments.Mode, fileAccess, arguments.Path, true, isAsync, true);
+
+            ApplyOptions(file, arguments.CreateOptions);
+
+            return stream;
+        }
+
+        private static void ApplyOptions([NotNull] FileEntry file, FileOptions options)
+        {
+            if (options.HasFlag(FileOptions.Encrypted))
+            {
+                file.SetEncrypted();
+            }
+
+            if (options.HasFlag(FileOptions.DeleteOnClose))
+            {
+                file.EnableDeleteOnClose();
+            }
         }
     }
 }

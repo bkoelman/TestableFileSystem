@@ -58,6 +58,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.DirectoryName.Should().Be(@"c:\some");
             fileInfo.Directory.ShouldNotBeNull().FullName.Should().Be(@"c:\some");
             fileInfo.FullName.Should().Be(@"c:\some\renamed.md");
+            fileInfo.ToString().Should().Be(@"c:\some\renamed.md");
         }
 
         [Fact]
@@ -86,6 +87,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.DirectoryName.Should().Be(@"c:\other");
             fileInfo.Directory.ShouldNotBeNull().FullName.Should().Be(@"c:\other");
             fileInfo.FullName.Should().Be(@"c:\other\file.txt");
+            fileInfo.ToString().Should().Be(@"c:\other\file.txt");
         }
     }
 }

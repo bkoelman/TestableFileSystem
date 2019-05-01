@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.HandlerArguments
 {
@@ -8,14 +8,11 @@ namespace TestableFileSystem.Fakes.HandlerArguments
         [NotNull]
         public AbsolutePath Path { get; }
 
-        public bool CanCreateVolumeRoot { get; }
-
-        public DirectoryCreateArguments([NotNull] AbsolutePath path, bool canCreateVolumeRoot)
+        public DirectoryCreateArguments([NotNull] AbsolutePath path)
         {
             Guard.NotNull(path, nameof(path));
 
             Path = path;
-            CanCreateVolumeRoot = canCreateVolumeRoot;
         }
     }
 }

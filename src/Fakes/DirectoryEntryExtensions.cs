@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
@@ -12,14 +12,14 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(directory, nameof(directory));
             Guard.NotNull(path, nameof(path));
 
-            FileEntry file = directory.Files.Values.FirstOrDefault(x => x.IsOpen());
+            FileEntry file = directory.Files.FirstOrDefault(x => x.IsOpen());
 
             if (file != null)
             {
                 return path.Append(file.Name);
             }
 
-            foreach (DirectoryEntry subdirectory in directory.Directories.Values)
+            foreach (DirectoryEntry subdirectory in directory.Directories)
             {
                 AbsolutePath subdirectoryPath = path.Append(subdirectory.Name);
 

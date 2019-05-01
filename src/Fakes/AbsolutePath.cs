@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
     internal sealed class AbsolutePath
     {
+        // https://blogs.msdn.microsoft.com/jeremykuhne/2016/04/21/path-format-overview/
+        // https://blogs.msdn.microsoft.com/jeremykuhne/2016/04/21/path-normalization/
+
         [NotNull]
         private static readonly string TwoDirectorySeparators = new string(Path.DirectorySeparatorChar, 2);
 
@@ -19,12 +23,17 @@ namespace TestableFileSystem.Fakes
         [ItemNotNull]
         public IReadOnlyList<string> Components { get; }
 
-        public bool IsOnLocalDrive => IsDriveLetter(Components.First());
+        public bool HasTrailingSeparator { get; }
+
+        [NotNull]
+        public string VolumeName => Components.First();
+
+        public bool IsOnLocalDrive => IsDriveLetter(VolumeName);
 
         public bool IsVolumeRoot => Components.Count == 1;
 
         [NotNull]
-        public string TrailingWhiteSpace { get; }
+        public IPathFormatter Formatter { get; }
 
         public AbsolutePath([NotNull] string path)
         {
@@ -34,20 +43,23 @@ namespace TestableFileSystem.Fakes
 
             Components = parser.GetComponents();
             isExtended = parser.IsExtended;
-            TrailingWhiteSpace = parser.TrailingWhiteSpace;
+            HasTrailingSeparator = parser.HasTrailingSeparator;
+
+            Formatter = new AbsolutePathFormatter(this);
         }
 
         private AbsolutePath([NotNull] [ItemNotNull] IReadOnlyList<string> components, bool isExtended)
         {
             Components = components;
             this.isExtended = isExtended;
-            TrailingWhiteSpace = string.Empty;
+
+            Formatter = new AbsolutePathFormatter(this);
         }
 
         [CanBeNull]
         public AbsolutePath TryGetParentPath()
         {
-            return Components.Count == 1 ? null : GetAncestorPath(Components.Count - 2);
+            return IsVolumeRoot ? null : GetAncestorPath(Components.Count - 2);
         }
 
         [NotNull]
@@ -87,6 +99,11 @@ namespace TestableFileSystem.Fakes
 
             string[] components = Components.Skip(1).ToArray();
             builder.Append(string.Join(Path.DirectorySeparatorChar.ToString(), components));
+
+            if (HasTrailingSeparator && builder[builder.Length - 1] != Path.DirectorySeparatorChar)
+            {
+                builder.Append(Path.DirectorySeparatorChar);
+            }
 
             return builder.ToString();
         }
@@ -132,53 +149,199 @@ namespace TestableFileSystem.Fakes
             return GetText();
         }
 
+        internal static bool IsDriveLetter([NotNull] string name)
+        {
+            if (name.Length == 2 && name[1] == Path.VolumeSeparatorChar)
+            {
+                char driveLetter = char.ToUpperInvariant(name[0]);
+                return driveLetter >= 'A' && driveLetter <= 'Z';
+            }
+
+            return false;
+        }
+
+        [NotNull]
+        public AbsolutePath Append([NotNull] string name)
+        {
+            Guard.NotNullNorWhiteSpace(name, nameof(name));
+
+            if (name == ".")
+            {
+                return this;
+            }
+
+            if (name == "..")
+            {
+                // Silently ignore moving to above root.
+                return TryGetParentPath() ?? this;
+            }
+
+            Parser.AssertDirectoryNameOrFileNameIsValid(name);
+
+            List<string> newComponents = Components.ToList();
+            newComponents.Add(name);
+
+            return new AbsolutePath(newComponents, isExtended);
+        }
+
+        [NotNull]
+        public string MakeRelativeTo([NotNull] AbsolutePath basePath)
+        {
+            Guard.NotNull(basePath, nameof(basePath));
+            AssertBasePathIsNotLongerThanSelf(basePath);
+
+            var relativeComponents = new List<string>();
+
+            for (int index = 0; index < basePath.Components.Count; index++)
+            {
+                string baseComponent = basePath.Components[index];
+                string thisComponent = Components[index];
+
+                AssertIsSameComponent(thisComponent, baseComponent, basePath);
+            }
+
+            for (int index = basePath.Components.Count; index < Components.Count; index++)
+            {
+                string thisComponent = Components[index];
+                relativeComponents.Add(thisComponent);
+            }
+
+            return string.Join(Path.DirectorySeparatorChar.ToString(), relativeComponents);
+        }
+
+        private void AssertBasePathIsNotLongerThanSelf([NotNull] AbsolutePath basePath)
+        {
+            if (basePath.Components.Count > Components.Count)
+            {
+                throw ErrorFactory.Internal.UnknownError($"Cannot rebase path '{GetText()}' to '{basePath.GetText()}'.");
+            }
+        }
+
+        [AssertionMethod]
+        private void AssertIsSameComponent([NotNull] string thisComponent, [NotNull] string baseComponent,
+            [NotNull] AbsolutePath basePath)
+        {
+            if (!string.Equals(thisComponent, baseComponent, StringComparison.OrdinalIgnoreCase))
+            {
+                throw ErrorFactory.Internal.UnknownError($"Cannot rebase path '{GetText()}' to '{basePath.GetText()}'.");
+            }
+        }
+
+        public bool IsDescendantOf([NotNull] AbsolutePath path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            if (path.Components.Count > Components.Count)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < path.Components.Count; index++)
+            {
+                string baseComponent = path.Components[index];
+                string thisComponent = Components[index];
+
+                if (!string.Equals(thisComponent, baseComponent, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return path.Components.Count < Components.Count;
+        }
+
+        public static bool AreEquivalent([CanBeNull] AbsolutePath path1, [CanBeNull] AbsolutePath path2)
+        {
+            if (ReferenceEquals(path1, path2))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(path1, null))
+            {
+                return false;
+            }
+
+            return path1.IsEquivalentTo(path2);
+        }
+
+        private bool IsEquivalentTo([CanBeNull] AbsolutePath path)
+        {
+            if (path == null || path.Components.Count != Components.Count)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < path.Components.Count; index++)
+            {
+                string baseComponent = path.Components[index];
+                string thisComponent = Components[index];
+
+                if (!string.Equals(thisComponent, baseComponent, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool IsOnSameVolume([NotNull] AbsolutePath path)
+        {
+            Guard.NotNull(path, nameof(path));
+
+            return string.Equals(Components[0], path.Components[0], StringComparison.OrdinalIgnoreCase);
+        }
+
         private sealed class Parser
         {
             [NotNull]
             private static readonly char[] FileNameCharsInvalid = Path.GetInvalidFileNameChars();
 
+            private const char SingleSpace = ' ';
+            private const char SingleDot = '.';
+
             [NotNull]
             [ItemNotNull]
-            private static readonly ISet<string> ReservedComponentNames = new HashSet<string>(
-                new[]
-                {
-                    "CON",
-                    "PRN",
-                    "AUX",
-                    "NUL",
-                    "COM1",
-                    "COM2",
-                    "COM3",
-                    "COM4",
-                    "COM5",
-                    "COM6",
-                    "COM7",
-                    "COM8",
-                    "COM9",
-                    "LPT1",
-                    "LPT2",
-                    "LPT3",
-                    "LPT4",
-                    "LPT5",
-                    "LPT6",
-                    "LPT7",
-                    "LPT8",
-                    "LPT9"
-                }, StringComparer.OrdinalIgnoreCase);
+            private static readonly ISet<string> ReservedComponentNames = new HashSet<string>(new[]
+            {
+                "CON",
+                "PRN",
+                "AUX",
+                "NUL",
+                "COM1",
+                "COM2",
+                "COM3",
+                "COM4",
+                "COM5",
+                "COM6",
+                "COM7",
+                "COM8",
+                "COM9",
+                "LPT1",
+                "LPT2",
+                "LPT3",
+                "LPT4",
+                "LPT5",
+                "LPT6",
+                "LPT7",
+                "LPT8",
+                "LPT9"
+            }, StringComparer.OrdinalIgnoreCase);
 
             [NotNull]
             private readonly string path;
 
             public bool IsExtended { get; }
 
-            [NotNull]
-            public string TrailingWhiteSpace { get; }
+            public bool HasTrailingSeparator { get; }
 
             public Parser([NotNull] string path)
             {
                 this.path = NormalizePath(path);
+                HasTrailingSeparator = path.EndsWith(PathFacts.PrimaryDirectorySeparatorString, StringComparison.Ordinal) ||
+                    path.EndsWith(PathFacts.AlternateDirectorySeparatorString, StringComparison.Ordinal);
                 IsExtended = HasPrefixForExtendedLength(path);
-                TrailingWhiteSpace = path.Substring(path.TrimEnd().Length);
             }
 
             [NotNull]
@@ -186,7 +349,7 @@ namespace TestableFileSystem.Fakes
             {
                 Guard.NotNullNorWhiteSpace(path, nameof(path));
 
-                string trimmed = path.TrimEnd();
+                string trimmed = path.TrimEnd(SingleSpace);
                 string withoutSeparator = WithoutTrailingSeparator(trimmed);
                 string withoutPrefix = WithoutPrefixForExtendedLength(withoutSeparator);
 
@@ -312,14 +475,9 @@ namespace TestableFileSystem.Fakes
             {
                 for (int index = 1; index < components.Count; index++)
                 {
-                    string component = components[index];
+                    string component = components[index].TrimEnd(SingleSpace);
 
-                    if (component == ".")
-                    {
-                        components.RemoveAt(index);
-                        index--;
-                    }
-                    else if (component == "..")
+                    if (component == "..")
                     {
                         if (index > 1)
                         {
@@ -335,45 +493,39 @@ namespace TestableFileSystem.Fakes
                     }
                     else
                     {
-                        AssertDirectoryNameOrFileNameIsValid(component);
+                        component = component.TrimEnd(SingleSpace, SingleDot);
+
+                        if (component.Length == 0)
+                        {
+                            components.RemoveAt(index);
+                            index--;
+                        }
+                        else
+                        {
+                            AssertDirectoryNameOrFileNameIsValid(component);
+                            components[index] = component;
+                        }
                     }
                 }
             }
         }
 
-        internal static bool IsDriveLetter([NotNull] string name)
+        [DebuggerDisplay("{GetPath().GetText()}")]
+        private sealed class AbsolutePathFormatter : IPathFormatter
         {
-            if (name.Length == 2 && name[1] == Path.VolumeSeparatorChar)
+            [NotNull]
+            private readonly AbsolutePath path;
+
+            public AbsolutePathFormatter([NotNull] AbsolutePath path)
             {
-                char driveLetter = char.ToUpperInvariant(name[0]);
-                return driveLetter >= 'A' && driveLetter <= 'Z';
+                Guard.NotNull(path, nameof(path));
+                this.path = path;
             }
 
-            return false;
-        }
-
-        [NotNull]
-        public AbsolutePath Append([NotNull] string name)
-        {
-            Guard.NotNullNorWhiteSpace(name, nameof(name));
-
-            if (name == ".")
+            public AbsolutePath GetPath()
             {
-                return this;
+                return path;
             }
-
-            if (name == "..")
-            {
-                // Silently ignore moving to above root.
-                return TryGetParentPath() ?? this;
-            }
-
-            Parser.AssertDirectoryNameOrFileNameIsValid(name);
-
-            List<string> newComponents = Components.ToList();
-            newComponents.Add(name);
-
-            return new AbsolutePath(newComponents, isExtended);
         }
     }
 }

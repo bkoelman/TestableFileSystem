@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
         [Fact]
@@ -49,25 +49,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
-        private void When_setting_current_directory_to_invalid_root_it_must_fail()
+        private void When_setting_current_directory_to_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.SetCurrentDirectory("::");
+            Action action = () => fileSystem.Directory.SetCurrentDirectory("_:");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_setting_current_directory_to_invalid_characters_it_must_fail()
+        private void When_setting_current_directory_to_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -92,7 +92,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(@"C:\other\folder");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\other\folder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\other\folder'.");
         }
 
         [Fact]
@@ -137,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(@"E:\");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'E:\'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'E:\'.");
         }
 
         [Fact]
@@ -216,7 +217,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(@"\\server\share\team");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage(@"The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
         [Fact]
@@ -248,7 +249,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(path);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The directory name is invalid.");
+            action.Should().ThrowExactly<IOException>().WithMessage("The directory name is invalid.");
         }
 
         [Fact]
@@ -263,8 +264,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(@"c:\some\file.txt\subfolder");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
         }
 
         [Fact]
@@ -279,8 +280,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCurrentDirectory(@"c:\some\file.txt\subfolder\deeper");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\subfolder\deeper'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\subfolder\deeper'.");
         }
 
         [Fact]

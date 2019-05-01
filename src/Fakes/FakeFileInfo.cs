@@ -1,25 +1,22 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
-    public sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
+    internal sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
     {
-        public override string Name => AbsolutePath.IsVolumeRoot
-            ? string.Empty
-            : AbsolutePath.Components.Last() + AbsolutePath.TrailingWhiteSpace;
+        public override string Name => Path.GetFileName(DisplayPath);
 
-        public override bool Exists => Properties.Exists && !Properties.Attributes.HasFlag(FileAttributes.Directory);
+        public override bool Exists => Metadata.Exists && !Metadata.Attributes.HasFlag(FileAttributes.Directory);
 
         public long Length
         {
             get
             {
                 AssertIsExistingFile();
-                return Properties.FileSize;
+                return Metadata.FileSize;
             }
         }
 
@@ -27,8 +24,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.Attributes.HasFlag(FileAttributes.ReadOnly);
+                Metadata.AssertNoError();
+                return Metadata.Attributes.HasFlag(FileAttributes.ReadOnly);
             }
             set
             {
@@ -54,8 +51,9 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        internal FakeFileInfo([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
-            : base(root, owner, path)
+        internal FakeFileInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path,
+            [CanBeNull] string displayPath)
+            : base(container, owner, path, displayPath)
         {
         }
 
@@ -79,9 +77,27 @@ namespace TestableFileSystem.Fakes
         {
             Owner.File.Move(FullName, destFileName);
 
-            AbsolutePath destinationPath = Owner.ToAbsolutePath(destFileName);
-            ChangePath(destinationPath);
+            AbsolutePath destinationPath = Owner.ToAbsolutePathInLock(destFileName);
+            ChangePath(destinationPath, destFileName);
         }
+
+#if !NETSTANDARD1_3
+        public void Encrypt()
+        {
+            Owner.File.Encrypt(FullName);
+        }
+
+        public void Decrypt()
+        {
+            Owner.File.Decrypt(FullName);
+        }
+
+        public IFileInfo Replace(string destinationFileName, string destinationBackupFileName, bool ignoreMetadataErrors = false)
+        {
+            Owner.File.Replace(FullName, destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
+            return Owner.ConstructFileInfo(destinationFileName);
+        }
+#endif
 
         public override void Delete()
         {
@@ -93,22 +109,30 @@ namespace TestableFileSystem.Fakes
             switch (kind)
             {
                 case FileTimeKind.CreationTime:
+                {
                     Owner.File.SetCreationTimeUtc(FullName, value);
                     break;
+                }
                 case FileTimeKind.LastAccessTime:
+                {
                     Owner.File.SetLastAccessTimeUtc(FullName, value);
                     break;
+                }
                 case FileTimeKind.LastWriteTime:
+                {
                     Owner.File.SetLastWriteTimeUtc(FullName, value);
                     break;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(kind);
+                }
             }
         }
 
         private void AssertIsExistingFile()
         {
-            Properties.AssertNoError();
+            Metadata.AssertNoError();
 
             if (Attributes.HasFlag(FileAttributes.Directory))
             {

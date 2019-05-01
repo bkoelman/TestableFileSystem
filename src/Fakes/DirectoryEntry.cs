@@ -1,176 +1,250 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
-    internal sealed class DirectoryEntry : BaseEntry
+    internal class DirectoryEntry : BaseEntry
     {
         private const FileAttributes DirectoryAttributesToDiscard = FileAttributes.Device | FileAttributes.Normal |
             FileAttributes.SparseFile | FileAttributes.Compressed | FileAttributes.Encrypted | FileAttributes.IntegrityStream;
-
-        private const FileAttributes MinimumDriveAttributes =
-            FileAttributes.Directory | FileAttributes.System | FileAttributes.Hidden;
-
-        [NotNull]
-        internal readonly SystemClock SystemClock;
 
         [NotNull]
         private readonly DirectoryContents contents = new DirectoryContents();
 
         [NotNull]
-        public IReadOnlyDictionary<string, FileEntry> Files => contents.Files;
+        [ItemNotNull]
+        public IReadOnlyCollection<FileEntry> Files => contents.Files;
 
         [NotNull]
-        public IReadOnlyDictionary<string, DirectoryEntry> Directories => contents.Directories;
+        [ItemNotNull]
+        public IReadOnlyCollection<DirectoryEntry> Directories => contents.Directories;
 
         [CanBeNull]
         public DirectoryEntry Parent { get; private set; }
 
+        [NotNull]
+        public VolumeEntry Root { get; }
+
         public bool IsEmpty => contents.IsEmpty;
 
-        private long creationTimeStampUtc;
-        private long lastWriteTimeStampUtc;
-        private long lastAccessTimeStampUtc;
-
-        public override DateTime CreationTime
-        {
-            get => DateTime.FromFileTime(creationTimeStampUtc);
-            set => creationTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime CreationTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(creationTimeStampUtc);
-            set => creationTimeStampUtc = value.ToFileTimeUtc();
-        }
-
-        public override DateTime LastAccessTime
-        {
-            get => DateTime.FromFileTime(lastAccessTimeStampUtc);
-            set => lastAccessTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime LastAccessTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(lastAccessTimeStampUtc);
-            set => lastAccessTimeStampUtc = value.ToFileTimeUtc();
-        }
-
-        public override DateTime LastWriteTime
-        {
-            get => DateTime.FromFileTime(lastWriteTimeStampUtc);
-            set => lastWriteTimeStampUtc = value.ToFileTime();
-        }
-
-        public override DateTime LastWriteTimeUtc
-        {
-            get => DateTime.FromFileTimeUtc(lastWriteTimeStampUtc);
-            set => lastWriteTimeStampUtc = value.ToFileTimeUtc();
-        }
-
-        private DirectoryEntry([NotNull] string name, [CanBeNull] DirectoryEntry parent, [NotNull] SystemClock systemClock)
-            : base(name)
-        {
-            Parent = parent;
-            Attributes = AbsolutePath.IsDriveLetter(name) ? MinimumDriveAttributes : FileAttributes.Directory;
-            SystemClock = systemClock;
-
-            CreationTimeUtc = systemClock.UtcNow();
-            HandleDirectoryChanged();
-        }
-
-        private void HandleDirectoryChanged()
-        {
-            HandleDirectoryAccessed();
-            LastWriteTimeUtc = LastAccessTimeUtc;
-        }
-
-        private void HandleDirectoryAccessed()
-        {
-            LastAccessTimeUtc = SystemClock.UtcNow();
-        }
-
         [NotNull]
-        public static DirectoryEntry CreateRoot([NotNull] SystemClock systemClock)
+        internal SystemClock SystemClock { get; }
+
+        internal override IPathFormatter PathFormatter { get; }
+
+        protected DirectoryEntry([NotNull] string name, FileAttributes attributes, [CanBeNull] DirectoryEntry parent,
+            [CanBeNull] VolumeEntry root, [NotNull] FakeFileSystemChangeTracker changeTracker, [NotNull] SystemClock systemClock,
+            [NotNull] ILoggedOnUserAccount loggedOnAccount)
+            : base(name, attributes, changeTracker, loggedOnAccount)
         {
             Guard.NotNull(systemClock, nameof(systemClock));
 
-            return new DirectoryEntry("My Computer", null, systemClock);
+            Parent = parent;
+            Root = root ?? (VolumeEntry)this;
+            SystemClock = systemClock;
+            PathFormatter = new DirectoryEntryPathFormatter(this);
+
+            if (parent?.IsEncrypted == true)
+            {
+                SetEncrypted();
+            }
+
+            CreationTimeUtc = systemClock.UtcNow();
+            UpdateLastWriteLastAccessTime();
+        }
+
+        private void HandleDirectoryContentsChanged(bool skipNotifyLastAccess)
+        {
+            UpdateLastWriteLastAccessTime();
+
+            if (skipNotifyLastAccess)
+            {
+                ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Write);
+            }
+            else
+            {
+                ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.WriteRead);
+            }
+        }
+
+        private void HandleDirectoryContentsAccessed()
+        {
+            UpdateLastAccessTime();
+            ChangeTracker.NotifyContentsAccessed(PathFormatter, FileAccessKinds.Read);
+        }
+
+        private void UpdateLastWriteLastAccessTime()
+        {
+            UpdateLastAccessTime();
+            LastWriteTimeUtc = LastAccessTimeUtc;
+        }
+
+        private void UpdateLastAccessTime()
+        {
+            LastAccessTimeUtc = SystemClock.UtcNow();
         }
 
         [NotNull]
         [ItemNotNull]
         public IEnumerable<BaseEntry> EnumerateEntries(EnumerationFilter filter)
         {
-            HandleDirectoryAccessed();
+            UpdateLastAccessTime();
 
             return contents.GetEntries(filter);
         }
 
-        [NotNull]
-        [ItemNotNull]
-        public ICollection<DirectoryEntry> FilterDrives()
+        public bool ContainsFile([NotNull] string fileName)
         {
-            return Directories.Where(x => x.Key.IndexOf(Path.VolumeSeparatorChar) != -1).Select(x => x.Value).ToArray();
+            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
+
+            return contents.ContainsFile(fileName);
+        }
+
+        [NotNull]
+        public FileEntry GetFile([NotNull] string fileName)
+        {
+            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
+
+            return contents.GetFile(fileName);
         }
 
         [NotNull]
         public FileEntry CreateFile([NotNull] string fileName)
         {
-            Guard.NotNull(fileName, nameof(fileName));
+            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
 
             var fileEntry = new FileEntry(fileName, this);
             contents.Add(fileEntry);
 
-            HandleDirectoryChanged();
+            UpdateLastWriteLastAccessTime();
+            ChangeTracker.NotifyFileCreated(fileEntry.PathFormatter);
 
             return fileEntry;
         }
 
-        public void DeleteFile([NotNull] string fileName)
+        public void DeleteFile([NotNull] string fileName, bool notifyTracker)
         {
-            Guard.NotNull(fileName, nameof(fileName));
+            Guard.NotNullNorWhiteSpace(fileName, nameof(fileName));
 
-            contents.RemoveFile(fileName);
+            FileEntry fileEntry = contents.RemoveFile(fileName);
 
-            HandleDirectoryChanged();
+            if (!Root.TryAllocateSpace(-fileEntry.Size))
+            {
+                throw ErrorFactory.Internal.UnknownError(
+                    $"Disk space on volume '{Root.Name}' ({Root.FreeSpaceInBytes} bytes) would become negative.");
+            }
+
+            UpdateLastWriteLastAccessTime();
+
+            if (notifyTracker)
+            {
+                ChangeTracker.NotifyFileDeleted(fileEntry.PathFormatter);
+            }
         }
 
-        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName)
+        public void RenameFile([NotNull] string sourceFileName, [NotNull] string destinationFileName,
+            [NotNull] IPathFormatter sourcePathFormatter, bool skipNotifyLastAccess, bool skipNotifyAttributes)
+        {
+            Guard.NotNullNorWhiteSpace(sourceFileName, nameof(sourceFileName));
+            Guard.NotNullNorWhiteSpace(destinationFileName, nameof(destinationFileName));
+            Guard.NotNull(sourcePathFormatter, nameof(sourcePathFormatter));
+
+            FileEntry file = contents.RemoveFile(sourceFileName);
+            file.MoveTo(destinationFileName, this);
+            contents.Add(file);
+
+            ChangeTracker.NotifyFileRenamed(sourcePathFormatter, file.PathFormatter);
+
+            HandleDirectoryContentsChanged(skipNotifyLastAccess);
+            NotifyAttributesForFileMove(file, skipNotifyAttributes);
+        }
+
+        public void MoveFileToHere([NotNull] FileEntry file, [NotNull] string newFileName, bool skipNotifyLastAccess,
+            bool skipNotifyAttributes)
         {
             Guard.NotNull(file, nameof(file));
             Guard.NotNullNorWhiteSpace(newFileName, nameof(newFileName));
 
+            if (!Root.TryAllocateSpace(file.Size))
+            {
+                throw ErrorFactory.Internal.UnknownError(
+                    $"Disk space on volume '{Root.Name}' ({Root.FreeSpaceInBytes} bytes) would become negative.");
+            }
+
             file.MoveTo(newFileName, this);
             contents.Add(file);
 
-            HandleDirectoryChanged();
+            ChangeTracker.NotifyFileCreated(file.PathFormatter);
+            HandleDirectoryContentsChanged(skipNotifyLastAccess);
+            NotifyAttributesForFileMove(file, skipNotifyAttributes);
+        }
+
+        private void NotifyAttributesForFileMove([NotNull] FileEntry file, bool skipNotifyAttributes)
+        {
+            if (!skipNotifyAttributes && !file.Attributes.HasFlag(FileAttributes.Archive))
+            {
+                ChangeTracker.NotifyContentsAccessed(file.PathFormatter, FileAccessKinds.Attributes);
+            }
+        }
+
+        public bool ContainsDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
+
+            return contents.ContainsDirectory(directoryName);
+        }
+
+        [NotNull]
+        public DirectoryEntry GetDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
+
+            return contents.GetDirectory(directoryName);
         }
 
         [NotNull]
         public DirectoryEntry CreateDirectory([NotNull] string directoryName)
         {
-            Guard.NotNull(directoryName, nameof(directoryName));
+            Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
-            var directoryEntry = new DirectoryEntry(directoryName, this, SystemClock);
+            var directoryEntry = new DirectoryEntry(directoryName, FileAttributes.Directory, this, Root, ChangeTracker,
+                SystemClock, LoggedOnAccount);
             contents.Add(directoryEntry);
 
-            HandleDirectoryChanged();
+            UpdateLastWriteLastAccessTime();
+            ChangeTracker.NotifyDirectoryCreated(directoryEntry.PathFormatter);
 
             return directoryEntry;
         }
 
         public void DeleteDirectory([NotNull] string directoryName)
         {
-            Guard.NotNull(directoryName, nameof(directoryName));
+            Guard.NotNullNorWhiteSpace(directoryName, nameof(directoryName));
 
-            contents.RemoveDirectory(directoryName);
+            DirectoryEntry directoryEntry = contents.RemoveDirectory(directoryName);
 
-            HandleDirectoryChanged();
+            UpdateLastWriteLastAccessTime();
+            ChangeTracker.NotifyDirectoryDeleted(directoryEntry.PathFormatter);
+        }
+
+        public void RenameDirectory([NotNull] string sourceDirectoryName, [NotNull] string destinationDirectoryName,
+            [NotNull] IPathFormatter sourcePathFormatter)
+        {
+            Guard.NotNullNorWhiteSpace(sourceDirectoryName, nameof(sourceDirectoryName));
+            Guard.NotNullNorWhiteSpace(destinationDirectoryName, nameof(destinationDirectoryName));
+            Guard.NotNull(sourcePathFormatter, nameof(sourcePathFormatter));
+
+            DirectoryEntry directory = contents.RemoveDirectory(sourceDirectoryName);
+            directory.Name = destinationDirectoryName;
+            contents.Add(directory);
+
+            HandleDirectoryContentsAccessed();
+            ChangeTracker.NotifyDirectoryRenamed(sourcePathFormatter, directory.PathFormatter);
+            HandleDirectoryContentsChanged(false);
         }
 
         public void MoveDirectoryToHere([NotNull] DirectoryEntry directory, [NotNull] string newDirectoryName)
@@ -183,7 +257,9 @@ namespace TestableFileSystem.Fakes
 
             contents.Add(directory);
 
-            HandleDirectoryChanged();
+            UpdateLastWriteLastAccessTime();
+            ChangeTracker.NotifyDirectoryCreated(directory.PathFormatter);
+            HandleDirectoryContentsChanged(false);
         }
 
         public override string ToString()
@@ -193,13 +269,46 @@ namespace TestableFileSystem.Fakes
 
         protected override FileAttributes FilterAttributes(FileAttributes attributes)
         {
-            if ((attributes & FileAttributes.Temporary) != 0)
+            if (attributes.HasFlag(FileAttributes.Temporary))
             {
                 throw new ArgumentException("Invalid File or Directory attributes value.", nameof(attributes));
             }
 
-            FileAttributes minimumAttributes = Parent?.Parent == null ? MinimumDriveAttributes : FileAttributes.Directory;
-            return (attributes & ~DirectoryAttributesToDiscard) | minimumAttributes;
+            return (attributes & ~DirectoryAttributesToDiscard) | FileAttributes.Directory;
+        }
+
+        [DebuggerDisplay("{GetPath().GetText()}")]
+        private sealed class DirectoryEntryPathFormatter : IPathFormatter
+        {
+            [NotNull]
+            private readonly DirectoryEntry directoryEntry;
+
+            public DirectoryEntryPathFormatter([NotNull] DirectoryEntry directoryEntry)
+            {
+                Guard.NotNull(directoryEntry, nameof(directoryEntry));
+                this.directoryEntry = directoryEntry;
+            }
+
+            public AbsolutePath GetPath()
+            {
+                string text = GetText();
+                return new AbsolutePath(text);
+            }
+
+            [NotNull]
+            private string GetText()
+            {
+                var componentStack = new Stack<string>();
+
+                DirectoryEntry directory = directoryEntry;
+                while (directory != null)
+                {
+                    componentStack.Push(directory.Name);
+                    directory = directory.Parent;
+                }
+
+                return string.Join(PathFacts.PrimaryDirectorySeparatorString, componentStack);
+            }
         }
     }
 }

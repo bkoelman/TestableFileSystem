@@ -4,13 +4,17 @@ using JetBrains.Annotations;
 using TestableFileSystem.Fakes.HandlerArguments;
 using TestableFileSystem.Fakes.Handlers;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
     public abstract class FakeFileSystemInfo : IFileSystemInfo
     {
         [NotNull]
-        private readonly DirectoryEntry root;
+        private readonly VolumeContainer container;
+
+        [CanBeNull]
+        private EntryMetadata metadataSnapshot;
 
         [NotNull]
         internal FakeFileSystem Owner { get; }
@@ -18,11 +22,11 @@ namespace TestableFileSystem.Fakes
         [NotNull]
         internal AbsolutePath AbsolutePath { get; private set; }
 
-        [CanBeNull]
-        private EntryProperties propertiesSnapshot;
+        [NotNull]
+        protected string DisplayPath { get; private set; }
 
         [NotNull]
-        internal EntryProperties Properties => propertiesSnapshot ?? (propertiesSnapshot = RetrieveEntryProperties());
+        internal EntryMetadata Metadata => metadataSnapshot ?? (metadataSnapshot = RetrieveEntryMetadata());
 
         public abstract string Name { get; }
 
@@ -34,8 +38,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.Attributes;
+                Metadata.AssertNoError();
+                return Metadata.Attributes;
             }
             set
             {
@@ -54,8 +58,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.CreationTimeUtc;
+                Metadata.AssertNoError();
+                return Metadata.CreationTimeUtc;
             }
             set
             {
@@ -74,8 +78,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.LastAccessTimeUtc;
+                Metadata.AssertNoError();
+                return Metadata.LastAccessTimeUtc;
             }
             set
             {
@@ -94,8 +98,8 @@ namespace TestableFileSystem.Fakes
         {
             get
             {
-                Properties.AssertNoError();
-                return Properties.LastWriteTimeUtc;
+                Metadata.AssertNoError();
+                return Metadata.LastWriteTimeUtc;
             }
             set
             {
@@ -106,49 +110,50 @@ namespace TestableFileSystem.Fakes
 
         public abstract bool Exists { get; }
 
-        internal FakeFileSystemInfo([NotNull] DirectoryEntry root, [NotNull] FakeFileSystem owner, [NotNull] AbsolutePath path)
+        internal FakeFileSystemInfo([NotNull] VolumeContainer container, [NotNull] FakeFileSystem owner,
+            [NotNull] AbsolutePath path, [CanBeNull] string displayPath)
         {
-            Guard.NotNull(root, nameof(root));
+            Guard.NotNull(container, nameof(container));
             Guard.NotNull(owner, nameof(owner));
             Guard.NotNull(path, nameof(path));
 
-            this.root = root;
+            this.container = container;
             Owner = owner;
-
             AbsolutePath = path;
+
             FullName = path.GetText();
+            DisplayPath = displayPath ?? FullName;
             Extension = Path.GetExtension(FullName);
         }
 
         public void Refresh()
         {
-            propertiesSnapshot = RetrieveEntryProperties();
+            metadataSnapshot = RetrieveEntryMetadata();
         }
 
         [NotNull]
-        private EntryProperties RetrieveEntryProperties()
+        private EntryMetadata RetrieveEntryMetadata()
         {
-            var handler = new EntryGetPropertiesHandler(root);
-            var arguments = new EntryGetPropertiesArguments(AbsolutePath);
+            var handler = new EntryGetMetadataHandler(container);
+            var arguments = new EntryGetMetadataArguments(AbsolutePath);
 
-            lock (Owner.TreeLock)
-            {
-                return handler.Handle(arguments);
-            }
+            return container.FileSystemLock.ExecuteInLock(() => handler.Handle(arguments));
         }
 
         private void Invalidate()
         {
-            propertiesSnapshot = null;
+            metadataSnapshot = null;
         }
 
         public abstract void Delete();
 
-        internal void ChangePath([NotNull] AbsolutePath path)
+        internal void ChangePath([NotNull] AbsolutePath path, [NotNull] string displayPath)
         {
             Guard.NotNull(path, nameof(path));
+            Guard.NotNull(displayPath, nameof(displayPath));
 
             AbsolutePath = path;
+            DisplayPath = displayPath;
             FullName = path.GetText();
             Extension = Path.GetExtension(FullName);
 
@@ -159,7 +164,7 @@ namespace TestableFileSystem.Fakes
 
         public override string ToString()
         {
-            return FullName;
+            return DisplayPath;
         }
     }
 }

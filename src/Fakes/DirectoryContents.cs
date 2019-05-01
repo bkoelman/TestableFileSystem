@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
@@ -15,38 +15,41 @@ namespace TestableFileSystem.Fakes
         public bool IsEmpty => !entries.Any();
 
         [CanBeNull]
-        private IReadOnlyDictionary<string, FileEntry> fileMapCached;
+        [ItemNotNull]
+        private IReadOnlyCollection<FileEntry> fileSetCached;
 
         [CanBeNull]
-        private IReadOnlyDictionary<string, DirectoryEntry> directoryMapCached;
+        [ItemNotNull]
+        private IReadOnlyCollection<DirectoryEntry> directorySetCached;
 
         [NotNull]
-        public IReadOnlyDictionary<string, FileEntry> Files
+        [ItemNotNull]
+        public IReadOnlyCollection<FileEntry> Files
         {
             get
             {
-                if (fileMapCached != null)
+                if (fileSetCached != null)
                 {
-                    return fileMapCached;
+                    return fileSetCached;
                 }
 
-                return fileMapCached = GetEntries(EnumerationFilter.Files).Cast<FileEntry>()
-                    .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+                return fileSetCached = GetEntries(EnumerationFilter.Files).Cast<FileEntry>().OrderBy(x => x.Name).ToArray();
             }
         }
 
         [NotNull]
-        public IReadOnlyDictionary<string, DirectoryEntry> Directories
+        [ItemNotNull]
+        public IReadOnlyCollection<DirectoryEntry> Directories
         {
             get
             {
-                if (directoryMapCached != null)
+                if (directorySetCached != null)
                 {
-                    return directoryMapCached;
+                    return directorySetCached;
                 }
 
-                return directoryMapCached = GetEntries(EnumerationFilter.Directories).Cast<DirectoryEntry>()
-                    .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+                return directorySetCached = GetEntries(EnumerationFilter.Directories).Cast<DirectoryEntry>().OrderBy(x => x.Name)
+                    .ToArray();
             }
         }
 
@@ -57,18 +60,57 @@ namespace TestableFileSystem.Fakes
             switch (filter)
             {
                 case EnumerationFilter.Files:
+                {
                     return entries.Values.OfType<FileEntry>();
+                }
                 case EnumerationFilter.Directories:
+                {
                     return entries.Values.OfType<DirectoryEntry>();
+                }
                 case EnumerationFilter.All:
+                {
                     return entries.Values;
+                }
                 default:
+                {
                     throw ErrorFactory.Internal.EnumValueUnsupported(filter);
+                }
             }
         }
 
+        public bool ContainsFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+
+            return entries.ContainsKey(fileName) && entries[fileName] is FileEntry;
+        }
+
         [NotNull]
-        public T Add<T>([NotNull] T entry)
+        public FileEntry GetFile([NotNull] string fileName)
+        {
+            Guard.NotNull(fileName, nameof(fileName));
+            AssertFileExists(fileName);
+
+            return (FileEntry)entries[fileName];
+        }
+
+        public bool ContainsDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNull(directoryName, nameof(directoryName));
+
+            return entries.ContainsKey(directoryName) && entries[directoryName] is DirectoryEntry;
+        }
+
+        [NotNull]
+        public DirectoryEntry GetDirectory([NotNull] string directoryName)
+        {
+            Guard.NotNull(directoryName, nameof(directoryName));
+            AssertDirectoryExists(directoryName);
+
+            return (DirectoryEntry)entries[directoryName];
+        }
+
+        public void Add<T>([NotNull] T entry)
             where T : BaseEntry
         {
             Guard.NotNull(entry, nameof(entry));
@@ -77,14 +119,11 @@ namespace TestableFileSystem.Fakes
             entries[entry.Name] = entry;
 
             InvalidateCache();
-            return entry;
         }
 
         [AssertionMethod]
         private void AssertEntryDoesNotExist([NotNull] string name)
         {
-            Guard.NotNull(name, nameof(name));
-
             if (entries.ContainsKey(name))
             {
                 throw entries[name] is DirectoryEntry
@@ -93,43 +132,45 @@ namespace TestableFileSystem.Fakes
             }
         }
 
-        public void RemoveDirectory([NotNull] string directoryName)
+        [NotNull]
+        public DirectoryEntry RemoveDirectory([NotNull] string directoryName)
         {
             Guard.NotNull(directoryName, nameof(directoryName));
-            AssertDirectoryExists(directoryName);
 
+            DirectoryEntry directoryToRemove = GetDirectory(directoryName);
             entries.Remove(directoryName);
 
             InvalidateCache();
+
+            return directoryToRemove;
         }
 
         [AssertionMethod]
         private void AssertDirectoryExists([NotNull] string directoryName)
         {
-            Guard.NotNull(directoryName, nameof(directoryName));
-
-            if (!entries.ContainsKey(directoryName))
+            if (!ContainsDirectory(directoryName))
             {
                 throw ErrorFactory.Internal.UnknownError($"Expected to find an existing directory named '{directoryName}'.");
             }
         }
 
-        public void RemoveFile([NotNull] string fileName)
+        [NotNull]
+        public FileEntry RemoveFile([NotNull] string fileName)
         {
             Guard.NotNull(fileName, nameof(fileName));
-            AssertFileExists(fileName);
 
+            FileEntry fileToRemove = GetFile(fileName);
             entries.Remove(fileName);
 
             InvalidateCache();
+
+            return fileToRemove;
         }
 
         [AssertionMethod]
         private void AssertFileExists([NotNull] string fileName)
         {
-            Guard.NotNull(fileName, nameof(fileName));
-
-            if (!entries.ContainsKey(fileName))
+            if (!ContainsFile(fileName))
             {
                 throw ErrorFactory.Internal.UnknownError($"Expected to find an existing file named '{fileName}'.");
             }
@@ -137,8 +178,8 @@ namespace TestableFileSystem.Fakes
 
         private void InvalidateCache()
         {
-            fileMapCached = null;
-            directoryMapCached = null;
+            fileSetCached = null;
+            directorySetCached = null;
         }
 
         public override string ToString()

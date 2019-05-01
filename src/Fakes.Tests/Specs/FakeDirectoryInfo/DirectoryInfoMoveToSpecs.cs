@@ -56,6 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Name.Should().Be("renamed");
             dirInfo.Extension.Should().BeEmpty();
             dirInfo.FullName.Should().Be(destinationPath);
+            dirInfo.ToString().Should().Be(destinationPath);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"c:\some");
@@ -89,6 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Name.Should().Be("folder");
             dirInfo.Extension.Should().BeEmpty();
             dirInfo.FullName.Should().Be(destinationPath);
+            dirInfo.ToString().Should().Be(destinationPath);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
             parentInfo.FullName.Should().Be(@"c:\other");

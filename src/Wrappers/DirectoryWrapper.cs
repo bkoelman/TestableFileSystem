@@ -5,7 +5,7 @@ using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Wrappers
 {
-    public sealed class DirectoryWrapper : IDirectory
+    internal sealed class DirectoryWrapper : IDirectory
     {
         public IDirectoryInfo GetParent(string path)
         {
@@ -142,5 +142,12 @@ namespace TestableFileSystem.Wrappers
         {
             Directory.SetLastWriteTimeUtc(path, lastWriteTimeUtc);
         }
+
+#if !NETSTANDARD1_3
+        public string[] GetLogicalDrives()
+        {
+            return Directory.GetLogicalDrives();
+        }
+#endif
     }
 }

@@ -21,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Empty path name is not legal.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty path name is not legal.*");
         }
 
         [Fact]
@@ -49,25 +49,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
-        private void When_creating_file_for_invalid_root_it_must_fail()
+        private void When_creating_file_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Create("::");
+            Action action = () => fileSystem.File.Create("_:");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_creating_file_for_invalid_characters_it_must_fail()
+        private void When_creating_file_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -77,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create("some?.txt");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -118,17 +118,38 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
-        private void When_creating_local_file_with_encryption_it_must_fail()
+        private void When_creating_local_file_with_asynchronous_it_must_succeed()
         {
             // Arrange
+            const string path = @"c:\doc.txt";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Create(@"c:\doc.txt", 1, FileOptions.Encrypted);
+            using (IFileStream stream = fileSystem.File.Create(path, 1, FileOptions.Asynchronous))
+            {
+                // Assert
+                stream.IsAsync.Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        private void When_creating_local_file_with_encryption_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\doc.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            using (fileSystem.File.Create(path, 1, FileOptions.Encrypted))
+            {
+            }
 
             // Assert
-            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'c:\doc.txt' is denied.");
+            fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Encrypted | FileAttributes.Archive);
         }
 
         [Fact]
@@ -149,6 +170,34 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
 
             fileSystem.File.Exists(path).Should().BeFalse();
+        }
+
+        [Fact]
+        private void When_unable_to_create_local_file_with_delete_on_close_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"c:\doc.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .IncludingTextFile(path, "Text")
+                .Build();
+
+            using (fileSystem.File.OpenRead(path))
+            {
+                // Act
+                try
+                {
+                    using (fileSystem.File.Create(path, 1, FileOptions.DeleteOnClose))
+                    {
+                    }
+                }
+                catch (IOException)
+                {
+                }
+            }
+
+            // Assert
+            fileSystem.File.Exists(path).Should().BeTrue();
         }
 
         [Fact]
@@ -187,8 +236,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(path);
 
             // Assert
-            action.ShouldThrow<UnauthorizedAccessException>()
-                .WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -205,8 +254,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(path);
 
             // Assert
-            action.ShouldThrow<UnauthorizedAccessException>()
-                .WithMessage(@"Access to the path 'C:\some\file.txt' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
         [Fact]
@@ -294,8 +343,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(@"C:\some\subfolder");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\subfolder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\subfolder'.");
         }
 
         [Fact]
@@ -312,7 +361,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(path);
 
             // Assert
-            action.ShouldThrow<UnauthorizedAccessException>().WithMessage(@"Access to the path 'C:\some\subfolder' is denied.");
+            action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage(
+                @"Access to the path 'C:\some\subfolder' is denied.");
         }
 
         [Fact]
@@ -327,8 +377,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(@"c:\some\file.txt\nested.txt");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
         [Fact]
@@ -343,8 +393,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(@"c:\some\file.txt\nested.txt\more.txt");
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
         [Fact]
@@ -358,7 +408,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create(@"\\server\share\file.txt");
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -409,7 +459,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Create("COM1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]

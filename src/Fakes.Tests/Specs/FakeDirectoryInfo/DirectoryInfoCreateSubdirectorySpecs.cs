@@ -25,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
         }
 
         [Fact]
-        private void When_creating_subdirectory_for_invalid_root_it_must_fail()
+        private void When_creating_subdirectory_for_invalid_drive_it_must_fail()
         {
             // Arrange
             const string path = @"d:\some";
@@ -80,14 +80,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
             // Act
-            Action action = () => dirInfo.CreateSubdirectory("::");
+            Action action = () => dirInfo.CreateSubdirectory("_:");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
-        private void When_creating_subdirectory_for_invalid_characters_it_must_fail()
+        private void When_creating_subdirectory_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             const string path = @"d:\some";
@@ -102,7 +103,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory("sub?");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -175,7 +176,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"d:\some\other");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -194,7 +196,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"d:sub");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -213,7 +216,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"\\server\share\folder");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -232,7 +236,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"\other");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Second path fragment must not be a drive or UNC name.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                "Second path fragment must not be a drive or UNC name.*");
         }
 
         [Fact]
@@ -270,8 +275,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"..");
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .WithMessage(@"The directory specified, '..', is not a subdirectory of 'd:\some'.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                @"The directory specified, '..', is not a subdirectory of 'd:\some'.*");
         }
 
         [Fact]
@@ -290,8 +295,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"..\..\more");
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .WithMessage(@"The directory specified, '..\..\more', is not a subdirectory of 'd:\some\folder'.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                @"The directory specified, '..\..\more', is not a subdirectory of 'd:\some\folder'.*");
         }
 
         [Fact]
@@ -310,8 +315,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             Action action = () => dirInfo.CreateSubdirectory(@"..\some2\more");
 
             // Assert
-            action.ShouldThrow<ArgumentException>()
-                .WithMessage(@"The directory specified, '..\some2\more', is not a subdirectory of 'd:\some'.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(
+                @"The directory specified, '..\some2\more', is not a subdirectory of 'd:\some'.*");
         }
 
         [Fact]

@@ -1,15 +1,14 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using TestableFileSystem.Interfaces;
+using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes
 {
     public sealed class FakeFileSystem : IFileSystem
     {
         [NotNull]
-        private readonly DirectoryEntry root;
-
-        [NotNull]
-        internal readonly object TreeLock = new object();
+        private readonly VolumeContainer container;
 
         [NotNull]
         internal CurrentDirectoryManager CurrentDirectoryManager { get; }
@@ -18,57 +17,122 @@ namespace TestableFileSystem.Fakes
         private readonly RelativePathConverter relativePathConverter;
 
         [NotNull]
+        internal string TempDirectory { get; private set; }
+
+        [NotNull]
+        internal Random RandomNumberGenerator { get; }
+
+        [NotNull]
         internal WaitIndicator CopyWaitIndicator { get; }
 
         public IFile File { get; }
         public IDirectory Directory { get; }
+        public IDrive Drive { get; }
+        public IPath Path { get; }
 
-        internal FakeFileSystem([NotNull] DirectoryEntry root, [NotNull] WaitIndicator copyWaitIndicator)
+        internal FakeFileSystem([NotNull] VolumeContainer container, [NotNull] string tempDirectory,
+            [NotNull] WaitIndicator copyWaitIndicator)
         {
-            Guard.NotNull(root, nameof(root));
-            this.root = root;
+            Guard.NotNull(container, nameof(container));
+            Guard.NotNull(copyWaitIndicator, nameof(copyWaitIndicator));
 
-            File = new FileOperationLocker<FakeFile>(this, new FakeFile(root, this));
-            Directory = new DirectoryOperationLocker<FakeDirectory>(this, new FakeDirectory(root, this));
-            CurrentDirectoryManager = new CurrentDirectoryManager(root);
-            relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
+            this.container = container;
+            TempDirectory = tempDirectory;
             CopyWaitIndicator = copyWaitIndicator;
+
+            File = new FileOperationLocker<FakeFile>(container.FileSystemLock, new FakeFile(container, this));
+            Directory = new DirectoryOperationLocker<FakeDirectory>(container.FileSystemLock, new FakeDirectory(container, this));
+            Drive = new DriveOperationLocker<FakeDrive>(container.FileSystemLock, new FakeDrive(container, this));
+            Path = new PathOperationLocker<FakePath>(container.FileSystemLock, new FakePath(container, this));
+            CurrentDirectoryManager = new CurrentDirectoryManager(container);
+            relativePathConverter = new RelativePathConverter(CurrentDirectoryManager);
+            RandomNumberGenerator = CreateRandomNumberGenerator(container.SystemClock);
         }
 
         [NotNull]
-        public FakeFileInfo ConstructFileInfo([NotNull] string fileName)
+        private static Random CreateRandomNumberGenerator([NotNull] SystemClock systemClock)
+        {
+            int seed = (int)(systemClock.UtcNow().Ticks % int.MaxValue);
+            return new Random(seed);
+        }
+
+        [NotNull]
+        public IFileInfo ConstructFileInfo([NotNull] string fileName)
         {
             Guard.NotNull(fileName, nameof(fileName));
 
-            AbsolutePath absolutePath = ToAbsolutePath(fileName);
-            return new FakeFileInfo(root, this, absolutePath);
+            AbsolutePath absolutePath = ToAbsolutePathInLock(fileName);
+            return new FakeFileInfo(container, this, absolutePath, fileName);
         }
 
         IFileInfo IFileSystem.ConstructFileInfo(string fileName) => ConstructFileInfo(fileName);
 
         [NotNull]
-        public FakeDirectoryInfo ConstructDirectoryInfo([NotNull] string path)
+        public IDirectoryInfo ConstructDirectoryInfo([NotNull] string path)
         {
             Guard.NotNull(path, nameof(path));
 
-            AbsolutePath absolutePath = ToAbsolutePath(path);
-            return ConstructDirectoryInfo(absolutePath);
+            AbsolutePath absolutePath = ToAbsolutePathInLock(path);
+            return new FakeDirectoryInfo(container, this, absolutePath, path);
         }
 
         [NotNull]
-        internal FakeDirectoryInfo ConstructDirectoryInfo([NotNull] AbsolutePath directoryPath)
+        internal IDirectoryInfo ConstructDirectoryInfo([NotNull] AbsolutePath path, [CanBeNull] string displayPath = null)
         {
-            Guard.NotNull(directoryPath, nameof(directoryPath));
+            Guard.NotNull(path, nameof(path));
 
-            return new FakeDirectoryInfo(root, this, directoryPath);
+            return new FakeDirectoryInfo(container, this, path, displayPath);
         }
 
         IDirectoryInfo IFileSystem.ConstructDirectoryInfo(string path) => ConstructDirectoryInfo(path);
+
+        [NotNull]
+        internal AbsolutePath ToAbsolutePathInLock([NotNull] string path)
+        {
+            return container.FileSystemLock.ExecuteInLock(() => ToAbsolutePath(path));
+        }
 
         [NotNull]
         internal AbsolutePath ToAbsolutePath([NotNull] string path)
         {
             return relativePathConverter.ToAbsolutePath(path);
         }
+
+#if !NETSTANDARD1_3
+        public IDriveInfo ConstructDriveInfo(string driveName)
+        {
+            Guard.NotNull(driveName, nameof(driveName));
+
+            return new FakeDriveInfo(container, this, driveName);
+        }
+
+        [NotNull]
+        public FakeFileSystemWatcher ConstructFileSystemWatcher([NotNull] string path = "", [NotNull] string filter = "*.*")
+        {
+            Guard.NotNull(filter, nameof(filter));
+            Guard.NotNull(path, nameof(path));
+
+            AbsolutePath absolutePath = null;
+            if (!IsDefaultInvocation(path, filter))
+            {
+                if (!Directory.Exists(path))
+                {
+                    throw ErrorFactory.System.DirectoryNameIsInvalid(path);
+                }
+
+                absolutePath = ToAbsolutePathInLock(path);
+            }
+
+            return new FakeFileSystemWatcher(this, container.ChangeTracker, absolutePath, filter);
+        }
+
+        private static bool IsDefaultInvocation([NotNull] string path, [NotNull] string filter)
+        {
+            return path == "" && filter == "*.*";
+        }
+
+        IFileSystemWatcher IFileSystem.ConstructFileSystemWatcher(string path, string filter) =>
+            ConstructFileSystemWatcher(path, filter);
+#endif
     }
 }

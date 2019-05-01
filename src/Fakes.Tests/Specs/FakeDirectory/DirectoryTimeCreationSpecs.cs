@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Interfaces;
 using Xunit;
@@ -26,7 +27,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetCreationTime(null);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -41,7 +42,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(null, DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentNullException>();
+            action.Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]
@@ -55,7 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetCreationTime(string.Empty);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -69,7 +70,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(string.Empty, DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -83,7 +84,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetCreationTime(" ");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
@@ -97,39 +98,39 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(" ", DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("The path is not of a legal form.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
         [Fact]
-        private void When_getting_creation_time_in_local_zone_for_invalid_root_it_must_fail()
+        private void When_getting_creation_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.GetCreationTime("::");
+            Action action = () => fileSystem.Directory.GetCreationTime("_:");
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_setting_creation_time_in_local_zone_for_invalid_root_it_must_fail()
+        private void When_setting_creation_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.SetCreationTime("::", DefaultTime);
+            Action action = () => fileSystem.Directory.SetCreationTime("_:", DefaultTime);
 
             // Assert
-            action.ShouldThrow<NotSupportedException>().WithMessage("The given path's format is not supported.");
+            action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
         [Fact]
-        private void When_getting_creation_time_in_local_zone_for_invalid_characters_it_must_fail()
+        private void When_getting_creation_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -139,11 +140,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetCreationTime(@"c:\dir?i");
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
-        private void When_setting_creation_time_in_local_zone_for_invalid_characters_it_must_fail()
+        private void When_setting_creation_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -153,7 +154,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(@"c:\dir?i", DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Illegal characters in path.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
         [Fact]
@@ -183,7 +184,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(@"C:\some\nested", DefaultTime);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\nested'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\nested'.");
         }
 
         [Fact]
@@ -282,7 +283,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(path, DateTime.MinValue);
 
             // Assert
-            action.ShouldThrow<ArgumentOutOfRangeException>().WithMessage("Not a valid Win32 FileTime.*");
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Not a valid Win32 FileTime.*");
         }
 
         [Fact]
@@ -308,7 +309,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Arrange
             const string path = @"C:\";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -335,14 +336,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(path, DefaultTime);
 
             // Assert
-            action.ShouldThrow<ArgumentException>().WithMessage("Path must not be a drive.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("Path must not be a drive.*");
         }
 
         [Fact]
         private void When_getting_creation_time_in_local_zone_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\some")
@@ -362,7 +363,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_creation_time_in_local_zone_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"c:\some")
@@ -382,7 +383,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_creation_time_in_local_zone_for_existing_relative_local_directory_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"C:\folder\some")
@@ -418,7 +419,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_creation_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(@"C:\FOLDER\some")
@@ -471,8 +472,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(@"C:\some\folder", DefaultTime);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'C:\some\folder'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'C:\some\folder'.");
         }
 
         [Fact]
@@ -481,7 +482,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Arrange
             const string path = @"C:\some\file.txt";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingEmptyFile(path)
@@ -538,8 +539,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(@"c:\some\file.txt\nested", DefaultTime);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested'.");
         }
 
         [Fact]
@@ -569,8 +570,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(@"c:\some\file.txt\nested\more", DefaultTime);
 
             // Assert
-            action.ShouldThrow<DirectoryNotFoundException>()
-                .WithMessage(@"Could not find a part of the path 'c:\some\file.txt\nested\more'.");
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                @"Could not find a part of the path 'c:\some\file.txt\nested\more'.");
         }
 
         [Fact]
@@ -586,7 +587,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetCreationTime(path);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -602,7 +603,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(path, DefaultTime);
 
             // Assert
-            action.ShouldThrow<IOException>().WithMessage("The network path was not found");
+            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
         [Fact]
@@ -611,7 +612,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             // Arrange
             const string path = @"\\server\share";
 
-            var clock = new SystemClock { UtcNow = () => DefaultTimeUtc };
+            var clock = new SystemClock(() => DefaultTimeUtc);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder(clock)
                 .IncludingDirectory(path)
@@ -672,7 +673,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(path, DefaultTime);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing'.");
         }
 
         [Fact]
@@ -703,7 +704,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetCreationTime("COM1");
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -717,7 +718,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime("COM1", DefaultTime);
 
             // Assert
-            action.ShouldThrow<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
+            action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
         [Fact]
@@ -747,7 +748,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTime(@"\\?\C:\some\missing", DefaultTime);
 
             // Assert
-            action.ShouldThrow<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing'.");
         }
 
         [Fact]

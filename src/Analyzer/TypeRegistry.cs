@@ -28,22 +28,25 @@ namespace TestableFileSystem.Analyzer
         {
             var builder = new RegistryBuilder(compilation);
 
-            builder.IncludePair("System.IO.Directory", "TestableFileSystem.Interfaces.IDirectory");
-            builder.IncludePair("System.IO.DirectoryInfo", "TestableFileSystem.Interfaces.IDirectoryInfo");
-            builder.IncludePair("System.IO.File", "TestableFileSystem.Interfaces.IFile");
-            builder.IncludePair("System.IO.FileInfo", "TestableFileSystem.Interfaces.IFileInfo");
-            builder.IncludePair("System.IO.FileSystemInfo", "TestableFileSystem.Interfaces.IFileSystemInfo");
-            builder.IncludePair("System.IO.FileStream", "TestableFileSystem.Interfaces.IFileStream");
+            builder.IncludePair("File", "IFile");
+            builder.IncludePair("Directory", "IDirectory");
+            builder.IncludePair("Path", "IPath");
+            builder.IncludePair("FileInfo", "IFileInfo");
+            builder.IncludePair("DirectoryInfo", "IDirectoryInfo");
+            builder.IncludePair("FileSystemInfo", "IFileSystemInfo");
+            builder.IncludePair("DriveInfo", "IDriveInfo");
+            builder.IncludePair("FileStream", "IFileStream");
+            builder.IncludePair("FileSystemWatcher", "IFileSystemWatcher");
 
             typeMap = builder.Build();
 
             TestableExtensionTypes = new List<INamedTypeSymbol>
             {
-                compilation.GetTypeByMetadataName("TestableFileSystem.Interfaces.FileExtensions"),
-                compilation.GetTypeByMetadataName("TestableFileSystem.Interfaces.FileInfoExtensions")
+                compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.TestableInterfaces, "FileExtensions")),
+                compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.TestableInterfaces, "FileInfoExtensions"))
             };
 
-            IsComplete = builder.FoundAll && TestableExtensionTypes.All(x => x != null);
+            IsComplete = typeMap.Any() && TestableExtensionTypes.All(x => x != null);
         }
 
         [CanBeNull]
@@ -63,8 +66,6 @@ namespace TestableFileSystem.Analyzer
             private readonly Dictionary<INamedTypeSymbol, INamedTypeSymbol> map =
                 new Dictionary<INamedTypeSymbol, INamedTypeSymbol>();
 
-            public bool FoundAll = true;
-
             public RegistryBuilder([NotNull] Compilation compilation)
             {
                 this.compilation = compilation;
@@ -78,14 +79,12 @@ namespace TestableFileSystem.Analyzer
 
             public void IncludePair([NotNull] string systemTypeName, [NotNull] string testableTypeName)
             {
-                INamedTypeSymbol systemTypeSymbol = compilation.GetTypeByMetadataName(systemTypeName);
-                INamedTypeSymbol testableTypeSymbol = compilation.GetTypeByMetadataName(testableTypeName);
+                INamedTypeSymbol systemTypeSymbol =
+                    compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.SystemIO, systemTypeName));
+                INamedTypeSymbol testableTypeSymbol =
+                    compilation.GetTypeByMetadataName(CodeNamespace.Combine(CodeNamespace.TestableInterfaces, testableTypeName));
 
-                if (systemTypeSymbol == null || testableTypeSymbol == null)
-                {
-                    FoundAll = false;
-                }
-                else
+                if (systemTypeSymbol != null && testableTypeSymbol != null)
                 {
                     map.Add(systemTypeSymbol, testableTypeSymbol);
                 }
