@@ -24,7 +24,9 @@ namespace TestableFileSystem.Analyzer
         [NotNull]
         public static string GetCompleteMemberName([NotNull] this ISymbol memberSymbol)
         {
-            return memberSymbol.ContainingType.ToDisplayString() + "." + memberSymbol.Name;
+            return memberSymbol.ContainingType != null
+                ? memberSymbol.ContainingType.ToDisplayString() + "." + memberSymbol.Name
+                : memberSymbol.ToDisplayString();
         }
 
         public static bool IsAccessor([NotNull] this ISymbol memberSymbol)
