@@ -6,13 +6,13 @@
   <PropertyGroup>
     <PackageId>TestableFileSystem.Fakes</PackageId>
     <Title>TestableFileSystem.Fakes</Title>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Authors>Bart Koelman</Authors>
     <Company />
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/bkoelman/TestableFileSystem</PackageProjectUrl>
     <Description>Implements TestableFileSystem.Interfaces using a blazingly fast in-memory NTFS-based file system.</Description>
-    <PackageReleaseNotes>Added support for .NET Standard 2.0 APIs.</PackageReleaseNotes>
+    <PackageReleaseNotes>Crashfix in code analyzer.</PackageReleaseNotes>
     <Copyright>Apache License, Version 2.0</Copyright>
     <PackageTags>filesystem IO testable interfaces wrappers fakes</PackageTags>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
