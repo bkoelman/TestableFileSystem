@@ -187,7 +187,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_path_with_whitespace_directory_it_must_succeed()
         {
             // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
@@ -201,7 +201,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_path_with_multiple_separators_it_must_succeed()
         {
             // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
