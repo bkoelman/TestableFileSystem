@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
@@ -29,32 +29,40 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_directory_for_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_directory_for_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.CreateDirectory(string.Empty);
+                // Act
+                Action action = () => fileSystem.Directory.CreateDirectory(string.Empty);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_directory_for_whitespace_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_directory_for_whitespace_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.CreateDirectory(" ");
+                // Act
+                Action action = () => fileSystem.Directory.CreateDirectory(" ");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

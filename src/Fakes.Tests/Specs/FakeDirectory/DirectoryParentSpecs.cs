@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Fakes.Tests.TestAttributes;
@@ -28,32 +28,40 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_parent_for_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_parent_for_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.GetParent(string.Empty);
+                // Act
+                Action action = () => fileSystem.Directory.GetParent(string.Empty);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_parent_for_whitespace_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_parent_for_whitespace_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.GetParent(" ");
+                // Act
+                Action action = () => fileSystem.Directory.GetParent(" ");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

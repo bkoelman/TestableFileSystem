@@ -106,9 +106,9 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
-            public static Exception PathIsNotLegal([NotNull] [InvokerParameterName] string paramName)
+            public static Exception PathIsEmpty([NotNull] [InvokerParameterName] string paramName)
             {
-                return new ArgumentException("The path is not of a legal form.", paramName);
+                return new ArgumentException("The path is empty.", paramName);
             }
 
             [NotNull]
@@ -130,9 +130,9 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
-            public static Exception DriveNameMustBeRootOrLetter()
+            public static Exception DriveNameMustBeRootOrLetter([NotNull] [InvokerParameterName] string paramName)
             {
-                return new ArgumentException(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
+                return new ArgumentException(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*", paramName);
             }
 
 #if !NETSTANDARD1_3
@@ -156,10 +156,18 @@ namespace TestableFileSystem.Fakes
                 return new IOException("The directory name is invalid.");
             }
 
+            // TODO: Review thrown ArgumentExceptions for missing paramName.
+
             [NotNull]
-            public static Exception DirectoryNameIsInvalid([NotNull] string path)
+            public static Exception EmptyDirectoryNameIsInvalid([NotNull] [InvokerParameterName] string paramName)
             {
-                return new ArgumentException($"The directory name {path} is invalid.");
+                return new ArgumentException($"The directory name  is invalid.", paramName);
+            }
+
+            [NotNull]
+            public static Exception DirectoryNameDoesNotExist([NotNull] string path, [NotNull] [InvokerParameterName] string paramName)
+            {
+                return new ArgumentException($"The directory name '{path}' does not exist.", paramName);
             }
 
             [NotNull]

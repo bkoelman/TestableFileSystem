@@ -35,8 +35,16 @@ namespace TestableFileSystem.Wrappers
 
         public IFileSystemWatcher ConstructFileSystemWatcher(string path = "", string filter = "*.*")
         {
-            FileSystemWatcher watcher = path == string.Empty ? new FileSystemWatcher() : new FileSystemWatcher(path, filter);
+            FileSystemWatcher watcher = IsDefaultInvocation(path, filter)
+                ? new FileSystemWatcher()
+                : new FileSystemWatcher(path, filter);
+
             return new FileSystemWatcherWrapper(watcher);
+        }
+
+        private static bool IsDefaultInvocation([NotNull] string path, [NotNull] string filter)
+        {
+            return path == "" && filter == "*.*";
         }
 #endif
 

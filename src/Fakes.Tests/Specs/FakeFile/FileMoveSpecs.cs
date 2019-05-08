@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
@@ -48,60 +48,76 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_moving_file_for_empty_string_source_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_moving_file_for_empty_string_source_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Move(string.Empty, @"c:\destination.txt");
+                // Act
+                Action action = () => fileSystem.File.Move(string.Empty, @"c:\destination.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_moving_file_for_empty_string_destination_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_moving_file_for_empty_string_destination_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Move(@"c:\source.txt", string.Empty);
+                // Act
+                Action action = () => fileSystem.File.Move(@"c:\source.txt", string.Empty);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_moving_file_for_whitespace_source_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_moving_file_for_whitespace_source_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Move(" ", @"c:\destination.txt");
+                // Act
+                Action action = () => fileSystem.File.Move(" ", @"c:\destination.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_moving_file_for_whitespace_destination_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_moving_file_for_whitespace_destination_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Move(@"c:\source.txt", " ");
+                // Act
+                Action action = () => fileSystem.File.Move(@"c:\source.txt", " ");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

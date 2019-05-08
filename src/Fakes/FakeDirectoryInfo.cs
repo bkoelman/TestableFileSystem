@@ -105,12 +105,10 @@ namespace TestableFileSystem.Fakes
         public IDirectoryInfo CreateSubdirectory(string path)
         {
             Guard.NotNull(path, nameof(path));
-
-            AssertPathIsNotEmpty(path);
+            AssertPathIsNotWhitespace(path);
             AssertPathIsRelative(path);
 
-            AbsolutePath completePath =
-                path.Trim().Length == 0 ? AbsolutePath : RelativePathConverter.Combine(AbsolutePath, path);
+            AbsolutePath completePath = RelativePathConverter.Combine(AbsolutePath, path);
 
             if (!PathStartsWith(completePath, AbsolutePath))
             {
@@ -120,9 +118,9 @@ namespace TestableFileSystem.Fakes
             return Owner.Directory.CreateDirectory(completePath.GetText());
         }
 
-        private static void AssertPathIsNotEmpty([NotNull] string path)
+        private static void AssertPathIsNotWhitespace([NotNull] string path)
         {
-            if (path.Length == 0)
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw ErrorFactory.System.PathCannotBeEmptyOrWhitespace(nameof(path));
             }

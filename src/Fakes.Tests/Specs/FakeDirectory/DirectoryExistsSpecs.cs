@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
@@ -26,32 +26,40 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_existence_for_empty_string_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_existence_for_empty_string_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            bool found = fileSystem.Directory.Exists(string.Empty);
+                // Act
+                bool found = fileSystem.Directory.Exists(string.Empty);
 
-            // Assert
-            found.Should().BeFalse();
+                // Assert
+                found.Should().BeFalse();
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_existence_for_whitespace_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_existence_for_whitespace_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            bool found = fileSystem.Directory.Exists(" ");
+                // Act
+                bool found = fileSystem.Directory.Exists(" ");
 
-            // Assert
-            found.Should().BeFalse();
+                // Assert
+                found.Should().BeFalse();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

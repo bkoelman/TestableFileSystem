@@ -1,4 +1,4 @@
-﻿#if !NETCOREAPP1_1
+#if !NETCOREAPP1_1
 using System;
 using System.IO;
 using System.Linq;
@@ -39,96 +39,118 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                watcher.Path = string.Empty;
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.EnableRaisingEvents = true;
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    watcher.Path = string.Empty;
 
-                // Assert
-                watcher.Path.Should().Be(string.Empty);
-                action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Error reading the  directory.");
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.EnableRaisingEvents = true;
+
+                    // Assert
+                    watcher.Path.Should().Be(string.Empty);
+                    action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Error reading the  directory.");
+                }
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_whitespace_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_whitespace_it_must_fail(bool useFakes)
         {
-            // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = " ";
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name   is invalid.");
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = " ";
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name ' ' does not exist.*");
+                }
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_invalid_drive_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_invalid_drive_it_must_fail(bool useFakes)
         {
-            // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = "_:";
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name _: is invalid.");
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = "_:";
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name '_:' does not exist.*");
+                }
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_wildcard_characters_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_wildcard_characters_it_must_fail(bool useFakes)
         {
-            // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = @"c:\?";
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\? is invalid.");
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = @"c:\?";
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name 'c:\?' does not exist.*");
+                }
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_missing_directory_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_missing_directory_it_must_fail(bool useFakes)
         {
-            // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = @"c:\missing";
+                // Arrange
+                string path = factory.MapPath(@"c:\missing");
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\missing is invalid.");
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = path;
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage($@"The directory name '{path}' does not exist.*");
+                }
             }
         }
 
@@ -362,86 +384,101 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_existing_local_file_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_existing_local_file_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"c:\some\file.txt";
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = path;
+                // Arrange
+                string path = factory.MapPath(@"c:\some\file.txt");
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\some\file.txt is invalid.");
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingEmptyFile(path)
+                    .Build();
+
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = path;
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage($@"The directory name '{path}' does not exist.*");
+                }
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_local_parent_directory_that_exists_as_file_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_local_parent_directory_that_exists_as_file_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"c:\some\file.txt";
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = path + @"\nested";
+                // Arrange
+                string path = factory.MapPath(@"c:\some\file.txt");
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(
-                    @"The directory name c:\some\file.txt\nested is invalid.");
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingEmptyFile(path)
+                    .Build();
+
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = path + @"\nested";
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage($@"The directory name '{path}\nested' does not exist.*");
+                }
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_missing_local_directory_tree_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_missing_local_directory_tree_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"c:\some\folder";
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = path;
+                // Arrange
+                string path = factory.MapPath(@"c:\some\folder");
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\some\folder is invalid.");
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = path;
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage($@"The directory name '{path}' does not exist.*");
+                }
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"\\server\share";
-
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = path;
+                // Arrange
+                const string path = @"\\server\share";
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name \\server\share is invalid.");
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = path;
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name '\\server\share' does not exist.*");
+                }
             }
         }
 
@@ -501,7 +538,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 // Assert
                 action.Should().ThrowExactly<ArgumentException>().WithMessage(
-                    @"The directory name \\server\share\MissingFolder is invalid.");
+                    @"The directory name '\\server\share\MissingFolder' does not exist.*");
             }
         }
 
@@ -543,21 +580,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_reserved_name_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_reserved_name_it_must_fail(bool useFakes)
         {
-            // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.Path = "LPT1";
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-                // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name LPT1 is invalid.");
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = "LPT1";
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name 'LPT1' does not exist.*");
+                }
             }
         }
 

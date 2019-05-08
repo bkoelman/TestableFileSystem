@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,32 +31,40 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_enumerating_entries_for_empty_string_path_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_enumerating_entries_for_empty_string_path_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(string.Empty);
+                // Act
+                Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(string.Empty);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_enumerating_entries_for_whitespace_path_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_enumerating_entries_for_whitespace_path_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(" ");
+                // Act
+                Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(" ");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

@@ -54,60 +54,76 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_creation_time_in_local_zone_for_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_creation_time_in_local_zone_for_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.GetCreationTime(string.Empty);
+                // Act
+                Action action = () => fileSystem.Directory.GetCreationTime(string.Empty);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_creation_time_in_local_zone_for_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_creation_time_in_local_zone_for_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.SetCreationTime(string.Empty, DefaultTime);
+                // Act
+                Action action = () => fileSystem.Directory.SetCreationTime(string.Empty, DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_creation_time_in_local_zone_for_whitespace_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_creation_time_in_local_zone_for_whitespace_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.GetCreationTime(" ");
+                // Act
+                Action action = () => fileSystem.Directory.GetCreationTime(" ");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_creation_time_in_local_zone_for_whitespace_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_creation_time_in_local_zone_for_whitespace_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.SetCreationTime(" ", DefaultTime);
+                // Act
+                Action action = () => fileSystem.Directory.SetCreationTime(" ", DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

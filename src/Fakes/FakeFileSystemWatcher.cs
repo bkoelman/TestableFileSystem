@@ -92,7 +92,7 @@ namespace TestableFileSystem.Fakes
                     {
                         if (!owner.Directory.Exists(value))
                         {
-                            throw ErrorFactory.System.DirectoryNameIsInvalid(value);
+                            throw ErrorFactory.System.DirectoryNameDoesNotExist(value, nameof(Path));
                         }
 
                         newDirectoryToWatch = owner.ToAbsolutePathInLock(value);

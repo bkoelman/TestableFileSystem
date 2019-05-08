@@ -1,4 +1,4 @@
-﻿#if !NETCOREAPP1_1
+#if !NETCOREAPP1_1
 using System;
 using System.IO;
 using FluentAssertions;
@@ -50,74 +50,94 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_watcher_for_empty_path_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_watcher_for_empty_path_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.ConstructFileSystemWatcher(string.Empty, "*.txt");
+                // Act
+                Action action = () => fileSystem.ConstructFileSystemWatcher(string.Empty, "*.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name  is invalid.");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name  is invalid.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_watcher_for_whitespace_path_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_watcher_for_whitespace_path_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.ConstructFileSystemWatcher(" ");
+                // Act
+                Action action = () => fileSystem.ConstructFileSystemWatcher(" ");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name   is invalid.");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name ' ' does not exist.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_watcher_for_invalid_drive_path_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_watcher_for_invalid_drive_path_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.ConstructFileSystemWatcher("_:");
+                // Act
+                Action action = () => fileSystem.ConstructFileSystemWatcher("_:");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name _: is invalid.");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name '_:' does not exist.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_watcher_for_wildcard_characters_in_path_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_watcher_for_wildcard_characters_in_path_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\SomeFolder?");
+                // Act
+                Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\SomeFolder?");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\SomeFolder? is invalid.");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name 'c:\SomeFolder?' does not exist.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_watcher_for_missing_directory_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_watcher_for_missing_directory_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.ConstructFileSystemWatcher(@"e:\MissingFolder");
+                // Act
+                Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\MissingFolder\25D6015F-1843-4610-AAF9-06EBB076A81F");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name e:\MissingFolder is invalid.");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name 'c:\MissingFolder\25D6015F-1843-4610-AAF9-06EBB076A81F' does not exist.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

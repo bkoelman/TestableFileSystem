@@ -115,9 +115,14 @@ namespace TestableFileSystem.Fakes
             AbsolutePath absolutePath = null;
             if (!IsDefaultInvocation(path, filter))
             {
+                if (path == string.Empty)
+                {
+                    throw ErrorFactory.System.EmptyDirectoryNameIsInvalid(nameof(path));
+                }
+
                 if (!Directory.Exists(path))
                 {
-                    throw ErrorFactory.System.DirectoryNameIsInvalid(path);
+                    throw ErrorFactory.System.DirectoryNameDoesNotExist(path, nameof(path));
                 }
 
                 absolutePath = ToAbsolutePathInLock(path);

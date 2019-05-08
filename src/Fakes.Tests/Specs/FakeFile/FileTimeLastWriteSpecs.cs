@@ -54,60 +54,76 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_last_write_time_in_local_zone_for_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_last_write_time_in_local_zone_for_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.GetLastWriteTime(string.Empty);
+                // Act
+                Action action = () => fileSystem.File.GetLastWriteTime(string.Empty);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_write_time_in_local_zone_for_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_write_time_in_local_zone_for_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.SetLastWriteTime(string.Empty, DefaultTime);
+                // Act
+                Action action = () => fileSystem.File.SetLastWriteTime(string.Empty, DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_last_write_time_in_local_zone_for_whitespace_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_last_write_time_in_local_zone_for_whitespace_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.GetLastWriteTime(" ");
+                // Act
+                Action action = () => fileSystem.File.GetLastWriteTime(" ");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_write_time_in_local_zone_for_whitespace_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_write_time_in_local_zone_for_whitespace_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.SetLastWriteTime(" ", DefaultTime);
+                // Act
+                Action action = () => fileSystem.File.SetLastWriteTime(" ", DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

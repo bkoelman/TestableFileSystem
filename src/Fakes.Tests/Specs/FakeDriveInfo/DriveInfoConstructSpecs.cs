@@ -1,4 +1,4 @@
-﻿#if !NETCOREAPP1_1
+#if !NETCOREAPP1_1
 using System;
 using System.IO;
 using FluentAssertions;
@@ -33,18 +33,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_drive_info_for_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_drive_info_for_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.ConstructDriveInfo(string.Empty);
+                // Act
+                Action action = () => fileSystem.ConstructDriveInfo(string.Empty);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
+            }
         }
 
         [Theory, InvestigateRunOnFileSystem]

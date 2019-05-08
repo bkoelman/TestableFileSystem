@@ -1,4 +1,4 @@
-﻿#if !NETCOREAPP1_1
+#if !NETCOREAPP1_1
 using System;
 using System.IO;
 using FluentAssertions;
@@ -51,60 +51,76 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_with_empty_string_source_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_with_empty_string_source_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Replace(string.Empty, @"c:\destination.txt", @"c:\backup.txt");
+                // Act
+                Action action = () => fileSystem.File.Replace(string.Empty, @"c:\destination.txt", @"c:\backup.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_with_empty_string_destination_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_with_empty_string_destination_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Replace(@"c:\source.txt", string.Empty, @"c:\backup.txt");
+                // Act
+                Action action = () => fileSystem.File.Replace(@"c:\source.txt", string.Empty, @"c:\backup.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_with_whitespace_source_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_with_whitespace_source_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Replace(" ", @"c:\destination.txt", @"c:\backup.txt");
+                // Act
+                Action action = () => fileSystem.File.Replace(" ", @"c:\destination.txt", @"c:\backup.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_with_whitespace_destination_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_with_whitespace_destination_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Replace(@"c:\source.txt", " ", @"c:\backup.txt");
+                // Act
+                Action action = () => fileSystem.File.Replace(@"c:\source.txt", " ", @"c:\backup.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is empty.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

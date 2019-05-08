@@ -1,8 +1,8 @@
-﻿#if !NETSTANDARD1_3
-using System.IO;
+﻿using System.IO;
 using JetBrains.Annotations;
-using TestableFileSystem.Interfaces;
 using TestableFileSystem.Utilities;
+#if !NETSTANDARD1_3
+using TestableFileSystem.Interfaces;
 
 namespace TestableFileSystem.Fakes
 {
@@ -47,7 +47,6 @@ namespace TestableFileSystem.Fakes
             Guard.NotNull(container, nameof(container));
             Guard.NotNull(owner, nameof(owner));
             Guard.NotNull(driveName, nameof(driveName));
-            AssertDriveNameIsNotEmpty(driveName);
             AssertDriveNameIsValid(driveName);
 
             this.container = container;
@@ -55,21 +54,18 @@ namespace TestableFileSystem.Fakes
             driveLetter = driveName[0];
         }
 
-        private static void AssertDriveNameIsNotEmpty([NotNull] string driveName)
-        {
-            if (driveName == string.Empty)
-            {
-                throw ErrorFactory.System.PathIsNotLegal(nameof(driveName));
-            }
-        }
-
         private static void AssertDriveNameIsValid([NotNull] string driveName)
         {
-            string volumeName = driveName.Length == 1 ? driveName + Path.VolumeSeparatorChar : driveName.Substring(0, 2);
-            if (!AbsolutePath.IsDriveLetter(volumeName))
+            if (driveName != string.Empty)
             {
-                throw ErrorFactory.System.DriveNameMustBeRootOrLetter();
+                string volumeName = driveName.Length == 1 ? driveName + Path.VolumeSeparatorChar : driveName.Substring(0, 2);
+                if (AbsolutePath.IsDriveLetter(volumeName))
+                {
+                    return;
+                }
             }
+
+            throw ErrorFactory.System.DriveNameMustBeRootOrLetter(nameof(driveName));
         }
 
         public override string ToString()

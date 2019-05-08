@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Fakes.Tests.TestAttributes;
@@ -33,43 +33,49 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_subdirectory_for_empty_string_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_subdirectory_for_empty_string_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"d:\some";
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"d:\some");
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(path)
+                    .Build();
 
-            IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
+                IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
-            // Act
-            Action action = () => dirInfo.CreateSubdirectory(string.Empty);
+                // Act
+                Action action = () => dirInfo.CreateSubdirectory(string.Empty);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_subdirectory_for_whitespace_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_subdirectory_for_whitespace_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            const string path = @"c:\some";
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"c:\some");
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
+                IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
-            // Act
-            IDirectoryInfo resultDirInfo = dirInfo.CreateSubdirectory(" ");
+                // Act
+                Action action = () => dirInfo.CreateSubdirectory(" ");
 
-            // Assert
-            resultDirInfo.FullName.Should().Be(path);
-
-            fileSystem.Directory.Exists(path).Should().BeTrue();
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

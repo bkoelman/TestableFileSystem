@@ -39,7 +39,7 @@ namespace TestableFileSystem.Fakes
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw ErrorFactory.System.PathIsNotLegal(nameof(path));
+                throw ErrorFactory.System.PathIsEmpty(nameof(path));
             }
         }
 

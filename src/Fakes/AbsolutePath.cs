@@ -37,7 +37,7 @@ namespace TestableFileSystem.Fakes
 
         public AbsolutePath([NotNull] string path)
         {
-            Guard.NotNull(path, nameof(path));
+            Guard.NotNullNorWhiteSpace(path, nameof(path));
 
             var parser = new Parser(path);
 
@@ -347,8 +347,6 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             private static string NormalizePath([NotNull] string path)
             {
-                Guard.NotNullNorWhiteSpace(path, nameof(path));
-
                 string trimmed = path.TrimEnd(SingleSpace);
                 string withoutSeparator = WithoutTrailingSeparator(trimmed);
                 string withoutPrefix = WithoutPrefixForExtendedLength(withoutSeparator);
