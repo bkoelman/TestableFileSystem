@@ -467,7 +467,7 @@ namespace TestableFileSystem.Fakes
 
         private void RaiseEventForWatcherDirectoryDeleted()
         {
-            Error?.Invoke(this, new ErrorEventArgs(new Win32Exception(5)));
+            Error?.Invoke(this, new ErrorEventArgs(ErrorFactory.System.AccessIsDenied()));
         }
 
         private void RaiseEventForBufferOverflow()

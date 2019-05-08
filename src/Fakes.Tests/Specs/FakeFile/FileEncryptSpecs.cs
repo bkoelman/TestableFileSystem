@@ -30,7 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Theory(Skip = "TODO: Activate when running on .NET CORE 3")]
+        [Theory]
         [CanRunOnFileSystem]
         private void When_encrypting_file_for_empty_string_it_must_fail(bool useFakes)
         {
@@ -48,7 +48,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Theory(Skip = "TODO: Activate when running on .NET CORE 3")]
+        [Theory]
         [CanRunOnFileSystem]
         private void When_encrypting_file_for_whitespace_it_must_fail(bool useFakes)
         {

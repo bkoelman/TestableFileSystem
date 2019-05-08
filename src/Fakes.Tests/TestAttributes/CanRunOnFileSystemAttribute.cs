@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Xunit.Sdk;
@@ -9,13 +7,7 @@ namespace TestableFileSystem.Fakes.Tests.TestAttributes
 {
     internal sealed class CanRunOnFileSystemAttribute : DataAttribute
     {
-        [NotNull]
-        private static readonly Version ExpectedAssemblyVersion = new Version(4, 1, 0, 0);
-
-        [NotNull]
-        private static readonly Version CurrentAssemblyVersion = GetCurrentAssemblyVersion();
-
-        private readonly bool enableRunOnFileSystem = CurrentAssemblyVersion >= ExpectedAssemblyVersion;
+        private static readonly bool EnableRunOnFileSystem = EvaluateRunOnFileSystem();
 
         [NotNull]
         [ItemNotNull]
@@ -45,18 +37,16 @@ namespace TestableFileSystem.Fakes.Tests.TestAttributes
         [ItemNotNull]
         public override IEnumerable<object[]> GetData([NotNull] MethodInfo testMethod)
         {
-            return enableRunOnFileSystem ? TrueFalseArray : TrueArray;
+            return EnableRunOnFileSystem ? TrueFalseArray : TrueArray;
         }
 
-        [NotNull]
-        private static Version GetCurrentAssemblyVersion()
+        private static bool EvaluateRunOnFileSystem()
         {
-            Version assemblyVersion = typeof(File).GetTypeInfo().Assembly.GetName().Version;
-
-            Console.WriteLine(
-                $"Detected assembly version '{assemblyVersion}' in: '{typeof(File).GetTypeInfo().Assembly.FullName}'.");
-
-            return assemblyVersion;
+#if NETCOREAPP3_0
+            return true;
+#else
+            return false;
+#endif
         }
     }
 }

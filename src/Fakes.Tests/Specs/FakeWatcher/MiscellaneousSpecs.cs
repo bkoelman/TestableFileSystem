@@ -48,14 +48,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
                     text.Should().Be(@"
-                        ! Access is denied
+                        ! Access is denied.
                         ".TrimLines());
 
                     lock (lockObject)
                     {
                         lastError.Should().NotBeNull();
                         lastError.Should().BeOfType<Win32Exception>().Subject.NativeErrorCode.Should().Be(5);
-                        lastError.Message.Should().Be("Access is denied");
+                        lastError.Message.Should().Be("Access is denied.");
                     }
                 }
             }
@@ -96,14 +96,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                     string text = string.Join(Environment.NewLine, listener.GetEventsCollectedAsText());
                     text.Should().Be(@"
-                        ! Access is denied
+                        ! Access is denied.
                         ".TrimLines());
 
                     lock (lockObject)
                     {
                         lastError.Should().NotBeNull();
                         lastError.Should().BeOfType<Win32Exception>().Subject.NativeErrorCode.Should().Be(5);
-                        lastError.Message.Should().Be("Access is denied");
+                        lastError.Message.Should().Be("Access is denied.");
                     }
                 }
             }

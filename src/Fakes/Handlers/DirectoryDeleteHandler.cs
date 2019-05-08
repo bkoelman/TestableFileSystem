@@ -146,7 +146,7 @@ namespace TestableFileSystem.Fakes.Handlers
             if (directory.Attributes.HasFlag(FileAttributes.ReadOnly))
             {
                 string path = directory.PathFormatter.GetPath().GetText();
-                state.SetError(ErrorFactory.System.AccessDenied(path));
+                state.SetError(ErrorFactory.System.AccessToPathIsDenied(path));
             }
 
             if (state.CanBeDeleted)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using JetBrains.Annotations;
 
@@ -76,7 +77,7 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
-            public static Exception AccessDenied([NotNull] string path)
+            public static Exception AccessToPathIsDenied([NotNull] string path)
             {
                 return new IOException($"Access to the path '{path}' is denied.");
             }
@@ -132,7 +133,8 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception DriveNameMustBeRootOrLetter([NotNull] [InvokerParameterName] string paramName)
             {
-                return new ArgumentException(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*", paramName);
+                return new ArgumentException(@"Drive name must be a root directory (i.e. 'C:\') or a drive letter ('C').",
+                    paramName);
             }
 
 #if !NETSTANDARD1_3
@@ -161,11 +163,12 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             public static Exception EmptyDirectoryNameIsInvalid([NotNull] [InvokerParameterName] string paramName)
             {
-                return new ArgumentException($"The directory name  is invalid.", paramName);
+                return new ArgumentException("The directory name  is invalid.", paramName);
             }
 
             [NotNull]
-            public static Exception DirectoryNameDoesNotExist([NotNull] string path, [NotNull] [InvokerParameterName] string paramName)
+            public static Exception DirectoryNameDoesNotExist([NotNull] string path,
+                [NotNull] [InvokerParameterName] string paramName)
             {
                 return new ArgumentException($"The directory name '{path}' does not exist.", paramName);
             }
@@ -314,6 +317,12 @@ namespace TestableFileSystem.Fakes
             public static Exception NotEnoughSpaceOnDisk()
             {
                 return new IOException("There is not enough space on the disk.");
+            }
+
+            [NotNull]
+            public static Exception AccessIsDenied()
+            {
+                return new Win32Exception(5, "Access is denied.");
             }
         }
 

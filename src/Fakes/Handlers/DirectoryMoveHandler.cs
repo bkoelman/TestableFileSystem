@@ -65,7 +65,7 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (path.IsVolumeRoot)
             {
-                throw ErrorFactory.System.AccessDenied(path.GetText());
+                throw ErrorFactory.System.AccessToPathIsDenied(path.GetText());
             }
         }
 
@@ -111,7 +111,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AbsolutePath openFilePath = directory.TryGetPathOfFirstOpenFile(path);
             if (openFilePath != null)
             {
-                throw ErrorFactory.System.AccessDenied(path.GetText());
+                throw ErrorFactory.System.AccessToPathIsDenied(path.GetText());
             }
         }
 

@@ -47,7 +47,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
                 Action action = () => fileSystem.ConstructDriveInfo(string.Empty);
 
                 // Assert
-                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
+                action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Drive name must be a root directory (i.e. 'C:\') or a drive letter ('C').*");
             }
         }
 
@@ -75,7 +75,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(
-                @"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
+                @"Drive name must be a root directory (i.e. 'C:\') or a drive letter ('C').*");
         }
 
         [Theory, InvestigateRunOnFileSystem]
