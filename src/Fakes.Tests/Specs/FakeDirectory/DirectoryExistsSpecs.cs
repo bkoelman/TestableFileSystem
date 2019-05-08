@@ -8,18 +8,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryExistsSpecs
     {
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_existence_for_null_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_existence_for_null_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            bool found = fileSystem.Directory.Exists(null);
+                // Act
+                bool found = fileSystem.Directory.Exists(null);
 
-            // Assert
-            found.Should().BeFalse();
+                // Assert
+                found.Should().BeFalse();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

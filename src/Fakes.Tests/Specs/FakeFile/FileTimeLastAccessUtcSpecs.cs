@@ -15,34 +15,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private static readonly DateTime HighTimeUtc = DateTime.MaxValue.AddDays(-2).AsUtc();
         private static readonly DateTime ZeroFileTimeUtc = 1.January(1601).AsUtc();
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_last_access_time_in_UTC_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_last_access_time_in_UTC_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.File.GetLastAccessTimeUtc(null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.File.GetLastAccessTimeUtc(null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_access_time_in_UTC_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_access_time_in_UTC_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.File.SetLastAccessTimeUtc(null, DefaultTimeUtc);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.File.SetLastAccessTimeUtc(null, DefaultTimeUtc);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

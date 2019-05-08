@@ -31,19 +31,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_watcher_for_null_path_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_watcher_for_null_path_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.ConstructFileSystemWatcher(null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.ConstructFileSystemWatcher(null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -135,19 +139,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_watcher_for_null_filter_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_watcher_for_null_filter_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\", null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.ConstructFileSystemWatcher(@"c:\", null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

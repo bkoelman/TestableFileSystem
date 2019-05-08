@@ -10,19 +10,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileDeleteSpecs
     {
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_deleting_file_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_deleting_file_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.File.Delete(null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.File.Delete(null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

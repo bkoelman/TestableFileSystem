@@ -9,24 +9,28 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
 {
     public sealed class DirectoryInfoCreateSubdirectorySpecs
     {
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_subdirectory_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_subdirectory_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"d:\some";
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"d:\some");
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(path)
+                    .Build();
 
-            IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
+                IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => dirInfo.CreateSubdirectory(null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => dirInfo.CreateSubdirectory(null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

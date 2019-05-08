@@ -16,34 +16,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private static readonly DateTime HighTime = DateTime.MaxValue.AddDays(-2).AsUtc().ToLocalTime();
         private static readonly DateTime ZeroFileTime = 1.January(1601).AsUtc().ToLocalTime();
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_last_write_time_in_local_zone_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_last_write_time_in_local_zone_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.Directory.GetLastWriteTime(null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.Directory.GetLastWriteTime(null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_write_time_in_local_zone_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_write_time_in_local_zone_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.Directory.SetLastWriteTime(null, DefaultTime);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.Directory.SetLastWriteTime(null, DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

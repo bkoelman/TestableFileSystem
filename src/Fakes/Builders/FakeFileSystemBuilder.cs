@@ -10,7 +10,7 @@ using TestableFileSystem.Utilities;
 
 namespace TestableFileSystem.Fakes.Builders
 {
-    public sealed class FakeFileSystemBuilder : ITestDataBuilder<FakeFileSystem>
+    public sealed class FakeFileSystemBuilder : IFileSystemBuilder, ITestDataBuilder<FakeFileSystem>
     {
         // TODO: Consider a switch on Builder that drives NtfsDisableLastAccessUpdate registry setting.
 
@@ -73,6 +73,11 @@ namespace TestableFileSystem.Fakes.Builders
 
             copyWaitIndicator.Reset();
             return new FakeFileSystem(container, effectiveTempDirectory, copyWaitIndicator);
+        }
+
+        IFileSystem IFileSystemBuilder.Build()
+        {
+            return Build();
         }
 
         [NotNull]
@@ -159,6 +164,11 @@ namespace TestableFileSystem.Fakes.Builders
             return this;
         }
 
+        IFileSystemBuilder IFileSystemBuilder.IncludingDirectory(string path, FileAttributes? attributes)
+        {
+            return IncludingDirectory(path, attributes);
+        }
+
         [NotNull]
         private DirectoryEntry CreateDirectories([NotNull] AbsolutePath absolutePath)
         {
@@ -189,6 +199,11 @@ namespace TestableFileSystem.Fakes.Builders
             return this;
         }
 
+        IFileSystemBuilder IFileSystemBuilder.IncludingEmptyFile(string path, FileAttributes? attributes)
+        {
+            return IncludingEmptyFile(path, attributes);
+        }
+
         [NotNull]
         public FakeFileSystemBuilder IncludingTextFile([NotNull] string path, [NotNull] string contents,
             [CanBeNull] Encoding encoding = null, [CanBeNull] FileAttributes? attributes = null)
@@ -198,6 +213,12 @@ namespace TestableFileSystem.Fakes.Builders
 
             IncludeFile(path, entry => WriteStringToFile(entry, contents, encoding), attributes);
             return this;
+        }
+
+        IFileSystemBuilder IFileSystemBuilder.IncludingTextFile(string path, string contents, Encoding encoding,
+            FileAttributes? attributes)
+        {
+            return IncludingTextFile(path, contents, encoding, attributes);
         }
 
         private static void WriteStringToFile([NotNull] IFileStream fileStream, [NotNull] string text,
@@ -219,6 +240,11 @@ namespace TestableFileSystem.Fakes.Builders
 
             IncludeFile(path, entry => WriteBytesToFile(entry, contents), attributes);
             return this;
+        }
+
+        IFileSystemBuilder IFileSystemBuilder.IncludingBinaryFile(string path, byte[] contents, FileAttributes? attributes)
+        {
+            return IncludingBinaryFile(path, contents, attributes);
         }
 
         private static void WriteBytesToFile([NotNull] IFileStream stream, [NotNull] byte[] buffer)

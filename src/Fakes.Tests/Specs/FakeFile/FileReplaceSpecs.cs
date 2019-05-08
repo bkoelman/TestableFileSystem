@@ -13,34 +13,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileReplaceSpecs
     {
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_with_null_source_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_with_null_source_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.File.Replace(null, @"c:\destination.txt", @"c:\backup.txt");
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.File.Replace(null, @"c:\destination.txt", @"c:\backup.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_with_null_destination_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_with_null_destination_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.File.Replace(@"c:\source.txt", null, @"c:\backup.txt");
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.File.Replace(@"c:\source.txt", null, @"c:\backup.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

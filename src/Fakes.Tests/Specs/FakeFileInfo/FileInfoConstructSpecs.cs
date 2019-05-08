@@ -15,19 +15,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private const FileAttributes MissingEntryAttributes = (FileAttributes)(-1);
         private static readonly DateTime ZeroFileTimeUtc = 1.January(1601).AsUtc();
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_constructing_file_info_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_constructing_file_info_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.ConstructFileInfo(null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.ConstructFileInfo(null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

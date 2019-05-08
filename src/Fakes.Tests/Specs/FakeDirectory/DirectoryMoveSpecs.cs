@@ -10,34 +10,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryMoveSpecs
     {
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_moving_directory_for_null_source_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_moving_directory_for_null_source_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.Directory.Move(null, @"c:\newdir");
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.Directory.Move(null, @"c:\newdir");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_moving_directory_for_null_destination_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_moving_directory_for_null_destination_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.Directory.Move(@"c:\missing", null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.Directory.Move(@"c:\missing", null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

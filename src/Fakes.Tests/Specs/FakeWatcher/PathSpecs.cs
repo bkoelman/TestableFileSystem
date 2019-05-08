@@ -6,31 +6,36 @@ using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Fakes.Tests.TestAttributes;
+using TestableFileSystem.Interfaces;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class PathSpecs : WatcherSpecs
     {
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_path_to_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                watcher.Path = null;
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-                // Act
-                // ReSharper disable once AccessToDisposedClosure
-                Action action = () => watcher.EnableRaisingEvents = true;
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    watcher.Path = null;
 
-                // Assert
-                watcher.Path.Should().Be(string.Empty);
-                action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Error reading the  directory.");
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.EnableRaisingEvents = true;
+
+                    // Assert
+                    watcher.Path.Should().Be(string.Empty);
+                    action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Error reading the  directory.");
+                }
             }
         }
 

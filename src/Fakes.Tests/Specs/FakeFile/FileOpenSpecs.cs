@@ -14,19 +14,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     {
         private const string DefaultContents = "ABC";
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_opening_file_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_opening_file_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.File.Open(null, FileMode.Create);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.File.Open(null, FileMode.Create);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

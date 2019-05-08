@@ -12,19 +12,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryEnumerateFilesSpecs
     {
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_enumerating_files_for_null_path_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_enumerating_files_for_null_path_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.Directory.EnumerateFiles(null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.Directory.EnumerateFiles(null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -83,19 +87,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_enumerating_files_for_null_pattern_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_enumerating_files_for_null_pattern_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

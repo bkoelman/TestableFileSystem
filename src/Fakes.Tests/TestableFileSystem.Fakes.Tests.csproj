@@ -34,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Fakes\TestableFileSystem.Fakes.csproj" />
     <ProjectReference Include="..\Interfaces\TestableFileSystem.Interfaces.csproj" />
+    <ProjectReference Include="..\Wrappers\TestableFileSystem.Wrappers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

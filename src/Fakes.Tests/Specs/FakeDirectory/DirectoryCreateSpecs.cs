@@ -10,19 +10,23 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryCreateSpecs
     {
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_directory_for_null_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_directory_for_null_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            // ReSharper disable once AssignNullToNotNullAttribute
-            Action action = () => fileSystem.Directory.CreateDirectory(null);
+                // Act
+                // ReSharper disable once AssignNullToNotNullAttribute
+                Action action = () => fileSystem.Directory.CreateDirectory(null);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentNullException>();
+                // Assert
+                action.Should().ThrowExactly<ArgumentNullException>();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

@@ -395,18 +395,22 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"c:\some\a");
         }
 
-        [Fact]
-        private void When_using_null_terminator_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_using_null_terminator_it_must_fail(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.ConstructFileInfo(@"c:\" + '\0' + "doc.txt");
+                // Act
+                Action action = () => fileSystem.ConstructFileInfo(@"c:\" + '\0' + "doc.txt");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
+                // Assert
+                action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
+            }
         }
     }
 }
