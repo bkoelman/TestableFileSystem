@@ -45,6 +45,8 @@ namespace TestableFileSystem.Fakes.Tests.TestAttributes
 
             Version assemblyVersion = typeof(File).GetTypeInfo().Assembly.GetName().Version;
             enableRunOnFileSystem = assemblyVersion == ExpectedAssemblyVersion;
+#else
+            enableRunOnFileSystem = false;
 #endif
         }
 
