@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyFileMoveSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_file_to_itself_it_must_not_raise_events()
         {
             // Arrange
@@ -43,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             > Container\file.TXT => Container\FILE.txt      @ FileName
             * Container                                     @               LastWrite   LastAccess
@@ -84,7 +84,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             > source.txt => target.txt                      @ FileName
         ")]
@@ -123,7 +123,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
         #region Attributes in rename
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             > source.txt => target.txt                      @ FileName
         ")]
@@ -160,7 +160,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             > source.txt => target.txt                      @ FileName
             * target.txt                                    @ Attributes
@@ -198,7 +198,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             > source.txt => target.txt                      @ FileName
         ")]
@@ -239,7 +239,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
         #endregion
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - nested\source.txt                             @ FileName
             + target.txt                                    @ FileName
@@ -278,7 +278,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - source.txt                                    @ FileName
             + nested\target.txt                             @ FileName
@@ -319,7 +319,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - srcFolder\source.txt                          @ FileName
             + dstFolder\target.txt                          @ FileName
@@ -363,7 +363,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
         #region Attributes in move
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - srcFolder\source.txt                          @ FileName
             + dstFolder\target.txt                          @ FileName
@@ -405,7 +405,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - srcFolder\source.txt                          @ FileName
             + dstFolder\target.txt                          @ FileName
@@ -448,7 +448,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - srcFolder\source.txt                          @ FileName
             + dstFolder\target.txt                          @ FileName
@@ -493,7 +493,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 
         #endregion
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - source.txt                                    @ FileName
         ")]
@@ -532,7 +532,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * source.txt                                    @           Attributes      LastAccess
             - source.txt                                    @ FileName
@@ -572,7 +572,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             + target.txt                                    @ FileName
             * target.txt                                    @           LastWrite                   Size

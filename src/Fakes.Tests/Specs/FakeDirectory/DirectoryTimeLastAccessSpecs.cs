@@ -3,6 +3,7 @@ using System.IO;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -15,7 +16,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private static readonly DateTime HighTime = DateTime.MaxValue.AddDays(-2).AsUtc().ToLocalTime();
         private static readonly DateTime ZeroFileTime = 1.January(1601).AsUtc().ToLocalTime();
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_null_it_must_fail()
         {
             // Arrange
@@ -30,7 +31,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_null_it_must_fail()
         {
             // Arrange
@@ -45,7 +46,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -59,7 +60,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -73,7 +74,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -87,7 +88,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -101,7 +102,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -115,7 +116,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -129,7 +130,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -143,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -157,7 +158,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_missing_directory_it_must_succeed()
         {
             // Arrange
@@ -172,7 +173,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_missing_directory_it_must_fail()
         {
             // Arrange
@@ -187,7 +188,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\nested'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_directory_it_must_succeed()
         {
             // Arrange
@@ -204,7 +205,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(path).Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_directory_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -219,7 +220,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(@"C:\some  ").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_readonly_directory_it_must_succeed()
         {
             // Arrange
@@ -234,7 +235,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(@"C:\some").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_subdirectory_in_readonly_directory_it_must_succeed()
         {
             // Arrange
@@ -250,7 +251,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(@"C:\folder\some").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_current_directory_it_must_succeed()
         {
             // Arrange
@@ -269,7 +270,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(path).Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_directory_to_MinValue_it_must_fail()
         {
             // Arrange
@@ -286,7 +287,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Not a valid Win32 FileTime.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_directory_to_MaxValue_it_must_succeed()
         {
             // Arrange
@@ -303,7 +304,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(path).Should().Be(HighTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_drive_it_must_succeed()
         {
             // Arrange
@@ -322,7 +323,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_drive_it_must_fail()
         {
             // Arrange
@@ -339,7 +340,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Path must not be a drive.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -359,7 +360,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -379,7 +380,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(@"c:\folder").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_existing_relative_local_directory_it_must_succeed()
         {
             // Arrange
@@ -398,7 +399,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_relative_local_directory_it_must_succeed()
         {
             // Arrange
@@ -415,7 +416,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(@"C:\folder\some").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_getting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
@@ -433,7 +434,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_setting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
@@ -449,7 +450,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(@"C:\FOLDER\some").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_missing_parent_directory_it_must_succeed()
         {
             // Arrange
@@ -463,7 +464,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_missing_parent_directory_it_must_fail()
         {
             // Arrange
@@ -478,7 +479,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'C:\some\folder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_existing_file_it_must_succeed()
         {
             // Arrange
@@ -497,7 +498,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_file_it_must_succeed()
         {
             // Arrange
@@ -514,7 +515,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(path).Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -529,7 +530,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -545,7 +546,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'c:\some\file.txt\nested'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_parent_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -560,7 +561,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -576,7 +577,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'c:\some\file.txt\nested\more'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -592,7 +593,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -608,7 +609,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -627,7 +628,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -644,7 +645,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(path).Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange
@@ -661,7 +662,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_missing_remote_directory_it_must_fail()
         {
             // Arrange
@@ -678,7 +679,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
@@ -695,7 +696,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTime(path).Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -709,7 +710,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -723,7 +724,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_local_zone_for_missing_extended_local_directory_it_must_succeed()
         {
             // Arrange
@@ -738,7 +739,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_missing_extended_local_directory_it_must_fail()
         {
             // Arrange
@@ -753,7 +754,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_extended_local_directory_it_must_succeed()
         {
             // Arrange

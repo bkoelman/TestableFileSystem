@@ -2,13 +2,14 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyDirectoryGetRootSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_root_it_must_not_raise_events()
         {
             // Arrange

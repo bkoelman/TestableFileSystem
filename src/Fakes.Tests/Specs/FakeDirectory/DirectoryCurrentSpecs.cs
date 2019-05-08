@@ -2,6 +2,7 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -9,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryCurrentSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_null_it_must_fail()
         {
             // Arrange
@@ -24,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_empty_string_it_must_fail()
         {
             // Arrange
@@ -38,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_whitespace_it_must_fail()
         {
             // Arrange
@@ -52,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -66,7 +67,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -80,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_missing_directory_it_must_fail()
         {
             // Arrange
@@ -96,7 +97,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'C:\other\folder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_existing_local_directory_it_must_succeed()
         {
             // Arrange
@@ -111,7 +112,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetCurrentDirectory().Should().Be(@"c:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_existing_directory_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -126,7 +127,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_missing_drive_it_must_fail()
         {
             // Arrange
@@ -141,7 +142,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'E:\'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_existing_drive_it_must_succeed()
         {
             // Arrange
@@ -156,7 +157,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -174,7 +175,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetCurrentDirectory().Should().Be(@"c:\other");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_relative_subdirectory_it_must_succeed()
         {
             // Arrange
@@ -191,7 +192,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetCurrentDirectory().Should().Be(@"c:\some\folder");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_existing_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -206,7 +207,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\some\FOLDER");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -220,7 +221,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_existing_remote_directory_it_must_succeed()
         {
             // Arrange
@@ -235,7 +236,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetCurrentDirectory().Should().Be(@"\\docserver\teams");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_for_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -252,7 +253,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("The directory name is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -268,7 +269,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -284,7 +285,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'c:\some\file.txt\subfolder\deeper'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_current_directory_to_extended_local_directory_it_must_succeed()
         {
             // Arrange

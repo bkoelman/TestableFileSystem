@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileCopySpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_null_source_it_must_fail()
         {
             // Arrange
@@ -25,7 +26,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_null_destination_it_must_fail()
         {
             // Arrange
@@ -40,7 +41,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_empty_string_source_it_must_fail()
         {
             // Arrange
@@ -54,7 +55,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_empty_string_destination_it_must_fail()
         {
             // Arrange
@@ -68,7 +69,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_whitespace_source_it_must_fail()
         {
             // Arrange
@@ -82,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_whitespace_destination_it_must_fail()
         {
             // Arrange
@@ -96,7 +97,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_invalid_drive_source_it_must_fail()
         {
             // Arrange
@@ -110,7 +111,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_invalid_drive_destination_it_must_fail()
         {
             // Arrange
@@ -124,7 +125,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_wildcard_characters_in_source_it_must_fail()
         {
             // Arrange
@@ -138,7 +139,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_for_wildcard_characters_in_destination_it_must_fail()
         {
             // Arrange
@@ -152,7 +153,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_same_location_it_must_fail()
         {
             // Arrange
@@ -169,7 +170,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage(@"The file 'c:\some\file.txt' already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_overwrite_same_location_it_must_fail()
         {
             // Arrange
@@ -187,7 +188,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"The process cannot access the file 'c:\some\file.txt' because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_same_directory_it_must_succeed()
         {
             // Arrange
@@ -212,7 +213,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Length.Should().Be(3);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_existing_file_it_must_fail()
         {
             // Arrange
@@ -231,7 +232,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage(@"The file 'C:\some\copy.txt' already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_same_directory_it_must_overwrite_existing()
         {
             // Arrange
@@ -256,7 +257,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Length.Should().Be(6);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_different_directory_it_must_succeed()
         {
             // Arrange
@@ -276,7 +277,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_different_directory_it_must_overwrite_existing()
         {
             // Arrange
@@ -299,7 +300,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Length.Should().Be(6);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_overwrite_hidden_file_it_must_fail()
         {
             // Arrange
@@ -319,7 +320,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\copy.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_overwrite_readonly_file_it_must_fail()
         {
             // Arrange
@@ -339,7 +340,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\copy.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -355,7 +356,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\some\new.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -374,7 +375,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\copied.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_relative_path_it_must_succeed()
         {
             // Arrange
@@ -396,7 +397,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_relative_path_it_must_succeed()
         {
             // Arrange
@@ -418,7 +419,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_relative_file_on_different_drive_in_root_it_must_succeed()
         {
             // Arrange
@@ -438,7 +439,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"D:\destination.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_relative_file_on_same_drive_in_subdirectory_it_must_succeed()
         {
             // Arrange
@@ -456,7 +457,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"d:\other\destination.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
@@ -472,7 +473,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\subfolder' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
@@ -492,7 +493,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"The target file 'C:\some\folder' is a directory, not a file.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -508,7 +509,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\file.txt\other.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -525,7 +526,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\newname.doc\other.doc'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -541,7 +542,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\file.txt\other.txt\deeper.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -558,7 +559,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\newname.doc\other.doc\deeper.doc'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_missing_directory_it_must_fail()
         {
             // Arrange
@@ -573,7 +574,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_missing_directory_it_must_fail()
         {
             // Arrange
@@ -592,7 +593,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\other\newname.doc'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_missing_file_it_must_fail()
         {
             // Arrange
@@ -607,7 +608,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'c:\some\file.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_parent_directory_it_must_succeed()
         {
             // Arrange
@@ -627,7 +628,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\some\copy.nfo").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_that_is_root_of_drive_it_must_fail()
         {
             // Arrange
@@ -641,7 +642,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_root_of_drive_it_must_fail()
         {
             // Arrange
@@ -658,7 +659,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_an_open_file_it_must_fail()
         {
             // Arrange
@@ -683,7 +684,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -701,7 +702,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -719,7 +720,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -739,7 +740,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -759,7 +760,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_reserved_name_it_must_fail()
         {
             // Arrange
@@ -773,7 +774,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_reserved_name_it_must_fail()
         {
             // Arrange
@@ -787,7 +788,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_from_extended_path_to_extended_path_it_must_succeed()
         {
             // Arrange
@@ -804,7 +805,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"c:\work\summary.doc").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_it_must_allocate_initial_size()
         {
             // Arrange
@@ -838,7 +839,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_overwriting_existing_file_it_must_allocate_initial_size()
         {
             // Arrange

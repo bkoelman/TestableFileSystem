@@ -5,13 +5,14 @@ using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class PathSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_null_it_must_fail()
         {
             // Arrange
@@ -33,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_empty_string_it_must_fail()
         {
             // Arrange
@@ -54,7 +55,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_whitespace_it_must_fail()
         {
             // Arrange
@@ -72,7 +73,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -90,7 +91,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -108,7 +109,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_missing_directory_it_must_fail()
         {
             // Arrange
@@ -126,7 +127,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_existing_local_directory_it_must_raise_events()
         {
             // Arrange
@@ -164,7 +165,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_drive_root_it_must_raise_events()
         {
             // Arrange
@@ -202,7 +203,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_existing_local_directory_with_trailing_whitespace_it_must_raise_events()
         {
             // Arrange
@@ -240,7 +241,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_existing_local_directory_with_different_casing_it_must_raise_events()
         {
             // Arrange
@@ -276,7 +277,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_absolute_path_without_drive_letter_it_must_raise_events()
         {
             // Arrange
@@ -316,7 +317,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_relative_local_directory_it_must_raise_events()
         {
             // Arrange
@@ -356,7 +357,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_existing_local_file_it_must_fail()
         {
             // Arrange
@@ -377,7 +378,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_local_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -399,7 +400,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_missing_local_directory_tree_it_must_fail()
         {
             // Arrange
@@ -419,7 +420,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -439,7 +440,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_existing_network_share_it_must_raise_events()
         {
             // Arrange
@@ -477,7 +478,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_missing_remote_directory_it_must_fail()
         {
             // Arrange
@@ -499,7 +500,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_existing_remote_directory_it_must_raise_events()
         {
             // Arrange
@@ -537,7 +538,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_reserved_name_it_must_fail()
         {
             // Arrange
@@ -555,7 +556,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_extended_local_directory_it_must_raise_events()
         {
             // Arrange
@@ -591,7 +592,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_path_on_running_watcher_it_must_discard_old_notifications_and_restart()
         {
             // Arrange
@@ -660,7 +661,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_on_disposed_watcher_it_must_succeed()
         {
             // Arrange
@@ -680,7 +681,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             watcher.Path.Should().Be(directoryToWatch);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_with_trailing_whitespace_it_must_raise_event()
         {
             // Arrange
@@ -716,7 +717,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_using_absolute_path_without_drive_letter_it_must_raise_event()
         {
             // Arrange
@@ -753,7 +754,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_relative_local_file_it_must_raise_event()
         {
             // Arrange
@@ -791,7 +792,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_extended_local_file_it_must_raise_event()
         {
             // Arrange

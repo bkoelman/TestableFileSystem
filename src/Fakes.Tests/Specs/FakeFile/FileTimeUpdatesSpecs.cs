@@ -4,6 +4,7 @@ using System.Threading;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     {
         private const string DefaultContents = "ABC";
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_updating_file_attributes_it_must_not_update_file_timings()
         {
             // Arrange
@@ -38,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_file_it_must_not_update_file_timings()
         {
             // Arrange
@@ -65,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_from_existing_file_it_must_update_file_timings()
         {
             // Arrange
@@ -93,7 +94,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_existing_file_it_must_update_file_timings()
         {
             // Arrange
@@ -118,7 +119,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_appending_to_existing_file_it_must_update_file_timings()
         {
             // Arrange
@@ -143,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_truncating_existing_file_it_must_update_file_timings()
         {
             // Arrange
@@ -170,7 +171,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_it_must_update_file_timings()
         {
             // Arrange
@@ -194,7 +195,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_overwriting_existing_file_it_must_update_file_timings()
         {
             // Arrange
@@ -219,7 +220,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_file_it_must_update_file_timings()
         {
             // Arrange
@@ -256,7 +257,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(lastAccessTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_it_must_update_file_timings()
         {
             // Arrange
@@ -293,7 +294,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(lastAccessTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_it_must_update_file_timings()
         {
             // Arrange
@@ -353,7 +354,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_overwriting_existing_file_it_must_update_file_timings()
         {
             // Arrange
@@ -420,7 +421,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
 #if !NETCOREAPP1_1
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_different_name_in_same_directory_without_backup_it_must_not_update_file_timings()
         {
             // Arrange
@@ -463,7 +464,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_different_name_in_same_directory_with_backup_it_must_not_update_file_timings()
         {
             // Arrange
@@ -511,7 +512,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(backupPath).Should().Be(operationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_replacing_file_with_different_name_in_same_directory_with_existing_backup_it_must_not_update_file_timings()
         {
@@ -570,7 +571,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(backupPath).Should().Be(backupLastWriteTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_in_different_directory_without_backup_it_must_not_update_file_timings()
         {
             // Arrange
@@ -614,7 +615,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(destinationPath).Should().Be(destinationLastWriteTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_in_different_directory_with_backup_it_must_not_update_file_timings()
         {
             // Arrange
@@ -664,7 +665,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(backupPath).Should().Be(operationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_in_different_directory_with_existing_backup_it_must_not_update_file_timings()
         {
             // Arrange
@@ -724,7 +725,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(backupPath).Should().Be(backupLastWriteTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_file_it_must_update_file_timings()
         {
             // Arrange
@@ -749,7 +750,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_encrypted_file_it_must_not_update_file_timings()
         {
             // Arrange
@@ -776,7 +777,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_file_it_must_update_file_timings()
         {
             // Arrange
@@ -803,7 +804,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(changeTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_unencrypted_file_it_must_not_update_file_timings()
         {
             // Arrange
@@ -828,7 +829,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_locking_segment_in_stream_it_must_not_update_file_timings()
         {
             // Arrange

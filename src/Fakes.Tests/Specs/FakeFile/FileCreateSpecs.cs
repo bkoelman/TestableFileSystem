@@ -2,6 +2,7 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -9,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileCreateSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_for_null_it_must_fail()
         {
             // Arrange
@@ -24,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -38,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty path name is not legal.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -52,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -66,7 +67,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -80,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_it_must_succeed()
         {
             // Arrange
@@ -102,7 +103,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Attributes.Should().Be(FileAttributes.Archive);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_for_random_access_it_must_succeed()
         {
             // Arrange
@@ -117,7 +118,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_with_asynchronous_it_must_succeed()
         {
             // Arrange
@@ -134,7 +135,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_with_encryption_it_must_succeed()
         {
             // Arrange
@@ -152,7 +153,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Encrypted | FileAttributes.Archive);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_with_delete_on_close_it_must_succeed()
         {
             // Arrange
@@ -172,7 +173,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(path).Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_unable_to_create_local_file_with_delete_on_close_it_must_succeed()
         {
             // Arrange
@@ -200,7 +201,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_existing_local_file_it_must_overwrite()
         {
             // Arrange
@@ -222,7 +223,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Attributes.Should().Be(FileAttributes.Archive);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_that_overwrites_existing_local_hidden_file_it_must_fail()
         {
             // Arrange
@@ -240,7 +241,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_that_overwrites_existing_local_readonly_file_it_must_fail()
         {
             // Arrange
@@ -258,7 +259,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_existing_local_file_with_different_casing_it_must_overwrite()
         {
             // Arrange
@@ -276,7 +277,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\some\FILE.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -293,7 +294,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\some\file.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -313,7 +314,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\file.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_relative_local_file_it_must_succeed()
         {
             // Arrange
@@ -332,7 +333,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"C:\some\file.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_for_missing_parent_directory_it_must_fail()
         {
             // Arrange
@@ -347,7 +348,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\subfolder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_for_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
@@ -365,7 +366,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\subfolder' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -381,7 +382,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_file_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -397,7 +398,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_remote_file_on_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -411,7 +412,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_remote_file_on_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -428,7 +429,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"\\server\share\file.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_existing_remote_file_it_must_overwrite()
         {
             // Arrange
@@ -448,7 +449,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(@"\\server\share\file.txt").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -462,7 +463,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_extended_local_file_it_must_succeed()
         {
             // Arrange

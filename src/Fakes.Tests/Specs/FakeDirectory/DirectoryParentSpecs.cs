@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryParentSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_null_it_must_fail()
         {
             // Arrange
@@ -23,7 +24,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -37,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -51,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -65,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -79,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_missing_local_drive_it_must_succeed()
         {
             // Arrange
@@ -93,7 +94,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parent.Should().BeNull();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_missing_local_path_it_must_succeed()
         {
             // Arrange
@@ -108,7 +109,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"d:\some\folder");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_missing_local_path_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -123,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"f:\some\folder");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_missing_local_path_with_trailing_separator_it_must_succeed()
         {
             // Arrange
@@ -140,7 +141,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.ToString().Should().Be(@"f:\some\folder");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_directory_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -159,7 +160,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"c:\");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_relative_local_path_it_must_succeed()
         {
             // Arrange
@@ -177,7 +178,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"x:\folder\to");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -195,7 +196,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"C:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -211,7 +212,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"C:\some\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_parent_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -227,7 +228,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"C:\some\file.txt\deeper");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_on_missing_network_share_it_must_succeed()
         {
             // Arrange
@@ -242,7 +243,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"\\server\share");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_missing_remote_file_it_must_succeed()
         {
             // Arrange
@@ -258,7 +259,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"\\server\share");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
@@ -274,7 +275,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"\\server\share");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -288,7 +289,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_extended_local_file_it_must_succeed()
         {
             // Arrange
@@ -304,7 +305,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"\\?\C:\folder");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_parent_for_extended_remote_file_it_must_succeed()
         {
             // Arrange

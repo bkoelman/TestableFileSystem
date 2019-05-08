@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -7,7 +8,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
 {
     public sealed class DirectoryInfoGetFilesSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_files_it_must_succeed()
         {
             // Arrange

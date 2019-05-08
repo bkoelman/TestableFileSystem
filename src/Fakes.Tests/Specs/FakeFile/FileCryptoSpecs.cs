@@ -4,6 +4,7 @@ using System.IO;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     {
         #region Multi-user operations on files
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_existence_of_file_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -37,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_recreating_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -62,7 +63,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_recreating_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -82,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_from_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -107,7 +108,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_from_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -127,7 +128,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -152,7 +153,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -172,7 +173,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_appending_to_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -197,7 +198,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_appending_to_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -217,7 +218,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -243,7 +244,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -263,7 +264,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(targetPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_over_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -290,7 +291,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_over_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -311,7 +312,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(targetPath).Should().Be("ExampleData");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_file_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -337,7 +338,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_that_was_encrypted_by_other_user_to_same_volume_it_must_succeed()
         {
             // Arrange
@@ -364,7 +365,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_that_was_encrypted_by_other_user_to_different_volume_it_must_fail()
         {
             // Arrange
@@ -390,7 +391,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_that_was_encrypted_by_self_to_different_volume_it_must_succeed()
         {
             // Arrange
@@ -411,7 +412,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(targetPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_source_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -439,7 +440,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_destination_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -467,7 +468,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_backup_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -498,7 +499,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -527,7 +528,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(backupPath).Should().HaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_file_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -551,7 +552,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_attributes_of_file_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -575,7 +576,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_attributes_of_file_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -599,7 +600,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_creation_time_in_UTC_of_file_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -625,7 +626,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_creation_time_in_UTC_of_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -653,7 +654,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_creation_time_in_UTC_of_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -672,7 +673,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetCreationTimeUtc(path).Should().Be(1.January(2002));
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_UTC_of_file_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -698,7 +699,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_UTC_of_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -726,7 +727,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_UTC_of_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -745,7 +746,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(1.January(2002));
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_UTC_of_file_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -771,7 +772,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_UTC_of_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -799,7 +800,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_UTC_of_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -818,7 +819,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTimeUtc(path).Should().Be(1.January(2002));
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -843,7 +844,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -862,7 +863,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().HaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_file_that_was_encrypted_by_other_user_it_must_fail()
         {
             // Arrange
@@ -887,7 +888,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_file_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -910,7 +911,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
         #region Multi-user operations on files in encrypted directories
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -938,7 +939,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_recreating_unencrypted_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -966,7 +967,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_into_directory_that_was_encrypted_by_other_it_must_succeed()
         {
             // Arrange
@@ -990,7 +991,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(targetPath).Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_over_file_into_directory_that_was_encrypted_by_other_it_must_succeed()
         {
             // Arrange
@@ -1015,7 +1016,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(targetPath).Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_into_directory_on_different_volume_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1041,7 +1042,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(targetPath).Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_in_directory_that_was_encrypted_by_other_it_must_succeed()
         {
             // Arrange
@@ -1070,7 +1071,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_self_encrypted_file_from_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1093,7 +1094,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.Exists(path).Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_attributes_of_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1114,7 +1115,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             attributes.Should().Be(FileAttributes.System);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_attributes_of_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1135,7 +1136,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Hidden);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_getting_creation_time_in_local_zone_of_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
@@ -1161,7 +1162,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_setting_creation_time_in_local_zone_of_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
@@ -1185,7 +1186,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_getting_last_access_time_in_local_zone_of_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
@@ -1211,7 +1212,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_setting_last_access_time_in_local_zone_of_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
@@ -1235,7 +1236,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_getting_last_write_time_in_local_zone_of_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
@@ -1261,7 +1262,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_setting_last_write_time_in_local_zone_of_file_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
@@ -1289,7 +1290,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
         #region Multi-user operations on directories
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_existence_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1313,7 +1314,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1353,7 +1354,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1380,7 +1381,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_that_was_encrypted_by_other_user_to_same_volume_it_must_succeed()
         {
             // Arrange
@@ -1407,7 +1408,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1431,7 +1432,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_recursively_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1457,7 +1458,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_in_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1483,7 +1484,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_attributes_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1508,7 +1509,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_creation_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1534,7 +1535,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_creation_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1563,7 +1564,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_access_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1589,7 +1590,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1618,7 +1619,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1644,7 +1645,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_UTC_of_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1673,7 +1674,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1697,7 +1698,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_directory_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange
@@ -1718,7 +1719,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(path).Should().HaveFlag(FileAttributes.Encrypted);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_directory_that_was_encrypted_by_other_user_it_must_succeed()
         {
             // Arrange
@@ -1748,7 +1749,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             });
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_directory_that_was_encrypted_by_self_it_must_succeed()
         {
             // Arrange

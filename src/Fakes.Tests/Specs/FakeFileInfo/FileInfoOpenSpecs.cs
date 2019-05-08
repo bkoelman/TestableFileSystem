@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
 {
     public sealed class FileInfoOpenSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_it_must_succeed()
         {
             // Arrange
@@ -33,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             contentsRead.Should().Be(fileContents);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -61,7 +62,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterFound.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_it_must_not_refresh_automatically()
         {
             // Arrange

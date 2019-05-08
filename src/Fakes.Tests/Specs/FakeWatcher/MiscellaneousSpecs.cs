@@ -6,13 +6,14 @@ using System.Threading;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class MiscellaneousSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_watcher_directory_is_deleted_it_must_raise_error_event_and_terminate()
         {
             // Arrange
@@ -60,7 +61,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_parent_of_watcher_directory_is_deleted_it_must_raise_error_event_and_terminate()
         {
             // Arrange
@@ -108,7 +109,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_multiple_watchers_are_attached_to_the_same_file_system_it_must_raise_events()
         {
             // Arrange
@@ -166,7 +167,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_watchers_are_attached_to_different_file_systems_it_must_raise_events()
         {
             // Arrange

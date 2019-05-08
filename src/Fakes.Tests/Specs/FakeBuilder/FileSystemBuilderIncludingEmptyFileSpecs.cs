@@ -2,6 +2,7 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -9,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 {
     public sealed class FileSystemBuilderIncludingEmptyFileSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_empty_file_for_null_it_must_fail()
         {
             // Arrange
@@ -23,7 +24,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_empty_file_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -36,7 +37,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentException>().WithMessage("'path' cannot be empty or contain only whitespace.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_empty_file_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -49,7 +50,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentException>().WithMessage("'path' cannot be empty or contain only whitespace.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_empty_file_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -62,7 +63,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_empty_file_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -75,7 +76,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_local_empty_file_it_must_succeed()
         {
             // Arrange
@@ -93,7 +94,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Archive);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_local_empty_file_with_attributes_it_must_succeed()
         {
             // Arrange
@@ -111,7 +112,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             fileSystem.File.GetAttributes(path).Should().Be(FileAttributes.Hidden);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_existing_local_empty_file_it_must_overwrite()
         {
             // Arrange
@@ -132,7 +133,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             info.Length.Should().Be(0);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_existing_local_empty_file_with_different_casing_it_must_overwrite()
         {
             // Arrange
@@ -151,7 +152,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             info.Length.Should().Be(0);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_local_empty_file_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -168,7 +169,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             fileSystem.File.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_relative_local_empty_file_it_must_fail()
         {
             // Arrange
@@ -181,7 +182,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_local_empty_file_that_is_drive_letter_it_must_fail()
         {
             // Arrange
@@ -197,7 +198,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'C:\'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_local_empty_file_for_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
@@ -214,7 +215,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
                 @"Cannot create 'C:\some\subfolder' because a file or directory with the same name already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_local_empty_file_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -229,7 +230,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
                 @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_local_empty_file_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -244,7 +245,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
                 @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_remote_empty_file_it_must_succeed()
         {
             // Arrange
@@ -261,7 +262,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             fileSystem.File.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_existing_remote_empty_file_it_must_overwrite()
         {
             // Arrange
@@ -282,7 +283,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             info.Length.Should().Be(0);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_empty_file_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -295,7 +296,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_extended_local_empty_file_it_must_succeed()
         {
             // Arrange

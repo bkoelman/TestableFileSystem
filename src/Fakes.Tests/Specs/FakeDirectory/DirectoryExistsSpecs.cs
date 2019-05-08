@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -7,7 +8,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryExistsSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_null_it_must_succeed()
         {
             // Arrange
@@ -21,7 +22,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_empty_string_it_must_succeed()
         {
             // Arrange
@@ -35,7 +36,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_whitespace_it_must_succeed()
         {
             // Arrange
@@ -49,7 +50,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_invalid_drive_it_must_succeed()
         {
             // Arrange
@@ -63,7 +64,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_wildcard_characters_it_must_succeed()
         {
             // Arrange
@@ -77,7 +78,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_missing_local_directory_it_must_succeed()
         {
             // Arrange
@@ -92,7 +93,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_existing_local_directory_it_must_succeed()
         {
             // Arrange
@@ -109,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -124,7 +125,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_existing_local_directory_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -139,7 +140,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_directory_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -157,7 +158,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_existing_relative_local_directory_it_must_succeed()
         {
             // Arrange
@@ -174,7 +175,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_existing_relative_local_directory_on_different_drive_it_must_succeed()
         {
             // Arrange
@@ -193,7 +194,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -210,7 +211,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -225,7 +226,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_parent_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -240,7 +241,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_local_directory_below_existing_file_it_must_succeed()
         {
             // Arrange
@@ -255,7 +256,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_local_directory_whose_parent_does_not_exist_it_must_succeed()
         {
             // Arrange
@@ -269,7 +270,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_missing_network_share_it_must_succeed()
         {
             // Arrange
@@ -283,7 +284,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange
@@ -298,7 +299,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
@@ -315,7 +316,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_reserved_name_it_must_succeed()
         {
             // Arrange
@@ -329,7 +330,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_missing_extended_local_directory_it_must_succeed()
         {
             // Arrange
@@ -343,7 +344,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_existing_extended_local_directory_it_must_succeed()
         {
             // Arrange

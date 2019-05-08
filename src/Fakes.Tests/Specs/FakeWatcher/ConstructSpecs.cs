@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class ConstructSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_it_must_succeed()
         {
             // Arrange
@@ -30,7 +31,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_null_path_it_must_fail()
         {
             // Arrange
@@ -45,7 +46,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_empty_path_it_must_fail()
         {
             // Arrange
@@ -59,7 +60,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name  is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_whitespace_path_it_must_fail()
         {
             // Arrange
@@ -73,7 +74,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name   is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_invalid_drive_path_it_must_fail()
         {
             // Arrange
@@ -87,7 +88,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The directory name _: is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_wildcard_characters_in_path_it_must_fail()
         {
             // Arrange
@@ -101,7 +102,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name c:\SomeFolder? is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_missing_directory_it_must_fail()
         {
             // Arrange
@@ -115,7 +116,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name e:\MissingFolder is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_existing_directory_it_must_succeed()
         {
             // Arrange
@@ -134,7 +135,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_null_filter_it_must_fail()
         {
             // Arrange
@@ -149,7 +150,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_empty_filter_it_must_succeed()
         {
             // Arrange
@@ -166,7 +167,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_invalid_drive_filter_it_must_succeed()
         {
             // Arrange
@@ -183,7 +184,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_watcher_for_valid_filter_it_must_succeed()
         {
             // Arrange

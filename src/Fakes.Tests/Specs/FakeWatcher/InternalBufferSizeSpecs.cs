@@ -5,6 +5,7 @@ using System.Threading;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
@@ -16,7 +17,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         // MSDN: ReadDirectoryChangesW fails with ERROR_INVALID_PARAMETER when the buffer length is greater than 64 KB and the application is
         //       monitoring a directory over the network. This is due to a packet size limitation with the underlying file sharing protocols.
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_InternalBufferSize_to_low_value_it_must_correct_value()
         {
             // Arrange
@@ -33,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_InternalBufferSize_to_high_value_it_must_store_value()
         {
             // Arrange
@@ -52,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_InternalBufferSize_on_running_watcher_it_must_discard_old_notifications_and_restart()
         {
             // Arrange
@@ -121,7 +122,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_InternalBufferSize_on_disposed_watcher_it_must_succeed()
         {
             // Arrange
@@ -138,7 +139,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             watcher.InternalBufferSize.Should().Be(4099);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_buffer_overflows_it_must_raise_error_event()
         {
             // Arrange
@@ -198,7 +199,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_buffer_overflows_it_must_discard_old_notifications_and_continue()
         {
             // Arrange

@@ -3,6 +3,7 @@ using System.IO;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryTimeUpdatesSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_updating_directory_attributes_it_must_not_update_directory_timings()
         {
             // Arrange
@@ -35,7 +36,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(path).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_updating_subdirectory_attributes_and_time_it_must_not_update_directory_timings()
         {
             // Arrange
@@ -62,7 +63,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_updating_file_attributes_and_time_it_must_not_update_directory_timings()
         {
             // Arrange
@@ -89,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_it_must_update_directory_timings()
         {
             // Arrange
@@ -114,7 +115,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_updating_file_contents_it_must_not_update_directory_timings()
         {
             // Arrange
@@ -139,7 +140,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_file_it_must_update_directory_timings()
         {
             // Arrange
@@ -166,7 +167,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_file_it_must_update_directory_timings()
         {
             // Arrange
@@ -194,7 +195,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_into_directory_it_must_update_directory_timings()
         {
             // Arrange
@@ -222,7 +223,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_it_must_update_directory_timings()
         {
             // Arrange
@@ -249,7 +250,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_overwriting_existing_file_it_must_not_update_directory_timings()
         {
             // Arrange
@@ -277,7 +278,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_into_directory_it_must_update_directory_timings()
         {
             // Arrange
@@ -305,7 +306,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_out_of_directory_it_must_update_directory_timings()
         {
             // Arrange
@@ -334,7 +335,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
 #if !NETCOREAPP1_1
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_file_it_must_update_directory_timings()
         {
             // Arrange
@@ -370,7 +371,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_subdirectory_it_must_not_update_directory_timings()
         {
             // Arrange
@@ -406,7 +407,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_file_it_must_update_directory_timings()
         {
             // Arrange
@@ -444,7 +445,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_subdirectory_it_must_not_update_directory_timings()
         {
             // Arrange
@@ -482,7 +483,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_in_different_directory_without_backup_it_must_update_directory_timings()
         {
             // Arrange
@@ -524,7 +525,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.GetLastAccessTimeUtc(destinationContainerPath).Should().Be(operationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_in_different_directory_with_backup_it_must_update_directory_timings()
         {
             const string sourceContainerPath = @"C:\folder\sourceDir";
@@ -577,7 +578,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.GetLastAccessTimeUtc(backupContainerPath).Should().Be(operationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_in_different_directory_with_existing_backup_it_must_update_directory_timings()
         {
             const string sourceContainerPath = @"C:\folder\sourceDir";
@@ -631,7 +632,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 #endif
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_it_must_update_directory_timings()
         {
             // Arrange
@@ -661,7 +662,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_subdirectory_it_must_update_directory_timings()
         {
             // Arrange
@@ -687,7 +688,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_subdirectory_it_must_update_directory_timings()
         {
             // Arrange
@@ -724,7 +725,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_subdirectory_into_directory_it_must_update_directory_timings()
         {
             // Arrange
@@ -762,7 +763,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_subdirectory_out_of_directory_it_must_update_directory_timings()
         {
             // Arrange
@@ -799,7 +800,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_updating_contents_of_subdirectory_it_must_not_update_directory_timings()
         {
             // Arrange
@@ -827,7 +828,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(creationTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_it_must_update_directory_timings()
         {
             // Arrange
@@ -857,7 +858,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetLastAccessTimeUtc(containerPath).Should().Be(updateTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_it_must_recursively_update_directory_timings()
         {
             // Arrange

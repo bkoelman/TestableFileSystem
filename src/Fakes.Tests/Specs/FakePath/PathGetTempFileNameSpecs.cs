@@ -2,6 +2,7 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -11,7 +12,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
     {
         private const string RandomFileNameRegex = "^tmp[0-9A-F]{1,4}.tmp$";
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_it_must_succeed()
         {
             // Arrange
@@ -27,7 +28,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fileSystem.File.Exists(tempPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_without_drive_C_it_must_succeed()
         {
             // Arrange
@@ -46,7 +47,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fileSystem.File.Exists(tempPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_with_custom_temp_directory_it_must_succeed()
         {
             // Arrange
@@ -66,7 +67,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fileSystem.File.Exists(tempPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_with_missing_temp_directory_it_must_fail()
         {
             // Arrange
@@ -85,7 +86,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<IOException>().WithMessage("The directory name is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_with_temp_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -105,7 +106,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<IOException>().WithMessage("The directory name is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_with_temp_directory_that_exists_as_nested_file_it_must_fail()
         {
             // Arrange
@@ -123,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<IOException>().WithMessage("The directory name is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_with_existing_temp_files_except_low_number_it_must_succeed()
         {
             // Arrange
@@ -140,7 +141,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             tempPath.Should().Be(@"C:\Temp\tmp1234.tmp");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_with_existing_temp_files_except_high_number_it_must_succeed()
         {
             // Arrange
@@ -157,7 +158,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             tempPath.Should().Be(@"C:\Temp\tmpFEDC.tmp");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_temp_file_name_with_all_existing_temp_files_it_must_fail()
         {
             // Arrange

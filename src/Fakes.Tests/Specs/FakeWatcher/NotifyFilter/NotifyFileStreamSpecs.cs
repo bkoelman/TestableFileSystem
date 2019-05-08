@@ -13,7 +13,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyFileStreamSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_locking_bytes_in_stream_it_must_not_raise_events()
         {
             // Arrange
@@ -45,7 +45,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_unlocking_bytes_in_stream_it_must_not_raise_events()
         {
             // Arrange
@@ -79,7 +79,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\file.txt                            @ LastAccess
         ")]
@@ -121,7 +121,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\file.txt                            @ LastAccess    LastWrite
         ")]
@@ -163,7 +163,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\file.txt                            @ LastAccess    LastWrite   Size
         ")]

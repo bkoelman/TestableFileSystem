@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -7,7 +8,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
 {
     public sealed class DirectoryInfoCreateSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_it_must_succeed()
         {
             // Arrange
@@ -26,7 +27,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_it_must_not_update_properties()
         {
             // Arrange

@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class FinishAndWaitForFlushedSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_flushing_with_negative_timeout_it_must_fail()
         {
             // Arrange
@@ -32,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_flushing_and_timeout_expires_it_must_fail()
         {
             // Arrange

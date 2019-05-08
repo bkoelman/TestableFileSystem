@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -7,7 +8,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
 {
     public sealed class PathGetTempPathSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_default_temp_path_it_must_succeed()
         {
             // Arrange
@@ -21,7 +22,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fileSystem.Directory.Exists(@"c:\Temp").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_default_temp_path_without_drive_C_it_must_succeed()
         {
             // Arrange
@@ -39,7 +40,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fileSystem.Directory.Exists(@"x:\Temp").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_custom_temp_path_it_must_succeed()
         {
             // Arrange
@@ -57,7 +58,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fileSystem.Directory.Exists(directory).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_custom_missing_temp_path_it_must_succeed()
         {
             // Arrange

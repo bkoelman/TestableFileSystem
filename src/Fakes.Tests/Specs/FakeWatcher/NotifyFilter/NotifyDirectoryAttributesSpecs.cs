@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyDirectoryAttributesSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_attributes_it_must_not_raise_events()
         {
             // Arrange
@@ -40,7 +40,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\Subfolder                              @ Attributes
         ")]
@@ -76,7 +76,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_directory_attributes_to_existing_value_it_must_not_raise_events()
         {
             // Arrange

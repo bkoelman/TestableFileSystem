@@ -1,6 +1,7 @@
 ﻿#if !NETCOREAPP1_1
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDrive
 {
     public sealed class DriveGetDrivesSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_drives_it_must_succeed()
         {
             // Arrange

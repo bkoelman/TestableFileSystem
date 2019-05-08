@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
     {
         private const string DefaultContents = "ABC";
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_null_it_must_fail()
         {
             // Arrange
@@ -28,7 +29,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -42,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty path name is not legal.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -56,7 +57,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -70,7 +71,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -84,7 +85,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_in_CreateNew_mode_with_Read_access_it_must_fail()
         {
             // Arrange
@@ -101,7 +102,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Combining FileMode: CreateNew with FileAccess: Read is invalid.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_file_in_CreateNew_mode_it_must_fail()
         {
             // Arrange
@@ -118,7 +119,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage(@"The file 'C:\some\sheet.xls' already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_missing_local_file_in_CreateNew_mode_it_must_succeed()
         {
             // Arrange
@@ -144,7 +145,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Attributes.Should().Be(FileAttributes.Archive);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_in_Create_mode_with_Read_access_it_must_fail()
         {
             // Arrange
@@ -161,7 +162,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Combining FileMode: Create with FileAccess: Read is invalid.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_file_in_Create_mode_it_must_succeed()
         {
             // Arrange
@@ -179,7 +180,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_hidden_file_in_Create_mode_it_must_fail()
         {
             // Arrange
@@ -197,7 +198,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_readonly_file_in_Create_mode_it_must_fail()
         {
             // Arrange
@@ -215,7 +216,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_missing_local_file_in_Create_mode_it_must_succeed()
         {
             // Arrange
@@ -238,7 +239,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Attributes.Should().Be(FileAttributes.Archive);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_file_in_Open_mode_it_must_succeed()
         {
             // Arrange
@@ -261,7 +262,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Exists.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_readonly_file_in_Open_mode_it_must_fail()
         {
             // Arrange
@@ -279,7 +280,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_readonly_file_in_Open_mode_with_Read_access_it_must_succeed()
         {
             // Arrange
@@ -297,7 +298,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_missing_local_file_in_Open_mode_it_must_fail()
         {
             // Arrange
@@ -312,7 +313,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\sheet.xls'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_file_in_OpenOrCreate_mode_it_must_succeed()
         {
             // Arrange
@@ -335,7 +336,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Exists.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_readonly_file_in_OpenOrCreate_mode_it_must_fail()
         {
             // Arrange
@@ -353,7 +354,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_readonly_file_in_OpenOrCreate_mode_with_Read_access_it_must_succeed()
         {
             // Arrange
@@ -371,7 +372,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_missing_local_file_in_OpenOrCreate_mode_it_must_succeed()
         {
             // Arrange
@@ -393,7 +394,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Length.Should().Be(0);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_in_Truncate_mode_with_Read_access_it_must_fail()
         {
             // Arrange
@@ -410,7 +411,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Combining FileMode: Truncate with FileAccess: Read is invalid.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_missing_local_file_in_Truncate_mode_it_must_fail()
         {
             // Arrange
@@ -425,7 +426,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\sheet.xls'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_file_in_Truncate_mode_it_must_succeed()
         {
             // Arrange
@@ -449,7 +450,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(path).Should().Be(" ");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_readonly_file_in_Truncate_mode_it_must_fail()
         {
             // Arrange
@@ -467,7 +468,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_in_Append_mode_with_Read_access_it_must_fail()
         {
             // Arrange
@@ -484,7 +485,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Combining FileMode: Append with FileAccess: Read is invalid.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_missing_local_file_in_Append_mode_it_must_succeed()
         {
             // Arrange
@@ -506,7 +507,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             info.Length.Should().Be(0);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_file_in_Append_mode_it_must_succeed()
         {
             // Arrange
@@ -536,7 +537,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(path).Should().Be(DefaultContents + "XYZ");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_readonly_file_in_Append_mode_it_must_fail()
         {
             // Arrange
@@ -554,7 +555,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\file.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_file_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -570,7 +571,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_local_file_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -586,7 +587,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -605,7 +606,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
@@ -623,7 +624,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_relative_local_file_on_different_drive_in_subdirectory_it_must_fail()
         {
             // Arrange
@@ -642,7 +643,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'D:\child.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_relative_local_file_on_different_drive_in_root_it_must_succeed()
         {
             // Arrange
@@ -663,7 +664,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_relative_local_file_on_same_drive_in_subdirectory_it_must_succeed()
         {
             // Arrange
@@ -681,7 +682,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_relative_local_file_on_same_drive_in_root_it_must_fail()
         {
             // Arrange
@@ -699,7 +700,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'D:\other\child.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_local_file_for_file_that_exists_as_directory_it_must_fail()
         {
             // Arrange
@@ -717,7 +718,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Access to the path 'C:\some\subfolder' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_local_file_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -733,7 +734,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\file.txt\nested.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_local_file_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -749,7 +750,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\file.txt\nested.txt\more.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_local_file_for_missing_parent_directory_it_must_fail()
         {
             // Arrange
@@ -764,7 +765,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\doc.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_on_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -778,7 +779,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_missing_remote_file_it_must_fail()
         {
             // Arrange
@@ -793,7 +794,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\file.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_remote_file_it_must_succeed()
         {
             // Arrange
@@ -811,7 +812,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -825,7 +826,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_extended_local_file_it_must_succeed()
         {
             // Arrange
@@ -841,7 +842,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_existing_file_it_must_update_properties_only_after_closing()
         {
             // Arrange
@@ -880,7 +881,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileInfo.Length.Should().Be(1);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_from_existing_file_it_must_update_properties_only_after_closing()
         {
             // Arrange
@@ -912,7 +913,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastAccessTimeUtc(path).Should().Be(accessTimeUtc);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_updating_existing_file_on_background_thread_its_property_changes_must_be_observable_from_main_thread()
         {
             // Arrange

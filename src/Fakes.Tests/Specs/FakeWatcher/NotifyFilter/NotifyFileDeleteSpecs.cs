@@ -12,7 +12,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyFileDeleteSpecs : WatcherSpecs
     {
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - Container\file.txt                            @ FileName
         ")]
@@ -48,7 +48,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_notify_filter_on_running_watcher_it_must_discard_old_notifications_and_restart()
         {
             // Arrange

@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyDirectoryDeleteSpecs : WatcherSpecs
     {
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - Subfolder                                     @ DirectoryName
         ")]
@@ -45,7 +45,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Subfolder                                     @ LastAccess
             - Subfolder                                     @ DirectoryName
@@ -81,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             - Container\TopLevel\FileInRoot1.txt                            @ FileName
             - Container\TopLevel\FileInRoot2.txt                            @ FileName

@@ -3,13 +3,14 @@ using System;
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class FilterSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_null_pattern_it_must_raise_events()
         {
             // Arrange
@@ -58,7 +59,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_empty_pattern_it_must_raise_events()
         {
             // Arrange
@@ -106,7 +107,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_whitespace_pattern_it_must_not_raise_events()
         {
             // Arrange
@@ -149,7 +150,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_extension_pattern_it_must_raise_events()
         {
             // Arrange
@@ -193,7 +194,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_name_pattern_it_must_raise_events()
         {
             // Arrange
@@ -237,7 +238,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_name_pattern_in_rename_it_must_raise_events()
         {
             // Arrange
@@ -285,7 +286,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_name_pattern_and_trailing_whitespace_it_must_not_raise_events()
         {
             // Arrange
@@ -322,7 +323,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_absolute_path_pattern_it_must_not_raise_events()
         {
             // Arrange
@@ -359,7 +360,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_with_absolute_path_without_drive_pattern_it_must_not_raise_events()
         {
             // Arrange
@@ -398,7 +399,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_tree_with_extension_pattern_it_must_raise_events()
         {
             // Arrange
@@ -458,7 +459,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_tree_with_name_pattern_it_must_raise_events()
         {
             // Arrange
@@ -516,7 +517,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_tree_with_asterisk_dot_pattern_it_must_not_raise_events()
         {
             // Arrange
@@ -559,7 +560,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_tree_with_asterisk_pattern_it_must_raise_events()
         {
             // Arrange
@@ -623,7 +624,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_filtering_directory_tree_with_subdirectory_pattern_it_must_not_raise_events()
         {
             // Arrange
@@ -660,7 +661,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_filter_on_running_watcher_it_must_not_restart()
         {
             // Arrange
@@ -702,7 +703,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_filter_on_disposed_watcher_it_must_succeed()
         {
             // Arrange

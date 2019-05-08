@@ -2,6 +2,7 @@
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -15,7 +16,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
         private static readonly DateTime AlternateTimeUtc = 2.February(2034).At(12, 34, 56).AsUtc();
         private static readonly DateTime AlternateTime = AlternateTimeUtc.ToLocalTime();
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_last_access_time_in_local_zone_it_must_lazy_load()
         {
             // Arrange
@@ -38,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             time.Should().Be(AlternateTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_last_access_time_in_local_zone_it_must_cache()
         {
             // Arrange
@@ -64,7 +65,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             afterTime.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_last_access_time_in_local_zone_after_external_change_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -92,7 +93,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             afterTime.Should().Be(AlternateTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_directory_last_access_time_in_local_zone_it_must_refresh_automatically()
         {
             // Arrange

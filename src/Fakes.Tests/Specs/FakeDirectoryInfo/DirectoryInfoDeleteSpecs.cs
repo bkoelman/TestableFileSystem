@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
 {
     public sealed class DirectoryInfoDeleteSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_it_must_succeed()
         {
             // Arrange
@@ -27,7 +28,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             fileSystem.Directory.Exists(path).Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_recursively_it_must_succeed()
         {
             // Arrange
@@ -46,7 +47,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             fileSystem.Directory.Exists(path).Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -72,7 +73,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             afterFound.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_it_must_not_refresh_automatically()
         {
             // Arrange

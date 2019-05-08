@@ -3,6 +3,7 @@ using System.IO;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -15,7 +16,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private static readonly DateTime HighTime = DateTime.MaxValue.AddDays(-2).AsUtc().ToLocalTime();
         private static readonly DateTime ZeroFileTime = 1.January(1601).AsUtc().ToLocalTime();
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_null_it_must_fail()
         {
             // Arrange
@@ -30,7 +31,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_null_it_must_fail()
         {
             // Arrange
@@ -45,7 +46,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -59,7 +60,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -73,7 +74,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -87,7 +88,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -101,7 +102,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -115,7 +116,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -129,7 +130,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -143,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -157,7 +158,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_missing_file_it_must_succeed()
         {
             // Arrange
@@ -172,7 +173,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_missing_file_it_must_fail()
         {
             // Arrange
@@ -187,7 +188,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'C:\some\file.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_file_it_must_succeed()
         {
             // Arrange
@@ -204,7 +205,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTime(path).Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_file_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -219,7 +220,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTime(@"C:\some.txt  ").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_readonly_file_it_must_fail()
         {
             // Arrange
@@ -235,7 +236,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .WithMessage(@"Access to the path 'C:\some.txt' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_file_in_readonly_directory_it_must_succeed()
         {
             // Arrange
@@ -251,7 +252,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTime(@"C:\folder\some.txt").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_opened_file_it_must_fail()
         {
             // Arrange
@@ -272,7 +273,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_file_to_MinValue_it_must_fail()
         {
             // Arrange
@@ -290,7 +291,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 "The UTC time represented when the offset is applied must be between year 0 and 10,000.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_file_to_MaxValue_it_must_succeed()
         {
             // Arrange
@@ -307,7 +308,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTime(path).Should().Be(HighTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_drive_it_must_succeed()
         {
             // Arrange
@@ -326,7 +327,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_drive_it_must_fail()
         {
             // Arrange
@@ -343,7 +344,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Path must not be a drive.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -363,7 +364,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -383,7 +384,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTime(@"c:\file.txt").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
@@ -402,7 +403,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
@@ -419,7 +420,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTime(@"C:\folder\some.txt").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_existing_local_file_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -436,7 +437,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_local_file_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -451,7 +452,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTime(@"C:\FOLDER\some.TXT").Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_missing_parent_directory_it_must_succeed()
         {
             // Arrange
@@ -465,7 +466,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_missing_parent_directory_it_must_fail()
         {
             // Arrange
@@ -480,7 +481,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\file.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_existing_directory_it_must_succeed()
         {
             // Arrange
@@ -499,7 +500,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_directory_it_must_fail()
         {
             // Arrange
@@ -517,7 +518,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'C:\some\subfolder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -532,7 +533,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -548,7 +549,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_parent_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -563,7 +564,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -579,7 +580,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -595,7 +596,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -611,7 +612,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -630,7 +631,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_network_share_it_must_fail()
         {
             // Arrange
@@ -648,7 +649,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .WithMessage(@"Access to the path '\\server\share' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_missing_remote_file_it_must_succeed()
         {
             // Arrange
@@ -665,7 +666,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_missing_remote_file_it_must_fail()
         {
             // Arrange
@@ -683,7 +684,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .WithMessage(@"Could not find file '\\server\share\missing.docx'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
@@ -700,7 +701,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetLastWriteTime(path).Should().Be(DefaultTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -714,7 +715,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -728,7 +729,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_missing_extended_local_file_it_must_succeed()
         {
             // Arrange
@@ -743,7 +744,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(ZeroFileTime);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_missing_extended_local_file_it_must_fail()
         {
             // Arrange
@@ -758,7 +759,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\?\C:\some\missing.txt'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_extended_local_file_it_must_succeed()
         {
             // Arrange

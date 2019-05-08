@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
     {
         private const string DefaultContents = "ABC";
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_it_must_succeed()
         {
             // Arrange
@@ -33,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileSystem.File.GetAttributes(destinationPath).Should().Be(FileAttributes.ReadOnly);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_file_it_must_update_properties()
         {
             // Arrange
@@ -61,7 +62,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.ToString().Should().Be(@"c:\some\renamed.md");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_it_must_update_properties()
         {
             // Arrange

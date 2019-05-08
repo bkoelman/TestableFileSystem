@@ -12,7 +12,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyFileReplaceSpecs : WatcherSpecs
     {
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\source.txt                          @                                                       CreationTime
             * Container                                     @                               LastWrite   LastAccess
@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\source.txt                          @                                                       CreationTime
             * Container                                     @                               LastWrite   LastAccess
@@ -105,7 +105,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\source.txt                          @                                                       CreationTime
             * Container                                     @                               LastWrite   LastAccess
@@ -151,7 +151,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @                                                       CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
@@ -202,7 +202,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @           Attributes                                  CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
@@ -256,7 +256,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @                                                       CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
@@ -306,7 +306,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @           Attributes                                  CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
@@ -359,7 +359,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @                                                       CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess
@@ -409,7 +409,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\sourceDir\source.txt                @           Attributes                                  CreationTime
             * Container\targetDir                           @                               LastWrite   LastAccess

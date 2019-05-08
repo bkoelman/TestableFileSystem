@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 {
     public sealed class AbsolutePathSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -24,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_path_starting_with_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -40,7 +41,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_extended_path_starting_with_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -56,7 +57,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_network_share_with_hostname_it_must_succeed()
         {
             // Arrange
@@ -72,7 +73,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_network_share_with_IPv4_address_it_must_succeed()
         {
             // Arrange
@@ -88,7 +89,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_network_share_with_escaped_IPv6_address_it_must_succeed()
         {
             // https://msdn.microsoft.com/en-us/library/aa385353.aspx
@@ -109,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_network_host_without_share_it_must_fail()
         {
             // Arrange
@@ -123,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_path_starting_with_network_share_it_must_succeed()
         {
             // Arrange
@@ -139,7 +140,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_extended_path_starting_with_network_share_it_must_succeed()
         {
             // Arrange
@@ -155,7 +156,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_network_share_has_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -169,7 +170,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_directory_has_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -183,7 +184,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_path_with_whitespace_directory_it_must_succeed()
         {
             // Arrange
@@ -197,7 +198,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"c:\some\other");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_path_with_multiple_separators_it_must_succeed()
         {
             // Arrange
@@ -211,7 +212,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"c:\some\other");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_relative_path_it_must_fail()
         {
             // Arrange
@@ -224,7 +225,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_self_references_it_must_succeed()
         {
             // Arrange
@@ -238,7 +239,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"C:\docs\games");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_parent_references_it_must_succeed()
         {
             // Arrange
@@ -252,7 +253,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"C:\games");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_parent_reference_above_root_it_must_ignore_them()
         {
             // Arrange
@@ -266,7 +267,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"C:\games");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_reverse_slashes_it_must_normalize_them()
         {
             // Arrange
@@ -280,7 +281,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"C:\docs\in\sub\folder\");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_win32_device_namespace_it_must_fail()
         {
             // Arrange
@@ -294,7 +295,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_NT_namespace_it_must_fail()
         {
             // Arrange
@@ -308,7 +309,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_reserved_name_in_directory_it_must_fail()
         {
             // Arrange
@@ -322,7 +323,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_reserved_name_in_file_it_must_fail()
         {
             // Arrange
@@ -336,7 +337,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_trailing_space_it_must_trim()
         {
             // Arrange
@@ -350,7 +351,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"c:\some\a");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_trailing_thin_space_it_must_preserve()
         {
             // Arrange
@@ -366,7 +367,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"c:\some\a" + thinSpace);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_trailing_dot_it_must_trim()
         {
             // Arrange
@@ -380,7 +381,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(@"c:\some\a");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_using_trailing_dots_and_spaces_it_must_trim()
         {
             // Arrange

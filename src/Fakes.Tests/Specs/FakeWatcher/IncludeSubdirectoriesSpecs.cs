@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class IncludeSubdirectoriesSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_attributes_in_subdirectory_with_IncludeSubdirectories_enabled_it_must_raise_events()
         {
             // Arrange
@@ -48,7 +49,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_attributes_in_subdirectory_with_IncludeSubdirectories_disabled_it_must_not_raise_events()
         {
             // Arrange
@@ -80,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_attributes_in_watched_directory_with_IncludeSubdirectories_disabled_it_must_raise_events()
         {
             // Arrange
@@ -117,7 +118,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_attributes_of_watched_directory_with_IncludeSubdirectories_enabled_it_must_not_raise_events()
         {
             // Arrange
@@ -146,7 +147,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_IncludeSubdirectories_on_running_watcher_it_must_discard_old_notifications_and_restart()
         {
             // Arrange
@@ -214,7 +215,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_IncludeSubdirectories_on_disposed_watcher_it_must_succeed()
         {
             // Arrange

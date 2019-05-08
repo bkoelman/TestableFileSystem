@@ -2,6 +2,7 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -9,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryCreateSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_for_null_it_must_fail()
         {
             // Arrange
@@ -24,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -38,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -52,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -66,7 +67,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -80,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_existing_local_directory_it_must_succeed()
         {
             // Arrange
@@ -98,7 +99,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_missing_local_directory_it_must_succeed()
         {
             // Arrange
@@ -121,7 +122,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_missing_local_directory_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -141,7 +142,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\some").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_missing_local_directory_with_trailing_separator_it_must_succeed()
         {
             // Arrange
@@ -161,7 +162,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\some").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_missing_local_directory_tree_it_must_succeed()
         {
             // Arrange
@@ -179,7 +180,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_existing_drive_it_must_succeed()
         {
             // Arrange
@@ -197,7 +198,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(drive).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_drive_it_must_fail()
         {
             // Arrange
@@ -213,7 +214,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'X:\'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_on_missing_drive_it_must_fail()
         {
             // Arrange
@@ -230,7 +231,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .WithMessage(@"Could not find a part of the path 'X:\folder\'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_current_directory_it_must_succeed()
         {
             // Arrange
@@ -250,7 +251,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_remote_current_directory_it_must_succeed()
         {
             // Arrange
@@ -270,7 +271,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_above_root_of_drive_it_must_succeed()
         {
             // Arrange
@@ -286,7 +287,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\store").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -303,7 +304,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\other").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_existing_local_relative_directory_it_must_succeed()
         {
             // Arrange
@@ -321,7 +322,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"c:\store\data").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_missing_local_relative_directory_it_must_succeed()
         {
             // Arrange
@@ -339,7 +340,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"c:\store\data").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -353,7 +354,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\store-DATA").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_directory_for_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -371,7 +372,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Cannot create 'c:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_directory_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -387,7 +388,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_local_directory_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -403,7 +404,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_network_host_without_share_it_must_fail()
         {
             // Arrange
@@ -419,7 +420,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_network_share_it_must_fail()
         {
             // Arrange
@@ -436,7 +437,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path '\\fileserver\documents'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -450,7 +451,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_remote_directory_tree_it_must_succeed()
         {
             // Arrange
@@ -466,7 +467,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"\\teamshare\folder\documents\for\us").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_extended_local_directory_it_must_succeed()
         {
             // Arrange

@@ -5,6 +5,7 @@ using FluentAssertions;
 using FluentAssertions.Extensions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -12,7 +13,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
     public sealed class FileReplaceSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_null_source_it_must_fail()
         {
             // Arrange
@@ -27,7 +28,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_null_destination_it_must_fail()
         {
             // Arrange
@@ -42,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_empty_string_source_it_must_fail()
         {
             // Arrange
@@ -56,7 +57,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_empty_string_destination_it_must_fail()
         {
             // Arrange
@@ -70,7 +71,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_whitespace_source_it_must_fail()
         {
             // Arrange
@@ -84,7 +85,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_whitespace_destination_it_must_fail()
         {
             // Arrange
@@ -98,7 +99,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_invalid_drive_source_it_must_fail()
         {
             // Arrange
@@ -112,7 +113,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_invalid_drive_destination_it_must_fail()
         {
             // Arrange
@@ -126,7 +127,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_wildcard_characters_in_source_it_must_fail()
         {
             // Arrange
@@ -140,7 +141,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_wildcard_characters_in_destination_it_must_fail()
         {
             // Arrange
@@ -154,7 +155,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_missing_source_location_it_must_fail()
         {
             // Arrange
@@ -172,7 +173,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Unable to find the specified file.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_missing_destination_location_it_must_fail()
         {
             // Arrange
@@ -190,7 +191,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage("Unable to find the specified file.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_same_location_without_backup_it_must_fail()
         {
             // Arrange
@@ -209,7 +210,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 "The process cannot access the file because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_source_location_same_as_backup_it_must_fail()
         {
             // Arrange
@@ -229,7 +230,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_destination_location_same_as_backup_it_must_fail()
         {
             // Arrange
@@ -250,7 +251,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_different_name_in_same_directory_without_backup_it_must_succeed()
         {
             // Arrange
@@ -271,7 +272,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_replacing_file_with_different_name_in_same_directory_without_backup_and_existing_temporary_file_it_must_fail()
         {
@@ -294,7 +295,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_replacing_file_with_different_name_in_same_directory_without_backup_and_existing_temporary_directory_it_must_fail()
         {
@@ -317,7 +318,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_different_name_in_same_directory_with_backup_it_must_succeed()
         {
             // Arrange
@@ -341,7 +342,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_different_name_in_same_directory_with_existing_backup_it_must_succeed()
         {
             // Arrange
@@ -366,7 +367,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_files_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -390,7 +391,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_using_absolute_paths_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -418,7 +419,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_using_relative_paths_it_must_succeed()
         {
             // Arrange
@@ -445,7 +446,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_to_parent_directory_with_existing_backup_it_must_succeed()
         {
             // Arrange
@@ -470,7 +471,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_to_subdirectory_with_existing_backup_it_must_succeed()
         {
             // Arrange
@@ -495,7 +496,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [InlineData("C", "D", "E", 1175)]
         [InlineData("C", "C", "D", 1175)]
         [InlineData("C", "D", "D", 1176)]
@@ -524,7 +525,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 : "Unable to move the replacement file to the file to be replaced. The file to be replaced has retained its original name.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_source_that_exists_as_directory_it_must_fail()
         {
             // Arrange
@@ -544,7 +545,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_destination_that_exists_as_directory_it_must_fail()
         {
             // Arrange
@@ -564,7 +565,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_backup_that_exists_as_directory_it_must_fail()
         {
             // Arrange
@@ -585,7 +586,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_source_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -605,7 +606,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_destination_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -625,7 +626,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_backup_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -646,7 +647,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_source_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -666,7 +667,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_destination_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -686,7 +687,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_backup_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -707,7 +708,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_source_that_is_root_of_drive_it_must_fail()
         {
             // Arrange
@@ -726,7 +727,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_destination_that_is_root_of_drive_it_must_fail()
         {
             // Arrange
@@ -745,7 +746,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_backup_that_is_root_of_drive_it_must_fail()
         {
             // Arrange
@@ -765,7 +766,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_readonly_source_it_must_fail()
         {
             // Arrange
@@ -786,7 +787,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_readonly_destination_it_must_fail()
         {
             // Arrange
@@ -807,7 +808,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage("Access to the path is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_readonly_backup_it_must_fail()
         {
             // Arrange
@@ -828,7 +829,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_hidden_source_it_must_succeed()
         {
             // Arrange
@@ -855,7 +856,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Hidden);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_hidden_destination_it_must_succeed()
         {
             // Arrange
@@ -882,7 +883,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(backupPath).Should().HaveFlag(FileAttributes.Hidden);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_hidden_backup_it_must_succeed()
         {
             // Arrange
@@ -909,7 +910,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.GetAttributes(backupPath).Should().NotHaveFlag(FileAttributes.Hidden);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_open_source_it_must_fail()
         {
             // Arrange
@@ -934,7 +935,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_open_destination_it_must_fail()
         {
             // Arrange
@@ -959,7 +960,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_open_backup_it_must_fail()
         {
             // Arrange
@@ -983,7 +984,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_for_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -1000,7 +1001,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_for_backup_on_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -1020,7 +1021,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_for_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -1045,7 +1046,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_source_reserved_name_it_must_fail()
         {
             // Arrange
@@ -1065,7 +1066,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_destination_reserved_name_it_must_fail()
         {
             // Arrange
@@ -1085,7 +1086,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_backup_reserved_name_it_must_fail()
         {
             // Arrange
@@ -1105,7 +1106,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_for_extended_path_it_must_succeed()
         {
             // Arrange

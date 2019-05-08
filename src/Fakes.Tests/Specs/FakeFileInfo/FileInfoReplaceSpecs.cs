@@ -1,6 +1,7 @@
 ﻿#if !NETCOREAPP1_1
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
 {
     public sealed class FileInfoReplaceSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_without_backup_it_must_succeed()
         {
             // Arrange
@@ -31,7 +32,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             targetInfo.FullName.Should().Be(targetPath);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_backup_it_must_succeed()
         {
             // Arrange
@@ -55,7 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             targetInfo.FullName.Should().Be(targetPath);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_existing_backup_it_must_succeed()
         {
             // Arrange
@@ -80,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             targetInfo.FullName.Should().Be(targetPath);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -109,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterFound.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_it_must_not_refresh_automatically()
         {
             // Arrange

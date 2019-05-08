@@ -4,13 +4,14 @@ using System.IO;
 using System.Threading;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 {
     public sealed class EnableRaisingEventsSpecs : WatcherSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_starting_watcher_without_setting_path_it_must_fail()
         {
             // Arrange
@@ -28,7 +29,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_starting_watcher_for_removed_directory_it_must_fail()
         {
             // Arrange
@@ -51,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_starting_watcher_multiple_times_it_must_raise_events()
         {
             // Arrange
@@ -85,7 +86,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_stopping_watcher_it_must_not_raise_events()
         {
             // Arrange
@@ -122,7 +123,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_stopping_and_resuming_watcher_it_must_raise_events()
         {
             // Arrange
@@ -177,7 +178,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_restarting_watcher_it_must_discard_old_notifications()
         {
             // Arrange
@@ -245,7 +246,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_disposing_unstarted_watcher_multiple_times_it_must_succeed()
         {
             // Arrange
@@ -269,7 +270,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().NotThrow();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_disposing_started_watcher_multiple_times_it_must_succeed()
         {
             // Arrange
@@ -301,7 +302,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             action.Should().NotThrow();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_starting_disposed_watcher_it_must_fail()
         {
             // Arrange

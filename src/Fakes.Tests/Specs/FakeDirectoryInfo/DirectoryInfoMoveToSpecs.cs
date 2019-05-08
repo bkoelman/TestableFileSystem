@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
     {
         private const string DefaultContents = "ABC";
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_it_must_succeed()
         {
             // Arrange
@@ -32,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_directory_it_must_update_properties()
         {
             // Arrange
@@ -65,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             rootInfo.FullName.Should().Be(@"c:\");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_it_must_update_properties()
         {
             // Arrange

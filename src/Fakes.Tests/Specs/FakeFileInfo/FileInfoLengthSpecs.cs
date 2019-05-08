@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private const string DefaultContents = "ABC";
         private const string AlternateContents = "ABC...XYZ";
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_length_it_must_lazy_load()
         {
             // Arrange
@@ -31,7 +32,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             length.Should().Be(AlternateContents.Length);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_length_it_must_cache()
         {
             // Arrange
@@ -55,7 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterLength.Should().Be(DefaultContents.Length);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_length_after_external_change_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -81,7 +82,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterLength.Should().Be(AlternateContents.Length);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_file_length_it_must_not_refresh_automatically()
         {
             // Arrange

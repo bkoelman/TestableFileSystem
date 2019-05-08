@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyPathGetTempFileNameSpecs : WatcherSpecs
     {
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             + Temp\tmp1111.tmp                              @ FileName
         ")]

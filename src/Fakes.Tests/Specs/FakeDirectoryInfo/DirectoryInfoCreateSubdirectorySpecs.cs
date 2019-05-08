@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
 {
     public sealed class DirectoryInfoCreateSubdirectorySpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_null_it_must_fail()
         {
             // Arrange
@@ -28,7 +29,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -47,7 +48,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Path cannot be the empty string or all whitespace.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_whitespace_it_must_succeed()
         {
             // Arrange
@@ -67,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -87,7 +88,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -106,7 +107,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_single_directory_it_must_succeed()
         {
             // Arrange
@@ -132,7 +133,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             fileSystem.Directory.Exists(completePath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_relative_path_it_must_succeed()
         {
             // Arrange
@@ -160,7 +161,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             fileSystem.Directory.Exists(completePath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_absolute_path_it_must_fail()
         {
             // Arrange
@@ -180,7 +181,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_same_drive_in_subdirectory_it_must_fail()
         {
             // Arrange
@@ -200,7 +201,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_remote_path_it_must_fail()
         {
             // Arrange
@@ -220,7 +221,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_absolute_path_without_drive_letter_it_must_fail()
         {
             // Arrange
@@ -240,7 +241,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_path_with_self_reference_it_must_succeed()
         {
             // Arrange
@@ -259,7 +260,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             subdirInfo.FullName.Should().Be(@"d:\some\other");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_parent_path_it_must_fail()
         {
             // Arrange
@@ -279,7 +280,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
                 @"The directory specified, '..', is not a subdirectory of 'd:\some'.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_parent_path_above_directory_it_must_fail()
         {
             // Arrange
@@ -299,7 +300,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
                 @"The directory specified, '..\..\more', is not a subdirectory of 'd:\some\folder'.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_parent_path_next_to_directory_it_must_fail()
         {
             // Arrange
@@ -319,7 +320,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
                 @"The directory specified, '..\some2\more', is not a subdirectory of 'd:\some'.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_parent_path_below_directory_it_must_succeed()
         {
             // Arrange
@@ -338,7 +339,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             subdirInfo.FullName.Should().Be(@"d:\some\other");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_parent_path_below_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -357,7 +358,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             subdirInfo.FullName.Should().Be(@"d:\SOME\OTHER");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_subdirectory_for_too_many_parent_paths_below_directory_it_must_succeed()
         {
             // Arrange

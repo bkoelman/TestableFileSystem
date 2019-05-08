@@ -3,6 +3,7 @@ using System.IO;
 using FluentAssertions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
 {
     public sealed class InsufficientSpaceSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_file_it_must_fail()
         {
             // Arrange
@@ -32,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             AssertFreeSpaceOnDrive(fileSystem, "C:", 512);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_overwriting_file_it_must_fail()
         {
             // Arrange
@@ -55,7 +56,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             AssertFileSize(fileSystem, path, 0);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_increasing_file_size_using_SetLength_it_must_fail()
         {
             // Arrange
@@ -86,7 +87,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             AssertFileSize(fileSystem, path, 64);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_increasing_file_size_using_Seek_followed_by_write_it_must_fail()
         {
             // Arrange
@@ -119,7 +120,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             AssertFileSize(fileSystem, path, 64);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_increasing_file_size_using_Position_followed_by_write_it_must_fail()
         {
             // Arrange
@@ -152,7 +153,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             AssertFileSize(fileSystem, path, 64);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_same_drive_it_must_fail()
         {
             // Arrange
@@ -177,7 +178,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             fileSystem.File.Exists(targetPath).Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_over_existing_file_to_same_drive_it_must_fail()
         {
             // Arrange
@@ -203,7 +204,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             fileSystem.File.Exists(targetPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_other_drive_it_must_fail()
         {
             // Arrange
@@ -232,7 +233,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             fileSystem.File.Exists(targetPath).Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_over_existing_file_to_other_drive_it_must_fail()
         {
             // Arrange
@@ -262,7 +263,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             fileSystem.File.Exists(targetPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_to_other_drive_it_must_fail()
         {
             // Arrange

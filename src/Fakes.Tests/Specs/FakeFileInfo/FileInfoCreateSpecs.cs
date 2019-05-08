@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -7,7 +8,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
 {
     public sealed class FileInfoCreateSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_it_must_succeed()
         {
             // Arrange
@@ -29,7 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileSystem.File.ReadAllText(path).Should().Be(string.Empty);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -57,7 +58,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterFound.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_it_must_not_refresh_automatically()
         {
             // Arrange

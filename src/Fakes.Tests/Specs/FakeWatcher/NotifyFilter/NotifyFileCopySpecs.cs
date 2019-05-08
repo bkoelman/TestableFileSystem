@@ -14,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
         [NotNull]
         private static readonly byte[] LargeFileBuffer = BufferFactory.Create(1024 * 4);
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             + Container\target.txt                          @ FileName
             * Container\target.txt                          @           LastWrite               Size
@@ -55,7 +55,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             + Container\Subfolder\target.txt                @ FileName
             * Container\Subfolder\target.txt                @           LastWrite               Size
@@ -99,7 +99,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             + target.txt                                    @ FileName
             * target.txt                                    @           LastWrite                   Size
@@ -139,7 +139,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             + target.txt                                    @ FileName
             * target.txt                                    @           LastWrite
@@ -177,7 +177,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * target.txt                                    @ LastWrite
             * target.txt                                    @ LastWrite     LastAccess  Size
@@ -217,7 +217,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * target.txt                                    @ LastWrite
             * target.txt                                    @ LastWrite     LastAccess  Size
@@ -258,7 +258,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * target.txt                                    @ LastWrite
             * target.txt                                    @ LastWrite     LastAccess  Size
@@ -299,7 +299,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * target.txt                                    @ LastWrite
             * target.txt                                    @ LastWrite     LastAccess
@@ -339,7 +339,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * target.txt                                    @ LastWrite
             * target.txt                                    @ LastWrite     LastAccess  Size
@@ -379,7 +379,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * target.txt                                    @ LastWrite
             * target.txt                                    @ LastWrite     LastAccess  Size

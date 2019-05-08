@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
 {
     public sealed class PathGetFullPathSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_null_it_must_fail()
         {
             // Arrange
@@ -23,7 +24,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -37,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -51,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -65,7 +66,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -79,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -94,7 +95,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"D:\");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_root_path_it_must_succeed()
         {
             // Arrange
@@ -109,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"d:\");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_absolute_path_it_must_succeed()
         {
             // Arrange
@@ -125,7 +126,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_absolute_path_with_multiple_separators_it_must_succeed()
         {
             // Arrange
@@ -139,7 +140,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"d:\some\folder\sub\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_absolute_path_with_mixed_separators_it_must_succeed()
         {
             // Arrange
@@ -153,7 +154,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"d:\some\folder\sub\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_absolute_path_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -169,7 +170,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_relative_path_it_must_succeed()
         {
             // Arrange
@@ -186,7 +187,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"c:\some\folder\sub\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_relative_path_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -203,7 +204,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"C:\Some\folder\sub\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -221,7 +222,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"c:\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_relative_path_with_self_and_parent_references_it_must_succeed()
         {
             // Arrange
@@ -238,7 +239,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"c:\some\folder\sub\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_absolute_path_with_parent_references_above_root_it_must_succeed()
         {
             // Arrange
@@ -252,7 +253,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"c:\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_relative_path_on_different_drive_in_root_it_must_succeed()
         {
             // Arrange
@@ -272,7 +273,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"D:\child.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_relative_path_on_same_drive_in_subdirectory_it_must_succeed()
         {
             // Arrange
@@ -289,7 +290,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(@"d:\other\child.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_remote_path_it_must_succeed()
         {
             // Arrange
@@ -305,7 +306,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_network_share_it_must_succeed()
         {
             // Arrange
@@ -321,7 +322,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_network_host_without_share_it_must_succeed()
         {
             // Arrange
@@ -335,7 +336,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -349,7 +350,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_extended_local_path_it_must_succeed()
         {
             // Arrange
@@ -365,7 +366,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_extended_remote_path_it_must_succeed()
         {
             // Arrange
@@ -381,7 +382,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_win32_device_namespace_it_must_fail()
         {
             // Arrange
@@ -395,7 +396,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("Only Win32 File Namespaces are supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_full_path_for_NT_namespace_it_must_fail()
         {
             // Arrange

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -11,7 +12,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryEnumerateEntriesSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_null_path_it_must_fail()
         {
             // Arrange
@@ -26,7 +27,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_empty_string_path_it_must_fail()
         {
             // Arrange
@@ -40,7 +41,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_whitespace_path_it_must_fail()
         {
             // Arrange
@@ -54,7 +55,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_invalid_drive_path_it_must_fail()
         {
             // Arrange
@@ -68,7 +69,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_wildcard_characters_in_path_it_must_fail()
         {
             // Arrange
@@ -82,7 +83,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_null_pattern_it_must_fail()
         {
             // Arrange
@@ -97,7 +98,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_empty_string_pattern_it_must_succeed()
         {
             // Arrange
@@ -112,7 +113,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_whitespace_pattern_it_must_succeed()
         {
             // Arrange
@@ -127,7 +128,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_starts_with_path_separator_it_must_fail()
         {
             // Arrange
@@ -142,7 +143,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_starts_with_drive_it_must_fail()
         {
             // Arrange
@@ -157,7 +158,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_starts_with_extended_drive_it_must_fail()
         {
             // Arrange
@@ -172,7 +173,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_starts_with_network_path_it_must_fail()
         {
             // Arrange
@@ -187,7 +188,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_contains_empty_directory_it_must_fail()
         {
             // Arrange
@@ -202,7 +203,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "Second path fragment must not be a drive or UNC name.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_contains_parent_directory_it_must_fail()
         {
             // Arrange
@@ -218,7 +219,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "Search pattern cannot contain '..' to move up directories and can be contained only internally in file/directory names, as in 'a..b'.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_contains_parent_directory_with_asterisk_it_must_fail()
         {
             // Arrange
@@ -234,7 +235,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "The filename, directory name, or volume label syntax is incorrect.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_contains_parent_directory_with_question_it_must_fail()
         {
             // Arrange
@@ -250,7 +251,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "The filename, directory name, or volume label syntax is incorrect.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_contains_forbidden_characters_it_must_fail()
         {
             // Arrange
@@ -265,7 +266,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_asterisk_it_must_match_empty()
         {
             // Arrange
@@ -281,7 +282,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"c:\folder\f");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_asterisk_it_must_match_single_character()
         {
             // Arrange
@@ -297,7 +298,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"c:\folder\f");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_asterisk_it_must_match_multiple_characters()
         {
             // Arrange
@@ -316,7 +317,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"c:\folder\sub");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_question_it_must_match_empty()
         {
             // Arrange
@@ -331,7 +332,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"c:\folder\f");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_question_it_must_match_single_character()
         {
             // Arrange
@@ -347,7 +348,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"c:\folder\f");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_question_it_must_not_match_multiple_characters()
         {
             // Arrange
@@ -363,7 +364,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_text_it_must_match_same_characters()
         {
             // Arrange
@@ -378,7 +379,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"c:\folder\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_text_it_must_match_same_characters_ignoring_case()
         {
             // Arrange
@@ -393,7 +394,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"c:\folder\FILE.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_text_it_must_not_match_different_characters()
         {
             // Arrange
@@ -409,7 +410,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_asterisk_for_name_it_must_match_same_extension()
         {
             // Arrange
@@ -428,7 +429,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"c:\folder\sub.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_asterisk_for_name_it_must_not_match_different_extension()
         {
             // Arrange
@@ -444,7 +445,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_question_for_extension_it_must_match()
         {
             // Arrange
@@ -462,7 +463,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"c:\folder\sub.bas");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_recursively_for_name_pattern_it_must_match()
         {
             // Arrange
@@ -484,7 +485,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[2].Should().Be(@"c:\base\more\nested\four.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_path_it_must_match()
         {
             // Arrange
@@ -507,7 +508,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"C:\base\second\other.doc");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_recursively_for_pattern_with_path_it_must_match()
         {
             // Arrange
@@ -528,7 +529,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"e:\Sub\Deeper\some3.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_it_must_return_them_in_order()
         {
             // Arrange
@@ -555,7 +556,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[3].Should().Be(@"c:\base\zzz.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_with_pattern_it_must_return_them_in_order()
         {
             // Arrange
@@ -581,7 +582,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[2].Should().Be(@"c:\base\zzz.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_recursively_it_must_return_them_in_order()
         {
             // Arrange
@@ -619,7 +620,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[13].Should().Be(@"c:\base\subfolderZ.txt\sub-zzz.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_recursively_for_pattern_with_path_it_must_return_them_in_order()
         {
             // Arrange
@@ -653,7 +654,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[9].Should().Be(@"c:\base\subfolderZ.txt\sub-zzz.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_missing_directory_it_must_fail()
         {
             // Arrange
@@ -668,7 +669,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .WithMessage(@"Could not find a part of the path 'c:\folder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -683,7 +684,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"f:\SOME\folder\file.TXT");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_directory_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -698,7 +699,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"x:\path\to\file.ext");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -713,7 +714,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entries.Should().ContainSingle(x => x == @"x:\path\to\sub.ext");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -733,7 +734,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"\some\other\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_relative_directory_it_must_succeed()
         {
             // Arrange
@@ -753,7 +754,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"FOLDER\sub");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_relative_directory_with_parent_reference_it_must_succeed()
         {
             // Arrange
@@ -773,7 +774,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"..\FOLDER\sub");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -790,7 +791,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"The directory name is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -806,7 +807,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'C:\some\file.txt\deeper'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -822,7 +823,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'C:\some\file.txt\deeper\more'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_missing_parent_directory_it_must_fail()
         {
             // Arrange
@@ -838,7 +839,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'P:\folder\sub'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -852,7 +853,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_missing_remote_directory_it_must_fail()
         {
             // Arrange
@@ -868,7 +869,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path '\\server\share\team'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
@@ -886,7 +887,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             entryArray[1].Should().Be(@"\\server\share\team\work.doc");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -900,7 +901,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_extended_remote_directory_it_must_succeed()
         {
             // Arrange

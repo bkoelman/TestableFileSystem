@@ -4,6 +4,7 @@ using System.IO;
 using FluentAssertions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
     {
         private const long OneGigabyte = 1024 * 1024 * 1024;
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_drive_info_for_null_it_must_fail()
         {
             // Arrange
@@ -28,7 +29,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_drive_info_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -42,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [InlineData(" ")]
         [InlineData("_")]
         [InlineData("_:")]
@@ -69,7 +70,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
                 @"Drive name must be a root directory ('C:\\') or a drive letter ('C').*");
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [InlineData("c")]
         [InlineData("c:")]
         [InlineData("c: ")]
@@ -104,7 +105,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
             directoryInfo.Exists.Should().BeTrue();
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [InlineData("X")]
         [InlineData("X:")]
         [InlineData("X: ")]
@@ -143,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
             directoryInfo.Exists.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_drive_info_it_must_return_custom_values()
         {
             // Arrange

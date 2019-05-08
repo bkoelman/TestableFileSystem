@@ -2,6 +2,7 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -9,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
 {
     public sealed class SufficientSpaceSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_new_file_it_must_succeed()
         {
             // Arrange
@@ -27,7 +28,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(3072);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_new_file_with_DeleteOnClose_it_must_succeed()
         {
             // Arrange
@@ -49,7 +50,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(4096);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_overwriting_file_it_must_succeed()
         {
             // Arrange
@@ -70,7 +71,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(96);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_increasing_file_size_using_SetLength_it_must_succeed()
         {
             // Arrange
@@ -94,7 +95,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_past_end_of_file_it_must_not_allocate_disk_space()
         {
             // Arrange
@@ -118,7 +119,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_position_past_end_of_file_it_must_not_allocate_disk_space()
         {
             // Arrange
@@ -142,7 +143,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_increasing_file_size_using_Seek_followed_by_write_it_must_succeed()
         {
             // Arrange
@@ -167,7 +168,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_increasing_file_size_using_Position_followed_by_write_it_must_succeed()
         {
             // Arrange
@@ -192,7 +193,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_truncating_file_it_must_succeed()
         {
             // Arrange
@@ -214,7 +215,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decreasing_file_size_using_overwrite_it_must_succeed()
         {
             // Arrange
@@ -235,7 +236,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(3840);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decreasing_file_size_using_SetLength_it_must_succeed()
         {
             // Arrange
@@ -259,7 +260,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_same_drive_it_must_succeed()
         {
             // Arrange
@@ -281,7 +282,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(2560);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_copying_file_to_other_drive_it_must_succeed()
         {
             // Arrange
@@ -309,7 +310,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfoD.AvailableFreeSpace.Should().Be(5376);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_file_it_must_succeed()
         {
             // Arrange
@@ -331,7 +332,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(3328);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_to_same_drive_it_must_succeed()
         {
             // Arrange
@@ -353,7 +354,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(3328);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_file_to_other_drive_it_must_succeed()
         {
             // Arrange
@@ -381,7 +382,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfoD.AvailableFreeSpace.Should().Be(5376);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_file_it_must_succeed()
         {
             // Arrange
@@ -402,7 +403,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(4096);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_file_it_must_succeed()
         {
             // Arrange
@@ -423,7 +424,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(3072);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_file_it_must_succeed()
         {
             // Arrange
@@ -446,7 +447,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(3072);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_without_backup_it_must_succeed()
         {
             // Arrange
@@ -469,7 +470,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(1344);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_replacing_file_with_backup_it_must_succeed()
         {
             // Arrange
@@ -494,7 +495,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(192);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_it_must_succeed()
         {
             // Arrange
@@ -514,7 +515,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(4096);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_it_must_succeed()
         {
             // Arrange
@@ -533,7 +534,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(4096);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_renaming_directory_it_must_succeed()
         {
             // Arrange
@@ -554,7 +555,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(3776);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_it_must_succeed()
         {
             // Arrange
@@ -576,7 +577,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.DiskSpace
             driveInfo.AvailableFreeSpace.Should().Be(3776);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_temporary_file_it_must_succeed()
         {
             // Arrange

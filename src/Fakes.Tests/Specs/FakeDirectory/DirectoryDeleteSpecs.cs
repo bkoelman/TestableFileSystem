@@ -2,6 +2,7 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -9,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryDeleteSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_for_null_it_must_fail()
         {
             // Arrange
@@ -24,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -38,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -52,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -66,7 +67,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -80,7 +81,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_missing_local_directory_it_must_fail()
         {
             // Arrange
@@ -95,7 +96,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'C:\some\folder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_empty_directory_it_must_succeed()
         {
             // Arrange
@@ -112,7 +113,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_empty_directory_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -127,7 +128,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\some\folder").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_nonempty_directory_it_must_fail()
         {
             // Arrange
@@ -142,7 +143,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("The directory is not empty.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_readonly_directory_it_must_fail()
         {
             // Arrange
@@ -159,7 +160,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"Access to the path 'c:\some\folder' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_nonempty_directory_recursively_it_must_succeed()
         {
             // Arrange
@@ -176,7 +177,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\some\folder").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_deleting_local_nonempty_directory_recursively_that_contains_open_files_it_must_delete_all_others_and_it_fail_on_first_open_file()
         {
@@ -210,7 +211,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_deleting_local_nonempty_directory_recursively_that_contains_readonly_files_it_must_delete_all_others_and_fail_on_first_readonly_file()
         {
@@ -237,7 +238,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(subdirectory).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void
             When_deleting_local_nonempty_directory_recursively_that_contains_readonly_subdirectories_it_must_delete_all_others_and_fail_on_first_readonly_subdirectory()
         {
@@ -265,7 +266,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(subdirectory).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_drive_it_must_fail()
         {
             // Arrange
@@ -283,7 +284,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("The directory is not empty.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_drive_recursively_it_must_fail()
         {
             // Arrange
@@ -301,7 +302,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file 'd:\'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_below_current_directory_it_must_succeed()
         {
             // Arrange
@@ -318,7 +319,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\store\current").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_current_directory_it_must_fail()
         {
             // Arrange
@@ -338,7 +339,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file 'C:\store' because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_remote_current_directory_it_must_fail()
         {
             // Arrange
@@ -358,7 +359,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file '\\server\share\documents' because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_above_current_directory_it_must_fail()
         {
             // Arrange
@@ -376,7 +377,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file 'C:\store' because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_above_remote_current_directory_it_must_fail()
         {
             // Arrange
@@ -394,7 +395,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file '\\server\share\documents' because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_above_root_of_drive_it_must_succeed()
         {
             // Arrange
@@ -409,7 +410,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\store").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -427,7 +428,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\other").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_relative_empty_directory_it_must_succeed()
         {
             // Arrange
@@ -444,7 +445,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"c:\store\data").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_empty_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -459,7 +460,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"c:\store\DATA").Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_directory_for_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -476,7 +477,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"The directory name is invalid.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_directory_for_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -492,7 +493,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'c:\some\file.txt\subfolder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_local_directory_for_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -508,7 +509,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'c:\some\file.txt\subfolder\deeper'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_remote_empty_directory_it_must_succeed()
         {
             // Arrange
@@ -525,7 +526,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_network_share_it_must_fail()
         {
             // Arrange
@@ -543,7 +544,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_network_share_recursively_it_must_fail()
         {
             // Arrange
@@ -561,7 +562,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -575,7 +576,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_extended_local_empty_directory_it_must_succeed()
         {
             // Arrange

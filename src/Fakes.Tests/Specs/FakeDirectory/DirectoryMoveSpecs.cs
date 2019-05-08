@@ -2,6 +2,7 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -9,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 {
     public sealed class DirectoryMoveSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_null_source_it_must_fail()
         {
             // Arrange
@@ -24,7 +25,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_null_destination_it_must_fail()
         {
             // Arrange
@@ -39,7 +40,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_empty_string_source_it_must_fail()
         {
             // Arrange
@@ -53,7 +54,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_empty_string_destination_it_must_fail()
         {
             // Arrange
@@ -67,7 +68,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Empty file name is not legal.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_whitespace_source_it_must_fail()
         {
             // Arrange
@@ -81,7 +82,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_whitespace_destination_it_must_fail()
         {
             // Arrange
@@ -95,7 +96,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_invalid_drive_source_it_must_fail()
         {
             // Arrange
@@ -109,7 +110,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_invalid_drive_destination_it_must_fail()
         {
             // Arrange
@@ -123,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_wildcard_characters_in_source_it_must_fail()
         {
             // Arrange
@@ -137,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_for_wildcard_characters_in_destination_it_must_fail()
         {
             // Arrange
@@ -151,7 +152,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_same_location_it_must_fail()
         {
             // Arrange
@@ -169,7 +170,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"Source and destination path must be different.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_same_location_with_different_casing_it_must_fail()
         {
             // Arrange
@@ -187,7 +188,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"Source and destination path must be different.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_different_name_in_same_directory_it_must_rename()
         {
             // Arrange
@@ -206,7 +207,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_that_contains_subtree_it_must_succeed()
         {
             // Arrange
@@ -230,7 +231,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(destinationPath + @"\more\deeper").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -249,7 +250,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -268,7 +269,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"C:\moved").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_relative_path_it_must_succeed()
         {
             // Arrange
@@ -290,7 +291,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_relative_path_it_must_succeed()
         {
             // Arrange
@@ -312,7 +313,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_relative_directory_on_different_drive_in_root_it_must_succeed()
         {
             // Arrange
@@ -330,7 +331,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"D:\destination").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_relative_directory_on_same_drive_in_subdirectory_it_must_succeed()
         {
             // Arrange
@@ -347,7 +348,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(@"d:\other\destination").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_directory_that_exists_as_file_to_same_location_it_must_fail()
         {
             // Arrange
@@ -364,7 +365,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("Source and destination path must be different.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_directory_that_exists_as_file_to_same_directory_it_must_succeed()
         {
             // Arrange
@@ -381,7 +382,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.Exists(@"c:\some\newname").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_directory_that_exists_as_file_to_other_directory_it_must_succeed()
         {
             // Arrange
@@ -398,7 +399,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.Exists(@"c:\newname").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_directory_that_exists_as_file_to_existing_file_it_must_fail()
         {
             // Arrange
@@ -417,7 +418,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("Cannot create a file when that file already exists");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_directory_that_exists_as_file_to_missing_directory_it_must_fail()
         {
             // Arrange
@@ -435,7 +436,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_directory_that_exists_as_open_file_it_must_fail()
         {
             // Arrange
@@ -457,7 +458,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -476,7 +477,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("Cannot create a file when that file already exists");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -491,7 +492,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -507,7 +508,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("The parameter is incorrect");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -522,7 +523,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_parent_parent_directory_that_exists_as_file_it_must_fail()
         {
             // Arrange
@@ -538,7 +539,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage("Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_existing_directory_it_must_fail()
         {
             // Arrange
@@ -557,7 +558,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"Cannot create a file when that file already exists");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_missing_parent_directory_it_must_fail()
         {
             // Arrange
@@ -572,7 +573,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'c:\source\missing-folder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_missing_directory_it_must_fail()
         {
             // Arrange
@@ -590,7 +591,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_missing_directory_it_must_fail()
         {
             // Arrange
@@ -606,7 +607,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'C:\some\folder'.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_parent_directory_it_must_fail()
         {
             // Arrange
@@ -624,7 +625,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"Cannot create a file when that file already exists");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_subdirectory_it_must_fail()
         {
             // Arrange
@@ -641,7 +642,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 "The process cannot access the file because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_different_drive_it_must_fail()
         {
             // Arrange
@@ -660,7 +661,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Source and destination path must have identical roots. Move will not work across volumes.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_that_is_root_of_drive_it_must_fail()
         {
             // Arrange
@@ -677,7 +678,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage(@"Access to the path 'e:\' is denied.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_root_of_drive_it_must_fail()
         {
             // Arrange
@@ -695,7 +696,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The filename, directory name, or volume label syntax is incorrect.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_below_current_directory_it_must_succeed()
         {
             // Arrange
@@ -716,7 +717,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_current_directory_it_must_fail()
         {
             // Arrange
@@ -737,7 +738,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_remote_current_directory_it_must_fail()
         {
             // Arrange
@@ -758,7 +759,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_above_current_directory_it_must_fail()
         {
             // Arrange
@@ -779,7 +780,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_above_remote_current_directory_it_must_fail()
         {
             // Arrange
@@ -800,7 +801,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file because it is being used by another process.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_with_readonly_file_it_must_succeed()
         {
             // Arrange
@@ -821,7 +822,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.File.GetAttributes(destinationPath + @"\file.txt").Should().Be(FileAttributes.ReadOnly);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_that_contains_open_file_it_must_fail()
         {
             // Arrange
@@ -842,7 +843,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_on_missing_network_share_it_must_fail()
         {
             // Arrange
@@ -859,7 +860,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_on_existing_network_share_it_must_succeed()
         {
             // Arrange
@@ -879,7 +880,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_reserved_name_it_must_fail()
         {
             // Arrange
@@ -893,7 +894,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_to_reserved_name_it_must_fail()
         {
             // Arrange
@@ -907,7 +908,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_moving_directory_from_extended_path_to_extended_path_it_must_succeed()
         {
             // Arrange

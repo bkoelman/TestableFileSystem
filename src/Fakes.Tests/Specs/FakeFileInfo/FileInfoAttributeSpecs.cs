@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
 {
     public sealed class FileInfoAttributeSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_attributes_it_must_lazy_load()
         {
             // Arrange
@@ -29,7 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             attributes.Should().Be(FileAttributes.ReadOnly);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_attributes_it_must_cache()
         {
             // Arrange
@@ -53,7 +54,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterAttributes.Should().Be(FileAttributes.Hidden);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_attributes_after_external_change_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -79,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterAttributes.Should().Be(FileAttributes.ReadOnly);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_file_attributes_it_must_refresh_automatically()
         {
             // Arrange
@@ -103,7 +104,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterAttributes.Should().Be(FileAttributes.ReadOnly);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_file_to_readonly_it_must_succeed()
         {
             // Arrange
@@ -123,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.Attributes.Should().Be(FileAttributes.Hidden | FileAttributes.ReadOnly);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_file_to_non_readonly_it_must_succeed()
         {
             // Arrange

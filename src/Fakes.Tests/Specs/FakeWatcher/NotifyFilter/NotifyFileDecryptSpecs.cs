@@ -11,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
 {
     public sealed class NotifyFileDecryptSpecs : WatcherSpecs
     {
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container                                     @                       LastWrite   LastAccess
             * Container\file.txt                            @                       LastWrite
@@ -58,7 +58,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_decrypting_unencrypted_file_it_must_not_raise_events()
         {
             // Arrange
@@ -90,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\Subfolder                           @ Attributes
             * Container\Subfolder                           @               LastWrite
@@ -129,7 +129,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\Subfolder                           @ Attributes
             * Container\Subfolder                           @               LastWrite
@@ -168,7 +168,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Container\Subfolder                           @ Attributes
             * Container\Subfolder                           @               LastWrite

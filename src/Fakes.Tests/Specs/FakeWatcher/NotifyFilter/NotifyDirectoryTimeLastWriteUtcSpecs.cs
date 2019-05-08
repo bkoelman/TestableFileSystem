@@ -14,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
     {
         private static readonly DateTime DefaultTimeUtc = 1.February(2003).At(12, 34, 56).AsUtc();
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_last_write_time_in_UTC_it_must_not_raise_events()
         {
             // Arrange
@@ -43,7 +43,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Subfolder                                     @ LastWrite
         ")]
@@ -78,7 +78,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
             }
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [WatcherNotifyTestData(@"
             * Subfolder                                     @ LastWrite
         ")]

@@ -3,6 +3,7 @@ using System.IO;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private const FileAttributes MissingEntryAttributes = (FileAttributes)(-1);
         private static readonly DateTime ZeroFileTimeUtc = 1.January(1601).AsUtc();
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_null_it_must_fail()
         {
             // Arrange
@@ -29,7 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_empty_string_it_must_fail()
         {
             // Arrange
@@ -43,7 +44,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_whitespace_it_must_fail()
         {
             // Arrange
@@ -57,7 +58,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             action.Should().ThrowExactly<ArgumentException>().WithMessage("The path is not of a legal form.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_invalid_drive_it_must_fail()
         {
             // Arrange
@@ -71,7 +72,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_wildcard_characters_it_must_fail()
         {
             // Arrange
@@ -85,7 +86,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             action.Should().ThrowExactly<ArgumentException>().WithMessage("Illegal characters in path.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_missing_file_it_must_succeed()
         {
             // Arrange
@@ -122,7 +123,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.FullName.Should().Be(@"c:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_local_file_it_must_succeed()
         {
             // Arrange
@@ -171,7 +172,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.FullName.Should().Be(@"c:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_local_file_with_different_casing_it_must_succeed()
         {
             // Arrange
@@ -220,7 +221,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.FullName.Should().Be(@"c:\SOME");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_local_file_with_trailing_whitespace_it_must_succeed()
         {
             // Arrange
@@ -271,7 +272,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"c:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_local_file_with_self_and_parent_references_it_must_succeed()
         {
             // Arrange
@@ -322,7 +323,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"c:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_root_of_drive_it_must_succeed()
         {
             // Arrange
@@ -361,7 +362,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.Directory.Should().BeNull();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_file_using_absolute_path_without_drive_letter_it_must_succeed()
         {
             // Arrange
@@ -415,7 +416,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"C:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_relative_local_file_it_must_succeed()
         {
             // Arrange
@@ -468,7 +469,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"C:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_local_directory_it_must_succeed()
         {
             // Arrange
@@ -510,7 +511,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"c:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -549,7 +550,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"C:\some\file.txt");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_parent_parent_directory_that_exists_as_file_it_must_succeed()
         {
             // Arrange
@@ -588,7 +589,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"C:\some\file.txt\nested.html");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_missing_parent_directory_it_must_succeed()
         {
             // Arrange
@@ -626,7 +627,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"C:\some");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_missing_network_share_it_must_succeed()
         {
             // Arrange
@@ -669,7 +670,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.Directory.Should().BeNull();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_missing_remote_file_it_must_succeed()
         {
             // Arrange
@@ -708,7 +709,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"\\server\share");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
@@ -759,7 +760,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             directoryInfo.ToString().Should().Be(@"\\server\share");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -773,7 +774,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_extended_local_file_it_must_succeed()
         {
             // Arrange

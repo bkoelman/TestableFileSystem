@@ -1,11 +1,12 @@
 ﻿using FluentAssertions;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeAccount
 {
     public sealed class LoggedOnUserAccountSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_impersonating_user_it_must_succeed()
         {
             // Arrange

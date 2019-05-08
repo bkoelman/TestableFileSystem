@@ -2,13 +2,14 @@
 using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 {
     public sealed class VolumeInfoBuilderSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_building_with_defaults_it_must_succeed()
         {
             // Arrange
@@ -25,7 +26,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             volume.Label.Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_properties_with_free_space_it_must_succeed()
         {
             // Arrange
@@ -48,7 +49,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             volume.Label.Should().Be("DataDisk");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_properties_with_used_space_it_must_succeed()
         {
             // Arrange
@@ -71,7 +72,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             volume.Label.Should().Be("DataDisk");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_free_space_it_must_override()
         {
             // Arrange
@@ -89,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             volume.FreeSpaceInBytes.Should().Be(512);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_used_space_it_must_override()
         {
             // Arrange
@@ -107,7 +108,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             volume.FreeSpaceInBytes.Should().Be(1536);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_only_capacity_it_must_succeed()
         {
             // Arrange
@@ -123,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             volume.FreeSpaceInBytes.Should().Be(2048);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_null_format_it_must_fail()
         {
             // Arrange
@@ -137,7 +138,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_null_label_it_must_fail()
         {
             // Arrange
@@ -151,7 +152,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_negative_capacity_it_must_fail()
         {
             // Arrange
@@ -165,7 +166,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentOutOfRangeException>().WithMessage("Volume capacity cannot be negative.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_negative_free_space_it_must_fail()
         {
             // Arrange
@@ -180,7 +181,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
                 "Free space cannot be negative or exceed volume capacity.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_free_space_higher_than_capacity_it_must_fail()
         {
             // Arrange
@@ -196,7 +197,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
                 "Free space cannot be negative or exceed volume capacity.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_negative_used_space_it_must_fail()
         {
             // Arrange
@@ -211,7 +212,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
                 "Used space cannot be negative or exceed volume capacity.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_used_space_higher_than_capacity_it_must_fail()
         {
             // Arrange

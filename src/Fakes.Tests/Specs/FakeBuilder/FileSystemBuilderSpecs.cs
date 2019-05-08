@@ -1,13 +1,14 @@
 ﻿using System;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 {
     public sealed class FileSystemBuilderSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_builder_it_must_include_drive_C()
         {
             // Arrange
@@ -20,7 +21,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             fileSystem.Directory.Exists(@"c:\").Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_builder_without_drive_C_it_must_fail()
         {
             // Arrange
@@ -33,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<InvalidOperationException>().WithMessage("System contains no drives.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_builder_with_drive_D_only_it_must_succeed()
         {
             // Arrange

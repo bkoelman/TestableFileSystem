@@ -2,6 +2,7 @@
 using FluentAssertions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -9,7 +10,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 {
     public sealed class FileSystemBuilderIncludingVolumeSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_volume_for_null_name_it_must_fail()
         {
             // Arrange
@@ -23,7 +24,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_volume_for_null_volume_it_must_fail()
         {
             // Arrange
@@ -37,7 +38,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_volume_for_null_builder_it_must_fail()
         {
             // Arrange
@@ -51,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_volume_for_empty_string_name_it_must_fail()
         {
             // Arrange
@@ -64,7 +65,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentException>().WithMessage("'name' cannot be empty or contain only whitespace.*");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_volume_for_whitespace_name_it_must_fail()
         {
             // Arrange
@@ -77,7 +78,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentException>().WithMessage("'name' cannot be empty or contain only whitespace.*");
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [InlineData("C")]
         [InlineData("_:")]
         [InlineData(@"?:\")]
@@ -96,7 +97,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<NotSupportedException>().WithMessage("The given path's format is not supported.");
         }
 
-        [Theory]
+        [Theory, InvestigateRunOnFileSystem]
         [InlineData("F:")]
         [InlineData(@"F:\")]
         [InlineData(@"\\?\F:\")]
@@ -116,7 +117,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             fileSystem.Directory.Exists(driveName).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_volume_for_network_host_without_share_it_must_fail()
         {
             // Arrange
@@ -129,7 +130,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_including_volume_for_reserved_name_it_must_fail()
         {
             // Arrange
@@ -142,7 +143,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<PlatformNotSupportedException>().WithMessage("Reserved names are not supported.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_overwriting_volume_it_must_fail()
         {
             // Arrange
@@ -156,7 +157,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             action.Should().ThrowExactly<InvalidOperationException>().WithMessage("Volume 'c:' has already been created.");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_overwriting_implicit_volume_it_must_fail()
         {
             // Arrange

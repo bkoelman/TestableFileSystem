@@ -7,6 +7,7 @@ using FluentAssertions;
 using FluentAssertions.Extensions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
     {
         private const int SleepTimeToEnsureWaiterInitializationHasCompleted = 250;
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_changes_with_negative_timeout_it_must_fail()
         {
             // Arrange
@@ -38,7 +39,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_changes_while_timeout_expires_it_must_succeed()
         {
             // Arrange
@@ -61,7 +62,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_file_creation_while_files_are_created_it_must_succeed()
         {
             // Arrange
@@ -100,7 +101,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_directory_deletion_while_directories_are_deleted_it_must_succeed()
         {
             // Arrange
@@ -140,7 +141,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_file_rename_while_files_are_renamed_it_must_succeed()
         {
             // Arrange
@@ -184,7 +185,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_file_change_while_file_attributes_are_changed_it_must_succeed()
         {
             // Arrange
@@ -224,7 +225,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_file_change_while_watcher_was_running_it_must_keep_running_after_wait()
         {
             // Arrange
@@ -276,7 +277,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_file_change_while_watcher_was_not_running_it_must_be_stopped_after_wait()
         {
             // Arrange
@@ -328,7 +329,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_file_change_multiple_times_it_must_succeed()
         {
             // Arrange
@@ -374,7 +375,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_change_it_must_apply_filters()
         {
             // Arrange
@@ -417,7 +418,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_waiting_for_disposed_watcher_it_must_fail()
         {
             // Arrange

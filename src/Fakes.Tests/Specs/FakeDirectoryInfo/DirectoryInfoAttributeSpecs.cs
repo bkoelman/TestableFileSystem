@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
 {
     public sealed class DirectoryInfoAttributeSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_attributes_it_must_lazy_load()
         {
             // Arrange
@@ -29,7 +30,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             attributes.Should().Be(FileAttributes.Directory | FileAttributes.ReadOnly);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_attributes_it_must_cache()
         {
             // Arrange
@@ -53,7 +54,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             afterAttributes.Should().Be(FileAttributes.Directory | FileAttributes.Hidden);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_attributes_after_external_change_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -79,7 +80,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             afterAttributes.Should().Be(FileAttributes.Directory | FileAttributes.ReadOnly);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_directory_attributes_it_must_refresh_automatically()
         {
             // Arrange

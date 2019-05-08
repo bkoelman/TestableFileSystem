@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -7,7 +8,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
 {
     public sealed class FileInfoExistsSpecs
     {
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_existence_it_must_lazy_load()
         {
             // Arrange
@@ -28,7 +29,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             found.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_existence_it_must_cache()
         {
             // Arrange
@@ -52,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterFound.Should().BeFalse();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_file_existence_after_external_change_it_must_update_cache_on_refresh()
         {
             // Arrange
@@ -78,7 +79,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             afterFound.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_changing_file_existence_it_must_not_refresh_automatically()
         {
             // Arrange

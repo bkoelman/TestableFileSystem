@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
     {
         private const string DefaultContents = "ABC";
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_reading_it_must_succeed()
         {
             // Arrange
@@ -31,7 +32,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_writing_it_must_succeed()
         {
             // Arrange
@@ -52,7 +53,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_as_text_it_must_succeed()
         {
             // Arrange
@@ -73,7 +74,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_as_text_it_must_succeed()
         {
             // Arrange
@@ -94,7 +95,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_appending_to_file_as_text_it_must_succeed()
         {
             // Arrange

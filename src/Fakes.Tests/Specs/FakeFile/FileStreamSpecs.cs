@@ -8,6 +8,7 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using Microsoft.Win32.SafeHandles;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private const int LockBlockSize = 4096;
         private static readonly TimeSpan MaxTestDuration = TimeSpan.FromSeconds(1);
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_requesting_stream_for_new_file_it_must_succeed()
         {
             // Arrange
@@ -47,7 +48,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_requesting_stream_for_existing_file_in_readonly_mode_it_must_succeed()
         {
             // Arrange
@@ -76,7 +77,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_requesting_stream_for_existing_file_in_append_mode_it_must_succeed()
         {
             // Arrange
@@ -105,7 +106,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_requesting_stream_for_existing_file_in_truncate_mode_it_must_succeed()
         {
             // Arrange
@@ -134,7 +135,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_empty_buffer_to_file_it_must_succeed()
         {
             // Arrange
@@ -154,7 +155,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_small_buffer_to_file_it_must_succeed()
         {
             // Arrange
@@ -180,7 +181,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             contents.Should().Be("ABC");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_large_buffer_to_file_it_must_succeed()
         {
             // Arrange
@@ -206,7 +207,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             contents.SequenceEqual(writeBuffer).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_large_buffer_with_offset_to_file_using_Seek_it_must_succeed()
         {
             // Arrange
@@ -235,7 +236,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             contents.SequenceEqual(writeBuffer).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_large_buffer_with_offset_to_file_using_Position_it_must_succeed()
         {
             // Arrange
@@ -264,7 +265,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             contents.SequenceEqual(writeBuffer).Should().BeTrue();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_async_writing_buffer_to_file_using_TPL_it_must_succeed()
         {
             // Arrange
@@ -290,7 +291,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
 #if !NETCOREAPP1_1
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_async_writing_buffer_to_file_using_APM_without_callback_it_must_succeed()
         {
             // Arrange
@@ -315,7 +316,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(path).Should().Be(content);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_async_writing_buffer_to_file_using_APM_with_callback_it_must_succeed()
         {
             // Arrange
@@ -362,7 +363,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 #endif
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_small_buffer_from_file_it_must_succeed()
         {
             // Arrange
@@ -386,7 +387,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_large_buffer_from_file_it_must_succeed()
         {
             // Arrange
@@ -415,7 +416,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_large_buffer_with_offset_from_file_it_must_succeed()
         {
             // Arrange
@@ -447,7 +448,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_async_reading_buffer_from_file_using_TPL_it_must_succeed()
         {
             // Arrange
@@ -473,7 +474,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
 #if !NETCOREAPP1_1
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_async_reading_buffer_from_file_using_APM_without_callback_it_must_succeed()
         {
             // Arrange
@@ -499,7 +500,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_async_reading_buffer_from_file_using_APM_with_callback_it_must_succeed()
         {
             // Arrange
@@ -547,7 +548,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 #endif
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_appending_small_buffer_to_file_it_must_succeed()
         {
             // Arrange
@@ -579,7 +580,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             contents.Should().Be(existingText + textToAppend);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_from_begin_to_before_start_it_must_fail()
         {
             // Arrange
@@ -600,7 +601,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_from_current_to_before_start_it_must_fail()
         {
             // Arrange
@@ -623,7 +624,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_from_end_to_before_start_it_must_fail()
         {
             // Arrange
@@ -644,7 +645,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_from_begin_to_past_end_it_must_not_change_length()
         {
             // Arrange
@@ -668,7 +669,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_from_current_to_past_end_it_must_not_change_length()
         {
             // Arrange
@@ -694,7 +695,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_from_end_to_past_end_it_must_not_change_length()
         {
             // Arrange
@@ -718,7 +719,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_from_end_to_past_end_of_readonly_stream_it_must_not_change_length()
         {
             // Arrange
@@ -739,7 +740,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_to_before_end_in_stream_opened_in_Append_mode_it_must_fail()
         {
             // Arrange
@@ -761,7 +762,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_position_to_negative_it_must_fail()
         {
             // Arrange
@@ -782,7 +783,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_position_to_past_end_it_must_not_change_length()
         {
             // Arrange
@@ -806,7 +807,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllText(path).Should().Be(data);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_position_to_before_end_in_stream_opened_in_Append_mode_it_must_fail()
         {
             // Arrange
@@ -828,7 +829,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_position_in_closed_stream_it_must_fail()
         {
             // Arrange
@@ -851,7 +852,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_past_end_of_file_it_must_succeed()
         {
             // Arrange
@@ -876,7 +877,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_past_end_of_file_it_must_succeed()
         {
             // Arrange
@@ -917,7 +918,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllBytes(path).Should().BeEquivalentTo(expectedContents);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_length_to_negative_it_must_fail()
         {
             // Arrange
@@ -938,7 +939,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reducing_length_it_must_succeed()
         {
             // Arrange
@@ -964,7 +965,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             contents.Should().Be("ABC");
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_seeking_in_closed_stream_it_must_fail()
         {
             // Arrange
@@ -987,7 +988,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_setting_length_in_closed_stream_it_must_fail()
         {
             // Arrange
@@ -1010,7 +1011,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_from_closed_stream_it_must_fail()
         {
             // Arrange
@@ -1039,7 +1040,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_closed_stream_it_must_fail()
         {
             // Arrange
@@ -1066,7 +1067,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_properties_of_closed_stream_it_must_succeed()
         {
             // Arrange
@@ -1107,7 +1108,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_to_readonly_stream_it_must_fail()
         {
             // Arrange
@@ -1128,7 +1129,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_from_writeonly_stream_it_must_fail()
         {
             // Arrange
@@ -1149,7 +1150,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writer_is_active_it_must_fail_to_open()
         {
             // Arrange
@@ -1170,7 +1171,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_readers_are_active_it_must_fail_to_open_for_writing()
         {
             // Arrange
@@ -1195,7 +1196,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
 #if !NETCOREAPP1_1
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_locking_for_negative_position_it_must_fail()
         {
             // Arrange
@@ -1216,7 +1217,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_unlocking_for_negative_position_it_must_fail()
         {
             // Arrange
@@ -1237,7 +1238,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_locking_for_negative_length_it_must_fail()
         {
             // Arrange
@@ -1258,7 +1259,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_unlocking_for_negative_length_it_must_fail()
         {
             // Arrange
@@ -1279,7 +1280,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_locking_in_closed_stream_it_must_fail()
         {
             // Arrange
@@ -1302,7 +1303,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_unlocking_in_closed_stream_it_must_fail()
         {
             // Arrange
@@ -1325,7 +1326,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_reading_from_locked_range_it_must_succeed()
         {
             // Arrange
@@ -1347,7 +1348,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_writing_to_locked_range_it_must_succeed()
         {
             // Arrange
@@ -1367,7 +1368,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_before_locked_range_it_must_succeed()
         {
             // block number 01234567
@@ -1396,7 +1397,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_left_adjacent_to_locked_range_it_must_succeed()
         {
             // block number 01234567
@@ -1425,7 +1426,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_left_overlapping_with_locked_range_it_must_fail()
         {
             // block number 01234567
@@ -1459,7 +1460,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_first_block_of_locked_range_it_must_fail()
         {
             // block number 01234567
@@ -1493,7 +1494,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_last_block_of_locked_range_it_must_succeed()
         {
             // block number 01234567
@@ -1527,7 +1528,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_right_overlapping_with_locked_range_it_must_succeed()
         {
             // block number 01234567
@@ -1561,7 +1562,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_right_adjacent_to_locked_range_it_must_succeed()
         {
             // block number 01234567
@@ -1590,7 +1591,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_after_locked_range_it_must_succeed()
         {
             // block number 01234567
@@ -1619,7 +1620,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_subset_of_locked_range_it_must_fail()
         {
             // block number 01234567
@@ -1653,7 +1654,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_reading_superset_of_locked_range_it_must_fail()
         {
             // block number 01234567
@@ -1687,7 +1688,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_closing_stream_with_locks_they_must_be_released()
         {
             // Arrange
@@ -1707,7 +1708,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             fileSystem.File.ReadAllBytes(path);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_locking_same_range_it_must_fail()
         {
             // Arrange
@@ -1731,7 +1732,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_locking_same_range_it_must_fail()
         {
             // Arrange
@@ -1758,7 +1759,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_locking_overlapping_range_it_must_fail()
         {
             // Arrange
@@ -1782,7 +1783,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_locking_overlapping_range_it_must_fail()
         {
             // Arrange
@@ -1809,7 +1810,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_locking_non_overlapping_ranges_it_must_succeed()
         {
             // Arrange
@@ -1829,7 +1830,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_locking_non_overlapping_ranges_it_must_succeed()
         {
             // Arrange
@@ -1852,7 +1853,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_locking_past_end_of_file_it_must_succeed()
         {
             // Arrange
@@ -1869,7 +1870,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_unlocking_locked_range_it_must_succeed()
         {
             // Arrange
@@ -1896,7 +1897,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_externally_unlocking_locked_range_it_must_fail()
         {
             // Arrange
@@ -1922,7 +1923,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_unlocking_locked_range_multiple_times_it_must_fail()
         {
             // Arrange
@@ -1946,7 +1947,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_internally_unlocking_overlapping_range_it_must_fail()
         {
             // Arrange
@@ -1971,7 +1972,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 #endif
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_handle_it_must_succeed()
         {
             // Arrange
@@ -1992,7 +1993,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_closing_handle_it_must_succeed()
         {
             // Arrange
@@ -2015,7 +2016,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_closing_stream_it_must_release_handle()
         {
             // Arrange

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using FluentAssertions;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using TestableFileSystem.Interfaces;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
     {
         private const string DefaultContents = "ABC";
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_reading_it_must_succeed()
         {
             // Arrange
@@ -32,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_for_writing_it_must_succeed()
         {
             // Arrange
@@ -51,7 +52,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_opening_file_as_text_it_must_succeed()
         {
             // Arrange
@@ -70,7 +71,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_creating_file_as_text_it_must_succeed()
         {
             // Arrange
@@ -89,7 +90,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_appending_to_file_as_text_it_must_succeed()
         {
             // Arrange
@@ -108,7 +109,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             }
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_all_bytes_from_file_it_must_succeed()
         {
             // Arrange
@@ -126,7 +127,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             new string(Encoding.ASCII.GetChars(bytes)).Should().Be(DefaultContents);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_all_lines_from_file_it_must_succeed()
         {
             // Arrange
@@ -143,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             lines.Should().HaveCount(2);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_reading_all_text_from_file_it_must_succeed()
         {
             // Arrange
@@ -160,7 +161,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             text.Should().Be(DefaultContents);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_all_bytes_to_file_it_must_succeed()
         {
             // Arrange
@@ -181,7 +182,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             fileSystem.File.ReadAllBytes(path).First().Should().Be(fileContents);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_all_bytes_to_existing_file_it_must_succeed()
         {
             // Arrange
@@ -198,7 +199,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             fileSystem.File.ReadAllBytes(path).Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_all_lines_to_file_it_must_succeed()
         {
             // Arrange
@@ -219,7 +220,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             fileSystem.File.ReadAllLines(path).Should().HaveCount(2);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_all_lines_to_existing_file_it_must_succeed()
         {
             // Arrange
@@ -236,7 +237,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             fileSystem.File.ReadAllLines(path).Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_all_text_to_file_it_must_succeed()
         {
             // Arrange
@@ -253,7 +254,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             fileSystem.File.ReadAllText(path).Should().Be(DefaultContents);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_writing_all_text_to_existing_file_it_must_succeed()
         {
             // Arrange
@@ -270,7 +271,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             fileSystem.File.ReadAllText(path).Should().BeEmpty();
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_appending_all_lines_to_file_it_must_succeed()
         {
             // Arrange
@@ -291,7 +292,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.Extensions
             fileSystem.File.ReadAllLines(path).Should().HaveCount(3);
         }
 
-        [Fact]
+        [Fact, InvestigateRunOnFileSystem]
         private void When_appending_all_text_to_file_it_must_succeed()
         {
             // Arrange
