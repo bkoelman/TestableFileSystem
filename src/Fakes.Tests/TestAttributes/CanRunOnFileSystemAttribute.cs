@@ -10,9 +10,12 @@ namespace TestableFileSystem.Fakes.Tests.TestAttributes
     internal sealed class CanRunOnFileSystemAttribute : DataAttribute
     {
         [NotNull]
-        private static readonly Version ExpectedAssemblyVersion = new Version(4, 1, 1, 0);
+        private static readonly Version ExpectedAssemblyVersion = new Version(4, 1, 0, 0);
 
-        private readonly bool enableRunOnFileSystem;
+        [NotNull]
+        private static readonly Version CurrentAssemblyVersion = GetCurrentAssemblyVersion();
+
+        private readonly bool enableRunOnFileSystem = CurrentAssemblyVersion >= ExpectedAssemblyVersion;
 
         [NotNull]
         [ItemNotNull]
@@ -38,23 +41,22 @@ namespace TestableFileSystem.Fakes.Tests.TestAttributes
             }
         };
 
-        public CanRunOnFileSystemAttribute()
-        {
-#if DEBUG
-            // Requires that .NET Core SDK 2.2 is installed.
-
-            Version assemblyVersion = typeof(File).GetTypeInfo().Assembly.GetName().Version;
-            enableRunOnFileSystem = assemblyVersion == ExpectedAssemblyVersion;
-#else
-            enableRunOnFileSystem = false;
-#endif
-        }
-
         [NotNull]
         [ItemNotNull]
         public override IEnumerable<object[]> GetData([NotNull] MethodInfo testMethod)
         {
             return enableRunOnFileSystem ? TrueFalseArray : TrueArray;
+        }
+
+        [NotNull]
+        private static Version GetCurrentAssemblyVersion()
+        {
+            Version assemblyVersion = typeof(File).GetTypeInfo().Assembly.GetName().Version;
+
+            Console.WriteLine(
+                $"Detected assembly version '{assemblyVersion}' in: '{typeof(File).GetTypeInfo().Assembly.FullName}'.");
+
+            return assemblyVersion;
         }
     }
 }
