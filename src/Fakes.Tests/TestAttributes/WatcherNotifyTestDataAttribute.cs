@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using TestableFileSystem.Utilities;
 using Xunit.Sdk;
 
-namespace TestableFileSystem.Fakes.Tests.Specs
+namespace TestableFileSystem.Fakes.Tests.TestAttributes
 {
     internal sealed class WatcherNotifyTestDataAttribute : DataAttribute
     {

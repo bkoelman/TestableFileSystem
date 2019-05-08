@@ -4,6 +4,7 @@ using System.IO;
 using FluentAssertions;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.TestAttributes;
 using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher.NotifyFilter
