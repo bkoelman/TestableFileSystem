@@ -1,5 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
+  <PropertyGroup Condition=" '$(CI)' == 'True' ">
+    <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(CI)' != 'True' ">
     <TargetFrameworks>netcoreapp3.0;netcoreapp2.0;netcoreapp1.1;net452</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
