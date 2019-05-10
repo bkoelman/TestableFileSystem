@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
+using TestableFileSystem.Fakes.Tests.DiskOperations;
 using TestableFileSystem.Utilities;
 using TestableFileSystem.Wrappers;
 
@@ -10,6 +12,14 @@ namespace TestableFileSystem.Fakes.Tests
     internal sealed class FileSystemBuilderFactory : IDisposable
     {
         private readonly bool useFakeFileSystem;
+
+        [NotNull]
+        private readonly Dictionary<string, string> fakeToHostUncMap =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        [NotNull]
+        private readonly Dictionary<string, ShareCreationStatus> networkShares =
+            new Dictionary<string, ShareCreationStatus>(StringComparer.OrdinalIgnoreCase);
 
         [NotNull]
         private readonly string rootDirectory =
@@ -25,11 +35,11 @@ namespace TestableFileSystem.Fakes.Tests
         {
             return useFakeFileSystem
                 ? (IFileSystemBuilder)new FakeFileSystemBuilder()
-                : new WrapperFileSystemBuilder(FileSystemWrapper.Default);
+                : new WrapperFileSystemBuilder(FileSystemWrapper.Default, this);
         }
 
         [NotNull]
-        public string MapPath([NotNull] string path)
+        public string MapPath([NotNull] string path, bool mapUncToCurrentHost = true)
         {
             Guard.NotNull(path, nameof(path));
 
@@ -38,68 +48,38 @@ namespace TestableFileSystem.Fakes.Tests
                 return path;
             }
 
-            bool isExtended = HasPrefixForExtendedLength(path);
-            if (isExtended)
+            string pathOnDrive = TryMapPathOnDrive(path);
+            if (pathOnDrive != null)
             {
-                path = WithoutPrefixForExtendedLength(path);
+                return pathOnDrive;
             }
 
-            if (IsPathOnDrive(path))
+            NetworkPath pathOnNetwork = NetworkPath.TryParse(path);
+            if (pathOnNetwork != null)
             {
-                return MapPathOnDrive(path, isExtended);
+                return MapPathOnNetworkShare(pathOnNetwork, mapUncToCurrentHost);
             }
 
-            if (IsPathOnNetworkShare(path))
-            {
-                return MapPathOnNetworkShare(path, isExtended);
-            }
-
-            throw new NotSupportedException($"The path '{path}' cannot be mapped.");
+            throw new NotSupportedException($"Path '{path}' must be an absolute path, including drive letter or UNC share.");
         }
 
-        private bool HasPrefixForExtendedLength([NotNull] string path)
+        [CanBeNull]
+        private string TryMapPathOnDrive([NotNull] string path)
         {
-            return path.StartsWith(@"\\?\", StringComparison.Ordinal) ||
-                path.StartsWith(@"\\?\UNC\", StringComparison.Ordinal);
-        }
+            int offset = path.StartsWith(@"\\?\", StringComparison.Ordinal) ? 4 : 0;
 
-        [NotNull]
-        private static string WithoutPrefixForExtendedLength([NotNull] string path)
-        {
-            if (path.StartsWith(@"\\?\UNC\", StringComparison.Ordinal))
+            if (path.Length < offset + 2 || path[offset + 1] != Path.VolumeSeparatorChar)
             {
-                return '\\' + path.Substring(7);
+                return null;
             }
 
-            if (path.StartsWith(@"\\?\", StringComparison.Ordinal))
-            {
-                return path.Substring(4);
-            }
+            char driveLetter = char.ToUpperInvariant(path[offset]);
 
-            return path;
-        }
+            string mapped = path.Length > offset + 3
+                ? Path.Combine(rootDirectory, "Drive" + driveLetter, path.Substring(offset + 3))
+                : Path.Combine(rootDirectory, "Drive" + driveLetter);
 
-        private bool IsPathOnDrive([NotNull] string path)
-        {
-            if (path.Length >= 2 && path[1] == Path.VolumeSeparatorChar)
-            {
-                char driveLetter = char.ToUpperInvariant(path[0]);
-                return driveLetter >= 'A' && driveLetter <= 'Z';
-            }
-
-            return false;
-        }
-
-        [NotNull]
-        private string MapPathOnDrive([NotNull] string path, bool isExtended)
-        {
-            char driveLetter = char.ToUpperInvariant(path[0]);
-
-            string mapped = path.Length > 3
-                ? Path.Combine(rootDirectory, "Volume" + driveLetter, path.Substring(3))
-                : Path.Combine(rootDirectory, "Volume" + driveLetter);
-
-            if (isExtended)
+            if (offset != 0)
             {
                 mapped = @"\\?\" + mapped;
             }
@@ -107,21 +87,78 @@ namespace TestableFileSystem.Fakes.Tests
             return mapped;
         }
 
-        private static bool IsPathOnNetworkShare([NotNull] string path)
+        [NotNull]
+        private string MapPathOnNetworkShare([NotNull] NetworkPath networkPath, bool mapToCurrentHost)
         {
-            return path.StartsWith("\\", StringComparison.Ordinal);
+            string fakeKey = networkPath.ServerName + @"\" + networkPath.ShareName;
+            EnsureEntryInFakeToHostUncMap(fakeKey, networkPath, mapToCurrentHost);
+
+            string hostKey = fakeToHostUncMap[fakeKey];
+            ShareCreationStatus shareStatus = networkShares[hostKey];
+
+            string serverShareName = networkPath.IsExtended
+                ? @"\\?\UNC\" + shareStatus.ServerName + @"\" + shareStatus.ShareName
+                : @"\\" + shareStatus.ServerName + @"\" + shareStatus.ShareName;
+
+            return Path.Combine(serverShareName, networkPath.RelativePath);
         }
 
-        [NotNull]
-        private string MapPathOnNetworkShare([NotNull] string path, bool isExtended)
+        private void EnsureEntryInFakeToHostUncMap([NotNull] string fakeKey, [NotNull] NetworkPath networkPath,
+            bool mapToCurrentHost)
         {
-            throw new NotImplementedException();
+            if (fakeToHostUncMap.ContainsKey(fakeKey))
+            {
+                return;
+            }
+
+            string serverName = mapToCurrentHost ? Environment.MachineName : networkPath.ServerName;
+            string shareName = mapToCurrentHost ? Guid.NewGuid().ToString("N") : networkPath.ShareName;
+
+            string hostKey = "Share-" + serverName + "-" + shareName;
+            fakeToHostUncMap[fakeKey] = hostKey;
+
+            networkShares.Add(hostKey, new ShareCreationStatus(serverName, shareName, mapToCurrentHost));
+        }
+
+        public void EnsureNetworkShareExists([NotNull] string path)
+        {
+            NetworkPath networkPath = NetworkPath.TryParse(path);
+            if (networkPath == null)
+            {
+                return;
+            }
+
+            string hostKey = "Share-" + networkPath.ServerName + "-" + networkPath.ShareName;
+
+            if (!networkShares.ContainsKey(hostKey) || networkShares[hostKey].IsCreated)
+            {
+                return;
+            }
+
+            if (!networkShares[hostKey].CanBeCreated)
+            {
+                throw new InvalidOperationException("Cannot create share on remote host.");
+            }
+
+            CreateNetworkShare(networkShares[hostKey].ShareName);
+
+            networkShares[hostKey].IsCreated = true;
+        }
+
+        private void CreateNetworkShare([NotNull] string shareName)
+        {
+            string backingDirectory = Path.Combine(rootDirectory, shareName);
+
+            Directory.CreateDirectory(backingDirectory);
+            NetworkShareManager.CreateShare(backingDirectory, shareName);
         }
 
         public void Dispose()
         {
             if (!useFakeFileSystem && Directory.Exists(rootDirectory))
             {
+                DetachNetworkShares();
+
                 try
                 {
                     Directory.Delete(rootDirectory, true);
@@ -131,6 +168,17 @@ namespace TestableFileSystem.Fakes.Tests
                     RemoveReadOnlyAttributes();
 
                     Directory.Delete(rootDirectory, true);
+                }
+            }
+        }
+
+        private void DetachNetworkShares()
+        {
+            foreach (ShareCreationStatus shareStatus in networkShares.Values)
+            {
+                if (shareStatus.IsCreated)
+                {
+                    NetworkShareManager.RemoveShare(shareStatus.ServerName, shareStatus.ShareName);
                 }
             }
         }
@@ -145,6 +193,96 @@ namespace TestableFileSystem.Fakes.Tests
             foreach (string path in Directory.GetDirectories(rootDirectory, "*.*", SearchOption.AllDirectories))
             {
                 File.SetAttributes(path, FileAttributes.Directory);
+            }
+        }
+
+        private sealed class NetworkPath
+        {
+            [NotNull]
+            public string ServerName { get; }
+
+            [NotNull]
+            public string ShareName { get; }
+
+            [NotNull]
+            public string RelativePath { get; }
+
+            public bool IsExtended { get; }
+
+            private NetworkPath([NotNull] string serverName, [NotNull] string shareName, [NotNull] string relativePath,
+                bool isExtended)
+            {
+                ServerName = serverName;
+                ShareName = shareName;
+                RelativePath = relativePath;
+                IsExtended = isExtended;
+            }
+
+            [CanBeNull]
+            public static NetworkPath TryParse([NotNull] string path)
+            {
+                Guard.NotNull(path, nameof(path));
+
+                int offset = path.StartsWith(@"\\?\UNC\", StringComparison.Ordinal) ? 8 :
+                    path.StartsWith(@"\\", StringComparison.Ordinal) ? 2 : 0;
+
+                if (offset == 0)
+                {
+                    return null;
+                }
+
+                int serverShareSeparatorIndex = path.IndexOfAny(new[]
+                {
+                    Path.DirectorySeparatorChar,
+                    Path.AltDirectorySeparatorChar
+                }, offset);
+
+                if (serverShareSeparatorIndex == -1)
+                {
+                    return null;
+                }
+
+                int sharePathSeparatorIndex = path.IndexOfAny(new[]
+                {
+                    Path.DirectorySeparatorChar,
+                    Path.AltDirectorySeparatorChar
+                }, serverShareSeparatorIndex + 1);
+
+                string serverName = path.Substring(offset, serverShareSeparatorIndex - offset);
+
+                string shareName = sharePathSeparatorIndex == -1
+                    ? path.Substring(serverShareSeparatorIndex + 1)
+                    : path.Substring(serverShareSeparatorIndex + 1,
+                        sharePathSeparatorIndex - serverShareSeparatorIndex - 1);
+
+                string relativePath = sharePathSeparatorIndex == -1
+                    ? string.Empty
+                    : path.Substring(sharePathSeparatorIndex + 1);
+
+                return new NetworkPath(serverName, shareName, relativePath, offset == 8);
+            }
+        }
+
+        private sealed class ShareCreationStatus
+        {
+            [NotNull]
+            public string ServerName { get; }
+
+            [NotNull]
+            public string ShareName { get; }
+
+            public bool CanBeCreated { get; }
+
+            public bool IsCreated { get; set; }
+
+            public ShareCreationStatus([NotNull] string serverName, [NotNull] string shareName, bool canBeCreated)
+            {
+                Guard.NotNull(serverName, nameof(serverName));
+                Guard.NotNull(shareName, nameof(shareName));
+
+                ServerName = serverName;
+                ShareName = shareName;
+                CanBeCreated = canBeCreated;
             }
         }
     }

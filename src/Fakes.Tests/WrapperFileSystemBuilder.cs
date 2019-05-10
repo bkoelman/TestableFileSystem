@@ -13,10 +13,16 @@ namespace TestableFileSystem.Fakes.Tests
         [NotNull]
         private readonly IFileSystem fileSystem;
 
-        public WrapperFileSystemBuilder([NotNull] IFileSystem fileSystem)
+        [NotNull]
+        private readonly FileSystemBuilderFactory owner;
+
+        public WrapperFileSystemBuilder([NotNull] IFileSystem fileSystem, [NotNull] FileSystemBuilderFactory owner)
         {
             Guard.NotNull(fileSystem, nameof(fileSystem));
+            Guard.NotNull(owner, nameof(owner));
+
             this.fileSystem = fileSystem;
+            this.owner = owner;
         }
 
         public IFileSystem Build()
@@ -28,7 +34,7 @@ namespace TestableFileSystem.Fakes.Tests
         {
             Guard.NotNull(path, nameof(path));
 
-            fileSystem.Directory.CreateDirectory(path);
+            CreateDirectory(path);
 
             if (attributes != null)
             {
@@ -101,8 +107,15 @@ namespace TestableFileSystem.Fakes.Tests
             string directory = Path.GetDirectoryName(path);
             if (directory != null)
             {
-                fileSystem.Directory.CreateDirectory(directory);
+                CreateDirectory(directory);
             }
+        }
+
+        private void CreateDirectory([NotNull] string directory)
+        {
+            owner.EnsureNetworkShareExists(directory);
+
+            fileSystem.Directory.CreateDirectory(directory);
         }
     }
 }
