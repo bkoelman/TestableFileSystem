@@ -63,10 +63,7 @@ namespace TestableFileSystem.Fakes.Handlers
         [NotNull]
         private FileEntry ResolveSourceFile([NotNull] AbsolutePath sourcePath, bool isCopyAfterMoveFailed)
         {
-            var sourceResolver = new FileResolver(Container)
-            {
-                ErrorPathIsVolumeRoot = ErrorFactory.System.DirectoryNotFound
-            };
+            var sourceResolver = new FileResolver(Container);
 
             FileEntry sourceFile = sourceResolver.ResolveExistingFile(sourcePath);
 

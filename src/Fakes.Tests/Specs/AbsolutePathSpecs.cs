@@ -125,7 +125,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_path_starting_with_network_share_it_must_succeed()
+        private void When_creating_remote_path_it_must_succeed()
         {
             // Arrange
             const string path = @"\\teamserver\management\reports";
@@ -141,7 +141,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         }
 
         [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_extended_path_starting_with_network_share_it_must_succeed()
+        private void When_creating_extended_remote_path_it_must_succeed()
         {
             // Arrange
             const string path = @"\\?\UNC\teamserver\management\reports";

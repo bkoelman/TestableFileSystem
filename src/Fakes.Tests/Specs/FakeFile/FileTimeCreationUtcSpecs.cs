@@ -607,6 +607,38 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_getting_creation_time_in_UTC_for_missing_network_share_it_must_fail()
         {
             // Arrange
+            const string path = @"\\server\share";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetCreationTimeUtc(path);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
+        private void When_setting_creation_time_in_UTC_for_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\server\share";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetCreationTimeUtc(path, DefaultTimeUtc);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
+        private void When_getting_creation_time_in_UTC_for_file_below_missing_network_share_it_must_fail()
+        {
+            // Arrange
             const string path = @"\\server\share\missing.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -616,11 +648,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.GetCreationTimeUtc(path);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_creation_time_in_UTC_for_missing_network_share_it_must_fail()
+        private void When_setting_creation_time_in_UTC_for_file_below_missing_network_share_it_must_fail()
         {
             // Arrange
             const string path = @"\\server\share\missing.docx";
@@ -632,7 +664,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.SetCreationTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]

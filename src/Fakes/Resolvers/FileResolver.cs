@@ -116,6 +116,8 @@ namespace TestableFileSystem.Fakes.Resolvers
 
             if (parentPath == null)
             {
+                directoryResolver.ResolveDirectory(path);
+
                 throw ErrorPathIsVolumeRoot(path.GetText());
             }
 

@@ -871,8 +871,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_moving_directory_on_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string sourcePath = @"\\teamserver\documents\folder";
-            const string destinationPath = @"\\teamserver\documents\moved";
+            const string sourcePath = @"\\ServerName\ShareName\folder";
+            const string destinationPath = @"\\ServerName\ShareName\moved";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -881,7 +881,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{sourcePath}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]

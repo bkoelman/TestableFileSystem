@@ -719,7 +719,50 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
         private void When_constructing_directory_info_for_missing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\folder";
+            const string path = @"\\ServerName\ShareName";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
+
+            // Assert
+            dirInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            dirInfo.Extension.Should().BeEmpty();
+            dirInfo.FullName.Should().Be(path);
+            dirInfo.Exists.Should().BeFalse();
+            ActionFactory.IgnoreReturnValue(() => dirInfo.Attributes).Should().ThrowExactly<IOException>()
+                .WithMessage($"The network path was not found. : '{path}'");
+
+            ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTime).Should().ThrowExactly<IOException>()
+                .WithMessage($"The network path was not found. : '{path}'");
+            ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTimeUtc).Should().ThrowExactly<IOException>()
+                .WithMessage($"The network path was not found. : '{path}'");
+            ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTime).Should().ThrowExactly<IOException>()
+                .WithMessage($"The network path was not found. : '{path}'");
+            ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTimeUtc).Should().ThrowExactly<IOException>()
+                .WithMessage($"The network path was not found. : '{path}'");
+            ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTime).Should().ThrowExactly<IOException>()
+                .WithMessage($"The network path was not found. : '{path}'");
+            ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTimeUtc).Should().ThrowExactly<IOException>()
+                .WithMessage($"The network path was not found. : '{path}'");
+
+            dirInfo.ToString().Should().Be(path);
+
+            dirInfo.Parent.Should().BeNull();
+
+            IDirectoryInfo rootInfo = dirInfo.Root.ShouldNotBeNull();
+            rootInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            rootInfo.FullName.Should().Be(@"\\ServerName\ShareName");
+            rootInfo.ToString().Should().Be(@"\\ServerName\ShareName");
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
+        private void When_constructing_directory_info_for_directory_below_missing_network_share_it_must_succeed()
+        {
+            // Arrange
+            const string path = @"\\ServerName\ShareName\folder";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -733,42 +776,42 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.FullName.Should().Be(path);
             dirInfo.Exists.Should().BeFalse();
             ActionFactory.IgnoreReturnValue(() => dirInfo.Attributes).Should().ThrowExactly<IOException>()
-                .WithMessage("The network path was not found.");
+                .WithMessage($"The network path was not found. : '{path}'");
 
             ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTime).Should().ThrowExactly<IOException>()
-                .WithMessage("The network path was not found.");
+                .WithMessage($"The network path was not found. : '{path}'");
             ActionFactory.IgnoreReturnValue(() => dirInfo.CreationTimeUtc).Should().ThrowExactly<IOException>()
-                .WithMessage("The network path was not found.");
+                .WithMessage($"The network path was not found. : '{path}'");
             ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTime).Should().ThrowExactly<IOException>()
-                .WithMessage("The network path was not found.");
+                .WithMessage($"The network path was not found. : '{path}'");
             ActionFactory.IgnoreReturnValue(() => dirInfo.LastAccessTimeUtc).Should().ThrowExactly<IOException>()
-                .WithMessage("The network path was not found.");
+                .WithMessage($"The network path was not found. : '{path}'");
             ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTime).Should().ThrowExactly<IOException>()
-                .WithMessage("The network path was not found.");
+                .WithMessage($"The network path was not found. : '{path}'");
             ActionFactory.IgnoreReturnValue(() => dirInfo.LastWriteTimeUtc).Should().ThrowExactly<IOException>()
-                .WithMessage("The network path was not found.");
+                .WithMessage($"The network path was not found. : '{path}'");
 
             dirInfo.ToString().Should().Be(path);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
-            parentInfo.Name.Should().Be(@"\\server\share");
-            parentInfo.FullName.Should().Be(@"\\server\share");
+            parentInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            parentInfo.FullName.Should().Be(@"\\ServerName\ShareName");
             parentInfo.ToString().Should().Be(@"share");
 
             IDirectoryInfo rootInfo = dirInfo.Root.ShouldNotBeNull();
-            rootInfo.Name.Should().Be(@"\\server\share");
-            rootInfo.FullName.Should().Be(@"\\server\share");
-            rootInfo.ToString().Should().Be(@"\\server\share");
+            rootInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            rootInfo.FullName.Should().Be(@"\\ServerName\ShareName");
+            rootInfo.ToString().Should().Be(@"\\ServerName\ShareName");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_directory_info_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\folder";
+            const string path = @"\\ServerName\ShareName\folder";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(@"\\ServerName\ShareName")
                 .Build();
 
             // Act
@@ -791,21 +834,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.ToString().Should().Be(path);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
-            parentInfo.Name.Should().Be(@"\\server\share");
-            parentInfo.FullName.Should().Be(@"\\server\share");
+            parentInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            parentInfo.FullName.Should().Be(@"\\ServerName\ShareName");
             parentInfo.ToString().Should().Be(@"share");
 
             IDirectoryInfo rootInfo = dirInfo.Root.ShouldNotBeNull();
-            rootInfo.Name.Should().Be(@"\\server\share");
-            rootInfo.FullName.Should().Be(@"\\server\share");
-            rootInfo.ToString().Should().Be(@"\\server\share");
+            rootInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            rootInfo.FullName.Should().Be(@"\\ServerName\ShareName");
+            rootInfo.ToString().Should().Be(@"\\ServerName\ShareName");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_directory_info_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\folder";
+            const string path = @"\\ServerName\ShareName\folder";
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
@@ -842,14 +885,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
-            parentInfo.Name.Should().Be(@"\\server\share");
-            parentInfo.FullName.Should().Be(@"\\server\share");
+            parentInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            parentInfo.FullName.Should().Be(@"\\ServerName\ShareName");
             parentInfo.ToString().Should().Be(@"share");
 
             IDirectoryInfo rootInfo = dirInfo.Root.ShouldNotBeNull();
-            rootInfo.Name.Should().Be(@"\\server\share");
-            rootInfo.FullName.Should().Be(@"\\server\share");
-            rootInfo.ToString().Should().Be(@"\\server\share");
+            rootInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            rootInfo.FullName.Should().Be(@"\\ServerName\ShareName");
+            rootInfo.ToString().Should().Be(@"\\ServerName\ShareName");
         }
 
         [Fact, InvestigateRunOnFileSystem]

@@ -43,7 +43,7 @@ namespace TestableFileSystem.Fakes.Handlers
             {
                 if (!path.IsOnLocalDrive && !path.IsVolumeRoot)
                 {
-                    throw ErrorFactory.System.NetworkPathNotFound();
+                    throw ErrorFactory.System.NetworkPathNotFound(path.GetText());
                 }
 
                 throw ErrorFactory.System.DirectoryNotFound(path.GetText());

@@ -297,6 +297,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact, InvestigateRunOnFileSystem]
+        private void When_getting_directory_existence_for_directory_below_missing_network_share_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            bool found = fileSystem.Directory.Exists(@"\\ServerName\ShareName\folder");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange

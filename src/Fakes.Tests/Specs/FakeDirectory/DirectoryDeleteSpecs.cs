@@ -578,14 +578,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_deleting_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
+            const string path = @"\\ServerName\ShareName\team";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.Delete(@"\\server\share\team");
+            Action action = () => fileSystem.Directory.Delete(path);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]

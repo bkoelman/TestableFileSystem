@@ -27,7 +27,7 @@ namespace TestableFileSystem.Fakes.Resolvers
             Guard.NotNull(container, nameof(container));
             this.container = container;
 
-            ErrorNetworkShareNotFound = _ => ErrorFactory.System.NetworkPathNotFound();
+            ErrorNetworkShareNotFound = ErrorFactory.System.NetworkPathNotFound;
             ErrorDirectoryFoundAsFile = ErrorFactory.System.DirectoryNotFound;
             ErrorLastDirectoryFoundAsFile = ErrorFactory.System.DirectoryNotFound;
             ErrorDirectoryNotFound = ErrorFactory.System.DirectoryNotFound;

@@ -240,19 +240,39 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             parentNotNull.FullName.Should().Be(@"C:\some\file.txt\deeper");
         }
 
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_parent_for_missing_network_share_it_must_succeed(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName", false);
+
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                // Act
+                IDirectoryInfo parent = fileSystem.Directory.GetParent(path);
+
+                // Assert
+                parent.Should().BeNull();
+            }
+        }
+
         [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_parent_on_missing_network_share_it_must_succeed()
+        private void When_getting_directory_parent_for_directory_below_missing_network_share_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\server\share\file.txt");
+            IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\ServerName\ShareName\file.txt");
 
             // Assert
             IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
-            parentNotNull.FullName.Should().Be(@"\\server\share");
+            parentNotNull.FullName.Should().Be(@"\\ServerName\ShareName");
         }
 
         [Fact, InvestigateRunOnFileSystem]

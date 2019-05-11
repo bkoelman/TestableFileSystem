@@ -837,14 +837,32 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_enumerating_directories_for_missing_network_share_it_must_fail()
         {
             // Arrange
+            const string path = @"\\ServerName\ShareName";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.EnumerateDirectories(@"\\server\share\team");
+            Action action = () => fileSystem.Directory.EnumerateDirectories(path);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
+        private void When_enumerating_directories_below_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\ServerName\ShareName\team";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.EnumerateDirectories(path);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]

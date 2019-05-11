@@ -216,18 +216,38 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             root.Should().Be(@"C:\");
         }
 
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_root_on_missing_network_share_it_must_succeed(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName", false);
+
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                // Act
+                string root = fileSystem.Directory.GetDirectoryRoot(path);
+
+                // Assert
+                root.Should().Be(path);
+            }
+        }
+
         [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_root_on_missing_network_share_it_must_succeed()
+        private void When_getting_directory_root_on_file_below_missing_network_share_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            string root = fileSystem.Directory.GetDirectoryRoot(@"\\server\share\file.txt");
+            string root = fileSystem.Directory.GetDirectoryRoot(@"\\ServerName\ShareName\file.txt");
 
             // Assert
-            root.Should().Be(@"\\server\share");
+            root.Should().Be(@"\\ServerName\ShareName");
         }
 
         [Fact, InvestigateRunOnFileSystem]

@@ -353,6 +353,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact, InvestigateRunOnFileSystem]
+        private void When_encrypting_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Encrypt(@"\\server\share");
+
+            action.Should().ThrowExactly<IOException>().WithMessage(
+                "The filename, directory name, or volume label syntax is incorrect.");
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
         private void When_encrypting_remote_file_on_missing_network_share_it_must_fail()
         {
             // Arrange

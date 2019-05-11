@@ -372,16 +372,33 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact, InvestigateRunOnFileSystem]
-        private void When_decrypting_remote_file_on_missing_network_share_it_must_fail()
+        private void When_decrypting_missing_network_share_it_must_fail()
         {
             // Arrange
+            const string path = @"\\server\share";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Decrypt(@"\\server\share\file.txt");
+            Action action = () => fileSystem.File.Decrypt(path);
 
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
+        private void When_decrypting_remote_file_on_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\server\share\file.txt";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.Decrypt(path);
+
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]

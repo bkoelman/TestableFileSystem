@@ -302,8 +302,49 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt\other.txt'.");
         }
 
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_deleting_missing_network_share_it_must_fail(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName", false);
+
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                // Act
+                Action action = () => fileSystem.File.Delete(path);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
+        }
+
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_deleting_existing_network_share_it_must_fail(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName");
+
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(path)
+                    .Build();
+
+                // Act
+                Action action = () => fileSystem.File.Delete(path);
+
+                // Assert
+                action.Should().ThrowExactly<UnauthorizedAccessException>().WithMessage($"Access to the path '{path}' is denied.");
+            }
+        }
+
         [Fact, InvestigateRunOnFileSystem]
-        private void When_deleting_remote_file_on_missing_network_share_it_must_fail()
+        private void When_deleting_file_below_missing_network_share_it_must_fail()
         {
             // Arrange
             const string path = @"\\teamshare\folder\doc.txt";
@@ -315,24 +356,28 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Delete(path);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_deleting_remote_file_on_existing_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
+        private void When_deleting_remote_file_on_existing_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            const string path = @"\\teamshare\folder\doc.txt";
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName\doc.txt");
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingEmptyFile(path)
+                    .Build();
 
-            // Act
-            fileSystem.File.Delete(path);
+                // Act
+                fileSystem.File.Delete(path);
 
-            // Assert
-            fileSystem.File.Exists(path).Should().BeFalse();
+                // Assert
+                fileSystem.File.Exists(path).Should().BeFalse();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

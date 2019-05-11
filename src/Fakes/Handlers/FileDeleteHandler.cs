@@ -18,6 +18,11 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
 
+            if (arguments.Path.IsVolumeRoot)
+            {
+                ThrowForDeleteOfVolumeRoot(arguments.Path);
+            }
+
             var resolver = new FileResolver(Container);
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
@@ -27,6 +32,14 @@ namespace TestableFileSystem.Fakes.Handlers
             }
 
             return Missing.Value;
+        }
+
+        private void ThrowForDeleteOfVolumeRoot([NotNull] AbsolutePath path)
+        {
+            var resolver = new DirectoryResolver(Container);
+            resolver.ResolveDirectory(path);
+
+            throw ErrorFactory.System.UnauthorizedAccess(path.GetText());
         }
 
         private static void DeleteFile([NotNull] FileEntry existingFile, [NotNull] DirectoryEntry containingDirectory,

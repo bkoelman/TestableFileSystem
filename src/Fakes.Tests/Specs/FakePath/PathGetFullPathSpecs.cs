@@ -335,7 +335,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
         }
 
         [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_full_path_for_network_host_without_share_it_must_succeed()
+        private void When_getting_full_path_for_network_host_without_share_it_must_fail()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()

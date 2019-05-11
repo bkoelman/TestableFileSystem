@@ -53,9 +53,9 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
-            public static Exception NetworkPathNotFound()
+            public static Exception NetworkPathNotFound([NotNull] string path)
             {
-                return new IOException("The network path was not found.");
+                return new IOException($"The network path was not found. : '{path}'");
             }
 
             [NotNull]

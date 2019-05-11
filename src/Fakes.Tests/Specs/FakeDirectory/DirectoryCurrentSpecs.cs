@@ -223,14 +223,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_current_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
+            const string path = @"\\ServerName\ShareName\team";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.SetCurrentDirectory(@"\\server\share\team");
+            Action action = () => fileSystem.Directory.SetCurrentDirectory(path);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage(@"The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]

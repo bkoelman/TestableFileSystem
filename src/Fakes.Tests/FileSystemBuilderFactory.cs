@@ -140,17 +140,18 @@ namespace TestableFileSystem.Fakes.Tests
                 throw new InvalidOperationException("Cannot create share on remote host.");
             }
 
-            CreateNetworkShare(networkShares[hostKey].ShareName);
+            CreateNetworkShare(networkShares[hostKey]);
 
             networkShares[hostKey].IsCreated = true;
         }
 
-        private void CreateNetworkShare([NotNull] string shareName)
+        private void CreateNetworkShare([NotNull] ShareCreationStatus shareStatus)
         {
-            string backingDirectory = Path.Combine(rootDirectory, shareName);
+            string backingDirectory =
+                Path.Combine(rootDirectory, "Share-" + shareStatus.ServerName + "-" + shareStatus.ShareName);
 
             Directory.CreateDirectory(backingDirectory);
-            NetworkShareManager.CreateShare(backingDirectory, shareName);
+            NetworkShareManager.CreateShare(backingDirectory, shareStatus.ShareName);
         }
 
         public void Dispose()

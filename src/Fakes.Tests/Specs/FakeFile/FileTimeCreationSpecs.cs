@@ -604,36 +604,84 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_creation_time_in_local_zone_for_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_creation_time_in_local_zone_for_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"\\server\share\missing.txt";
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName", false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.GetCreationTime(path);
+                // Act
+                Action action = () => fileSystem.File.GetCreationTime(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_creation_time_in_local_zone_for_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_creation_time_in_local_zone_for_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"\\server\share\missing.docx";
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName", false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.SetCreationTime(path, DefaultTime);
+                // Act
+                Action action = () => fileSystem.File.SetCreationTime(path, DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
+        }
+
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_creation_time_in_local_zone_for_file_below_missing_network_share_it_must_fail(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName\missing.txt", false);
+
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                // Act
+                Action action = () => fileSystem.File.GetCreationTime(path);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
+        }
+
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_creation_time_in_local_zone_for_file_below_missing_network_share_it_must_fail(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName\missing.txt", false);
+
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                // Act
+                Action action = () => fileSystem.File.SetCreationTime(path, DefaultTime);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -655,22 +703,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTime);
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_creation_time_in_local_zone_for_existing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
+        private void When_setting_creation_time_in_local_zone_for_existing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            const string path = @"\\server\share";
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName");
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(path)
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.SetCreationTime(path, DefaultTime);
+                // Act
+                Action action = () => fileSystem.File.SetCreationTime(path, DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>()
-                .WithMessage(@"Access to the path '\\server\share' is denied.");
+                // Assert
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
+                    .WithMessage($"Access to the path '{path}' is denied.");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

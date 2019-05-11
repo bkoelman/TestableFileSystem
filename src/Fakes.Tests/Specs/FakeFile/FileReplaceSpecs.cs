@@ -1022,7 +1022,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{sourcePath}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]

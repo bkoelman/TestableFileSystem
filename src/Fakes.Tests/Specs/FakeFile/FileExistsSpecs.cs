@@ -331,6 +331,20 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
+            bool found = fileSystem.File.Exists(@"\\teamshare\documents");
+
+            // Assert
+            found.Should().BeFalse();
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
+        private void When_getting_file_existence_for_file_below_missing_network_share_it_must_succeed()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
             bool found = fileSystem.File.Exists(@"\\teamshare\documents\some.doc");
 
             // Assert

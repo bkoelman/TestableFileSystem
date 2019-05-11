@@ -19,11 +19,11 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             Guard.NotNull(arguments, nameof(arguments));
             AssertTimeValueIsInRange(arguments);
-            AssertIsNotVolumeRoot(arguments.Path);
 
             var resolver = new EntryResolver(Container);
             BaseEntry entry = resolver.ResolveEntry(arguments.Path);
 
+            AssertIsNotVolumeRoot(arguments.Path);
             AssertIsNotExternallyEncrypted(entry, arguments.Path);
             AssertIsNotDirectory(entry, arguments.Path);
             AssertFileIsNotReadOnly(entry, arguments.Path);

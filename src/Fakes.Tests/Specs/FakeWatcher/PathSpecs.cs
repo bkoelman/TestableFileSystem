@@ -482,6 +482,30 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             }
         }
 
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_path_to_file_below_missing_network_share_it_must_fail(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(@"\\ServerName\ShareName\file.txt", false);
+
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                using (IFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
+                {
+                    // Act
+                    // ReSharper disable once AccessToDisposedClosure
+                    Action action = () => watcher.Path = path;
+
+                    // Assert
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage($"The directory name '{path}' does not exist.*");
+                }
+            }
+        }
+
         [Fact, InvestigateRunOnFileSystem]
         private void When_setting_path_to_existing_network_share_it_must_raise_events()
         {

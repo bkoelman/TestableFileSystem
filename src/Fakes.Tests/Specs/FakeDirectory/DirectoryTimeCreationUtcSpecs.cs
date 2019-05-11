@@ -602,7 +602,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_creation_time_in_UTC_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\missing";
+            const string path = @"\\ServerName\ShareName";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -611,14 +611,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.GetCreationTimeUtc(path);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_setting_creation_time_in_UTC_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\missing";
+            const string path = @"\\ServerName\ShareName";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -627,14 +627,46 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             Action action = () => fileSystem.Directory.SetCreationTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
+        private void When_getting_creation_time_in_UTC_for_directory_below_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\ServerName\ShareName\missing";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.GetCreationTimeUtc(path);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+        }
+
+        [Fact, InvestigateRunOnFileSystem]
+        private void When_setting_creation_time_in_UTC_for_directory_below_missing_network_share_it_must_fail()
+        {
+            // Arrange
+            const string path = @"\\ServerName\ShareName\missing";
+
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.Directory.SetCreationTimeUtc(path, DefaultTimeUtc);
+
+            // Assert
+            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_getting_creation_time_in_UTC_for_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share";
+            const string path = @"\\ServerName\ShareName";
 
             var clock = new SystemClock(() => DefaultTimeUtc);
 
@@ -653,7 +685,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_creation_time_in_UTC_for_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share";
+            const string path = @"\\ServerName\ShareName";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -670,10 +702,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_creation_time_in_UTC_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\missing";
+            const string path = @"\\ServerName\ShareName\missing";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(@"\\ServerName\ShareName")
                 .Build();
 
             // Act
@@ -687,24 +719,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_creation_time_in_UTC_for_missing_remote_directory_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\missing";
+            const string path = @"\\ServerName\ShareName\missing";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(@"\\ServerName\ShareName")
                 .Build();
 
             // Act
             Action action = () => fileSystem.Directory.SetCreationTimeUtc(path, DefaultTimeUtc);
 
             // Assert
-            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\missing'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\ServerName\ShareName\missing'.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_setting_creation_time_in_UTC_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\personal";
+            const string path = @"\\ServerName\ShareName\personal";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
