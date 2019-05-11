@@ -271,7 +271,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingDirectory(@"\\fileserver");
+            Action action = () => builder.IncludingDirectory(PathFactory.NetworkHostWithoutShare());
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
@@ -281,7 +281,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_including_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             var builder = new FakeFileSystemBuilder();
 
@@ -292,14 +292,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
 
             // Assert
             fileSystem.Directory.Exists(path).Should().BeTrue();
-            fileSystem.Directory.Exists(@"\\server\share\").Should().BeTrue();
+            fileSystem.Directory.Exists(path + @"\").Should().BeTrue();
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_including_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\folder\tree";
+            string path = PathFactory.NetworkDirectoryAtDepth(2);
 
             var builder = new FakeFileSystemBuilder();
 
@@ -316,7 +316,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_including_existing_remote_directory_it_must_overwrite()
         {
             // Arrange
-            const string path = @"\\server\share\folder";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             FakeFileSystemBuilder builder = new FakeFileSystemBuilder()
                 .IncludingDirectory(path);

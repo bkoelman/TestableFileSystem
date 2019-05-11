@@ -59,7 +59,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDriveInfo
         [InlineData("c ")]
         [InlineData(@"\folder")]
         [InlineData("file.txt")]
-        [InlineData(@"\\server\share")]
+        [InlineData(@"\\ServerName\ShareName")]
         [InlineData("COM1")]
         [InlineData(@"\\?\c")]
         [InlineData(@"\\?\c:")]

@@ -360,7 +360,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Encrypt(@"\\server\share");
+            Action action = () => fileSystem.File.Encrypt(PathFactory.NetworkShare());
 
             action.Should().ThrowExactly<IOException>().WithMessage(
                 "The filename, directory name, or volume label syntax is incorrect.");
@@ -374,7 +374,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Encrypt(@"\\server\share\file.txt");
+            Action action = () => fileSystem.File.Encrypt(PathFactory.NetworkFileAtDepth(1));
 
             action.Should().ThrowExactly<IOException>().WithMessage(
                 "The filename, directory name, or volume label syntax is incorrect.");
@@ -384,7 +384,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_encrypting_remote_file_on_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(path)

@@ -355,7 +355,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_deleting_remote_current_directory_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\documents";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -368,7 +368,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
-                @"The process cannot access the file '\\server\share\documents' because it is being used by another process.");
+                $"The process cannot access the file '{path}' because it is being used by another process.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -389,22 +389,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"The process cannot access the file 'C:\store' because it is being used by another process.");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
+        [Fact]
+        [CanNotRunOnFileSystem(FileSystemSkipReason.DependsOnCurrentDirectory)]
         private void When_deleting_above_remote_current_directory_it_must_fail()
         {
             // Arrange
+            string parentPath = PathFactory.NetworkDirectoryAtDepth(1);
+            string path = PathFactory.NetworkDirectoryAtDepth(2);
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share\documents\teamA")
+                .IncludingDirectory(path)
                 .Build();
 
-            fileSystem.Directory.SetCurrentDirectory(@"\\server\share\documents\teamA");
+            fileSystem.Directory.SetCurrentDirectory(path);
 
             // Act
-            Action action = () => fileSystem.Directory.Delete(@"\\server\share\documents", true);
+            Action action = () => fileSystem.Directory.Delete(parentPath, true);
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
-                @"The process cannot access the file '\\server\share\documents' because it is being used by another process.");
+                $"The process cannot access the file '{parentPath}' because it is being used by another process.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -525,7 +529,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_deleting_remote_empty_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\teamshare\folder\documents";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -542,7 +546,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_deleting_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\teamshare\folder";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -553,14 +557,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
-                @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
+                $"The process cannot access the file '{path}' because it is being used by another process.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_network_share_recursively_it_must_fail()
         {
             // Arrange
-            const string path = @"\\teamshare\folder";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -571,14 +575,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
-                @"The process cannot access the file '\\teamshare\folder' because it is being used by another process.");
+                $"The process cannot access the file '{path}' because it is being used by another process.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_deleting_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\team";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();

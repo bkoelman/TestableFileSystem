@@ -719,7 +719,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
         private void When_constructing_directory_info_for_missing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -728,7 +728,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
             // Assert
-            dirInfo.Name.Should().Be(@"\\ServerName\ShareName");
+            dirInfo.Name.Should().Be(path);
             dirInfo.Extension.Should().BeEmpty();
             dirInfo.FullName.Should().Be(path);
             dirInfo.Exists.Should().BeFalse();
@@ -753,16 +753,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.Parent.Should().BeNull();
 
             IDirectoryInfo rootInfo = dirInfo.Root.ShouldNotBeNull();
-            rootInfo.Name.Should().Be(@"\\ServerName\ShareName");
-            rootInfo.FullName.Should().Be(@"\\ServerName\ShareName");
-            rootInfo.ToString().Should().Be(@"\\ServerName\ShareName");
+            rootInfo.Name.Should().Be(path);
+            rootInfo.FullName.Should().Be(path);
+            rootInfo.ToString().Should().Be(path);
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_directory_info_for_directory_below_missing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\folder";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -771,7 +771,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
             // Assert
-            dirInfo.Name.Should().Be("folder");
+            dirInfo.Name.Should().Be(PathFactory.DirectoryNameAtDepth1);
             dirInfo.Extension.Should().BeEmpty();
             dirInfo.FullName.Should().Be(path);
             dirInfo.Exists.Should().BeFalse();
@@ -794,31 +794,31 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.ToString().Should().Be(path);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
-            parentInfo.Name.Should().Be(@"\\ServerName\ShareName");
-            parentInfo.FullName.Should().Be(@"\\ServerName\ShareName");
-            parentInfo.ToString().Should().Be(@"share");
+            parentInfo.Name.Should().Be(PathFactory.NetworkShare());
+            parentInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            parentInfo.ToString().Should().Be(PathFactory.UncShareName);
 
             IDirectoryInfo rootInfo = dirInfo.Root.ShouldNotBeNull();
-            rootInfo.Name.Should().Be(@"\\ServerName\ShareName");
-            rootInfo.FullName.Should().Be(@"\\ServerName\ShareName");
-            rootInfo.ToString().Should().Be(@"\\ServerName\ShareName");
+            rootInfo.Name.Should().Be(PathFactory.NetworkShare());
+            rootInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            rootInfo.ToString().Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_directory_info_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\folder";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\ServerName\ShareName")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
             // Assert
-            dirInfo.Name.Should().Be("folder");
+            dirInfo.Name.Should().Be(PathFactory.DirectoryNameAtDepth1);
             dirInfo.Extension.Should().BeEmpty();
             dirInfo.FullName.Should().Be(path);
             dirInfo.Exists.Should().BeFalse();
@@ -834,21 +834,21 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.ToString().Should().Be(path);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
-            parentInfo.Name.Should().Be(@"\\ServerName\ShareName");
-            parentInfo.FullName.Should().Be(@"\\ServerName\ShareName");
-            parentInfo.ToString().Should().Be(@"share");
+            parentInfo.Name.Should().Be(PathFactory.NetworkShare());
+            parentInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            parentInfo.ToString().Should().Be( PathFactory.UncShareName);
 
             IDirectoryInfo rootInfo = dirInfo.Root.ShouldNotBeNull();
-            rootInfo.Name.Should().Be(@"\\ServerName\ShareName");
-            rootInfo.FullName.Should().Be(@"\\ServerName\ShareName");
-            rootInfo.ToString().Should().Be(@"\\ServerName\ShareName");
+            rootInfo.Name.Should().Be(PathFactory.NetworkShare());
+            rootInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            rootInfo.ToString().Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_directory_info_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\folder";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
@@ -871,7 +871,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
             // Assert
-            dirInfo.Name.Should().Be("folder");
+            dirInfo.Name.Should().Be(PathFactory.DirectoryNameAtDepth1);
             dirInfo.Extension.Should().BeEmpty();
             dirInfo.FullName.Should().Be(path);
             dirInfo.Exists.Should().BeTrue();
@@ -885,14 +885,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             dirInfo.LastWriteTimeUtc.Should().Be(lastWriteTimeUtc);
 
             IDirectoryInfo parentInfo = dirInfo.Parent.ShouldNotBeNull();
-            parentInfo.Name.Should().Be(@"\\ServerName\ShareName");
-            parentInfo.FullName.Should().Be(@"\\ServerName\ShareName");
-            parentInfo.ToString().Should().Be(@"share");
+            parentInfo.Name.Should().Be(PathFactory.NetworkShare());
+            parentInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            parentInfo.ToString().Should().Be(PathFactory.UncShareName);
 
             IDirectoryInfo rootInfo = dirInfo.Root.ShouldNotBeNull();
-            rootInfo.Name.Should().Be(@"\\ServerName\ShareName");
-            rootInfo.FullName.Should().Be(@"\\ServerName\ShareName");
-            rootInfo.ToString().Should().Be(@"\\ServerName\ShareName");
+            rootInfo.Name.Should().Be(PathFactory.NetworkShare());
+            rootInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            rootInfo.ToString().Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]

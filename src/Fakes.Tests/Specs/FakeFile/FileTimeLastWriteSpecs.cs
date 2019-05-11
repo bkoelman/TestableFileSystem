@@ -608,7 +608,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_getting_last_write_time_in_local_zone_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -624,7 +624,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_setting_last_write_time_in_local_zone_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -640,7 +640,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_getting_last_write_time_in_local_zone_for_file_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\missing.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -656,7 +656,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_setting_last_write_time_in_local_zone_for_file_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\missing.docx";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -672,7 +672,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_getting_last_write_time_in_local_zone_for_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             var clock = new SystemClock(() => DefaultTimeUtc);
 
@@ -691,7 +691,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_setting_last_write_time_in_local_zone_for_existing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -702,17 +702,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.Should().ThrowExactly<UnauthorizedAccessException>()
-                .WithMessage(@"Access to the path '\\server\share' is denied.");
+                .WithMessage($"Access to the path '{path}' is denied.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_getting_last_write_time_in_local_zone_for_missing_remote_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\missing.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
@@ -726,10 +726,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_setting_last_write_time_in_local_zone_for_missing_remote_file_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\missing.docx";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
@@ -737,14 +737,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.Should().ThrowExactly<FileNotFoundException>()
-                .WithMessage(@"Could not find file '\\server\share\missing.docx'.");
+                .WithMessage($"Could not find file '{path}'.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_write_time_in_local_zone_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\personal.docx";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(path)

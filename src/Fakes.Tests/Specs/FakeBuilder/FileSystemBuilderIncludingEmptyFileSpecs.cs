@@ -249,7 +249,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_including_remote_empty_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\folder\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(2);
 
             var builder = new FakeFileSystemBuilder();
 
@@ -266,7 +266,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_including_existing_remote_empty_file_it_must_overwrite()
         {
             // Arrange
-            const string path = @"\\server\share\folder\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(2);
 
             FakeFileSystemBuilder builder = new FakeFileSystemBuilder()
                 .IncludingTextFile(path, "XYZ");

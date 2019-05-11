@@ -605,7 +605,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_last_access_time_in_local_zone_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -621,7 +621,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_last_access_time_in_local_zone_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -637,7 +637,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_last_access_time_in_local_zone_for_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\missing";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -653,7 +653,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_last_access_time_in_local_zone_for_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\missing";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -669,7 +669,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_last_access_time_in_local_zone_for_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName";
+            string path = PathFactory.NetworkShare();
 
             var clock = new SystemClock(() => DefaultTimeUtc);
 
@@ -688,7 +688,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_last_access_time_in_local_zone_for_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -705,10 +705,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_last_access_time_in_local_zone_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\missing";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\ServerName\ShareName")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
@@ -722,24 +722,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_last_access_time_in_local_zone_for_missing_remote_directory_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\missing";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\ServerName\ShareName")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
             Action action = () => fileSystem.Directory.SetLastAccessTime(path, DefaultTime);
 
             // Assert
-            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\ServerName\ShareName\missing'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage($"Could not find file '{path}'.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_setting_last_access_time_in_local_zone_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\personal";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)

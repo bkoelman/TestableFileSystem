@@ -197,7 +197,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.EnumerateDirectories(@"c:\", @"\\server\share");
+            Action action = () => fileSystem.Directory.EnumerateDirectories(@"c:\", PathFactory.NetworkShare());
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(
@@ -837,7 +837,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_enumerating_directories_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -853,7 +853,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_enumerating_directories_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\team";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -869,17 +869,19 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_enumerating_directories_for_missing_remote_directory_it_must_fail()
         {
             // Arrange
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.EnumerateDirectories(@"\\server\share\team");
+            Action action = () => fileSystem.Directory.EnumerateDirectories(path);
 
             // Assert
             //System.IO.IOException: 'The network path was not found'
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
-                @"Could not find a part of the path '\\server\share\team'.");
+                $"Could not find a part of the path '{path}'.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -887,14 +889,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share\team\work")
+                .IncludingDirectory(PathFactory.NetworkDirectoryAtDepth(2))
                 .Build();
 
             // Act
-            IEnumerable<string> directories = fileSystem.Directory.EnumerateDirectories(@"\\server\share\team");
+            IEnumerable<string> directories = fileSystem.Directory.EnumerateDirectories(PathFactory.NetworkDirectoryAtDepth(1));
 
             // Assert
-            directories.Should().ContainSingle(x => x == @"\\server\share\team\work");
+            directories.Should().ContainSingle(x => x == PathFactory.NetworkDirectoryAtDepth(2, false));
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -916,14 +918,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share\team\work")
+                .IncludingDirectory(PathFactory.NetworkDirectoryAtDepth(2))
                 .Build();
 
             // Act
-            IEnumerable<string> directories = fileSystem.Directory.EnumerateDirectories(@"\\?\UNC\server\share\team");
+            IEnumerable<string> directories = fileSystem.Directory.EnumerateDirectories(PathFactory.NetworkDirectoryAtDepth(1, true));
 
             // Assert
-            directories.Should().ContainSingle(x => x == @"\\?\UNC\server\share\team\work");
+            directories.Should().ContainSingle(x => x == PathFactory.NetworkDirectoryAtDepth(2, true));
         }
     }
 }

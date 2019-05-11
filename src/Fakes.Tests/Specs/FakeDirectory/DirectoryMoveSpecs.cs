@@ -766,8 +766,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_moving_directory_from_remote_current_directory_it_must_fail()
         {
             // Arrange
-            const string sourcePath = @"\\server\share\documents\teamA";
-            const string destinationPath = @"\\server\share\new-folder";
+            string sourcePath = PathFactory.NetworkDirectoryAtDepth(2);
+            string destinationPath = PathFactory.AltNetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(sourcePath)
@@ -808,8 +808,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_moving_directory_from_above_remote_current_directory_it_must_fail()
         {
             // Arrange
-            const string sourcePath = @"\\server\share\documents\teamA";
-            const string destinationPath = @"\\server\share\new-folder";
+            string sourcePath = PathFactory.NetworkDirectoryAtDepth(2);
+            string destinationPath = PathFactory.AltNetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(sourcePath)
@@ -818,7 +818,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.SetCurrentDirectory(sourcePath);
 
             // Act
-            Action action = () => fileSystem.Directory.Move(@"\\server\share\documents", destinationPath);
+            Action action = () => fileSystem.Directory.Move(PathFactory.NetworkDirectoryAtDepth(1), destinationPath);
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
@@ -871,8 +871,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_moving_directory_on_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string sourcePath = @"\\ServerName\ShareName\folder";
-            const string destinationPath = @"\\ServerName\ShareName\moved";
+            string sourcePath = PathFactory.NetworkDirectoryAtDepth(1);
+            string destinationPath = PathFactory.AltNetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -888,12 +888,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_moving_directory_on_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string sourcePath = @"\\teamserver\documents\folder";
-            const string destinationPath = @"\\teamserver\documents\moved";
+            string sourcePath = PathFactory.NetworkDirectoryAtDepth(1);
+            string destinationPath = PathFactory.AltNetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(sourcePath)
-                .IncludingDirectory(@"\\teamserver\documents")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act

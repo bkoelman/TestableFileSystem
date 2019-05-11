@@ -414,7 +414,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_creating_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -430,7 +430,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_creating_remote_file_on_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -446,24 +446,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_creating_remote_file_on_existing_network_share_it_must_succeed()
         {
             // Arrange
+            string path = PathFactory.NetworkFileAtDepth(1);
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            using (fileSystem.File.Create(@"\\server\share\file.txt"))
+            using (fileSystem.File.Create(path))
             {
             }
 
             // Assert
-            fileSystem.File.Exists(@"\\server\share\file.txt").Should().BeTrue();
+            fileSystem.File.Exists(path).Should().BeTrue();
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_creating_existing_remote_file_it_must_overwrite()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(path, "existing data")
@@ -476,7 +478,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 stream.Length.Should().Be(0);
             }
 
-            fileSystem.File.Exists(@"\\server\share\file.txt").Should().BeTrue();
+            fileSystem.File.Exists(path).Should().BeTrue();
         }
 
         [Fact, InvestigateRunOnFileSystem]

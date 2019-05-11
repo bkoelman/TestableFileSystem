@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
 using TestableFileSystem.Fakes.Tests.DiskOperations;
@@ -158,29 +160,52 @@ namespace TestableFileSystem.Fakes.Tests
         {
             if (!useFakeFileSystem && Directory.Exists(rootDirectory))
             {
-                DetachNetworkShares();
+                CleanupWithRetry();
+            }
+        }
 
-                try
-                {
-                    Directory.Delete(rootDirectory, true);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    RemoveReadOnlyAttributes();
+        private void CleanupWithRetry()
+        {
+            try
+            {
+                Cleanup();
+            }
+            catch (IOException ex) when (ex.Message.Contains("The process cannot access the file"))
+            {
+                Thread.Sleep(100);
+                Cleanup();
+            }
+        }
 
-                    Directory.Delete(rootDirectory, true);
-                }
+        private void Cleanup()
+        {
+            DetachNetworkShares();
+
+            try
+            {
+                Directory.Delete(rootDirectory, true);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                RemoveReadOnlyAttributes();
+
+                Directory.Delete(rootDirectory, true);
             }
         }
 
         private void DetachNetworkShares()
         {
-            foreach (ShareCreationStatus shareStatus in networkShares.Values)
+            while (networkShares.Any())
             {
+                KeyValuePair<string, ShareCreationStatus> pair = networkShares.First();
+                ShareCreationStatus shareStatus = pair.Value;
+
                 if (shareStatus.IsCreated)
                 {
                     NetworkShareManager.RemoveShare(shareStatus.ServerName, shareStatus.ShareName);
                 }
+
+                networkShares.Remove(pair.Key);
             }
         }
 

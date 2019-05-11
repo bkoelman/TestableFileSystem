@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_network_share_with_hostname_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\teamserver\management";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -118,7 +118,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            Action action = () => fileSystem.ConstructFileInfo(@"\\teamserver\");
+            Action action = () => fileSystem.ConstructFileInfo(PathFactory.NetworkHostWithoutShare() + @"\");
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
@@ -128,7 +128,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_remote_path_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\teamserver\management\reports";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -144,7 +144,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
         private void When_creating_extended_remote_path_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\?\UNC\teamserver\management\reports";
+            string path = PathFactory.NetworkFileAtDepth(1, true);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -164,7 +164,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs
                 .Build();
 
             // Act
-            Action action = () => fileSystem.ConstructFileInfo(@"\\team*server");
+            Action action = () => fileSystem.ConstructFileInfo(PathFactory.NetworkHostWithoutShare() + "*");
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");

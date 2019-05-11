@@ -18,7 +18,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDrive
                 .IncludingVolume("m:", new FakeVolumeInfoBuilder())
                 .IncludingDirectory(@"N:\")
                 .IncludingDirectory(@"e:\")
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act

@@ -375,7 +375,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_decrypting_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -390,7 +390,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_decrypting_remote_file_on_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -405,7 +405,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_decrypting_remote_file_on_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(path)

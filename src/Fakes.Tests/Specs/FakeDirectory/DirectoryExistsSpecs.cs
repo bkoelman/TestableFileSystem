@@ -290,7 +290,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists(@"\\teamshare\documents");
+            bool found = fileSystem.Directory.Exists(PathFactory.NetworkShare());
 
             // Assert
             found.Should().BeFalse();
@@ -304,7 +304,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists(@"\\ServerName\ShareName\folder");
+            bool found = fileSystem.Directory.Exists( PathFactory.NetworkDirectoryAtDepth(1));
 
             // Assert
             found.Should().BeFalse();
@@ -315,11 +315,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\teamshare\documents")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists(@"\\teamshare\documents\sub");
+            bool found = fileSystem.Directory.Exists(PathFactory.NetworkDirectoryAtDepth(1));
 
             // Assert
             found.Should().BeFalse();
@@ -329,7 +329,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_getting_directory_existence_for_existing_remote_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\teamshare\documents";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)

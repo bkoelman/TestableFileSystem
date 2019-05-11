@@ -682,7 +682,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_moving_file_from_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string sourcePath = @"\\teamserver\documents\for-all.txt";
+            string sourcePath = PathFactory.NetworkFileAtDepth(1);
             const string destinationPath = @"C:\docs\mine.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -694,7 +694,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 
             // Assert
             action.Should().ThrowExactly<FileNotFoundException>().WithMessage(
-                @"Could not find file '\\teamserver\documents\for-all.txt'.");
+                $"Could not find file '{sourcePath}'.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -702,7 +702,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             const string sourcePath = @"C:\docs\mine.txt";
-            const string destinationPath = @"\\teamserver\documents\for-all.txt";
+            string destinationPath = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(sourcePath)
@@ -719,7 +719,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_moving_file_from_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string sourcePath = @"\\teamserver\documents\for-all.txt";
+            string sourcePath = PathFactory.NetworkFileAtDepth(1);
             const string destinationPath = @"C:\docs\mine.txt";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -740,11 +740,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             const string sourcePath = @"C:\docs\mine.txt";
-            const string destinationPath = @"\\teamserver\documents\for-all.txt";
+            string destinationPath = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(sourcePath)
-                .IncludingDirectory(@"\\teamserver\documents")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
@@ -787,16 +787,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_moving_file_from_extended_path_to_extended_path_it_must_succeed()
         {
             // Arrange
+            string sourcePath = PathFactory.NetworkFileAtDepth(1);
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"\\server\share\summary.doc")
+                .IncludingEmptyFile(sourcePath)
                 .IncludingDirectory(@"c:\work")
                 .Build();
 
             // Act
-            fileSystem.File.Move(@"\\?\UNC\server\share\summary.doc", @"\\?\c:\work\summary.doc");
+            fileSystem.File.Move(PathFactory.NetworkFileAtDepth(1, true), @"\\?\c:\work\summary.doc");
 
             // Assert
-            fileSystem.File.Exists(@"\\server\share\summary.doc").Should().BeFalse();
+            fileSystem.File.Exists(sourcePath).Should().BeFalse();
             fileSystem.File.Exists(@"c:\work\summary.doc").Should().BeTrue();
         }
     }

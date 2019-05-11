@@ -331,7 +331,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            bool found = fileSystem.File.Exists(@"\\teamshare\documents");
+            bool found = fileSystem.File.Exists(PathFactory.NetworkShare());
 
             // Assert
             found.Should().BeFalse();
@@ -345,7 +345,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 .Build();
 
             // Act
-            bool found = fileSystem.File.Exists(@"\\teamshare\documents\some.doc");
+            bool found = fileSystem.File.Exists(PathFactory.NetworkFileAtDepth(1));
 
             // Assert
             found.Should().BeFalse();
@@ -356,11 +356,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\teamshare\documents")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            bool found = fileSystem.File.Exists(@"\\teamshare\documents\some.doc");
+            bool found = fileSystem.File.Exists(PathFactory.NetworkFileAtDepth(1));
 
             // Assert
             found.Should().BeFalse();
@@ -370,7 +370,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_getting_file_existence_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\teamshare\documents\work.doc";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(path)

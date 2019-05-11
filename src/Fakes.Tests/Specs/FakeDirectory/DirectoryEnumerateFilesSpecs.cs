@@ -197,7 +197,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", @"\\server\share");
+            Action action = () => fileSystem.Directory.EnumerateFiles(@"c:\", PathFactory.NetworkShare());
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(
@@ -825,7 +825,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_enumerating_files_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -841,7 +841,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_enumerating_files_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\team";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -857,16 +857,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_enumerating_files_for_missing_remote_directory_it_must_fail()
         {
             // Arrange
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.EnumerateFiles(@"\\server\share\team");
+            Action action = () => fileSystem.Directory.EnumerateFiles(path);
 
             // Assert
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
-                @"Could not find a part of the path '\\server\share\team'.");
+                $"Could not find a part of the path '{path}'.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -874,14 +876,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"\\server\share\team\work.doc")
+                .IncludingEmptyFile(PathFactory.NetworkFileAtDepth(2))
                 .Build();
 
             // Act
-            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"\\server\share\team");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(PathFactory.NetworkDirectoryAtDepth(1));
 
             // Assert
-            files.Should().ContainSingle(x => x == @"\\server\share\team\work.doc");
+            files.Should().ContainSingle(x => x == PathFactory.NetworkFileAtDepth(2, false));
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -903,14 +905,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(@"\\server\share\team\work.doc")
+                .IncludingEmptyFile(PathFactory.NetworkFileAtDepth(2))
                 .Build();
 
             // Act
-            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(@"\\?\UNC\server\share\team");
+            IEnumerable<string> files = fileSystem.Directory.EnumerateFiles(PathFactory.NetworkDirectoryAtDepth(1, true));
 
             // Assert
-            files.Should().ContainSingle(x => x == @"\\?\UNC\server\share\team\work.doc");
+            files.Should().ContainSingle(x => x == PathFactory.NetworkFileAtDepth(2, true));
         }
     }
 }

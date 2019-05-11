@@ -309,7 +309,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = factory.MapPath(@"\\ServerName\ShareName", false);
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -323,13 +323,13 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_deleting_existing_network_share_it_must_fail(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = factory.MapPath(@"\\ServerName\ShareName");
+                string path = factory.MapPath(PathFactory.NetworkShare());
 
                 IFileSystem fileSystem = factory.Create()
                     .IncludingDirectory(path)
@@ -347,7 +347,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_deleting_file_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\teamshare\folder\doc.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -366,7 +366,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = factory.MapPath(@"\\ServerName\ShareName\doc.txt");
+                string path = factory.MapPath(PathFactory.NetworkFileAtDepth(1));
 
                 IFileSystem fileSystem = factory.Create()
                     .IncludingEmptyFile(path)

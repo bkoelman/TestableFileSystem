@@ -465,7 +465,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                const string path = @"\\server\share";
+                string path = PathFactory.NetworkShare();
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -477,7 +477,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
                     Action action = () => watcher.Path = path;
 
                     // Assert
-                    action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The directory name '\\server\share' does not exist.*");
+                    action.Should().ThrowExactly<ArgumentException>().WithMessage($"The directory name '{path}' does not exist.*");
                 }
             }
         }
@@ -489,7 +489,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = factory.MapPath(@"\\ServerName\ShareName\file.txt", false);
+                string path = factory.MapPath(PathFactory.NetworkFileAtDepth(1), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -510,7 +510,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         private void When_setting_path_to_existing_network_share_it_must_raise_events()
         {
             // Arrange
-            const string directoryToWatch = @"\\server\share";
+            string directoryToWatch = PathFactory.NetworkShare();
             const string fileNameToUpdate = "file.txt";
 
             string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);
@@ -548,10 +548,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         private void When_setting_path_to_missing_remote_directory_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\MissingFolder";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())
@@ -562,7 +562,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
 
                 // Assert
                 action.Should().ThrowExactly<ArgumentException>().WithMessage(
-                    @"The directory name '\\server\share\MissingFolder' does not exist.*");
+                    $"The directory name '{path}' does not exist.*");
             }
         }
 
@@ -570,7 +570,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         private void When_setting_path_to_existing_remote_directory_it_must_raise_events()
         {
             // Arrange
-            const string directoryToWatch = @"\\server\share\Subfolder";
+            string directoryToWatch = PathFactory.NetworkDirectoryAtDepth(1);
             const string fileNameToUpdate = "file.txt";
 
             string pathToFileToUpdate = Path.Combine(directoryToWatch, fileNameToUpdate);

@@ -224,7 +224,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectoryInfo
             IDirectoryInfo dirInfo = fileSystem.ConstructDirectoryInfo(path);
 
             // Act
-            Action action = () => dirInfo.CreateSubdirectory(@"\\server\share\folder");
+            Action action = () => dirInfo.CreateSubdirectory(PathFactory.NetworkDirectoryAtDepth(1));
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(

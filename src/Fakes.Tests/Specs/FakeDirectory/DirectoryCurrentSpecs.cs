@@ -223,7 +223,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_current_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\team";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -239,15 +239,17 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_setting_current_directory_to_existing_remote_directory_it_must_succeed()
         {
             // Arrange
+            string path = PathFactory.NetworkShare();
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\docserver\teams")
+                .IncludingDirectory(path)
                 .Build();
 
             // Act
-            fileSystem.Directory.SetCurrentDirectory(@"\\docserver\teams");
+            fileSystem.Directory.SetCurrentDirectory(path);
 
             // Assert
-            fileSystem.Directory.GetCurrentDirectory().Should().Be(@"\\docserver\teams");
+            fileSystem.Directory.GetCurrentDirectory().Should().Be(path);
         }
 
         [Fact, InvestigateRunOnFileSystem]

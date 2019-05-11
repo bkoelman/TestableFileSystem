@@ -306,7 +306,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
         private void When_getting_full_path_for_remote_path_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\hostname\share\folder\sub\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(3);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -322,7 +322,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
         private void When_getting_full_path_for_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\hostname\share";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -342,7 +342,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Path.GetFullPath(@"\\hostname");
+            Action action = () => fileSystem.Path.GetFullPath(PathFactory.NetworkHostWithoutShare());
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
@@ -382,7 +382,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
         private void When_getting_full_path_for_extended_remote_path_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\?\UNC\hostname\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1, true);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();

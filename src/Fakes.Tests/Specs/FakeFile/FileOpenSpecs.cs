@@ -781,7 +781,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_opening_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -797,7 +797,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_opening_existing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -814,7 +814,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_opening_file_on_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -830,22 +830,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_opening_missing_remote_file_it_must_fail()
         {
             // Arrange
+            string path = PathFactory.NetworkFileAtDepth(1);
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Open(@"\\server\share\file.txt", FileMode.Open);
+            Action action = () => fileSystem.File.Open(path, FileMode.Open);
 
             // Assert
-            action.Should().ThrowExactly<FileNotFoundException>().WithMessage(@"Could not find file '\\server\share\file.txt'.");
+            action.Should().ThrowExactly<FileNotFoundException>().WithMessage($"Could not find file '{path}'.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_opening_existing_remote_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(path, DefaultContents)

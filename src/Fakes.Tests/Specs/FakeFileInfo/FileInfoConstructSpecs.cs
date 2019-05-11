@@ -646,7 +646,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = factory.MapPath(@"\\ServerName\ShareName", false);
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -690,7 +690,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private void When_constructing_file_info_for_file_below_missing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -699,10 +699,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             // Assert
-            fileInfo.Name.Should().BeEmpty();
-            fileInfo.Extension.Should().BeEmpty();
+            fileInfo.Name.Should().Be(PathFactory.FileName);
+            fileInfo.Extension.Should().Be(PathFactory.FileExtension);
             fileInfo.FullName.Should().Be(path);
-            fileInfo.DirectoryName.Should().BeNull();
+            fileInfo.DirectoryName.Should().Be(PathFactory.NetworkShare());
             fileInfo.Exists.Should().BeFalse();
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().ThrowExactly<IOException>()
                 .WithMessage($"The network path was not found. : '{path}'");
@@ -726,30 +726,33 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
 
             fileInfo.ToString().Should().Be(path);
 
-            fileInfo.Directory.Should().BeNull();
+            IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
+            directoryInfo.Name.Should().Be(PathFactory.NetworkShare());
+            directoryInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            directoryInfo.ToString().Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_missing_remote_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
             IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             // Assert
-            fileInfo.Name.Should().Be("file.txt");
-            fileInfo.Extension.Should().Be(".txt");
+            fileInfo.Name.Should().Be(PathFactory.FileName);
+            fileInfo.Extension.Should().Be(PathFactory.FileExtension);
             fileInfo.FullName.Should().Be(path);
-            fileInfo.DirectoryName.Should().Be(@"\\server\share");
+            fileInfo.DirectoryName.Should().Be(PathFactory.NetworkShare());
             fileInfo.Exists.Should().BeFalse();
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().ThrowExactly<FileNotFoundException>()
-                .WithMessage(@"Could not find file '\\server\share\file.txt'.");
+                .WithMessage($"Could not find file '{path}'.");
             fileInfo.IsReadOnly.Should().BeTrue();
             fileInfo.Attributes.Should().Be(MissingEntryAttributes);
 
@@ -763,16 +766,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.ToString().Should().Be(path);
 
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
-            directoryInfo.Name.Should().Be(@"\\server\share");
-            directoryInfo.FullName.Should().Be(@"\\server\share");
-            directoryInfo.ToString().Should().Be(@"\\server\share");
+            directoryInfo.Name.Should().Be(PathFactory.NetworkShare());
+            directoryInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            directoryInfo.ToString().Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_constructing_file_info_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            string path = PathFactory.NetworkFileAtDepth(1);
 
             DateTime creationTimeUtc = 17.March(2006).At(14, 03, 53).AsUtc();
             var clock = new SystemClock(() => creationTimeUtc);
@@ -795,10 +798,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             // Assert
-            fileInfo.Name.Should().Be("file.txt");
-            fileInfo.Extension.Should().Be(".txt");
+            fileInfo.Name.Should().Be( PathFactory.FileName);
+            fileInfo.Extension.Should().Be(PathFactory.FileExtension);
             fileInfo.FullName.Should().Be(path);
-            fileInfo.DirectoryName.Should().Be(@"\\server\share");
+            fileInfo.DirectoryName.Should().Be(PathFactory.NetworkShare());
             fileInfo.Exists.Should().BeTrue();
             fileInfo.Length.Should().Be(DefaultContents.Length);
             fileInfo.IsReadOnly.Should().BeFalse();
@@ -814,9 +817,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             fileInfo.ToString().Should().Be(path);
 
             IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
-            directoryInfo.Name.Should().Be(@"\\server\share");
-            directoryInfo.FullName.Should().Be(@"\\server\share");
-            directoryInfo.ToString().Should().Be(@"\\server\share");
+            directoryInfo.Name.Should().Be(PathFactory.NetworkShare());
+            directoryInfo.FullName.Should().Be(PathFactory.NetworkShare());
+            directoryInfo.ToString().Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]

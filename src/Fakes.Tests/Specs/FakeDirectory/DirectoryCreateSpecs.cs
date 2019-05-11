@@ -267,7 +267,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_creating_remote_current_directory_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\documents";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(path)
@@ -420,7 +420,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_creating_network_host_without_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\fileserver";
+            string path = PathFactory.NetworkHostWithoutShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -436,7 +436,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_creating_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\fileserver\documents";
+            string path = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -446,14 +446,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
 
             // Assert
             action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
-                @"Could not find a part of the path '\\fileserver\documents'.");
+                $"Could not find a part of the path '{path}'.");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_creating_directory_below_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string path = @"\\ServerName\ShareName\team";
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -469,16 +469,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_creating_remote_directory_tree_it_must_succeed()
         {
             // Arrange
+            string path = PathFactory.NetworkDirectoryAtDepth(3);
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\teamshare\folder")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            IDirectoryInfo info = fileSystem.Directory.CreateDirectory(@"\\teamshare\folder\documents\for\us");
+            IDirectoryInfo info = fileSystem.Directory.CreateDirectory(path);
 
             // Assert
             info.Should().NotBeNull();
-            fileSystem.Directory.Exists(@"\\teamshare\folder\documents\for\us").Should().BeTrue();
+            fileSystem.Directory.Exists(path).Should().BeTrue();
         }
 
         [Fact, InvestigateRunOnFileSystem]

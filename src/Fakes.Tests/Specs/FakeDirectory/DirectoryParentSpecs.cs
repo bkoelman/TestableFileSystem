@@ -247,7 +247,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = factory.MapPath(@"\\ServerName\ShareName", false);
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -268,11 +268,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\ServerName\ShareName\file.txt");
+            IDirectoryInfo parent = fileSystem.Directory.GetParent(PathFactory.NetworkDirectoryAtDepth(1));
 
             // Assert
             IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
-            parentNotNull.FullName.Should().Be(@"\\ServerName\ShareName");
+            parentNotNull.FullName.Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -280,15 +280,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\server\share\file.txt");
+            IDirectoryInfo parent = fileSystem.Directory.GetParent(PathFactory.NetworkFileAtDepth(1));
 
             // Assert
             IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
-            parentNotNull.FullName.Should().Be(@"\\server\share");
+            parentNotNull.FullName.Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -296,15 +296,15 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\server\share\file.txt");
+            IDirectoryInfo parent = fileSystem.Directory.GetParent(PathFactory.NetworkFileAtDepth(1));
 
             // Assert
             IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
-            parentNotNull.FullName.Should().Be(@"\\server\share");
+            parentNotNull.FullName.Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -345,11 +345,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            IDirectoryInfo parent = fileSystem.Directory.GetParent(@"\\?\UNC\server\share\folder\file.txt");
+            IDirectoryInfo parent = fileSystem.Directory.GetParent(PathFactory.NetworkFileAtDepth(2, true));
 
             // Assert
             IDirectoryInfo parentNotNull = parent.ShouldNotBeNull();
-            parentNotNull.FullName.Should().Be(@"\\?\UNC\server\share\folder");
+            parentNotNull.FullName.Should().Be(PathFactory.NetworkDirectoryAtDepth(1, true));
         }
     }
 }

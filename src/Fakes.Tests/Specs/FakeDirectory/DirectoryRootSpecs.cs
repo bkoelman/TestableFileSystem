@@ -223,7 +223,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = factory.MapPath(@"\\ServerName\ShareName", false);
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -244,10 +244,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string root = fileSystem.Directory.GetDirectoryRoot(@"\\ServerName\ShareName\file.txt");
+            string root = fileSystem.Directory.GetDirectoryRoot(PathFactory.NetworkFileAtDepth(1));
 
             // Assert
-            root.Should().Be(@"\\ServerName\ShareName");
+            root.Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -255,14 +255,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            string root = fileSystem.Directory.GetDirectoryRoot(@"\\server\share\file.txt");
+            string root = fileSystem.Directory.GetDirectoryRoot(PathFactory.NetworkFileAtDepth(1));
 
             // Assert
-            root.Should().Be(@"\\server\share");
+            root.Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -270,14 +270,14 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"\\server\share")
+                .IncludingDirectory(PathFactory.NetworkShare())
                 .Build();
 
             // Act
-            string root = fileSystem.Directory.GetDirectoryRoot(@"\\server\share\file.txt");
+            string root = fileSystem.Directory.GetDirectoryRoot(PathFactory.NetworkFileAtDepth(1));
 
             // Assert
-            root.Should().Be(@"\\server\share");
+            root.Should().Be(PathFactory.NetworkShare());
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -317,10 +317,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 .Build();
 
             // Act
-            string root = fileSystem.Directory.GetDirectoryRoot(@"\\?\UNC\server\share\folder\file.txt");
+            string root = fileSystem.Directory.GetDirectoryRoot(PathFactory.NetworkFileAtDepth(2, true));
 
             // Assert
-            root.Should().Be(@"\\?\UNC\server\share");
+            root.Should().Be(PathFactory.NetworkShare(true));
         }
     }
 }

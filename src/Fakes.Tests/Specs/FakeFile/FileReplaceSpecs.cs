@@ -1012,8 +1012,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_replacing_file_for_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string sourcePath = @"\\server\share\source.txt";
-            const string targetPath = @"\\server\share\target.txt";
+            string sourcePath = PathFactory.NetworkFileAtDepth(1);
+            string targetPath = PathFactory.AltNetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -1029,9 +1029,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_replacing_file_for_backup_on_missing_network_share_it_must_fail()
         {
             // Arrange
-            const string sourcePath = @"\\server\share\source.txt";
-            const string targetPath = @"\\server\share\target.txt";
-            const string backupPath = @"\\missing-server\share\backup.txt";
+            string sourcePath = PathFactory.NetworkFileAtDepth(1);
+            string targetPath = PathFactory.AltNetworkFileAtDepth(1);
+            string backupPath = Path.Combine(PathFactory.AltNetworkShare(), "backup.txt");
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(sourcePath, "SourceText")
@@ -1049,9 +1049,9 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         private void When_replacing_file_for_existing_network_share_it_must_succeed()
         {
             // Arrange
-            const string sourcePath = @"\\server\share\source.txt";
-            const string targetPath = @"\\server\share\target.txt";
-            const string backupPath = @"\\server\share\backup.txt";
+            string sourcePath = PathFactory.NetworkFileAtDepth(1);
+            string targetPath = PathFactory.AltNetworkFileAtDepth(1);
+            string backupPath = PathFactory.AltAltNetworkFileAtDepth(1);
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingTextFile(sourcePath, "SourceText")

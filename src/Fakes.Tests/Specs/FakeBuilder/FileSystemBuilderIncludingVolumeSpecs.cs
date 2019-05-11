@@ -84,7 +84,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         [InlineData(@"?:\")]
         [InlineData(@"c:\some")]
         [InlineData(@"some\folder")]
-        [InlineData(@"\\server\share\folder")]
+        [InlineData(@"\\ServerName\ShareName\folder")]
         private void When_including_volume_for_invalid_name_it_must_fail([NotNull] string driveName)
         {
             // Arrange
@@ -101,8 +101,8 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         [InlineData("F:")]
         [InlineData(@"F:\")]
         [InlineData(@"\\?\F:\")]
-        [InlineData(@"\\server\share")]
-        [InlineData(@"\\?\UNC\server\share")]
+        [InlineData(@"\\ServerName\ShareName")]
+        [InlineData(@"\\?\UNC\ServerName\ShareName")]
         private void When_including_volume_for_drive_or_network_share_it_must_succeed([NotNull] string driveName)
         {
             // Arrange
@@ -124,7 +124,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingVolume(@"\\fileserver", new FakeVolumeInfoBuilder());
+            Action action = () => builder.IncludingVolume(PathFactory.NetworkHostWithoutShare(), new FakeVolumeInfoBuilder());
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
