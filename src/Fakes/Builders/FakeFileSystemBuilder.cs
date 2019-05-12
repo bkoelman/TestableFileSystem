@@ -145,7 +145,17 @@ namespace TestableFileSystem.Fakes.Builders
         [NotNull]
         private static string GetVolumeName([NotNull] AbsolutePath path)
         {
+            AssertIsNotBrokenNetworkShare(path);
+
             return path.IsOnLocalDrive ? path.VolumeName.ToUpperInvariant() : path.VolumeName;
+        }
+
+        private static void AssertIsNotBrokenNetworkShare([NotNull] AbsolutePath path)
+        {
+            if (path.IsBrokenNetworkShare)
+            {
+                throw ErrorFactory.System.UncPathIsInvalid();
+            }
         }
 
         [NotNull]

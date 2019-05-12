@@ -21,7 +21,10 @@ namespace TestableFileSystem.Fakes.Handlers
             FileAccess fileAccess = DetectFileAccess(arguments);
             AssertValidCombinationOfModeWithAccess(arguments.Mode, fileAccess);
 
-            var resolver = new FileResolver(Container);
+            var resolver = new FileResolver(Container)
+            {
+                ErrorPathIsVolumeRoot = ErrorFactory.System.UnauthorizedAccess
+            };
             FileResolveResult resolveResult = resolver.TryResolveFile(arguments.Path);
 
             return resolveResult.ExistingFileOrNull != null

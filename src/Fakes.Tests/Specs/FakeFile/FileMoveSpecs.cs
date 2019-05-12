@@ -594,17 +594,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             const string sourcePath = @"C:\some\file.txt";
+            const string destinationPath = @"C:\";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(sourcePath)
                 .Build();
 
             // Act
-            Action action = () => fileSystem.File.Move(sourcePath, @"C:\");
+            Action action = () => fileSystem.File.Move(sourcePath, destinationPath);
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
-                "The filename, directory name, or volume label syntax is incorrect.");
+                $"The filename, directory name, or volume label syntax is incorrect. : '{destinationPath}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -741,10 +742,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string sourcePath = @"C:\docs\mine.txt";
             string destinationPath = PathFactory.NetworkFileAtDepth(1);
+            string destinationParentPath = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(sourcePath)
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(destinationParentPath)
                 .Build();
 
             // Act

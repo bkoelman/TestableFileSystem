@@ -25,13 +25,6 @@ namespace TestableFileSystem.Fakes
                 }
 
                 string displayPath = parentPath.Components.Last();
-                if (parentPath.IsVolumeRoot && !parentPath.IsOnLocalDrive)
-                {
-                    // Emulate the bug where a network share is incorrectly broken into parts ("\\server\share" should be a single component, not two).
-                    int lastSeparatorIndex = parentPath.VolumeName.LastIndexOf(Path.DirectorySeparatorChar);
-                    displayPath = parentPath.VolumeName.Substring(lastSeparatorIndex + 1);
-                }
-
                 return Owner.ConstructDirectoryInfo(parentPath, displayPath);
             }
         }

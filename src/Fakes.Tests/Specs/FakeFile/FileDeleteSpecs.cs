@@ -343,20 +343,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_deleting_file_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_deleting_file_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkFileAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkFileAtDepth(1), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Delete(path);
+                // Act
+                Action action = () => fileSystem.File.Delete(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
         [Theory]

@@ -113,6 +113,12 @@ namespace TestableFileSystem.Fakes.Tests
 
         private void CreateDirectory([NotNull] string directory)
         {
+            if (!directory.StartsWith(@"\\", StringComparison.Ordinal) &&
+                !directory.StartsWith(Path.GetTempPath(), StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException($"Error in test: Detected usage of non-mapped local path '{directory}'.");
+            }
+
             owner.EnsureNetworkShareExists(directory);
 
             fileSystem.Directory.CreateDirectory(directory);

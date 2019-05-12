@@ -167,7 +167,8 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorFileFoundAsDirectory = _ => ErrorFactory.System.UnauthorizedAccess(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
-                ErrorPathIsVolumeRoot = _ => ErrorFactory.System.UnauthorizedAccess()
+                ErrorPathIsVolumeRoot = _ => ErrorFactory.System.UnauthorizedAccess(),
+                ErrorNetworkShareNotFound = _ => ErrorFactory.System.NetworkPathNotFound()
             };
             FileEntry file = resolver.ResolveExistingFile(sourcePath);
 

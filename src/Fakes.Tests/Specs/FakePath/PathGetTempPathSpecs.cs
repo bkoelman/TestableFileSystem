@@ -26,9 +26,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
         private void When_getting_default_temp_path_without_drive_C_it_must_succeed()
         {
             // Arrange
+            string path = PathFactory.NetworkShare();
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .WithoutDefaultDriveC()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(path)
                 .IncludingDirectory(@"x:\data")
                 .Build();
 

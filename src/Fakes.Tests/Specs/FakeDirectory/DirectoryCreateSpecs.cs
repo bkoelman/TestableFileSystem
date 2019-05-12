@@ -416,53 +416,65 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Cannot create 'C:\some\file.txt' because a file or directory with the same name already exists.");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_network_host_without_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_network_host_without_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkHostWithoutShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkHostWithoutShare(), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.CreateDirectory(path);
+                // Act
+                Action action = () => fileSystem.Directory.CreateDirectory(path);
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
+                // Assert
+                action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage($"Could not find a part of the path '{path}'.");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.CreateDirectory(path);
+                // Act
+                Action action = () => fileSystem.Directory.CreateDirectory(path);
 
-            // Assert
-            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
-                $"Could not find a part of the path '{path}'.");
+                // Assert
+                action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                    $"Could not find a part of the path '{path}'.");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_directory_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_directory_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkDirectoryAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.CreateDirectory(path);
+                // Act
+                Action action = () => fileSystem.Directory.CreateDirectory(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -470,9 +482,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             string path = PathFactory.NetworkDirectoryAtDepth(3);
+            string parentPath = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act

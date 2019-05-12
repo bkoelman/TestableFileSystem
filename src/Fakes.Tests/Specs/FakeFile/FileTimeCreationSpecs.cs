@@ -9,6 +9,8 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
+    // TODO: Re-align related files with this file.
+
     public sealed class FileTimeCreationSpecs
     {
         private static readonly DateTime DefaultTimeUtc = 1.February(2034).At(12, 34, 56).AsUtc();
@@ -730,9 +732,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             string path = PathFactory.NetworkFileAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act
@@ -747,9 +750,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         {
             // Arrange
             string path = PathFactory.NetworkFileAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act

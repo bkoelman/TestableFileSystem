@@ -239,32 +239,38 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         private void When_enumerating_entries_for_pattern_that_contains_parent_directory_with_asterisk_it_must_fail()
         {
             // Arrange
+            const string path = @"c:\folder";
+            const string pattern = @"fol*\*.*";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"c:\folder")
+                .IncludingDirectory(path)
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(@"c:\folder", @"fol*\*.*");
+            Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(path, pattern);
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
-                "The filename, directory name, or volume label syntax is incorrect.");
+                $"The filename, directory name, or volume label syntax is incorrect. : '{pattern}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_enumerating_entries_for_pattern_that_contains_parent_directory_with_question_it_must_fail()
         {
             // Arrange
+            const string path = @"c:\folder";
+            const string pattern = @"fol?er\*.*";
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(@"c:\folder")
+                .IncludingDirectory(path)
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(@"c:\folder", @"fol?er\*.*");
+            Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(path, pattern);
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
-                "The filename, directory name, or volume label syntax is incorrect.");
+                $"The filename, directory name, or volume label syntax is incorrect. : '{pattern}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -855,36 +861,44 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'P:\folder\sub'.");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_enumerating_entries_for_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_enumerating_entries_for_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(path);
+                // Act
+                Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_enumerating_entries_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_enumerating_entries_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkDirectoryAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(path);
+                // Act
+                Action action = () => fileSystem.Directory.EnumerateFileSystemEntries(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -892,9 +906,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             string path = PathFactory.NetworkDirectoryAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act

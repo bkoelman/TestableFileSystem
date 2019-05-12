@@ -30,6 +30,9 @@ namespace TestableFileSystem.Fakes
 
         public bool IsOnLocalDrive => IsDriveLetter(VolumeName);
 
+        public bool IsBrokenNetworkShare =>
+            !IsOnLocalDrive && VolumeName.IndexOf(PathFacts.PrimaryDirectorySeparatorString, 2, StringComparison.Ordinal) == -1;
+
         public bool IsVolumeRoot => Components.Count == 1;
 
         [NotNull]
@@ -424,18 +427,27 @@ namespace TestableFileSystem.Fakes
             {
                 if (path.StartsWith(@"\\", StringComparison.Ordinal))
                 {
-                    if (components.Count < 4)
+                    if (components.Count >= 3)
                     {
-                        throw ErrorFactory.System.UncPathIsInvalid();
+                        AssertDirectoryNameOrFileNameIsValid(components[2]);
+
+                        if (components.Count >= 4)
+                        {
+                            AssertDirectoryNameOrFileNameIsValid(components[3]);
+
+                            components[3] = TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar + components[3];
+                            components.RemoveRange(0, 3);
+
+                            return true;
+                        }
+
+                        components[2] = TwoDirectorySeparators + components[2];
+                        components.RemoveRange(0, 2);
+
+                        return true;
                     }
 
-                    AssertDirectoryNameOrFileNameIsValid(components[2]);
-                    AssertDirectoryNameOrFileNameIsValid(components[3]);
-
-                    components[3] = TwoDirectorySeparators + components[2] + Path.DirectorySeparatorChar + components[3];
-                    components.RemoveRange(0, 3);
-
-                    return true;
+                    throw ErrorFactory.System.UncPathIsInvalid();
                 }
 
                 return false;

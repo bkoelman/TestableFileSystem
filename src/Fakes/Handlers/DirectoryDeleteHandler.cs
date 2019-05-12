@@ -46,17 +46,16 @@ namespace TestableFileSystem.Fakes.Handlers
         {
             if (arguments.Path.IsVolumeRoot)
             {
-                if (!arguments.Path.IsOnLocalDrive)
+                if (arguments.Path.IsOnLocalDrive)
                 {
-                    throw ErrorFactory.System.FileIsInUse(arguments.Path.GetText());
+                    throw arguments.IsRecursive
+                        ? ErrorFactory.System.FileNotFound(arguments.Path.GetText())
+                        : ErrorFactory.System.DirectoryIsNotEmpty();
                 }
 
-                if (arguments.IsRecursive)
-                {
-                    throw ErrorFactory.System.FileNotFound(arguments.Path.GetText());
-                }
-
-                throw ErrorFactory.System.DirectoryIsNotEmpty();
+                throw arguments.IsRecursive
+                    ? ErrorFactory.System.DirectoryNotFound(arguments.Path.GetText())
+                    : ErrorFactory.System.FileIsInUse(arguments.Path.GetText());
             }
         }
 

@@ -601,68 +601,84 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
                 @"Could not find a part of the path 'c:\some\file.txt\nested\more'.");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_last_write_time_in_local_zone_for_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_last_write_time_in_local_zone_for_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkShare();
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.GetLastWriteTime(path);
+                // Act
+                Action action = () => fileSystem.Directory.GetLastWriteTime(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_write_time_in_local_zone_for_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_write_time_in_local_zone_for_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkShare();
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
+                // Act
+                Action action = () => fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_last_write_time_in_local_zone_for_directory_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_last_write_time_in_local_zone_for_directory_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkDirectoryAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkDirectoryAtDepth(1);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.GetLastWriteTime(path);
+                // Act
+                Action action = () => fileSystem.Directory.GetLastWriteTime(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_write_time_in_local_zone_for_directory_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_write_time_in_local_zone_for_directory_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkDirectoryAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkDirectoryAtDepth(1);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
+                // Act
+                Action action = () => fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -684,21 +700,25 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             time.Should().Be(DefaultTime);
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_write_time_in_local_zone_for_existing_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_write_time_in_local_zone_for_existing_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare());
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(path)
+                    .Build();
 
-            // Act
-            fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
+                // Act
+                fileSystem.Directory.SetLastWriteTime(path, DefaultTime);
 
-            // Assert
-            fileSystem.Directory.GetLastWriteTime(path).Should().Be(DefaultTime);
+                // Assert
+                fileSystem.Directory.GetLastWriteTime(path).Should().Be(DefaultTime);
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

@@ -7,7 +7,7 @@ namespace TestableFileSystem.Fakes.Tests
     internal static class PathFactory
     {
         private const string UncServerName = "ServerName";
-        public const string UncShareName = "ShareName";
+        private const string UncShareName = "ShareName";
         public const string DirectoryNameAtDepth1 = "TopFolder";
         private const string DirectoryNameAtDepth2 = "SubFolder";
         private const string DirectoryNameAtDepth3 = "SubSubFolder";

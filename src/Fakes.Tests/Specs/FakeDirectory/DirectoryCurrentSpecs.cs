@@ -219,20 +219,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.GetCurrentDirectory().Should().Be(@"C:\some\FOLDER");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_current_directory_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_current_directory_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkDirectoryAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.SetCurrentDirectory(path);
+                // Act
+                Action action = () => fileSystem.Directory.SetCurrentDirectory(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

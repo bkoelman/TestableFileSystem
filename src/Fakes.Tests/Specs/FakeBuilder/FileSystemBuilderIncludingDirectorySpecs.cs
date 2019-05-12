@@ -268,10 +268,12 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
         private void When_including_network_host_without_share_it_must_fail()
         {
             // Arrange
+            string path = PathFactory.NetworkHostWithoutShare();
+
             var builder = new FakeFileSystemBuilder();
 
             // Act
-            Action action = () => builder.IncludingDirectory(PathFactory.NetworkHostWithoutShare());
+            Action action = () => { builder.IncludingDirectory(path); };
 
             // Assert
             action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");

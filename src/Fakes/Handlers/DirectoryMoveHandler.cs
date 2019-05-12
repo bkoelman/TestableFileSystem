@@ -75,7 +75,8 @@ namespace TestableFileSystem.Fakes.Handlers
             var resolver = new DirectoryResolver(Container)
             {
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
-                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound()
+                ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
+                ErrorNetworkShareNotFound = ErrorFactory.System.DirectoryNotFound
             };
 
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -140,7 +141,7 @@ namespace TestableFileSystem.Fakes.Handlers
             AbsolutePath parentPath = path.TryGetParentPath();
             if (parentPath == null)
             {
-                throw ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect();
+                throw ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect(path.GetText());
             }
 
             return parentPath;

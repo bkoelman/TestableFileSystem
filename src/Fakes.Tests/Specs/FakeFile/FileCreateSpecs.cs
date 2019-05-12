@@ -410,55 +410,68 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Create(path);
-
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
-        }
-
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_remote_file_on_missing_network_share_it_must_fail()
-        {
-            // Arrange
-            string path = PathFactory.NetworkFileAtDepth(1);
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
-
-            // Act
-            Action action = () => fileSystem.File.Create(path);
-
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
-        }
-
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_remote_file_on_existing_network_share_it_must_succeed()
-        {
-            // Arrange
-            string path = PathFactory.NetworkFileAtDepth(1);
-
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
-                .Build();
-
-            // Act
-            using (fileSystem.File.Create(path))
+            using (var factory = new FileSystemBuilderFactory(useFakes))
             {
-            }
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
-            // Assert
-            fileSystem.File.Exists(path).Should().BeTrue();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                // Act
+                Action action = () => fileSystem.File.Create(path);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
+        }
+
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_remote_file_on_missing_network_share_it_must_fail(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkFileAtDepth(1), false);
+
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
+
+                // Act
+                Action action = () => fileSystem.File.Create(path);
+
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
+        }
+
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_remote_file_on_existing_network_share_it_must_succeed(bool useFakes)
+        {
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkFileAtDepth(1));
+                string parentPath = factory.MapPath(PathFactory.NetworkShare());
+
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(parentPath)
+                    .Build();
+
+                // Act
+                using (fileSystem.File.Create(path))
+                {
+                }
+
+                // Assert
+                fileSystem.File.Exists(path).Should().BeTrue();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

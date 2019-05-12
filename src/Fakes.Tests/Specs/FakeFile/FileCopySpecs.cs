@@ -770,10 +770,11 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             // Arrange
             const string sourcePath = @"C:\docs\mine.txt";
             string destinationPath = PathFactory.NetworkFileAtDepth(1);
+            string destinationParentPath = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingEmptyFile(sourcePath)
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(destinationParentPath)
                 .Build();
 
             // Act

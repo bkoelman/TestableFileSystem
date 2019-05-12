@@ -236,48 +236,61 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_root_on_file_below_missing_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_root_on_file_below_missing_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkFileAtDepth(1), false);
+                string parentPath = factory.MapPath(PathFactory.NetworkShare(), false);
 
-            // Act
-            string root = fileSystem.Directory.GetDirectoryRoot(PathFactory.NetworkFileAtDepth(1));
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Assert
-            root.Should().Be(PathFactory.NetworkShare());
+                // Act
+                string root = fileSystem.Directory.GetDirectoryRoot(path);
+
+                // Assert
+                root.Should().Be(parentPath);
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_root_for_missing_remote_file_it_must_succeed()
         {
             // Arrange
+            string path = PathFactory.NetworkFileAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act
-            string root = fileSystem.Directory.GetDirectoryRoot(PathFactory.NetworkFileAtDepth(1));
+            string root = fileSystem.Directory.GetDirectoryRoot(path);
 
             // Assert
-            root.Should().Be(PathFactory.NetworkShare());
+            root.Should().Be(parentPath);
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_root_for_existing_remote_file_it_must_succeed()
         {
             // Arrange
+            string path = PathFactory.NetworkFileAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act
-            string root = fileSystem.Directory.GetDirectoryRoot(PathFactory.NetworkFileAtDepth(1));
+            string root = fileSystem.Directory.GetDirectoryRoot(path);
 
             // Assert
-            root.Should().Be(PathFactory.NetworkShare());
+            root.Should().Be(parentPath);
         }
 
         [Fact, InvestigateRunOnFileSystem]

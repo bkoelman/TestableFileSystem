@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
 using TestableFileSystem.Fakes.Builders;
@@ -98,11 +99,7 @@ namespace TestableFileSystem.Fakes.Tests
             string hostKey = fakeToHostUncMap[fakeKey];
             ShareCreationStatus shareStatus = networkShares[hostKey];
 
-            string serverShareName = networkPath.IsExtended
-                ? @"\\?\UNC\" + shareStatus.ServerName + @"\" + shareStatus.ShareName
-                : @"\\" + shareStatus.ServerName + @"\" + shareStatus.ShareName;
-
-            return Path.Combine(serverShareName, networkPath.RelativePath);
+            return shareStatus.FormatPath(networkPath.RelativePath, networkPath.IsExtended);
         }
 
         private void EnsureEntryInFakeToHostUncMap([NotNull] string fakeKey, [NotNull] NetworkPath networkPath,
@@ -113,8 +110,10 @@ namespace TestableFileSystem.Fakes.Tests
                 return;
             }
 
-            string serverName = mapToCurrentHost ? Environment.MachineName : networkPath.ServerName;
-            string shareName = mapToCurrentHost ? Guid.NewGuid().ToString("N") : networkPath.ShareName;
+            string serverName = mapToCurrentHost ? Environment.MachineName : networkPath.ServerName + "X";
+            string shareName = mapToCurrentHost && networkPath.ShareName != string.Empty
+                ? Guid.NewGuid().ToString("N")
+                : networkPath.ShareName;
 
             string hostKey = "Share-" + serverName + "-" + shareName;
             fakeToHostUncMap[fakeKey] = hostKey;
@@ -132,7 +131,12 @@ namespace TestableFileSystem.Fakes.Tests
 
             string hostKey = "Share-" + networkPath.ServerName + "-" + networkPath.ShareName;
 
-            if (!networkShares.ContainsKey(hostKey) || networkShares[hostKey].IsCreated)
+            if (!networkShares.ContainsKey(hostKey))
+            {
+                throw new InvalidOperationException($"Error in test: Detected usage of non-mapped network path '{path}'.");
+            }
+
+            if (networkShares[hostKey].IsCreated)
             {
                 return;
             }
@@ -235,9 +239,13 @@ namespace TestableFileSystem.Fakes.Tests
 
             public bool IsExtended { get; }
 
-            private NetworkPath([NotNull] string serverName, [NotNull] string shareName, [NotNull] string relativePath,
+            public NetworkPath([NotNull] string serverName, [NotNull] string shareName, [NotNull] string relativePath,
                 bool isExtended)
             {
+                Guard.NotNull(serverName, nameof(serverName));
+                Guard.NotNull(shareName, nameof(shareName));
+                Guard.NotNull(relativePath, nameof(relativePath));
+
                 ServerName = serverName;
                 ShareName = shareName;
                 RelativePath = relativePath;
@@ -263,29 +271,59 @@ namespace TestableFileSystem.Fakes.Tests
                     Path.AltDirectorySeparatorChar
                 }, offset);
 
+                string serverName;
+                string shareName;
+                string relativePath;
+
                 if (serverShareSeparatorIndex == -1)
                 {
-                    return null;
+                    serverName = path.Substring(offset);
+                    shareName = string.Empty;
+                    relativePath = string.Empty;
+                }
+                else
+                {
+                    int sharePathSeparatorIndex = path.IndexOfAny(new[]
+                    {
+                        Path.DirectorySeparatorChar,
+                        Path.AltDirectorySeparatorChar
+                    }, serverShareSeparatorIndex + 1);
+
+                    serverName = path.Substring(offset, serverShareSeparatorIndex - offset);
+
+                    shareName = sharePathSeparatorIndex == -1
+                        ? path.Substring(serverShareSeparatorIndex + 1)
+                        : path.Substring(serverShareSeparatorIndex + 1,
+                            sharePathSeparatorIndex - serverShareSeparatorIndex - 1);
+
+                    relativePath = sharePathSeparatorIndex == -1
+                        ? string.Empty
+                        : path.Substring(sharePathSeparatorIndex + 1);
                 }
 
-                int sharePathSeparatorIndex = path.IndexOfAny(new[]
-                {
-                    Path.DirectorySeparatorChar,
-                    Path.AltDirectorySeparatorChar
-                }, serverShareSeparatorIndex + 1);
-
-                string serverName = path.Substring(offset, serverShareSeparatorIndex - offset);
-
-                string shareName = sharePathSeparatorIndex == -1
-                    ? path.Substring(serverShareSeparatorIndex + 1)
-                    : path.Substring(serverShareSeparatorIndex + 1,
-                        sharePathSeparatorIndex - serverShareSeparatorIndex - 1);
-
-                string relativePath = sharePathSeparatorIndex == -1
-                    ? string.Empty
-                    : path.Substring(sharePathSeparatorIndex + 1);
-
                 return new NetworkPath(serverName, shareName, relativePath, offset == 8);
+            }
+
+            public override string ToString()
+            {
+                var builder = new StringBuilder();
+
+                builder.Append(IsExtended ? @"\\?\UNC\" : @"\\");
+                builder.Append(ServerName);
+
+                if (ShareName != string.Empty)
+                {
+                    builder.Append(Path.DirectorySeparatorChar);
+                    builder.Append(ShareName);
+
+                    if (RelativePath != string.Empty)
+                    {
+                        builder.Append(Path.DirectorySeparatorChar);
+                        builder.Append(RelativePath);
+                    }
+                }
+
+                return builder.ToString();
             }
         }
 
@@ -309,6 +347,15 @@ namespace TestableFileSystem.Fakes.Tests
                 ServerName = serverName;
                 ShareName = shareName;
                 CanBeCreated = canBeCreated;
+            }
+
+            [NotNull]
+            public string FormatPath([NotNull] string relativePath, bool isExtended)
+            {
+                Guard.NotNull(relativePath, nameof(relativePath));
+
+                var networkPath = new NetworkPath(ServerName, ShareName, relativePath, isExtended);
+                return networkPath.ToString();
             }
         }
     }

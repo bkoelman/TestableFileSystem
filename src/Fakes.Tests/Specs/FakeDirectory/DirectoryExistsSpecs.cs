@@ -282,44 +282,59 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             found.Should().BeFalse();
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_existence_for_missing_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_existence_for_missing_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
-            // Act
-            bool found = fileSystem.Directory.Exists(PathFactory.NetworkShare());
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Assert
-            found.Should().BeFalse();
+                // Act
+                bool found = fileSystem.Directory.Exists(path);
+
+                // Assert
+                found.Should().BeFalse();
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_directory_existence_for_directory_below_missing_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_directory_existence_for_directory_below_missing_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1), false);
 
-            // Act
-            bool found = fileSystem.Directory.Exists( PathFactory.NetworkDirectoryAtDepth(1));
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Assert
-            found.Should().BeFalse();
+                // Act
+                bool found = fileSystem.Directory.Exists(path);
+
+                // Assert
+                found.Should().BeFalse();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_getting_directory_existence_for_missing_remote_directory_it_must_succeed()
         {
             // Arrange
+            string path = PathFactory.NetworkDirectoryAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
+
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act
-            bool found = fileSystem.Directory.Exists(PathFactory.NetworkDirectoryAtDepth(1));
+            bool found = fileSystem.Directory.Exists(path);
 
             // Assert
             found.Should().BeFalse();

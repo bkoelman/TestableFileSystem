@@ -72,7 +72,7 @@ namespace TestableFileSystem.Fakes.Handlers
                 ErrorDirectoryFoundAsFile = _ => ErrorFactory.System.DirectoryNotFound(),
                 ErrorLastDirectoryFoundAsFile = _ => ErrorFactory.System.ParameterIsIncorrect(),
                 ErrorDirectoryNotFound = _ => ErrorFactory.System.DirectoryNotFound(),
-                ErrorPathIsVolumeRoot = _ => ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect(),
+                ErrorPathIsVolumeRoot = ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect,
                 ErrorFileExists = _ => ErrorFactory.System.CannotCreateFileBecauseFileAlreadyExists()
             };
 

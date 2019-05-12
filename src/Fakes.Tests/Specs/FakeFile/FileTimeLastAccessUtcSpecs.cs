@@ -603,68 +603,84 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_last_access_time_in_UTC_for_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_last_access_time_in_UTC_for_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkShare();
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.GetLastAccessTimeUtc(path);
+                // Act
+                Action action = () => fileSystem.File.GetLastAccessTimeUtc(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_access_time_in_UTC_for_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_access_time_in_UTC_for_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkShare();
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, DefaultTimeUtc);
+                // Act
+                Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, DefaultTimeUtc);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_last_access_time_in_UTC_for_file_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_last_access_time_in_UTC_for_file_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkFileAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkFileAtDepth(1);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.GetLastAccessTimeUtc(path);
+                // Act
+                Action action = () => fileSystem.File.GetLastAccessTimeUtc(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_access_time_in_UTC_for_file_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_access_time_in_UTC_for_file_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkFileAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkFileAtDepth(1);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, DefaultTimeUtc);
+                // Act
+                Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, DefaultTimeUtc);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -686,22 +702,26 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             time.Should().Be(DefaultTimeUtc);
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_setting_last_access_time_in_UTC_for_existing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_setting_last_access_time_in_UTC_for_existing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare());
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(path)
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, DefaultTimeUtc);
+                // Act
+                Action action = () => fileSystem.File.SetLastAccessTimeUtc(path, DefaultTimeUtc);
 
-            // Assert
-            action.Should().ThrowExactly<UnauthorizedAccessException>()
-                .WithMessage($"Access to the path '{path}' is denied.");
+                // Assert
+                action.Should().ThrowExactly<UnauthorizedAccessException>()
+                    .WithMessage($"Access to the path '{path}' is denied.");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

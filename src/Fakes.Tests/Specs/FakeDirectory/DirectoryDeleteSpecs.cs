@@ -542,56 +542,68 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             fileSystem.Directory.Exists(path).Should().BeFalse();
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_deleting_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_deleting_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare());
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(path)
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.Delete(path);
+                // Act
+                Action action = () => fileSystem.Directory.Delete(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage(
-                $"The process cannot access the file '{path}' because it is being used by another process.");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage(
+                    $"The process cannot access the file '{path}' because it is being used by another process.");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_deleting_network_share_recursively_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_deleting_network_share_recursively_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare());
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(path)
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.Delete(path, true);
+                // Act
+                Action action = () => fileSystem.Directory.Delete(path, true);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage(
-                $"The process cannot access the file '{path}' because it is being used by another process.");
+                // Assert
+                action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(
+                    $"Could not find a part of the path '{path}'.");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_deleting_directory_below_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_deleting_directory_below_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkDirectoryAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.Delete(path);
+                // Act
+                Action action = () => fileSystem.Directory.Delete(path);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

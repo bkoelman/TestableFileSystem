@@ -465,7 +465,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = PathFactory.NetworkShare();
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -549,9 +549,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeWatcher
         {
             // Arrange
             string path = PathFactory.NetworkDirectoryAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
 
             FakeFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             using (FakeFileSystemWatcher watcher = fileSystem.ConstructFileSystemWatcher())

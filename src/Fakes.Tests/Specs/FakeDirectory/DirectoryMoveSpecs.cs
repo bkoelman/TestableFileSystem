@@ -707,17 +707,18 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             const string sourcePath = @"c:\existing-folder";
+            const string destinationPath = @"c:\";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .IncludingDirectory(sourcePath)
                 .Build();
 
             // Act
-            Action action = () => fileSystem.Directory.Move(sourcePath, @"c:\");
+            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
             // Assert
             action.Should().ThrowExactly<IOException>().WithMessage(
-                @"The filename, directory name, or volume label syntax is incorrect.");
+                $"The filename, directory name, or volume label syntax is incorrect. : '{destinationPath}'");
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -867,41 +868,48 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_moving_directory_on_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_moving_directory_on_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string sourcePath = PathFactory.NetworkDirectoryAtDepth(1);
-            string destinationPath = PathFactory.AltNetworkDirectoryAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string sourcePath = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1), false);
+                string destinationPath = factory.MapPath(PathFactory.AltNetworkDirectoryAtDepth(1), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
+                // Act
+                Action action = () => fileSystem.Directory.Move(sourcePath, destinationPath);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{sourcePath}'");
+                // Assert
+                action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage($"Could not find a part of the path '{sourcePath}'.");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_moving_directory_on_existing_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
+        private void When_moving_directory_on_existing_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            string sourcePath = PathFactory.NetworkDirectoryAtDepth(1);
-            string destinationPath = PathFactory.AltNetworkDirectoryAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string sourcePath = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1));
+                string destinationPath = factory.MapPath(PathFactory.AltNetworkDirectoryAtDepth(1));
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(sourcePath)
-                .IncludingDirectory(PathFactory.NetworkShare())
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingDirectory(sourcePath)
+                    .Build();
 
-            // Act
-            fileSystem.Directory.Move(sourcePath, destinationPath);
+                // Act
+                fileSystem.Directory.Move(sourcePath, destinationPath);
 
-            // Assert
-            fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
-            fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+                // Assert
+                fileSystem.Directory.Exists(sourcePath).Should().BeFalse();
+                fileSystem.Directory.Exists(destinationPath).Should().BeTrue();
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

@@ -318,34 +318,44 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakePath
             fullPath.Should().Be(path);
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_full_path_for_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_full_path_for_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            string fullPath = fileSystem.Path.GetFullPath(path);
+                // Act
+                string fullPath = fileSystem.Path.GetFullPath(path);
 
-            // Assert
-            fullPath.Should().Be(path);
+                // Assert
+                fullPath.Should().Be(path);
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_getting_full_path_for_network_host_without_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_getting_full_path_for_network_host_without_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkHostWithoutShare();
 
-            // Act
-            Action action = () => fileSystem.Path.GetFullPath(PathFactory.NetworkHostWithoutShare());
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
+                // Act
+                string fullPath = fileSystem.Path.GetFullPath(path);
+
+                // Assert
+                fullPath.Should().Be(path);
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

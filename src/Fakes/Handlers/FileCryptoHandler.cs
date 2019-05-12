@@ -62,7 +62,7 @@ namespace TestableFileSystem.Fakes.Handlers
             EntryResolver resolver = arguments.IsEncrypt
                 ? new EntryResolver(Container)
                 {
-                    ErrorNetworkShareNotFound = _ => ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect(),
+                    ErrorNetworkShareNotFound = ErrorFactory.System.FileOrDirectoryOrVolumeIsIncorrect,
                     ErrorDirectoryNotFound = path => IsPathOnExistingVolume(path)
                         ? ErrorFactory.System.DirectoryNotFound(path)
                         : ErrorFactory.System.FileNotFound(path)

@@ -1008,66 +1008,78 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
             }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_for_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_for_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string sourcePath = PathFactory.NetworkFileAtDepth(1);
-            string targetPath = PathFactory.AltNetworkFileAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string sourcePath = factory.MapPath(PathFactory.NetworkFileAtDepth(1), false);
+                string targetPath = factory.MapPath(PathFactory.AltNetworkFileAtDepth(1), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
+                // Act
+                Action action = () => fileSystem.File.Replace(sourcePath, targetPath, null);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{sourcePath}'");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage("The network path was not found.");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_for_backup_on_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_for_backup_on_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string sourcePath = PathFactory.NetworkFileAtDepth(1);
-            string targetPath = PathFactory.AltNetworkFileAtDepth(1);
-            string backupPath = Path.Combine(PathFactory.AltNetworkShare(), "backup.txt");
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string sourcePath = factory.MapPath(PathFactory.NetworkFileAtDepth(1));
+                string targetPath = factory.MapPath(PathFactory.AltNetworkFileAtDepth(1));
+                string backupPath = factory.MapPath(Path.Combine(PathFactory.AltNetworkShare(), "backup.txt"), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(sourcePath, "SourceText")
-                .IncludingTextFile(targetPath, "TargetText")
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingTextFile(sourcePath, "SourceText")
+                    .IncludingTextFile(targetPath, "TargetText")
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+                // Act
+                Action action = () => fileSystem.File.Replace(sourcePath, targetPath, backupPath);
 
-            // Assert
-            action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
+                // Assert
+                action.Should().ThrowExactly<IOException>().WithMessage("Unable to remove the file to be replaced.");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_replacing_file_for_existing_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_replacing_file_for_existing_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            string sourcePath = PathFactory.NetworkFileAtDepth(1);
-            string targetPath = PathFactory.AltNetworkFileAtDepth(1);
-            string backupPath = PathFactory.AltAltNetworkFileAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string sourcePath = factory.MapPath(PathFactory.NetworkFileAtDepth(1));
+                string targetPath = factory.MapPath(PathFactory.AltNetworkFileAtDepth(1));
+                string backupPath = factory.MapPath(PathFactory.AltAltNetworkFileAtDepth(1));
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingTextFile(sourcePath, "SourceText")
-                .IncludingTextFile(targetPath, "TargetText")
-                .IncludingTextFile(backupPath, "BackupText")
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingTextFile(sourcePath, "SourceText")
+                    .IncludingTextFile(targetPath, "TargetText")
+                    .IncludingTextFile(backupPath, "BackupText")
+                    .Build();
 
-            // Act
-            fileSystem.File.Replace(sourcePath, targetPath, backupPath);
+                // Act
+                fileSystem.File.Replace(sourcePath, targetPath, backupPath);
 
-            // Assert
-            fileSystem.File.Exists(sourcePath).Should().BeFalse();
-            fileSystem.File.Exists(targetPath).Should().BeTrue();
-            fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
-            fileSystem.File.Exists(backupPath).Should().BeTrue();
-            fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
+                // Assert
+                fileSystem.File.Exists(sourcePath).Should().BeFalse();
+                fileSystem.File.Exists(targetPath).Should().BeTrue();
+                fileSystem.File.ReadAllText(targetPath).Should().Be("SourceText");
+                fileSystem.File.Exists(backupPath).Should().BeTrue();
+                fileSystem.File.ReadAllText(backupPath).Should().Be("TargetText");
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

@@ -371,53 +371,65 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
                 @"Could not find a part of the path 'c:\some\file.txt\nested.txt\more.txt'.");
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_decrypting_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_decrypting_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkShare();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Decrypt(path);
+                // Act
+                Action action = () => fileSystem.File.Decrypt(path);
 
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_decrypting_remote_file_on_missing_network_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_decrypting_remote_file_on_missing_network_share_it_must_fail(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkFileAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkFileAtDepth(1), false);
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Act
-            Action action = () => fileSystem.File.Decrypt(path);
+                // Act
+                Action action = () => fileSystem.File.Decrypt(path);
 
-            action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+                action.Should().ThrowExactly<IOException>().WithMessage($"The network path was not found. : '{path}'");
+            }
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_decrypting_remote_file_on_existing_network_share_it_must_succeed()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_decrypting_remote_file_on_existing_network_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            string path = PathFactory.NetworkFileAtDepth(1);
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = factory.MapPath(PathFactory.NetworkFileAtDepth(1));
 
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingEmptyFile(path)
-                .Build();
+                IFileSystem fileSystem = factory.Create()
+                    .IncludingEmptyFile(path)
+                    .Build();
 
-            fileSystem.File.Encrypt(path);
+                fileSystem.File.Encrypt(path);
 
-            // Act
-            fileSystem.File.Decrypt(path);
+                // Act
+                fileSystem.File.Decrypt(path);
 
-            // Assert
-            fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
+                // Assert
+                fileSystem.File.GetAttributes(path).Should().NotHaveFlag(FileAttributes.Encrypted);
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]

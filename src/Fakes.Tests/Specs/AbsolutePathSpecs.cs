@@ -110,18 +110,24 @@ namespace TestableFileSystem.Fakes.Tests.Specs
             info.FullName.Should().Be(path);
         }
 
-        [Fact, InvestigateRunOnFileSystem]
-        private void When_creating_network_host_without_share_it_must_fail()
+        [Theory]
+        [CanRunOnFileSystem]
+        private void When_creating_network_host_without_share_it_must_succeed(bool useFakes)
         {
-            // Arrange
-            IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+            using (var factory = new FileSystemBuilderFactory(useFakes))
+            {
+                // Arrange
+                string path = PathFactory.NetworkHostWithoutShare() + @"\";
 
-            // Act
-            Action action = () => fileSystem.ConstructFileInfo(PathFactory.NetworkHostWithoutShare() + @"\");
+                IFileSystem fileSystem = factory.Create()
+                    .Build();
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.");
+                // Act
+                IFileInfo info = fileSystem.ConstructFileInfo(path);
+
+                // Assert
+                info.FullName.Should().Be(path);
+            }
         }
 
         [Fact, InvestigateRunOnFileSystem]
@@ -158,16 +164,16 @@ namespace TestableFileSystem.Fakes.Tests.Specs
 
         [Fact, InvestigateRunOnFileSystem]
         private void When_network_share_has_wildcard_characters_it_must_fail()
-        {
-            // Arrange
+            {
+                // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .Build();
+                    .Build();
 
-            // Act
+                // Act
             Action action = () => fileSystem.ConstructFileInfo(PathFactory.NetworkHostWithoutShare() + "*");
 
-            // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"The UNC path should be of the form \\server\share.*");
+                // Assert
+            action.Should().ThrowExactly<ArgumentException>().WithMessage(@"Illegal characters in path.*");
         }
 
         [Fact, InvestigateRunOnFileSystem]

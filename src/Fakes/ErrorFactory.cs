@@ -41,15 +41,21 @@ namespace TestableFileSystem.Fakes
             }
 
             [NotNull]
-            public static Exception FileOrDirectoryOrVolumeIsIncorrect()
+            public static Exception FileOrDirectoryOrVolumeIsIncorrect([NotNull] string path)
             {
-                return new IOException("The filename, directory name, or volume label syntax is incorrect.");
+                return new IOException($"The filename, directory name, or volume label syntax is incorrect. : '{path}'");
             }
 
             [NotNull]
             public static Exception DirectoryIsNotEmpty()
             {
                 return new IOException("The directory is not empty.");
+            }
+
+            [NotNull]
+            public static Exception NetworkPathNotFound()
+            {
+                return new IOException("The network path was not found.");
             }
 
             [NotNull]
