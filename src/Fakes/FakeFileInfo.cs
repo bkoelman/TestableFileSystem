@@ -7,7 +7,7 @@ namespace TestableFileSystem.Fakes
 {
     internal sealed class FakeFileInfo : FakeFileSystemInfo, IFileInfo
     {
-        public override string Name => Path.GetFileName(DisplayPath);
+        public override string Name => PathGetFileName(DisplayPath);
 
         public override bool Exists => Metadata.Exists && !Metadata.Attributes.HasFlag(FileAttributes.Directory);
 
@@ -55,6 +55,21 @@ namespace TestableFileSystem.Fakes
             [CanBeNull] string displayPath)
             : base(container, owner, path, displayPath)
         {
+        }
+
+        [NotNull]
+        private string PathGetFileName([NotNull] string path)
+        {
+#if NET45 || NETSTANDARD1_3
+            // Bug workaround: Path.GetFileName(@"\\server\share") returns @"\\server" instead of "".
+
+            if (AbsolutePath.IsVolumeRoot && !AbsolutePath.IsOnLocalDrive)
+            {
+                return string.Empty;
+            }
+#endif
+
+            return Path.GetFileName(path);
         }
 
         public IFileStream Create()

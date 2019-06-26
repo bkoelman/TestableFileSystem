@@ -630,7 +630,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
         private void When_constructing_file_info_for_missing_network_share_it_must_succeed()
         {
             // Arrange
-            const string path = @"\\server\share\file.txt";
+            const string path = @"\\server\share";
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
                 .Build();
@@ -639,10 +639,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
             IFileInfo fileInfo = fileSystem.ConstructFileInfo(path);
 
             // Assert
-            fileInfo.Name.Should().Be("file.txt");
-            fileInfo.Extension.Should().Be(".txt");
+            fileInfo.Name.Should().BeEmpty();
+            fileInfo.Extension.Should().BeEmpty();
             fileInfo.FullName.Should().Be(path);
-            fileInfo.DirectoryName.Should().Be(@"\\server\share");
+            fileInfo.DirectoryName.Should().BeNull();
             fileInfo.Exists.Should().BeFalse();
             ActionFactory.IgnoreReturnValue(() => fileInfo.Length).Should().ThrowExactly<IOException>()
                 .WithMessage("The network path was not found.");
@@ -666,10 +666,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFileInfo
 
             fileInfo.ToString().Should().Be(path);
 
-            IDirectoryInfo directoryInfo = fileInfo.Directory.ShouldNotBeNull();
-            directoryInfo.Name.Should().Be(@"\\server\share");
-            directoryInfo.FullName.Should().Be(@"\\server\share");
-            directoryInfo.ToString().Should().Be(@"\\server\share");
+            fileInfo.Directory.Should().BeNull();
         }
 
         [Fact]
