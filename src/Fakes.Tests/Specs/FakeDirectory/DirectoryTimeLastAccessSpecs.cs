@@ -441,8 +441,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact, InvestigateRunOnFileSystem]
-        private void
-            When_getting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
+        private void When_getting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
             var clock = new SystemClock(() => DefaultTimeUtc);
@@ -459,8 +458,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Fact, InvestigateRunOnFileSystem]
-        private void
-            When_setting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
+        private void When_setting_last_access_time_in_local_zone_for_existing_local_directory_with_different_casing_it_must_succeed()
         {
             // Arrange
             IFileSystem fileSystem = new FakeFileSystemBuilder()
@@ -608,7 +606,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = PathFactory.NetworkShare();
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -628,7 +626,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = PathFactory.NetworkShare();
+                string path = factory.MapPath(PathFactory.NetworkShare(), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -648,7 +646,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = PathFactory.NetworkDirectoryAtDepth(1);
+                string path = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -668,7 +666,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
             using (var factory = new FileSystemBuilderFactory(useFakes))
             {
                 // Arrange
-                string path = PathFactory.NetworkDirectoryAtDepth(1);
+                string path = factory.MapPath(PathFactory.NetworkDirectoryAtDepth(1), false);
 
                 IFileSystem fileSystem = factory.Create()
                     .Build();
@@ -726,9 +724,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             string path = PathFactory.NetworkDirectoryAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act
@@ -743,9 +742,10 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         {
             // Arrange
             string path = PathFactory.NetworkDirectoryAtDepth(1);
+            string parentPath = PathFactory.NetworkShare();
 
             IFileSystem fileSystem = new FakeFileSystemBuilder()
-                .IncludingDirectory(PathFactory.NetworkShare())
+                .IncludingDirectory(parentPath)
                 .Build();
 
             // Act

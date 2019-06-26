@@ -9,8 +9,6 @@ using Xunit;
 
 namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
 {
-    // TODO: Re-align related files with this file.
-
     public sealed class FileTimeCreationSpecs
     {
         private static readonly DateTime DefaultTimeUtc = 1.February(2034).At(12, 34, 56).AsUtc();
