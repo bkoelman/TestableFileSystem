@@ -8,9 +8,6 @@ namespace TestableFileSystem.Fakes.Resolvers
     internal sealed class EntryResolver
     {
         [NotNull]
-        private readonly VolumeContainer container;
-
-        [NotNull]
         private readonly DirectoryResolver directoryResolver;
 
         [NotNull]
@@ -45,7 +42,6 @@ namespace TestableFileSystem.Fakes.Resolvers
         {
             Guard.NotNull(container, nameof(container));
 
-            this.container = container;
             directoryResolver = new DirectoryResolver(container);
         }
 
@@ -54,12 +50,13 @@ namespace TestableFileSystem.Fakes.Resolvers
         {
             Guard.NotNull(path, nameof(path));
 
-            if (path.IsVolumeRoot)
+            AbsolutePath parentPath = path.TryGetParentPath();
+            if (parentPath == null)
             {
-                return SafeResolveVolume(path);
+                return directoryResolver.SafeResolveDirectory(path);
             }
 
-            DirectoryEntry directory = SafeResolveContainingDirectory(path);
+            DirectoryEntry directory = directoryResolver.SafeResolveDirectory(parentPath, path.GetText());
             if (directory != null)
             {
                 string entryName = path.Components.Last();
@@ -83,12 +80,13 @@ namespace TestableFileSystem.Fakes.Resolvers
         {
             Guard.NotNull(path, nameof(path));
 
-            if (path.IsVolumeRoot)
+            AbsolutePath parentPath = path.TryGetParentPath();
+            if (parentPath == null)
             {
-                return container.GetVolume(path.VolumeName);
+                return directoryResolver.ResolveDirectory(path);
             }
 
-            DirectoryEntry directory = ResolveContainingDirectory(path);
+            DirectoryEntry directory = directoryResolver.ResolveDirectory(parentPath, path.GetText());
             string entryName = path.Components.Last();
 
             if (directory.ContainsFile(entryName))
@@ -102,30 +100,6 @@ namespace TestableFileSystem.Fakes.Resolvers
             }
 
             throw ErrorFactory.System.FileNotFound(path.GetText());
-        }
-
-        [CanBeNull]
-        private VolumeEntry SafeResolveVolume([NotNull] AbsolutePath path)
-        {
-            return container.ContainsVolume(path.VolumeName) ? container.GetVolume(path.VolumeName) : null;
-        }
-
-        [CanBeNull]
-        private DirectoryEntry SafeResolveContainingDirectory([NotNull] AbsolutePath path)
-        {
-            AbsolutePath parentPath = path.TryGetParentPath();
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return directoryResolver.SafeResolveDirectory(parentPath, path.GetText());
-        }
-
-        [NotNull]
-        private DirectoryEntry ResolveContainingDirectory([NotNull] AbsolutePath path)
-        {
-            AbsolutePath parentPath = path.TryGetParentPath();
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return directoryResolver.ResolveDirectory(parentPath, path.GetText());
         }
     }
 }

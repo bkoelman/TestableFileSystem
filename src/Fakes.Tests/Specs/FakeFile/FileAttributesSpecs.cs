@@ -392,6 +392,34 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Fact]
+        private void When_getting_attributes_for_missing_drive_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.GetAttributes("M:");
+
+            // Assert
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'M:\'.");
+        }
+
+        [Fact]
+        private void When_setting_attributes_for_missing_drive_it_must_fail()
+        {
+            // Arrange
+            IFileSystem fileSystem = new FakeFileSystemBuilder()
+                .Build();
+
+            // Act
+            Action action = () => fileSystem.File.SetAttributes(@"M:", FileAttributes.Archive);
+
+            // Assert
+            action.Should().ThrowExactly<DirectoryNotFoundException>().WithMessage(@"Could not find a part of the path 'M:\'.");
+        }
+
+        [Fact]
         private void When_getting_attributes_for_drive_it_must_succeed()
         {
             // Arrange
