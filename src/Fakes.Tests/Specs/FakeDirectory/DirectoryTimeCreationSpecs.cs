@@ -701,7 +701,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_setting_creation_time_in_local_zone_for_existing_network_share_it_must_succeed(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))

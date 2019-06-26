@@ -798,7 +798,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_opening_existing_network_share_it_must_fail(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))

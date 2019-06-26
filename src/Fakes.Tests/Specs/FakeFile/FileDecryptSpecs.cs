@@ -410,7 +410,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_decrypting_remote_file_on_existing_network_share_it_must_succeed(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))

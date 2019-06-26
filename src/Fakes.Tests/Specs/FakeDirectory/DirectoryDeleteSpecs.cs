@@ -543,7 +543,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_deleting_network_share_it_must_fail(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))
@@ -565,7 +565,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_deleting_network_share_recursively_it_must_fail(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))

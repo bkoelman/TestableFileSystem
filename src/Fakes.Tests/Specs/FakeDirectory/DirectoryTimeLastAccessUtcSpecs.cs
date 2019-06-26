@@ -698,7 +698,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeDirectory
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_setting_last_access_time_in_UTC_for_existing_network_share_it_must_succeed(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))

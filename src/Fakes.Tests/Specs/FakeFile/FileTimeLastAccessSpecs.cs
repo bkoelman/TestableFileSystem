@@ -704,7 +704,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_setting_last_access_time_in_local_zone_for_existing_network_share_it_must_fail(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))

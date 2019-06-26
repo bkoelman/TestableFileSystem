@@ -1030,7 +1030,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_replacing_file_for_backup_on_missing_network_share_it_must_fail(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))
@@ -1054,7 +1054,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeFile
         }
 
         [Theory]
-        [CanRunOnFileSystem]
+        [CanRunOnFileSystem(FileSystemRunConditions.RequiresAdministrativeRights)]
         private void When_replacing_file_for_existing_network_share_it_must_succeed(bool useFakes)
         {
             using (var factory = new FileSystemBuilderFactory(useFakes))
