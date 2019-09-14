@@ -98,7 +98,7 @@ namespace TestableFileSystem.Fakes
             }
 
             string[] components = Components.Skip(1).ToArray();
-            builder.Append(string.Join(Path.DirectorySeparatorChar.ToString(), components));
+            builder.Append(string.Join(PathFacts.PrimaryDirectorySeparatorString, components));
 
             if (HasTrailingSeparator && builder[builder.Length - 1] != Path.DirectorySeparatorChar)
             {
@@ -206,7 +206,7 @@ namespace TestableFileSystem.Fakes
                 relativeComponents.Add(thisComponent);
             }
 
-            return string.Join(Path.DirectorySeparatorChar.ToString(), relativeComponents);
+            return string.Join(PathFacts.PrimaryDirectorySeparatorString, relativeComponents);
         }
 
         private void AssertBasePathIsNotLongerThanSelf([NotNull] AbsolutePath basePath)
@@ -361,8 +361,8 @@ namespace TestableFileSystem.Fakes
             [NotNull]
             private static string WithoutTrailingSeparator([NotNull] string path)
             {
-                return path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
-                    path.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+                return path.EndsWith(PathFacts.PrimaryDirectorySeparatorString, StringComparison.Ordinal) ||
+                    path.EndsWith(PathFacts.AlternateDirectorySeparatorString, StringComparison.Ordinal)
                         ? path.Substring(0, path.Length - 1)
                         : path;
             }
