@@ -33,7 +33,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingEmptyFile(string.Empty);
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("'path' cannot be empty or contain only whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("'path' cannot be empty.*");
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingEmptyFile(" ");
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("'path' cannot be empty or contain only whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("'path' cannot contain only whitespace.*");
         }
 
         [Fact]

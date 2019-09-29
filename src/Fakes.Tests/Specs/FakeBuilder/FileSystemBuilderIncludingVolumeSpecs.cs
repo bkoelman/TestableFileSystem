@@ -61,7 +61,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingVolume(string.Empty, new FakeVolumeInfoBuilder());
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("'name' cannot be empty or contain only whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("'name' cannot be empty.*");
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace TestableFileSystem.Fakes.Tests.Specs.FakeBuilder
             Action action = () => builder.IncludingVolume(" ", new FakeVolumeInfoBuilder());
 
             // Assert
-            action.Should().ThrowExactly<ArgumentException>().WithMessage("'name' cannot be empty or contain only whitespace.*");
+            action.Should().ThrowExactly<ArgumentException>().WithMessage("'name' cannot contain only whitespace.*");
         }
 
         [Theory]

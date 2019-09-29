@@ -38,11 +38,11 @@ namespace TestableFileSystem.Utilities
         [ContractAnnotation("value: null => halt")]
         public static void NotNullNorWhiteSpace([CanBeNull] string value, [NotNull] [InvokerParameterName] string name)
         {
-            NotNull(value, name);
-
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw new ArgumentException($"'{name}' cannot be empty or contain only whitespace.", name);
+                NotNullNorEmpty(value, name);
+
+                throw new ArgumentException($"'{name}' cannot contain only whitespace.", name);
             }
         }
 
