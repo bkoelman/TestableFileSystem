@@ -27,7 +27,7 @@
     <Compile Include="..\Guard.cs" Link="Guard.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" PrivateAssets="all" />
     <PackageReference Include="ResharperCodeContractNullability" Version="2.0.0" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
